@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Dataset" table="dataset" schema="public">
+        <id name="datasetId" type="int">
+            <column name="dataset_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="experimentId" type="int">
+            <column name="experiment_id" not-null="true" />
+        </property>
+        <property name="callinganalysisId" type="int">
+            <column name="callinganalysis_id" not-null="true" />
+        </property>
+        <property name="analyses" type="serializable">
+            <column name="analyses" not-null="true" />
+        </property>
+        <property name="dataTable" type="string">
+            <column name="data_table" not-null="true" />
+        </property>
+        <property name="dataFile" type="string">
+            <column name="data_file" not-null="true" />
+        </property>
+        <property name="qualityTable" type="string">
+            <column name="quality_table" />
+        </property>
+        <property name="qualityFile" type="string">
+            <column name="quality_file" />
+        </property>
+        <property name="scores" type="serializable">
+            <column name="scores" />
+        </property>
+        <property name="createdBy" type="string">
+            <column name="created_by" />
+        </property>
+        <property name="createdDate" type="date">
+            <column name="created_date" length="13" />
+        </property>
+        <property name="modifiedBy" type="string">
+            <column name="modified_by" />
+        </property>
+        <property name="modifiedDate" type="date">
+            <column name="modified_date" length="13" />
+        </property>
+        <property name="status" type="java.lang.Integer">
+            <column name="status" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security ="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+    http://www.springframework.org/schema/tx 		
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/security
+	http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+
+    <!-- ******************** beans instanced with @component annotation ****************-->
+    <!-- Anthing in these namespaces annotated with @Component will be isntanced
+         into the injection container. But this is not usually what you want.
+         You want to use the bean defintiions below so that you can swap in
+         arbitrary implementions of interfaces as system needs evolve-->
+    <context:annotation-config/>
+    <context:component-scan base-package="org.gobiiproject.gobiidao.impl"/>
+    <context:component-scan base-package="org.gobiiproject.gobidomain.security"/>
+
+
+
+    <!-- ******************** explicitly defined beans  ****************-->
+    <!-- **** Ping Beans *************************************** -->
+    <bean id="pingDao"
+          class="org.gobiiproject.gobiidao.entity.access.impl.mock.PingEntityDaoImplMock"/>
+    <bean id="dtoPing" class="org.gobiiproject.gobiidtomapping.impl.DtoMapPingImpl"/>
+    <bean id="pingService"
+          class="org.gobiiproject.gobidomain.services.impl.PingServiceImpl"/>
+
+    <!-- ************************ DATA ACCESS BEANS ************************* -->
+
+    <!--<&#45;&#45; Hibernate/JDBC connection properties &ndash;&gt;-->
+    <!--<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
+          <!--destroy-method="close">-->
+
+        <!--<property name="driverClassName" value="com.mysql.jdbc.Driver"/>-->
+        <!--<property name="url" value="jdbc:mysql://localhost:3306/example"/>-->
+        <!--<property name="username" value="appuser"/>-->
+        <!--<property name="password" value="N0W0nsBizness"/>-->
+    <!--</bean>-->
+
+
+    <!--&lt;!&ndash; Hibernate 4 SessionFactory Bean definition &ndash;&gt;-->
+    <!--<bean id="sessionFactory"-->
+          <!--class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="dataSource"/>-->
+        <!--<property name="annotatedClasses">-->
+            <!--<list>-->
+                <!--<value>org.advocacydb.web.entity.Argument</value>-->
+                <!--<value>org.advocacydb.web.entity.Author</value>-->
+                <!--<value>org.advocacydb.web.entity.ContactDetail</value>-->
+                <!--<value>org.advocacydb.web.entity.ContentType</value>-->
+                <!--<value>org.advocacydb.web.entity.JoinArgumentResource</value>-->
+                <!--<value>org.advocacydb.web.entity.JoinAuthorResource</value>-->
+                <!--<value>org.advocacydb.web.entity.JoinKeywordResource</value>-->
+                <!--<value>org.advocacydb.web.entity.JoinOrganizationResource</value>-->
+                <!--<value>org.advocacydb.web.entity.JoinTopicResource</value>-->
+                <!--<value>org.advocacydb.web.entity.Keyword</value>-->
+                <!--<value>org.advocacydb.web.entity.Organization</value>-->
+                <!--<value>org.advocacydb.web.entity.Resource</value>-->
+                <!--<value>org.advocacydb.web.entity.Topic</value>-->
+            <!--</list>-->
+        <!--</property>-->
+        <!--<property name="hibernateProperties">-->
+            <!--<props>-->
+                <!--<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>-->
+                <!--&lt;!&ndash; DO NOT USE: CAUSES TRANSACTIONBUG <prop key="hibernate.current_session_context_class">thread</prop> &ndash;&gt;-->
+                <!--<prop key="hibernate.hbm2ddl.auto">none</prop>-->
+                <!--<prop key="show_sql">false</prop>-->
+            <!--</props>-->
+        <!--</property>-->
+    <!--</bean>-->
+
+    <!-- ***********************************************
+            SECURITY CONFIGURATION
+         *********************************************** -->
+    <security:global-method-security secured-annotations="enabled" pre-post-annotations="enabled"/>
+
+    <!--<bean id="transactionManager"-->
+          <!--class="org.springframework.orm.hibernate4.HibernateTransactionManager">-->
+        <!--<property name="sessionFactory" ref="sessionFactory"></property>-->
+    <!--</bean>-->
+
+    <!--<bean id="userContextLoader" class="org.advocacydb.web.sec.UserContextLoader">-->
+    <!--</bean>-->
+
+</beans>

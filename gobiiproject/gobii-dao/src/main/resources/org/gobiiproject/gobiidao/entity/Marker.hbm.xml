@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Marker" table="marker" schema="public">
+        <id name="markerId" type="int">
+            <column name="marker_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="platformId" type="int">
+            <column name="platform_id" not-null="true" />
+        </property>
+        <property name="variantId" type="java.lang.Integer">
+            <column name="variant_id" />
+        </property>
+        <property name="name" type="string">
+            <column name="name" not-null="true" />
+        </property>
+        <property name="code" type="string">
+            <column name="code" not-null="true" />
+        </property>
+        <property name="ref" type="string">
+            <column name="ref" not-null="true" />
+        </property>
+        <property name="alts" type="serializable">
+            <column name="alts" not-null="true" />
+        </property>
+        <property name="sequence" type="string">
+            <column name="sequence" />
+        </property>
+        <property name="referenceId" type="java.lang.Integer">
+            <column name="reference_id" />
+        </property>
+        <property name="primers" type="serializable">
+            <column name="primers" />
+        </property>
+        <property name="probsets" type="serializable">
+            <column name="probsets" />
+        </property>
+        <property name="strand" type="string">
+            <column name="strand" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

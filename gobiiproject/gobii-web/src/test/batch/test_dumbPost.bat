@@ -1,0 +1,1 @@
+curl -i -H "Accept: application/json" -H "Content-Type: application/json"  -d "{\"name\":\"dumb name\",\"scope\":\"dumb scope\"}" http://localhost:8181/resource/dumbPost

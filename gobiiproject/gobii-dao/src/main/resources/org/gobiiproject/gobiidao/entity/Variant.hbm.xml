@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Variant" table="variant" schema="public">
+        <id name="variantId" type="int">
+            <column name="variant_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="code" type="string">
+            <column name="code" not-null="true" />
+        </property>
+        <property name="createdBy" type="int">
+            <column name="created_by" not-null="true" />
+        </property>
+        <property name="createdDate" type="date">
+            <column name="created_date" length="13" not-null="true" />
+        </property>
+        <property name="modifiedBy" type="int">
+            <column name="modified_by" not-null="true" />
+        </property>
+        <property name="modifiedDate" type="date">
+            <column name="modified_date" length="13" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

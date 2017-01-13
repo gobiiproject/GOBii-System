@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.MarkerMap" table="marker_map" schema="public">
+        <id name="markerMapId" type="int">
+            <column name="marker_map_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="markerId" type="int">
+            <column name="marker_id" not-null="true" />
+        </property>
+        <property name="mapId" type="java.lang.Integer">
+            <column name="map_id" />
+        </property>
+        <property name="linkage" type="string">
+            <column name="linkage" not-null="true" />
+        </property>
+        <property name="position" type="int">
+            <column name="position" not-null="true" />
+        </property>
+        <property name="fstart" type="java.lang.Integer">
+            <column name="fstart" />
+        </property>
+        <property name="fstop" type="java.lang.Integer">
+            <column name="fstop" />
+        </property>
+    </class>
+</hibernate-mapping>

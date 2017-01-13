@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="lib/swing2swt.jar"/>
+	<classpathentry kind="lib" path="lib/com.ibm.icu_54.1.1.v201501272100.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.core.commands_3.7.0.v20150422-0725.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.equinox.registry_3.6.0.v20150318-1503.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.jface_3.11.1.v20160128-1644.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.osgi_3.10.102.v20160118-1700.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.swt.win32.win32.x86_64_3.104.2.v20160212-1350.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.text_3.5.400.v20150505-1044.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.ui.forms_3.6.200.v20150506-2029.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.ui.workbench_3.107.1.v20160120-2131.jar"/>
+	<classpathentry kind="lib" path="/gobii-client/target/gobii-client-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/gobii-model/target/gobii-model-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

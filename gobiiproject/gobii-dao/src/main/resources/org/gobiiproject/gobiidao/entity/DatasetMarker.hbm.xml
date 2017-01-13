@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.DatasetMarker" table="dataset_marker" schema="public">
+        <id name="datasetMarkerId" type="int">
+            <column name="dataset_marker_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="datasetId" type="int">
+            <column name="dataset_id" not-null="true" />
+        </property>
+        <property name="markerId" type="int">
+            <column name="marker_id" not-null="true" />
+        </property>
+        <property name="callRate" type="java.lang.Float">
+            <column name="call_rate" precision="8" scale="8" />
+        </property>
+        <property name="maf" type="java.lang.Float">
+            <column name="maf" precision="8" scale="8" />
+        </property>
+        <property name="reproducibility" type="java.lang.Float">
+            <column name="reproducibility" precision="8" scale="8" />
+        </property>
+        <property name="scores" type="serializable">
+            <column name="scores" />
+        </property>
+    </class>
+</hibernate-mapping>

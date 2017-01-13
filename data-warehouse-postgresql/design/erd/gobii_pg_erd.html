@@ -1,0 +1,3558 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN' 'http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' >
+<head>
+<title>gobii&#95;pg&#95;erd</title>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+<style type='text/css'>
+body {
+    font-family: 'trebuchet MS', 'Lucida sans', Dialog;
+    font-size: 12px;
+    color: #444;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.bordered {
+    border: solid #ccc 1px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 1px #ccc;
+    -moz-box-shadow: 0 1px 1px #ccc;
+    box-shadow: 0 1px 1px #ccc;
+}
+
+.bordered tr:hover {
+    background: #fbf8e9;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+.bordered td, .bordered th {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    padding: 4px;
+    text-align: left;
+}
+
+.bordered th {
+    background-color: #d7d7ea;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#f4f4fb), to(#d7d7ea));
+    background-image: -webkit-linear-gradient(top, #f4f4fb, #d7d7ea);
+    background-image:    -moz-linear-gradient(top, #f4f4fb, #d7d7ea);
+    background-image:     -ms-linear-gradient(top, #f4f4fb, #d7d7ea);
+    background-image:      -o-linear-gradient(top, #f4f4fb, #d7d7ea);
+    background-image:         linear-gradient(top, #f4f4fb, #d7d7ea);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;
+    border-top: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5);
+}
+
+.bordered td:first-child, .bordered th:first-child {
+    border-left: none;
+}
+
+.bordered th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
+}
+
+.bordered th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+.bordered th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+.bordered tr:last-child td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+.bordered tr:last-child td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+</style>
+</head>
+
+<body>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'   width='1380' height='1370' viewbox='0 0 1380 1370' >
+  <script type='text/ecmascript'>
+  <![CDATA[
+  function hghl(el) { for ( var i in el ){ document.getElementById(el[i]).setAttribute('class','highlight');  }  }
+  function uhghl(el) { for ( var i in el ){ document.getElementById(el[i]).setAttribute('class','scene'); }  } 
+  ]]>
+  </script> 
+
+<style type='text/css'>
+  text                { fill:#000000; font-family: Lucida Grande, 'Trebuchet MS', Dialog; font-size:11px; }
+  text:hover          { fill:#304ea4; font-weight:bold; }
+  text.highlight      { fill:#304ea4; font-weight:bold; }
+  text.colType        { fill:#b3b3b3; }
+  path                { stroke:#5c554f; stroke-width:1.25; fill:none; }
+  path.scene          { stroke-width:10; opacity:0;}
+  path.highlight      { stroke-width:7; stroke:#d9ce90; opacity:0.6;}
+  rect.table          { fill:#ffffff; stroke:#bbb; stroke-width:1;shape-rendering:crispEdges; filter:url(#shadow); }
+  line.delim          { stroke:#777; stroke-width:0.3; }
+  rect.callout        { fill:url(#calloutGradient); stroke:#bebdbd; stroke-width:0.5; filter: url(#shadow);}
+  rect.grp            { stroke:#b1b1b1; stroke-width:1.7; }
+</style>
+<defs>
+  <pattern patternUnits='userSpaceOnUse' id='layoutBgA' width='10' height='20' x='0' y='0' viewBox='0 0 5 10'>  
+     <line x1='-2' y1='1' x2='7' y2='10' stroke='#f3f3f3' stroke-width='.5'/>  
+     <line x1='-2' y1='6' x2='7' y2='15' stroke='#f3f3f3' stroke-width='.5'/>  
+     <line x1='-2' y1='-4' x2='7' y2='5' stroke='#f3f3f3' stroke-width='.5'/>  
+  </pattern>  
+  <radialGradient id='layoutBgB' gradientUnits='userSpaceOnUse' cx='50%' cy='50%' r='75%' fx='46%' fy='22%'>
+     <stop offset='0%' stop-opacity='.2' stop-color='#f0f0f0' />  
+     <stop offset='100%' stop-color='#e7e7e7' />  
+  </radialGradient>
+  <linearGradient id='tableHeaderGradient9' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#ffcccc'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#ffcccc'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient10' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#ccccff'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#ccccff'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient8' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#b7c8e3'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#b7c8e3'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient6' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#ffcc99'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#ffcc99'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient2' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#d2bff5'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#d2bff5'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient5' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#c8f5bf'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#c8f5bf'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient11' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#ffe2c6'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#ffe2c6'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient0' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#f5ddbf'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#f5ddbf'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient1' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#bfd4f5'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#bfd4f5'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient3' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#bfbff5'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#bfbff5'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient4' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#f3e1a9'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#f3e1a9'/> 
+   </linearGradient>
+  <linearGradient id='tableHeaderGradient7' x1='0%' y1='0%' x2='0%' y2='90%' >
+          <stop offset='-50%' stop-color='#00cbff'/> 
+          <stop offset='20%' stop-color='#fafafa'/> 
+          <stop offset='100%' stop-color='#00cbff'/> 
+   </linearGradient>
+  <linearGradient id='groupUnderTitleLine' x1='0%' y1='0%' x2='100%' y2='0%' >
+          <stop offset='0%' stop-color='#999999' stop-opacity='0.7'/> 
+          <stop offset='100%' stop-color='#999999' stop-opacity='0' /> 
+   </linearGradient>
+  <radialGradient id='calloutGradient' cx='25%' cy='20%' r='80%' fx='10%' fy='10%'>
+	   <stop offset='0%' stop-color='#ffffff' />
+    <stop offset='100%' stop-color='#f8f6d1' />
+  </radialGradient>
+  <filter id='shadow' width='120%' height='120%'> 
+      <feOffset result='offOut' in='SourceGraphic' dx='2' dy='2' /> 
+      <feColorMatrix result='matrixOut' in='offOut' type='matrix' 
+      values='0.1 0 0 0 0 0 0.1 0 0 0 0 0 0.1 0 0 0 0 0 0.3 0' /> 
+      <feGaussianBlur result='blurOut' in='matrixOut' stdDeviation='3' /> 
+      <feBlend in='SourceGraphic' in2='blurOut' mode='normal' /> 
+    </filter> 
+  <filter id='fkShadow' height='130%'> 
+    <feGaussianBlur in='SourceAlpha' stdDeviation='1.5'/> <!-- stdDeviation is how much to blur -->
+    <feOffset dx='1.2' dy='1.2' result='offsetblur'/> <!-- how much to offset -->
+    <feMerge>
+    <feMergeNode/> <!-- this contains the offset blurred image -->
+    <feMergeNode in='SourceGraphic'/> <!-- this contains the element that the filter is applied to -->
+    </feMerge>
+  </filter>
+  <radialGradient id='legendGradient' fx='5%' fy='5%' r='75%' spreadMethod='pad'>
+          <stop offset='0%' stop-color='#eaf6ee' stop-opacity='1'/> 
+          <stop offset='100%' stop-color='#d0efcd' stop-opacity='1' /> 
+   </radialGradient>
+  <symbol id='calloutArrowDown' overflow='visible' >
+      <path d='M 0,0 L 7,11 L 15,0 z' style='fill:#f8f6d1;stroke:none; filter: url(#shadow);' />
+      <path d='M 0,0 L 7,11 L 15,0' style='stroke:#bebdbd; stroke-width:0.5;' />
+  </symbol>
+  <symbol id='calloutArrowUp' overflow='visible' >
+      <path d='M 0,15 L 7,3 L 15,15 z' style='fill:#ffffff; stroke:none; filter: url(#shadow);' />
+      <path d='M 0,15 L 7,3 L 15,15' style='stroke:#bebdbd; stroke-width:0.5;' />
+  </symbol>
+  <symbol id='pk' overflow='visible' >
+    <g transform='scale(0.99)'>
+     <path style='fill:#fbea8e;stroke:#472106;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;'
+        d='M 9.3678877,3.5695485 C 9.1030218,3.2729386 9.0796382,2.7628519 9.3396185,2.4517097 9.5449651,2.1956495 9.9040386,2.0980533 10.199638,2.2169415 10.533525,2.3415459 10.775153,2.706942 10.750675,3.0842709 10.737029,3.3980003 10.541153,3.699122 10.258248,3.8066067 9.966649,3.9250429 9.6169668,3.8418805 9.4008073,3.6062324 9.3894892,3.5943518 9.3785264,3.582104 9.3678886,3.5695487 z M 11.226617,6.9916004 C 11.888137,6.3548946 12.293488,5.4172188 12.311087,4.442353 12.378144,2.7379364 11.248678,1.0541269 9.7322318,0.44767357 8.3887112,-0.1280313 6.7865012,0.26822889 5.8918395,1.4007929 5.080823,2.3839145 4.9336815,3.8452096 5.3635544,5.101615 L 4.3670905,5.315913 C 4.0664984,5.3682645 4.0967703,5.6316724 4.2574957,5.8208829 L 4.9124,6.5655244 4.1543436,7.2512357 3.2136002,7.2163506 3.1674775,8.5586827 2.0406832,8.5086512 1.5965306,8.9299953 1.5471661,10.179833 0.75616674,10.195223 0.2112857,10.758575 0.15354288,11.735988 0.07199052,12.765553 c 0.36440953,0.238225 0.79006967,0.195492 1.44938278,-0.02675 L 6.3033562,8.1282037 6.8217102,8.6765688 C 6.9985465,8.8799427 7.3003699,8.7497574 7.358381,8.5016252 L 7.4938877,7.5084164 c 0.8537488,0.3985387 1.8303125,0.4711541 2.6851793,0.1427713 0.393927,-0.1407258 0.746858,-0.3701772 1.04755,-0.6595873 z'/>
+     <path d='M 6.8014948,6.3102123 0.15369063,13.024481 0.21560535,12.141962 6.0062342,6.2683782 z'
+        style='fill:#ffe5a5;fill-opacity:1;stroke:#854e31;stroke-width:0.06912433;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:3.00300009'/>
+    </g>
+  </symbol>
+  <symbol id='unq' overflow='visible' >
+    <g transform='scale(0.99)'>
+      <rect style='fill:#e07554;stroke:#7e4d31;stroke-width:0.71934468;stroke-linecap:round;stroke-linejoin:round;'
+         width='2.29' height='8.43' x='7.48' y='-0.76' ry='1.14' transform='matrix(0.701,0.713,-0.727,0.685,0,0)' />
+      <path style='fill:white;stroke:#858585;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;'
+         d='m 26.04,8.64 a 4.13,4.13 0 1 1 -8.26,0 4.13,4.13 0 1 1 8.26,0 z'
+         transform='matrix(1.025,0,0,0.987,-14.690,-3.862)' />
+      <text x='5.5' y='7.7' style='font-size:8px;fill:#8a8a8a;'>1</text>
+    </g>
+  </symbol>
+  <symbol id='idx' overflow='visible' >
+    <g transform='scale(0.99)'>
+      <rect style='fill:#e07554;stroke:#7e4d31;stroke-width:0.71934468;stroke-linecap:round;stroke-linejoin:round;'
+         width='2.29' height='8.43' x='7.48' y='-0.76' ry='1.14' transform='matrix(0.701,0.713,-0.727,0.685,0,0)' />
+      <path style='fill:white;stroke:#858585;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;'
+         d='m 26.04,8.64 a 4.13,4.13 0 1 1 -8.26,0 4.13,4.13 0 1 1 8.26,0 z'
+         transform='matrix(1.025,0,0,0.987,-14.690,-3.862)' />
+    </g>
+  </symbol>
+  <symbol id='fk' overflow='visible' >
+    <g transform='scale(0.87)'>
+      <path style='fill:#b7d0f6;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;'
+      d='M 12.48,0.33 7.07,0.89 9.067,2.974 0.329,11.731 1.073,12.597 9.811,3.841 11.77,5.78 z' />
+    </g>
+  </symbol>
+  <symbol id='ref' overflow='visible' >
+    <g transform='scale(0.87)'>
+      <path style='fill:#f3e1b7;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;'
+          d='M 0.10,12.70 5.31,12.15 3.40,10.06 11.82,1.32 11.11,0.45 2.68,9.19 0.80,7.24 z'/>
+    </g>
+  </symbol>
+  <symbol id='flag' overflow='visible' >
+    <g transform='scale(0.92)'>
+      <path style='fill:#b7d0f6;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;'
+          d='M 0.12,12.67 0.16,7.22 C 2.59,7.22 4.13,8.78 9.22,4.22 5.68,4.98 2.53,4.50 0.09,1.80 z'/>
+    </g>
+  </symbol>
+  <symbol id='nn' overflow='visible' >
+  <path style='stroke:#9b3e50;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;'
+          d='M 0,0 3,3 M 0,3 3,0 z'/>
+  </symbol>
+  <symbol id='view' overflow='visible' >
+    <g transform='scale(0.99)'>
+     <line x1='12' y1='6' x2='19' y2='0' stroke='black' stroke-width='0.5' />
+     <line x1='0' y1='6' x2='7' y2='0' stroke='black' stroke-width='0.5' />
+     <circle cx='3' cy='6' r='3' fill='#f9ebbc' stroke='black' stroke-width='0.5'/>
+     <circle cx='10' cy='6' r='3' fill='#f9ebbc' stroke='black' stroke-width='0.5'/>
+    </g>
+  </symbol>
+  <marker id='arrow01' viewBox='0 0 15.00 7.50' refX='7.50' refY='3.75' markerUnits='strokeWidth' markerWidth='15.00' markerHeight='7.50' orient='auto'>
+    <path d='M 15.000,3.750 L 7.500,2.500 L 7.500,7.500 L 15.000,3.750 z' style='fill:#5e554d;' />
+  </marker>
+  <marker id='arrow1' viewBox='0 0 15.00 7.50' refX='7.50' refY='3.75' markerUnits='strokeWidth' markerWidth='15.00' markerHeight='7.50' orient='auto'>
+    <path d='M 15.000,3.750 L 7.500,2.500 L 7.500,7.500 L 15.000,3.750 z' style='fill:#5e554d;' />
+  </marker>
+  <marker id='foot01' viewBox='0 0 15.00 7.50' refX='7.50' refY='3.75' markerUnits='strokeWidth' markerWidth='15.00' markerHeight='7.50' orient='auto'>
+    <path d='M 0.00,3.75 L 15.00,3.75 z' />
+    <circle cx='11.25' cy='3.75' r='2.50' style='fill:white;stroke:#5e554d;' />
+    <path d='M 3.75,0.00 L 3.75, 7.50 z' />
+  </marker>
+  <marker id='foot0p' viewBox='0 0 15.00 7.50' refX='7.50' refY='3.75' markerUnits='strokeWidth' markerWidth='15.00' markerHeight='7.50' orient='auto'>
+    <path d='M 0.00,3.75 L 15.00,3.75 z' />
+    <circle cx='11.25' cy='3.75' r='2.50' style='fill:white;stroke:#5e554d;' />
+    <path d='M 0.00,0.00 L 7.50,3.75 L 0.00,7.50' />
+  </marker>
+  <marker id='foot1' viewBox='0 0 15.00 7.50' refX='7.50' refY='3.75' markerUnits='strokeWidth' markerWidth='15.00' markerHeight='7.50' orient='auto'>
+    <path d='M 0.00,3.75 L 15.00,3.75 z' />
+    <path d='M 7.50,0.00 L 7.50, 7.50 z' />
+    <path d='M 3.75,0.00 L 3.75, 7.50 z' />
+  </marker>
+  <marker id='foot1p' viewBox='0 0 15.00 7.50' refX='7.50' refY='3.75' markerUnits='strokeWidth' markerWidth='15.00' markerHeight='7.50' orient='auto'>
+    <path d='M 0.00,3.75 L 15.00,3.75 z' />
+    <path d='M 7.50,0.00 L 7.50, 7.50 z' />
+    <path d='M 0.00,0.00 L 7.50,3.75 L 0.00,7.50' />
+  </marker>
+</defs>
+
+<!-- ============= Desktop ============= -->
+<rect x='1' y='1' width='1378' height='1368' rx='7' ry='7' style='fill:url(#layoutBgA); stroke:#333333; stroke-width:0.5;' />
+<rect x='1' y='1' width='1378' height='1368' rx='7' ry='7' style='fill:url(#layoutBgB)'/>
+
+<!-- ============= Legend ============= -->
+<g transform='translate(10,10)'>
+  <rect x='10' y='10' width='267' height='78' rx='6' ry='6' style='fill:url(#legendGradient);filter:url(#shadow);'/> 
+  <text x='20' y='30'>gobii_pg_erd</text> 
+  <text x='25' y='49' style='fill:#97a496; font-size:11px;'><tspan>This is an interactive HTML5 image.</tspan></text> 
+  <text x='25' y='63' style='fill:#97a496; font-size:11px;'><tspan>Move the mouse over tables to read the comments.</tspan></text> 
+  <text x='25' y='77' style='fill:#97a496; font-size:11px;'>Powered by <a xlink:href='http://www.dbschema.com' text-decoration='underline' style='fill:#97a496'>DbSchema</a></text> 
+</g>
+
+<g transform='translate(0,110)'>
+<!-- ============= Group 'dataset/dnarun' ============= -->
+<rect class='grp' style='fill:#f7f4f0;stroke:#e0d9ce' x='404' y='625' width='482' height='335' />
+<text x='415' y='640'>dataset/dnarun</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='415' y='643' width='460' height='2' />
+
+<!-- ============= Group 'experiment' ============= -->
+<rect class='grp' style='fill:#f0f3f7;stroke:#ced6e0' x='944' y='625' width='332' height='275' />
+<text x='955' y='640'>experiment</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='955' y='643' width='310' height='2' />
+
+<!-- ============= Group 'marker' ============= -->
+<rect class='grp' style='fill:#f7f4f0;stroke:#e0d9ce' x='614' y='40' width='527' height='575' />
+<text x='625' y='55'>marker</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='625' y='58' width='505' height='2' />
+
+<!-- ============= Group 'dnasample' ============= -->
+<rect class='grp' style='fill:#f0f0f7;stroke:#cecee0' x='29' y='610' width='347' height='305' />
+<text x='40' y='625'>dnasample</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='40' y='628' width='325' height='2' />
+
+<!-- ============= Group 'germplasm' ============= -->
+<rect class='grp' style='fill:#f3f0f7;stroke:#d6cee0' x='29' y='40' width='332' height='485' />
+<text x='40' y='55'>germplasm</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='40' y='58' width='310' height='2' />
+
+<!-- ============= Group 'map' ============= -->
+<rect class='grp' style='fill:#f1f7f0;stroke:#d1e0ce' x='434' y='190' width='137' height='395' />
+<text x='445' y='205'>map</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='445' y='208' width='115' height='2' />
+
+<!-- ============= Group 'contact' ============= -->
+<rect class='grp' style='fill:#f0f3f7;stroke:#ced6e0' x='404' y='955' width='572' height='275' />
+<text x='415' y='970'>contact</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='415' y='973' width='550' height='2' />
+
+<!-- ============= Group 'project' ============= -->
+<rect class='grp' style='fill:#c4e0f9;stroke:#ced8e0' x='29' y='955' width='302' height='245' />
+<text x='40' y='970'>project</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='40' y='973' width='280' height='2' />
+
+<!-- ============= Group 'platform' ============= -->
+<rect class='grp' style='fill:#c4e0f9;stroke:#ced8e0' x='1169' y='205' width='182' height='365' />
+<text x='1180' y='220'>platform</text>
+<rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='1180' y='223' width='160' height='2' />
+
+<!-- ============= Fk 'dataset_dataset_fk2' ============= -->
+<path id='dataset_dataset_fk2'  onmouseover="hghl(['dataset_dataset_fk2','public.dataset.callinganalysis_id','public.analysis.analysis_id'])" onmouseout="uhghl(['dataset_dataset_fk2','public.dataset.callinganalysis_id','public.analysis.analysis_id'])" transform='translate(7,0)' class='scene' d='M 405 660 L 337,660 Q 330,660 330,652 L 330,510' >
+	<title>Fk dataset_fk2
+dataset ref analysis ( callinganalysis_id -&gt; analysis_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 405 660 L 337,660 Q 330,660 330,652 L 330,510' ></path>
+<text x='313' y='655' transform='rotate(0 313,655)' title='Fk dataset_fk2
+dataset ref analysis ( callinganalysis_id -&gt; analysis_id )' style='fill:#b6b696;'>callinganalysis_id</text>
+<!-- ============= Fk 'dataset_dataset_fk1' ============= -->
+<path id='dataset_dataset_fk1'  onmouseover="hghl(['dataset_dataset_fk1','public.dataset.experiment_id','public.experiment.experiment_id'])" onmouseout="uhghl(['dataset_dataset_fk1','public.dataset.experiment_id','public.experiment.experiment_id'])" transform='translate(7,0)' class='scene' d='M 540 645 L 540,637 Q 540,630 547,630 L 967,630 Q 975,630 975,637 L 975,645' >
+	<title>Fk dataset_fk1
+dataset ref experiment ( experiment_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 540 645 L 540,637 Q 540,630 547,630 L 967,630 Q 975,630 975,637 L 975,645' ></path>
+<text x='542' y='640' transform='rotate(270 542,640)' title='Fk dataset_fk1
+dataset ref experiment ( experiment_id )' style='fill:#b6b696;'>experiment_id</text>
+<!-- ============= Fk 'dnarun_dnarun_fk2' ============= -->
+<path id='dnarun_dnarun_fk2'  onmouseover="hghl(['dnarun_dnarun_fk2','public.dnarun.dnasample_id','public.dnasample.dnasample_id'])" onmouseout="uhghl(['dnarun_dnarun_fk2','public.dnarun.dnasample_id','public.dnasample.dnasample_id'])" transform='translate(7,0)' class='scene' d='M 615 660 L 615,622 Q 615,615 607,615 L 142,615 Q 135,615 135,622 L 135,630' >
+	<title>Fk dnarun_fk2
+dnarun ref dnasample ( dnasample_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 615 660 L 615,622 Q 615,615 607,615 L 142,615 Q 135,615 135,622 L 135,630' ></path>
+<text x='617' y='655' transform='rotate(270 617,655)' title='Fk dnarun_fk2
+dnarun ref dnasample ( dnasample_id )' style='fill:#b6b696;'>dnasample_id</text>
+<!-- ============= Fk 'dnarun_dnarun_fk1' ============= -->
+<path id='dnarun_dnarun_fk1'  onmouseover="hghl(['dnarun_dnarun_fk1','public.dnarun.experiment_id','public.experiment.experiment_id'])" onmouseout="uhghl(['dnarun_dnarun_fk1','public.dnarun.experiment_id','public.experiment.experiment_id'])" transform='translate(7,0)' class='scene' d='M 720 690 L 945,690' >
+	<title>Fk dnarun_fk1
+dnarun ref experiment ( experiment_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 720 690 L 945,690' ></path>
+<text x='727' y='685' transform='rotate(0 727,685)' title='Fk dnarun_fk1
+dnarun ref experiment ( experiment_id )' style='fill:#b6b696;'>experiment_id</text>
+<!-- ============= Fk 'dataset_dnarun_dataset_dnarun_fk1' ============= -->
+<path id='dataset_dnarun_dataset_dnarun_fk1'  onmouseover="hghl(['dataset_dnarun_dataset_dnarun_fk1','public.dataset_dnarun.dataset_id','public.dataset.dataset_id'])" onmouseout="uhghl(['dataset_dnarun_dataset_dnarun_fk1','public.dataset_dnarun.dataset_id','public.dataset.dataset_id'])" transform='translate(7,0)' class='scene' d='M 585 825 L 555,825' >
+	<title>Fk dataset_dnarun_fk1
+dataset_dnarun ref dataset ( dataset_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 585 825 L 555,825' ></path>
+<text x='532' y='820' transform='rotate(0 532,820)' title='Fk dataset_dnarun_fk1
+dataset_dnarun ref dataset ( dataset_id )' style='fill:#b6b696;'>dataset_id</text>
+<!-- ============= Fk 'dataset_dnarun_dataset_dnarun_fk2' ============= -->
+<path id='dataset_dnarun_dataset_dnarun_fk2'  onmouseover="hghl(['dataset_dnarun_dataset_dnarun_fk2','public.dataset_dnarun.dnarun_id','public.dnarun.dnarun_id'])" onmouseout="uhghl(['dataset_dnarun_dataset_dnarun_fk2','public.dataset_dnarun.dnarun_id','public.dnarun.dnarun_id'])" transform='translate(7,0)' class='scene' d='M 615 810 L 615,795' >
+	<title>Fk dataset_dnarun_fk2
+dataset_dnarun ref dnarun ( dnarun_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 615 810 L 615,795' ></path>
+<text x='617' y='805' transform='rotate(270 617,805)' title='Fk dataset_dnarun_fk2
+dataset_dnarun ref dnarun ( dnarun_id )' style='fill:#b6b696;'>dnarun_id</text>
+<!-- ============= Fk 'analysis_analysis_analysis_type_id_fkey' ============= -->
+<path id='analysis_analysis_analysis_type_id_fkey'  onmouseover="hghl(['analysis_analysis_analysis_type_id_fkey','public.analysis.type_id','public.cv.cv_id'])" onmouseout="uhghl(['analysis_analysis_analysis_type_id_fkey','public.analysis.type_id','public.cv.cv_id'])" transform='translate(7,0)' class='scene' d='M 345 450 L 562,450 Q 570,450 570,442 L 570,165' >
+	<title>Fk analysis_analysis_type_id_fkey
+analysis ref cv ( type_id -&gt; cv_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 345 450 L 562,450 Q 570,450 570,442 L 570,165' ></path>
+<text x='352' y='445' transform='rotate(0 352,445)' title='Fk analysis_analysis_type_id_fkey
+analysis ref cv ( type_id -&gt; cv_id )' style='fill:#b6b696;'>type_id</text>
+<!-- ============= Fk 'experiment_experiment_fk3' ============= -->
+<path id='experiment_experiment_fk3'  onmouseover="hghl(['experiment_experiment_fk3','public.experiment.manifest_id','public.manifest.manifest_id'])" onmouseout="uhghl(['experiment_experiment_fk3','public.experiment.manifest_id','public.manifest.manifest_id'])" transform='translate(7,0)' class='scene' d='M 1080 675 L 1140,675' >
+	<title>Fk experiment_fk3
+experiment ref manifest ( manifest_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 1080 675 L 1140,675' ></path>
+<text x='1087' y='670' transform='rotate(0 1087,670)' title='Fk experiment_fk3
+experiment ref manifest ( manifest_id )' style='fill:#b6b696;'>manifest_id</text>
+<!-- ============= Fk 'experiment_experiment_fk2' ============= -->
+<path id='experiment_experiment_fk2'  onmouseover="hghl(['experiment_experiment_fk2','public.experiment.platform_id','public.platform.platform_id'])" onmouseout="uhghl(['experiment_experiment_fk2','public.experiment.platform_id','public.platform.platform_id'])" transform='translate(7,0)' class='scene' d='M 1080 840 L 1342,840 Q 1350,840 1350,832 L 1350,427 Q 1350,420 1342,420 L 1290,420' >
+	<title>Fk experiment_fk2
+experiment ref platform ( platform_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 1080 840 L 1342,840 Q 1350,840 1350,832 L 1350,427 Q 1350,420 1342,420 L 1290,420' ></path>
+<text x='1087' y='835' transform='rotate(0 1087,835)' title='Fk experiment_fk2
+experiment ref platform ( platform_id )' style='fill:#b6b696;'>platform_id</text>
+<!-- ============= Fk 'experiment_experiment_fk1' ============= -->
+<path id='experiment_experiment_fk1'  onmouseover="hghl(['experiment_experiment_fk1','public.experiment.project_id','public.project.project_id'])" onmouseout="uhghl(['experiment_experiment_fk1','public.experiment.project_id','public.project.project_id'])" transform='translate(7,0)' class='scene' d='M 945 855 L 892,855 Q 885,855 885,862 L 885,952 Q 885,960 877,960 L 142,960 Q 135,960 135,967 L 135,975' >
+	<title>Fk experiment_fk1
+experiment ref project ( project_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 945 855 L 892,855 Q 885,855 885,862 L 885,952 Q 885,960 877,960 L 142,960 Q 135,960 135,967 L 135,975' ></path>
+<text x='893' y='850' transform='rotate(0 893,850)' title='Fk experiment_fk1
+experiment ref project ( project_id )' style='fill:#b6b696;'>project_id</text>
+<!-- ============= Fk 'dnasample_dnasample_fk2' ============= -->
+<path id='dnasample_dnasample_fk2'  onmouseover="hghl(['dnasample_dnasample_fk2','public.dnasample.germplasm_id','public.germplasm.germplasm_id'])" onmouseout="uhghl(['dnasample_dnasample_fk2','public.dnasample.germplasm_id','public.germplasm.germplasm_id'])" transform='translate(7,0)' class='scene' d='M 30 645 L 22,645 Q 15,645 15,637 L 15,262 Q 15,255 22,255 L 45,255' >
+	<title>Fk dnasample_fk2
+dnasample ref germplasm ( germplasm_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 30 645 L 22,645 Q 15,645 15,637 L 15,262 Q 15,255 22,255 L 45,255' ></path>
+<text x='-44' y='640' transform='rotate(0 -44,640)' title='Fk dnasample_fk2
+dnasample ref germplasm ( germplasm_id )' style='fill:#b6b696;'>germplasm_id</text>
+<!-- ============= Fk 'dnasample_dnasample_fk1' ============= -->
+<path id='dnasample_dnasample_fk1'  onmouseover="hghl(['dnasample_dnasample_fk1','public.dnasample.project_id','public.project.project_id'])" onmouseout="uhghl(['dnasample_dnasample_fk1','public.dnasample.project_id','public.project.project_id'])" transform='translate(7,0)' class='scene' d='M 60 900 L 60,975' >
+	<title>Fk dnasample_fk1
+dnasample ref project ( project_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 60 900 L 60,975' ></path>
+<text x='73' y='900' transform='rotate(90 73,900)' title='Fk dnasample_fk1
+dnasample ref project ( project_id )' style='fill:#b6b696;'>project_id</text>
+<!-- ============= Fk 'project_fk_project_contact' ============= -->
+<path id='project_fk_project_contact'  onmouseover="hghl(['project_fk_project_contact','public.project.pi_contact','public.contact.contact_id'])" onmouseout="uhghl(['project_fk_project_contact','public.project.pi_contact','public.contact.contact_id'])" transform='translate(7,0)' class='scene' d='M 150 1125 L 405,1125' >
+	<title>Fk fk_project_contact
+project ref contact ( pi_contact -&gt; contact_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 150 1125 L 405,1125' ></path>
+<text x='157' y='1120' transform='rotate(0 157,1120)' title='Fk fk_project_contact
+project ref contact ( pi_contact -&gt; contact_id )' style='fill:#b6b696;'>pi_contact</text>
+<!-- ============= Fk 'dataset_marker_dataset_marker_dataset_id_fkey' ============= -->
+<path id='dataset_marker_dataset_marker_dataset_id_fkey'  onmouseover="hghl(['dataset_marker_dataset_marker_dataset_id_fkey','public.dataset_marker.dataset_id','public.dataset.dataset_id'])" onmouseout="uhghl(['dataset_marker_dataset_marker_dataset_id_fkey','public.dataset_marker.dataset_id','public.dataset.dataset_id'])" transform='translate(7,0)' class='scene' d='M 810 570 L 577,570 Q 570,570 570,577 L 570,667 Q 570,675 562,675 L 555,675' >
+	<title>Fk dataset_marker_dataset_id_fkey
+dataset_marker ref dataset ( dataset_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 810 570 L 577,570 Q 570,570 570,577 L 570,667 Q 570,675 562,675 L 555,675' ></path>
+<text x='757' y='565' transform='rotate(0 757,565)' title='Fk dataset_marker_dataset_id_fkey
+dataset_marker ref dataset ( dataset_id )' style='fill:#b6b696;'>dataset_id</text>
+<!-- ============= Fk 'dataset_marker_dataset_marker_marker_id_fkey' ============= -->
+<path id='dataset_marker_dataset_marker_marker_id_fkey'  onmouseover="hghl(['dataset_marker_dataset_marker_marker_id_fkey','public.dataset_marker.marker_id','public.marker.marker_id'])" onmouseout="uhghl(['dataset_marker_dataset_marker_marker_id_fkey','public.dataset_marker.marker_id','public.marker.marker_id'])" transform='translate(7,0)' class='scene' d='M 960 450 L 982,450 Q 990,450 990,442 L 990,292 Q 990,285 997,285 L 1005,285' >
+	<title>Fk dataset_marker_marker_id_fkey
+dataset_marker ref marker ( marker_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 960 450 L 982,450 Q 990,450 990,442 L 990,292 Q 990,285 997,285 L 1005,285' ></path>
+<text x='967' y='445' transform='rotate(0 967,445)' title='Fk dataset_marker_marker_id_fkey
+dataset_marker ref marker ( marker_id )' style='fill:#b6b696;'>marker_id</text>
+<!-- ============= Fk 'marker_marker_fk1' ============= -->
+<path id='marker_marker_fk1'  onmouseover="hghl(['marker_marker_fk1','public.marker.platform_id','public.platform.platform_id'])" onmouseout="uhghl(['marker_marker_fk1','public.marker.platform_id','public.platform.platform_id'])" transform='translate(7,0)' class='scene' d='M 1125 240 L 1170,240' >
+	<title>Fk marker_fk1
+marker ref platform ( platform_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 1125 240 L 1170,240' ></path>
+<text x='1132' y='235' transform='rotate(0 1132,235)' title='Fk marker_fk1
+marker ref platform ( platform_id )' style='fill:#b6b696;'>platform_id</text>
+<!-- ============= Fk 'marker_marker_fk2' ============= -->
+<path id='marker_marker_fk2'  onmouseover="hghl(['marker_marker_fk2','public.marker.variant_id','public.variant.variant_id'])" onmouseout="uhghl(['marker_marker_fk2','public.marker.variant_id','public.variant.variant_id'])" transform='translate(7,0)' class='scene' d='M 1035 315 L 1035,360' >
+	<title>Fk marker_fk2
+marker ref variant ( variant_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 1035 315 L 1035,360' ></path>
+<text x='1048' y='315' transform='rotate(90 1048,315)' title='Fk marker_fk2
+marker ref variant ( variant_id )' style='fill:#b6b696;'>variant_id</text>
+<!-- ============= Fk 'marker_fk_marker_cv' ============= -->
+<path id='marker_fk_marker_cv'  onmouseover="hghl(['marker_fk_marker_cv','public.marker.strand_id','public.cv.cv_id'])" onmouseout="uhghl(['marker_fk_marker_cv','public.marker.strand_id','public.cv.cv_id'])" transform='translate(7,0)' class='scene' d='M 1005 75 L 585,75' >
+	<title>Fk fk_marker_cv
+marker ref cv ( strand_id -&gt; cv_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 1005 75 L 585,75' ></path>
+<text x='956' y='70' transform='rotate(0 956,70)' title='Fk fk_marker_cv
+marker ref cv ( strand_id -&gt; cv_id )' style='fill:#b6b696;'>strand_id</text>
+<!-- ============= Fk 'marker_fk_marker_reference' ============= -->
+<path id='marker_fk_marker_reference'  onmouseover="hghl(['marker_fk_marker_reference','public.marker.reference_id','public.reference.reference_id'])" onmouseout="uhghl(['marker_fk_marker_reference','public.marker.reference_id','public.reference.reference_id'])" transform='translate(7,0)' class='scene' d='M 1005 105 L 982,105 Q 975,105 975,97 L 975,22 Q 975,15 967,15 L 472,15 Q 465,15 465,22 L 465,30' >
+	<title>Fk fk_marker_reference
+marker ref reference ( reference_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 1005 105 L 982,105 Q 975,105 975,97 L 975,22 Q 975,15 967,15 L 472,15 Q 465,15 465,22 L 465,30' ></path>
+<text x='940' y='100' transform='rotate(0 940,100)' title='Fk fk_marker_reference
+marker ref reference ( reference_id )' style='fill:#b6b696;'>reference_id</text>
+<!-- ============= Fk 'germplasm_prop_germplasm_prop_fk1' ============= -->
+<path id='germplasm_prop_germplasm_prop_fk1'  onmouseover="hghl(['germplasm_prop_germplasm_prop_fk1','public.germplasm_prop.germplasm_id','public.germplasm.germplasm_id'])" onmouseout="uhghl(['germplasm_prop_germplasm_prop_fk1','public.germplasm_prop.germplasm_id','public.germplasm.germplasm_id'])" transform='translate(7,0)' class='scene' d='M 75 315 L 75,285' >
+	<title>Fk germplasm_prop_fk1
+germplasm_prop ref germplasm ( germplasm_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1)' marker-end='url(#arrow1)'    d='M 75 315 L 75,285' ></path>
+<text x='77' y='310' transform='rotate(270 77,310)' title='Fk germplasm_prop_fk1
+germplasm_prop ref germplasm ( germplasm_id )' style='fill:#b6b696;'>germplasm_id</text>
+<!-- ============= Fk 'map_prop_map_prop_map_id_fkey' ============= -->
+<path id='map_prop_map_prop_map_id_fkey'  onmouseover="hghl(['map_prop_map_prop_map_id_fkey','public.map_prop.map_id','public.mapset.mapset_id'])" onmouseout="uhghl(['map_prop_map_prop_map_id_fkey','public.map_prop.map_id','public.mapset.mapset_id'])" transform='translate(7,0)' class='scene' d='M 465 465 L 465,435' >
+	<title>Fk map_prop_map_id_fkey
+map_prop ref mapset ( map_id -&gt; mapset_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1)' marker-end='url(#arrow1)'    d='M 465 465 L 465,435' ></path>
+<text x='467' y='460' transform='rotate(270 467,460)' title='Fk map_prop_map_id_fkey
+map_prop ref mapset ( map_id -&gt; mapset_id )' style='fill:#b6b696;'>map_id</text>
+<!-- ============= Fk 'marker_prop_marker_prop_marker_id_fkey' ============= -->
+<path id='marker_prop_marker_prop_marker_id_fkey'  onmouseover="hghl(['marker_prop_marker_prop_marker_id_fkey','public.marker_prop.marker_id','public.marker.marker_id'])" onmouseout="uhghl(['marker_prop_marker_prop_marker_id_fkey','public.marker_prop.marker_id','public.marker.marker_id'])" transform='translate(7,0)' class='scene' d='M 960 135 L 1005,135' >
+	<title>Fk marker_prop_marker_id_fkey
+marker_prop ref marker ( marker_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1)' marker-end='url(#arrow1)'    d='M 960 135 L 1005,135' ></path>
+<text x='967' y='130' transform='rotate(0 967,130)' title='Fk marker_prop_marker_id_fkey
+marker_prop ref marker ( marker_id )' style='fill:#b6b696;'>marker_id</text>
+<!-- ============= Fk 'platform_prop_platform_prop_platform_id_fkey' ============= -->
+<path id='platform_prop_platform_prop_platform_id_fkey'  onmouseover="hghl(['platform_prop_platform_prop_platform_id_fkey','public.platform_prop.platform_id','public.platform.platform_id'])" onmouseout="uhghl(['platform_prop_platform_prop_platform_id_fkey','public.platform_prop.platform_id','public.platform.platform_id'])" transform='translate(7,0)' class='scene' d='M 1290 450 L 1290,435' >
+	<title>Fk platform_prop_platform_id_fkey
+platform_prop ref platform ( platform_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1)' marker-end='url(#arrow1)'    d='M 1290 450 L 1290,435' ></path>
+<text x='1292' y='445' transform='rotate(270 1292,445)' title='Fk platform_prop_platform_id_fkey
+platform_prop ref platform ( platform_id )' style='fill:#b6b696;'>platform_id</text>
+<!-- ============= Fk 'dnasample_prop_dnasample_prop_fk1' ============= -->
+<path id='dnasample_prop_dnasample_prop_fk1'  onmouseover="hghl(['dnasample_prop_dnasample_prop_fk1','public.dnasample_prop.dnasample_id','public.dnasample.dnasample_id'])" onmouseout="uhghl(['dnasample_prop_dnasample_prop_fk1','public.dnasample_prop.dnasample_id','public.dnasample.dnasample_id'])" transform='translate(7,0)' class='scene' d='M 210 690 L 150,690' >
+	<title>Fk dnasample_prop_fk1
+dnasample_prop ref dnasample ( dnasample_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1)' marker-end='url(#arrow1)'    d='M 210 690 L 150,690' ></path>
+<text x='138' y='685' transform='rotate(0 138,685)' title='Fk dnasample_prop_fk1
+dnasample_prop ref dnasample ( dnasample_id )' style='fill:#b6b696;'>dnasample_id</text>
+<!-- ============= Fk 'dnarun_prop_dnarun_prop_dnarun_id_fkey' ============= -->
+<path id='dnarun_prop_dnarun_prop_dnarun_id_fkey'  onmouseover="hghl(['dnarun_prop_dnarun_prop_dnarun_id_fkey','public.dnarun_prop.dnarun_id','public.dnarun.dnarun_id'])" onmouseout="uhghl(['dnarun_prop_dnarun_prop_dnarun_id_fkey','public.dnarun_prop.dnarun_id','public.dnarun.dnarun_id'])" transform='translate(7,0)' class='scene' d='M 735 765 L 720,765' >
+	<title>Fk dnarun_prop_dnarun_id_fkey
+dnarun_prop ref dnarun ( dnarun_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1)' marker-end='url(#arrow1)'    d='M 735 765 L 720,765' ></path>
+<text x='682' y='760' transform='rotate(0 682,760)' title='Fk dnarun_prop_dnarun_id_fkey
+dnarun_prop ref dnarun ( dnarun_id )' style='fill:#b6b696;'>dnarun_id</text>
+<!-- ============= Fk 'project_prop_project_prop_fk1' ============= -->
+<path id='project_prop_project_prop_fk1'  onmouseover="hghl(['project_prop_project_prop_fk1','public.project_prop.project_id','public.project.project_id'])" onmouseout="uhghl(['project_prop_project_prop_fk1','public.project_prop.project_id','public.project.project_id'])" transform='translate(7,0)' class='scene' d='M 180 1020 L 150,1020' >
+	<title>Fk project_prop_fk1
+project_prop ref project ( project_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1)' marker-end='url(#arrow1)'    d='M 180 1020 L 150,1020' ></path>
+<text x='128' y='1015' transform='rotate(0 128,1015)' title='Fk project_prop_fk1
+project_prop ref project ( project_id )' style='fill:#b6b696;'>project_id</text>
+<!-- ============= Fk 'linkage_group_fk_linkage_group_map' ============= -->
+<path id='linkage_group_fk_linkage_group_map'  onmouseover="hghl(['linkage_group_fk_linkage_group_map','public.linkage_group.map_id','public.mapset.mapset_id'])" onmouseout="uhghl(['linkage_group_fk_linkage_group_map','public.linkage_group.map_id','public.mapset.mapset_id'])" transform='translate(7,0)' class='scene' d='M 645 390 L 555,390' >
+	<title>Fk fk_linkage_group_map
+linkage_group ref mapset ( map_id -&gt; mapset_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 645 390 L 555,390' ></path>
+<text x='608' y='385' transform='rotate(0 608,385)' title='Fk fk_linkage_group_map
+linkage_group ref mapset ( map_id -&gt; mapset_id )' style='fill:#b6b696;'>map_id</text>
+<!-- ============= Fk 'marker_linkage_group_fk_marker_linkage_group' ============= -->
+<path id='marker_linkage_group_fk_marker_linkage_group'  onmouseover="hghl(['marker_linkage_group_fk_marker_linkage_group','public.marker_linkage_group.linkage_group_id','public.linkage_group.linkage_group_id'])" onmouseout="uhghl(['marker_linkage_group_fk_marker_linkage_group','public.marker_linkage_group.linkage_group_id','public.linkage_group.linkage_group_id'])" transform='translate(7,0)' class='scene' d='M 675 345 L 675,375' >
+	<title>Fk fk_marker_linkage_group
+marker_linkage_group ref linkage_group ( linkage_group_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 675 345 L 675,375' ></path>
+<text x='688' y='345' transform='rotate(90 688,345)' title='Fk fk_marker_linkage_group
+marker_linkage_group ref linkage_group ( linkage_group_id )' style='fill:#b6b696;'>linkage_group_id</text>
+<!-- ============= Fk 'marker_linkage_group_marker_map_marker_id_fkey' ============= -->
+<path id='marker_linkage_group_marker_map_marker_id_fkey'  onmouseover="hghl(['marker_linkage_group_marker_map_marker_id_fkey','public.marker_linkage_group.marker_id','public.marker.marker_id'])" onmouseout="uhghl(['marker_linkage_group_marker_map_marker_id_fkey','public.marker_linkage_group.marker_id','public.marker.marker_id'])" transform='translate(7,0)' class='scene' d='M 795 210 L 795,97 Q 795,90 802,90 L 1005,90' >
+	<title>Fk marker_map_marker_id_fkey
+marker_linkage_group ref marker ( marker_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 795 210 L 795,97 Q 795,90 802,90 L 1005,90' ></path>
+<text x='797' y='205' transform='rotate(270 797,205)' title='Fk marker_map_marker_id_fkey
+marker_linkage_group ref marker ( marker_id )' style='fill:#b6b696;'>marker_id</text>
+<!-- ============= Fk 'mapset_map_map_type_fkey' ============= -->
+<path id='mapset_map_map_type_fkey'  onmouseover="hghl(['mapset_map_map_type_fkey','public.mapset.type_id','public.cv.cv_id'])" onmouseout="uhghl(['mapset_map_map_type_fkey','public.mapset.type_id','public.cv.cv_id'])" transform='translate(7,0)' class='scene' d='M 540 210 L 540,165' >
+	<title>Fk map_map_type_fkey
+mapset ref cv ( type_id -&gt; cv_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 540 210 L 540,165' ></path>
+<text x='542' y='205' transform='rotate(270 542,205)' title='Fk map_map_type_fkey
+mapset ref cv ( type_id -&gt; cv_id )' style='fill:#b6b696;'>type_id</text>
+<!-- ============= Fk 'mapset_map_reference_id_fkey' ============= -->
+<path id='mapset_map_reference_id_fkey'  onmouseover="hghl(['mapset_map_reference_id_fkey','public.mapset.reference_id','public.reference.reference_id'])" onmouseout="uhghl(['mapset_map_reference_id_fkey','public.mapset.reference_id','public.reference.reference_id'])" transform='translate(7,0)' class='scene' d='M 465 210 L 465,165' >
+	<title>Fk map_reference_id_fkey
+mapset ref reference ( reference_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 465 210 L 465,165' ></path>
+<text x='467' y='205' transform='rotate(270 467,205)' title='Fk map_reference_id_fkey
+mapset ref reference ( reference_id )' style='fill:#b6b696;'>reference_id</text>
+<!-- ============= Fk 'platform_fk_platform_contact' ============= -->
+<path id='platform_fk_platform_contact'  onmouseover="hghl(['platform_fk_platform_contact','public.platform.vendor_id','public.contact.contact_id'])" onmouseout="uhghl(['platform_fk_platform_contact','public.platform.vendor_id','public.contact.contact_id'])" transform='translate(7,0)' class='scene' d='M 1170 345 L 982,345 Q 975,345 975,352 L 975,607 Q 975,615 967,615 L 907,615 Q 900,615 900,622 L 900,982 Q 900,990 892,990 L 562,990 Q 555,990 555,997 L 555,1012 Q 555,1020 547,1020 L 540,1020' >
+	<title>Fk fk_platform_contact
+platform ref contact ( vendor_id -&gt; contact_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 1170 345 L 982,345 Q 975,345 975,352 L 975,607 Q 975,615 967,615 L 907,615 Q 900,615 900,622 L 900,982 Q 900,990 892,990 L 562,990 Q 555,990 555,997 L 555,1012 Q 555,1020 547,1020 L 540,1020' ></path>
+<text x='1118' y='340' transform='rotate(0 1118,340)' title='Fk fk_platform_contact
+platform ref contact ( vendor_id -&gt; contact_id )' style='fill:#b6b696;'>vendor_id</text>
+<!-- ============= Fk 'platform_fk_platform_cv' ============= -->
+<path id='platform_fk_platform_cv'  onmouseover="hghl(['platform_fk_platform_cv','public.platform.type_id','public.cv.cv_id'])" onmouseout="uhghl(['platform_fk_platform_cv','public.platform.type_id','public.cv.cv_id'])" transform='translate(7,0)' class='scene' d='M 1170 255 L 1147,255 Q 1140,255 1140,247 L 1140,7 Q 1140,0 1132,0 L 577,0 Q 570,0 570,7 L 570,30' >
+	<title>Fk fk_platform_cv
+platform ref cv ( type_id -&gt; cv_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 1170 255 L 1147,255 Q 1140,255 1140,247 L 1140,7 Q 1140,0 1132,0 L 577,0 Q 570,0 570,7 L 570,30' ></path>
+<text x='1133' y='250' transform='rotate(0 1133,250)' title='Fk fk_platform_cv
+platform ref cv ( type_id -&gt; cv_id )' style='fill:#b6b696;'>type_id</text>
+<!-- ============= Fk 'germplasm_germplasm_germplasm_type_id_fkey' ============= -->
+<path id='germplasm_germplasm_germplasm_type_id_fkey'  onmouseover="hghl(['germplasm_germplasm_germplasm_type_id_fkey','public.germplasm.type_id','public.cv.cv_id'])" onmouseout="uhghl(['germplasm_germplasm_germplasm_type_id_fkey','public.germplasm.type_id','public.cv.cv_id'])" transform='translate(7,0)' class='scene' d='M 165 180 L 502,180 Q 510,180 510,172 L 510,165' >
+	<title>Fk germplasm_germplasm_type_id_fkey
+germplasm ref cv ( type_id -&gt; cv_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 165 180 L 502,180 Q 510,180 510,172 L 510,165' ></path>
+<text x='172' y='175' transform='rotate(0 172,175)' title='Fk germplasm_germplasm_type_id_fkey
+germplasm ref cv ( type_id -&gt; cv_id )' style='fill:#b6b696;'>type_id</text>
+<!-- ============= Fk 'germplasm_fk_germplasm_species_id_cv' ============= -->
+<path id='germplasm_fk_germplasm_species_id_cv'  onmouseover="hghl(['germplasm_fk_germplasm_species_id_cv','public.germplasm.species_id','public.cv.cv_id'])" onmouseout="uhghl(['germplasm_fk_germplasm_species_id_cv','public.germplasm.species_id','public.cv.cv_id'])" transform='translate(7,0)' class='scene' d='M 165 195 L 517,195 Q 525,195 525,187 L 525,165' >
+	<title>Fk fk_germplasm_species_id_cv
+germplasm ref cv ( species_id -&gt; cv_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 165 195 L 517,195 Q 525,195 525,187 L 525,165' ></path>
+<text x='172' y='190' transform='rotate(0 172,190)' title='Fk fk_germplasm_species_id_cv
+germplasm ref cv ( species_id -&gt; cv_id )' style='fill:#b6b696;'>species_id</text>
+<!-- ============= Fk 'contact_fk_organization_contact' ============= -->
+<path id='contact_fk_organization_contact'  onmouseover="hghl(['contact_fk_organization_contact','public.contact.organization_id','public.organization.organization_id'])" onmouseout="uhghl(['contact_fk_organization_contact','public.contact.organization_id','public.organization.organization_id'])" transform='translate(7,0)' class='scene' d='M 540 1005 L 847,1005 Q 855,1005 855,1012 L 855,1020' >
+	<title>Fk fk_organization_contact
+contact ref organization ( organization_id )</title>
+</path>
+<path class='defo' transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 540 1005 L 847,1005 Q 855,1005 855,1012 L 855,1020' ></path>
+<text x='547' y='1000' transform='rotate(0 547,1000)' title='Fk fk_organization_contact
+contact ref organization ( organization_id )' style='fill:#b6b696;'>organization_id</text>
+<!-- ============= Table 'dataset' ============= -->
+<rect class='table' x='420' y='653' width='135' height='285' rx='7' ry='7' />
+<line class='delim' x1='420.500000' y1='679.500000' x2='554.500000' y2='679.500000'/>
+<line class='delim' x1='435.500000' y1='679.500000' x2='435.500000' y2='937.500000'/>
+<line class='delim' x1='543.500000' y1='679.500000' x2='543.500000' y2='937.500000'/>
+<path d='M 420.50 679.50 L 420.50 660.50 Q 420.50 653.50 427.50 653.50 L 547.50 653.50 Q 554.50 653.50 554.50 660.50 L 554.50 679.50 L420.50 679.50 ' style='fill:url(#tableHeaderGradient0); stroke:none;' />
+<a xlink:href='#dataset'><text x='465' y='671'>dataset</text><title>Table public.dataset</title></a>
+  <use id='nn' x='422' y='687' xlink:href='#nn'/><a xlink:href='#dataset.dataset_id'><use id='pk' x='422' y='686' xlink:href='#pk'/><title>Pk pk_dataset ( dataset_id ) </title></a>
+<a xlink:href='#dataset.dataset_id'><text id='public.dataset.dataset_id' x='438' y='697' onmouseover="hghl(['dataset_dnarun_dataset_dnarun_fk1','dataset_marker_dataset_marker_dataset_id_fkey'])" onmouseout="uhghl(['dataset_dnarun_dataset_dnarun_fk1','dataset_marker_dataset_marker_dataset_id_fkey'])">dataset_id</text><title>dataset_id
+* serial</title></a>
+<a xlink:href='#dataset.dataset_id'><use id='ref' x='543' y='686' xlink:href='#ref'/><title>Referred by dataset_dnarun ( dataset_id ) 
+Referred by dataset_marker ( dataset_id ) </title></a>
+  <use id='nn' x='422' y='702' xlink:href='#nn'/><a xlink:href='#dataset.experiment_id'><text id='public.dataset.experiment_id' x='438' y='712' onmouseover="hghl(['dataset_dataset_fk1'])" onmouseout="uhghl(['dataset_dataset_fk1'])">experiment_id</text><title>experiment_id
+* integer</title></a>
+<a xlink:href='#dataset.experiment_id'><use id='fk' x='543' y='701' xlink:href='#fk'/><title>References experiment ( experiment_id ) </title></a>
+  <use id='nn' x='422' y='717' xlink:href='#nn'/><a xlink:href='#dataset.callinganalysis_id'><text id='public.dataset.callinganalysis_id' x='438' y='727' onmouseover="hghl(['dataset_dataset_fk2'])" onmouseout="uhghl(['dataset_dataset_fk2'])">callinganalysis_id</text><title>callinganalysis_id
+* integer</title></a>
+<a xlink:href='#dataset.callinganalysis_id'><use id='fk' x='543' y='716' xlink:href='#fk'/><title>References analysis ( callinganalysis_id -&gt; analysis_id ) </title></a>
+  <a xlink:href='#dataset.analyses'><text id='public.dataset.analyses' x='438' y='742'>analyses</text><title>analyses
+_int4</title></a>
+  <a xlink:href='#dataset.data_table'><text id='public.dataset.data_table' x='438' y='757'>data_table</text><title>data_table
+text</title></a>
+  <a xlink:href='#dataset.data_file'><text id='public.dataset.data_file' x='438' y='772'>data_file</text><title>data_file
+text</title></a>
+  <a xlink:href='#dataset.quality_table'><text id='public.dataset.quality_table' x='438' y='787'>quality_table</text><title>quality_table
+text</title></a>
+  <a xlink:href='#dataset.quality_file'><text id='public.dataset.quality_file' x='438' y='802'>quality_file</text><title>quality_file
+text</title></a>
+  <a xlink:href='#dataset.scores'><text id='public.dataset.scores' x='438' y='817'>scores</text><title>scores
+jsonb</title></a>
+  <a xlink:href='#dataset.created_by'><text id='public.dataset.created_by' x='438' y='832'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#dataset.created_date'><text id='public.dataset.created_date' x='438' y='847'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#dataset.modified_by'><text id='public.dataset.modified_by' x='438' y='862'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#dataset.modified_date'><text id='public.dataset.modified_date' x='438' y='877'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#dataset.status'><text id='public.dataset.status' x='438' y='892'>status</text><title>status
+integer</title></a>
+  <a xlink:href='#dataset.type_id'><text id='public.dataset.type_id' x='438' y='907'>type_id</text><title>type_id
+integer</title></a>
+  <a xlink:href='#dataset.name'><text id='public.dataset.name' x='438' y='922'>name</text><title>name
+text</title></a>
+
+<!-- ============= Table 'dnarun' ============= -->
+<rect class='table' x='600' y='668' width='120' height='120' rx='7' ry='7' />
+<line class='delim' x1='600.500000' y1='694.500000' x2='719.500000' y2='694.500000'/>
+<line class='delim' x1='615.500000' y1='694.500000' x2='615.500000' y2='787.500000'/>
+<line class='delim' x1='708.500000' y1='694.500000' x2='708.500000' y2='787.500000'/>
+<path d='M 600.50 694.50 L 600.50 675.50 Q 600.50 668.50 607.50 668.50 L 712.50 668.50 Q 719.50 668.50 719.50 675.50 L 719.50 694.50 L600.50 694.50 ' style='fill:url(#tableHeaderGradient0); stroke:none;' />
+<a xlink:href='#dnarun'><text x='637' y='686'>dnarun</text><title>Table public.dnarun</title></a>
+  <use id='nn' x='602' y='702' xlink:href='#nn'/><a xlink:href='#dnarun.dnarun_id'><use id='pk' x='602' y='701' xlink:href='#pk'/><title>Pk pk_dnarun ( dnarun_id ) </title></a>
+<a xlink:href='#dnarun.dnarun_id'><text id='public.dnarun.dnarun_id' x='618' y='712' onmouseover="hghl(['dataset_dnarun_dataset_dnarun_fk2','dnarun_prop_dnarun_prop_dnarun_id_fkey'])" onmouseout="uhghl(['dataset_dnarun_dataset_dnarun_fk2','dnarun_prop_dnarun_prop_dnarun_id_fkey'])">dnarun_id</text><title>dnarun_id
+* serial</title></a>
+<a xlink:href='#dnarun.dnarun_id'><use id='ref' x='708' y='701' xlink:href='#ref'/><title>Referred by dataset_dnarun ( dnarun_id ) 
+Referred by dnarun_prop ( dnarun_id ) </title></a>
+  <use id='nn' x='602' y='717' xlink:href='#nn'/><a xlink:href='#dnarun.experiment_id'><text id='public.dnarun.experiment_id' x='618' y='727' onmouseover="hghl(['dnarun_dnarun_fk1'])" onmouseout="uhghl(['dnarun_dnarun_fk1'])">experiment_id</text><title>experiment_id
+* integer</title></a>
+<a xlink:href='#dnarun.experiment_id'><use id='fk' x='708' y='716' xlink:href='#fk'/><title>References experiment ( experiment_id ) </title></a>
+  <use id='nn' x='602' y='732' xlink:href='#nn'/><a xlink:href='#dnarun.dnasample_id'><text id='public.dnarun.dnasample_id' x='618' y='742' onmouseover="hghl(['dnarun_dnarun_fk2'])" onmouseout="uhghl(['dnarun_dnarun_fk2'])">dnasample_id</text><title>dnasample_id
+* integer</title></a>
+<a xlink:href='#dnarun.dnasample_id'><use id='fk' x='708' y='731' xlink:href='#fk'/><title>References dnasample ( dnasample_id ) </title></a>
+  <a xlink:href='#dnarun.name'><text id='public.dnarun.name' x='618' y='757'>name</text><title>name
+text</title></a>
+  <a xlink:href='#dnarun.code'><text id='public.dnarun.code' x='618' y='772'>code</text><title>code
+text</title></a>
+
+<!-- ============= Table 'dataset_dnarun' ============= -->
+<rect class='table' x='600' y='818' width='135' height='105' rx='7' ry='7' />
+<line class='delim' x1='600.500000' y1='844.500000' x2='734.500000' y2='844.500000'/>
+<line class='delim' x1='615.500000' y1='844.500000' x2='615.500000' y2='922.500000'/>
+<line class='delim' x1='723.500000' y1='844.500000' x2='723.500000' y2='922.500000'/>
+<path d='M 600.50 844.50 L 600.50 825.50 Q 600.50 818.50 607.50 818.50 L 727.50 818.50 Q 734.50 818.50 734.50 825.50 L 734.50 844.50 L600.50 844.50 ' style='fill:url(#tableHeaderGradient0); stroke:none;' />
+<a xlink:href='#dataset_dnarun'><text x='622' y='836'>dataset_dnarun</text><title>Table public.dataset_dnarun</title></a>
+  <use id='nn' x='602' y='852' xlink:href='#nn'/><a xlink:href='#dataset_dnarun.dataset_dnarun_id'><use id='pk' x='602' y='851' xlink:href='#pk'/><title>Pk pk_dataset_dnarun ( dataset_dnarun_id ) </title></a>
+<a xlink:href='#dataset_dnarun.dataset_dnarun_id'><text id='public.dataset_dnarun.dataset_dnarun_id' x='618' y='862'>dataset_dnarun_id</text><title>dataset_dnarun_id
+* serial</title></a>
+  <use id='nn' x='602' y='867' xlink:href='#nn'/><a xlink:href='#dataset_dnarun.dataset_id'><text id='public.dataset_dnarun.dataset_id' x='618' y='877' onmouseover="hghl(['dataset_dnarun_dataset_dnarun_fk1'])" onmouseout="uhghl(['dataset_dnarun_dataset_dnarun_fk1'])">dataset_id</text><title>dataset_id
+* integer</title></a>
+<a xlink:href='#dataset_dnarun.dataset_id'><use id='fk' x='723' y='866' xlink:href='#fk'/><title>References dataset ( dataset_id ) </title></a>
+  <use id='nn' x='602' y='882' xlink:href='#nn'/><a xlink:href='#dataset_dnarun.dnarun_id'><text id='public.dataset_dnarun.dnarun_id' x='618' y='892' onmouseover="hghl(['dataset_dnarun_dataset_dnarun_fk2'])" onmouseout="uhghl(['dataset_dnarun_dataset_dnarun_fk2'])">dnarun_id</text><title>dnarun_id
+* integer</title></a>
+<a xlink:href='#dataset_dnarun.dnarun_id'><use id='fk' x='723' y='881' xlink:href='#fk'/><title>References dnarun ( dnarun_id ) </title></a>
+  <a xlink:href='#dataset_dnarun.dnarun_idx'><text id='public.dataset_dnarun.dnarun_idx' x='618' y='907'>dnarun_idx</text><title>dnarun_idx
+integer</title></a>
+
+<!-- ============= Table 'role' ============= -->
+<rect class='table' x='570' y='1043' width='105' height='120' rx='7' ry='7' />
+<line class='delim' x1='570.500000' y1='1069.500000' x2='674.500000' y2='1069.500000'/>
+<line class='delim' x1='585.500000' y1='1069.500000' x2='585.500000' y2='1162.500000'/>
+<line class='delim' x1='663.500000' y1='1069.500000' x2='663.500000' y2='1162.500000'/>
+<path d='M 570.50 1069.50 L 570.50 1050.50 Q 570.50 1043.50 577.50 1043.50 L 667.50 1043.50 Q 674.50 1043.50 674.50 1050.50 L 674.50 1069.50 L570.50 1069.50 ' style='fill:url(#tableHeaderGradient1); stroke:none;' />
+<a xlink:href='#role'><text x='609' y='1061'>role</text><title>Table public.role</title></a>
+  <use id='nn' x='572' y='1077' xlink:href='#nn'/><a xlink:href='#role.role_id'><use id='pk' x='572' y='1076' xlink:href='#pk'/><title>Pk pk_role ( role_id ) </title></a>
+<a xlink:href='#role.role_id'><text id='public.role.role_id' x='588' y='1087'>role_id</text><title>role_id
+* serial</title></a>
+  <use id='nn' x='572' y='1092' xlink:href='#nn'/><a xlink:href='#role.role_name'><text id='public.role.role_name' x='588' y='1102'>role_name</text><title>role_name
+* text</title></a>
+  <use id='nn' x='572' y='1107' xlink:href='#nn'/><a xlink:href='#role.role_code'><text id='public.role.role_code' x='588' y='1117'>role_code</text><title>role_code
+* text</title></a>
+  <a xlink:href='#role.read_tables'><text id='public.role.read_tables' x='588' y='1132'>read_tables</text><title>read_tables
+_int4</title></a>
+  <a xlink:href='#role.write_tables'><text id='public.role.write_tables' x='588' y='1147'>write_tables</text><title>write_tables
+_int4</title></a>
+
+<!-- ============= Table 'display' ============= -->
+<rect class='table' x='705' y='1028' width='105' height='180' rx='7' ry='7' />
+<line class='delim' x1='705.500000' y1='1054.500000' x2='809.500000' y2='1054.500000'/>
+<line class='delim' x1='720.500000' y1='1054.500000' x2='720.500000' y2='1207.500000'/>
+<line class='delim' x1='798.500000' y1='1054.500000' x2='798.500000' y2='1207.500000'/>
+<path d='M 705.50 1054.50 L 705.50 1035.50 Q 705.50 1028.50 712.50 1028.50 L 802.50 1028.50 Q 809.50 1028.50 809.50 1035.50 L 809.50 1054.50 L705.50 1054.50 ' style='fill:url(#tableHeaderGradient1); stroke:none;' />
+<a xlink:href='#display'><text x='735' y='1046'>display</text><title>Table public.display</title></a>
+  <use id='nn' x='707' y='1062' xlink:href='#nn'/><a xlink:href='#display.display_id'><use id='pk' x='707' y='1061' xlink:href='#pk'/><title>Pk pk_table_display ( display_id ) </title></a>
+<a xlink:href='#display.display_id'><text id='public.display.display_id' x='723' y='1072'>display_id</text><title>display_id
+* serial</title></a>
+  <use id='nn' x='707' y='1077' xlink:href='#nn'/><a xlink:href='#display.table_name'><text id='public.display.table_name' x='723' y='1087'>table_name</text><title>table_name
+* text</title></a>
+  <a xlink:href='#display.column_name'><text id='public.display.column_name' x='723' y='1102'>column_name</text><title>column_name
+text</title></a>
+  <a xlink:href='#display.display_name'><text id='public.display.display_name' x='723' y='1117'>display_name</text><title>display_name
+text</title></a>
+  <a xlink:href='#display.created_by'><text id='public.display.created_by' x='723' y='1132'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#display.created_date'><text id='public.display.created_date' x='723' y='1147'>created_date</text><title>created_date
+date</title></a>
+  <a xlink:href='#display.modified_by'><text id='public.display.modified_by' x='723' y='1162'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#display.modified_date'><text id='public.display.modified_date' x='723' y='1177'>modified_date</text><title>modified_date
+date</title></a>
+  <a xlink:href='#display.rank'><text id='public.display.rank' x='723' y='1192'>rank</text><title>rank
+integer</title></a>
+
+<!-- ============= Table 'analysis' ============= -->
+<rect class='table' x='225' y='248' width='120' height='255' rx='7' ry='7' />
+<line class='delim' x1='225.500000' y1='274.500000' x2='344.500000' y2='274.500000'/>
+<line class='delim' x1='240.500000' y1='274.500000' x2='240.500000' y2='502.500000'/>
+<line class='delim' x1='333.500000' y1='274.500000' x2='333.500000' y2='502.500000'/>
+<path d='M 225.50 274.50 L 225.50 255.50 Q 225.50 248.50 232.50 248.50 L 337.50 248.50 Q 344.50 248.50 344.50 255.50 L 344.50 274.50 L225.50 274.50 ' style='fill:url(#tableHeaderGradient2); stroke:none;' />
+<a xlink:href='#analysis'><text x='260' y='266'>analysis</text><title>Table public.analysis</title></a>
+  <use id='nn' x='227' y='282' xlink:href='#nn'/><a xlink:href='#analysis.analysis_id'><use id='pk' x='227' y='281' xlink:href='#pk'/><title>Pk pk_analysis ( analysis_id ) </title></a>
+<a xlink:href='#analysis.analysis_id'><text id='public.analysis.analysis_id' x='243' y='292' onmouseover="hghl(['dataset_dataset_fk2'])" onmouseout="uhghl(['dataset_dataset_fk2'])">analysis_id</text><title>analysis_id
+* serial</title></a>
+<a xlink:href='#analysis.analysis_id'><use id='ref' x='333' y='281' xlink:href='#ref'/><title>Referred by dataset ( callinganalysis_id -&gt; analysis_id ) </title></a>
+  <a xlink:href='#analysis.name'><text id='public.analysis.name' x='243' y='307'>name</text><title>name
+text</title></a>
+  <a xlink:href='#analysis.description'><text id='public.analysis.description' x='243' y='322'>description</text><title>description
+text</title></a>
+  <use id='nn' x='227' y='327' xlink:href='#nn'/><a xlink:href='#analysis.type_id'><text id='public.analysis.type_id' x='243' y='337' onmouseover="hghl(['analysis_analysis_analysis_type_id_fkey'])" onmouseout="uhghl(['analysis_analysis_analysis_type_id_fkey'])">type_id</text><title>type_id
+* integer</title></a>
+<a xlink:href='#analysis.type_id'><use id='fk' x='333' y='326' xlink:href='#fk'/><title>References cv ( type_id -&gt; cv_id ) </title></a>
+  <a xlink:href='#analysis.program'><text id='public.analysis.program' x='243' y='352'>program</text><title>program
+text</title></a>
+  <a xlink:href='#analysis.programversion'><text id='public.analysis.programversion' x='243' y='367'>programversion</text><title>programversion
+text</title></a>
+  <a xlink:href='#analysis.algorithm'><text id='public.analysis.algorithm' x='243' y='382'>algorithm</text><title>algorithm
+text</title></a>
+  <a xlink:href='#analysis.sourcename'><text id='public.analysis.sourcename' x='243' y='397'>sourcename</text><title>sourcename
+text</title></a>
+  <a xlink:href='#analysis.sourceversion'><text id='public.analysis.sourceversion' x='243' y='412'>sourceversion</text><title>sourceversion
+text</title></a>
+  <a xlink:href='#analysis.sourceuri'><text id='public.analysis.sourceuri' x='243' y='427'>sourceuri</text><title>sourceuri
+text</title></a>
+  <a xlink:href='#analysis.reference_id'><text id='public.analysis.reference_id' x='243' y='442'>reference_id</text><title>reference_id
+integer</title></a>
+  <a xlink:href='#analysis.parameters'><text id='public.analysis.parameters' x='243' y='457'>parameters</text><title>parameters
+jsonb</title></a>
+  <a xlink:href='#analysis.timeexecuted'><text id='public.analysis.timeexecuted' x='243' y='472'>timeexecuted</text><title>timeexecuted
+timestamp</title></a>
+  <use id='nn' x='227' y='477' xlink:href='#nn'/><a xlink:href='#analysis.status'><text id='public.analysis.status' x='243' y='487'>status</text><title>status
+* integer</title></a>
+
+<!-- ============= Table 'experiment' ============= -->
+<rect class='table' x='960' y='653' width='120' height='225' rx='7' ry='7' />
+<line class='delim' x1='960.500000' y1='679.500000' x2='1079.500000' y2='679.500000'/>
+<line class='delim' x1='975.500000' y1='679.500000' x2='975.500000' y2='877.500000'/>
+<line class='delim' x1='1068.500000' y1='679.500000' x2='1068.500000' y2='877.500000'/>
+<path d='M 960.50 679.50 L 960.50 660.50 Q 960.50 653.50 967.50 653.50 L 1072.50 653.50 Q 1079.50 653.50 1079.50 660.50 L 1079.50 679.50 L960.50 679.50 ' style='fill:url(#tableHeaderGradient1); stroke:none;' />
+<a xlink:href='#experiment'><text x='986' y='671'>experiment</text><title>Table public.experiment</title></a>
+  <use id='nn' x='962' y='687' xlink:href='#nn'/><a xlink:href='#experiment.experiment_id'><use id='pk' x='962' y='686' xlink:href='#pk'/><title>Pk pk_experiment ( experiment_id ) </title></a>
+<a xlink:href='#experiment.experiment_id'><text id='public.experiment.experiment_id' x='978' y='697' onmouseover="hghl(['dataset_dataset_fk1','dnarun_dnarun_fk1'])" onmouseout="uhghl(['dataset_dataset_fk1','dnarun_dnarun_fk1'])">experiment_id</text><title>experiment_id
+* serial</title></a>
+<a xlink:href='#experiment.experiment_id'><use id='ref' x='1068' y='686' xlink:href='#ref'/><title>Referred by dataset ( experiment_id ) 
+Referred by dnarun ( experiment_id ) </title></a>
+  <use id='nn' x='962' y='702' xlink:href='#nn'/><a xlink:href='#experiment.name'><use id='unq' x='962' y='701' xlink:href='#unq'/><title>Unq name_project_id_platform_id_key ( name, project_id, platform_id ) </title></a>
+<a xlink:href='#experiment.name'><text id='public.experiment.name' x='978' y='712'>name</text><title>name
+* text</title></a>
+  <use id='nn' x='962' y='717' xlink:href='#nn'/><a xlink:href='#experiment.code'><text id='public.experiment.code' x='978' y='727'>code</text><title>code
+* text</title></a>
+  <use id='nn' x='962' y='732' xlink:href='#nn'/><a xlink:href='#experiment.project_id'><use id='unq' x='962' y='731' xlink:href='#unq'/><title>Unq name_project_id_platform_id_key ( name, project_id, platform_id ) </title></a>
+<a xlink:href='#experiment.project_id'><text id='public.experiment.project_id' x='978' y='742' onmouseover="hghl(['experiment_experiment_fk1'])" onmouseout="uhghl(['experiment_experiment_fk1'])">project_id</text><title>project_id
+* integer</title></a>
+<a xlink:href='#experiment.project_id'><use id='fk' x='1068' y='731' xlink:href='#fk'/><title>References project ( project_id ) </title></a>
+  <use id='nn' x='962' y='747' xlink:href='#nn'/><a xlink:href='#experiment.platform_id'><use id='unq' x='962' y='746' xlink:href='#unq'/><title>Unq name_project_id_platform_id_key ( name, project_id, platform_id ) </title></a>
+<a xlink:href='#experiment.platform_id'><text id='public.experiment.platform_id' x='978' y='757' onmouseover="hghl(['experiment_experiment_fk2'])" onmouseout="uhghl(['experiment_experiment_fk2'])">platform_id</text><title>platform_id
+* integer</title></a>
+<a xlink:href='#experiment.platform_id'><use id='fk' x='1068' y='746' xlink:href='#fk'/><title>References platform ( platform_id ) </title></a>
+  <a xlink:href='#experiment.manifest_id'><text id='public.experiment.manifest_id' x='978' y='772' onmouseover="hghl(['experiment_experiment_fk3'])" onmouseout="uhghl(['experiment_experiment_fk3'])">manifest_id</text><title>manifest_id
+integer</title></a>
+<a xlink:href='#experiment.manifest_id'><use id='fk' x='1068' y='761' xlink:href='#fk'/><title>References manifest ( manifest_id ) </title></a>
+  <a xlink:href='#experiment.data_file'><text id='public.experiment.data_file' x='978' y='787'>data_file</text><title>data_file
+text</title></a>
+  <a xlink:href='#experiment.created_by'><text id='public.experiment.created_by' x='978' y='802'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#experiment.created_date'><text id='public.experiment.created_date' x='978' y='817'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#experiment.modified_by'><text id='public.experiment.modified_by' x='978' y='832'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#experiment.modified_date'><text id='public.experiment.modified_date' x='978' y='847'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <use id='nn' x='962' y='852' xlink:href='#nn'/><a xlink:href='#experiment.status'><text id='public.experiment.status' x='978' y='862'>status</text><title>status
+* integer</title></a>
+
+<!-- ============= Table 'manifest' ============= -->
+<rect class='table' x='1155' y='653' width='105' height='165' rx='7' ry='7' />
+<line class='delim' x1='1155.500000' y1='679.500000' x2='1259.500000' y2='679.500000'/>
+<line class='delim' x1='1170.500000' y1='679.500000' x2='1170.500000' y2='817.500000'/>
+<line class='delim' x1='1248.500000' y1='679.500000' x2='1248.500000' y2='817.500000'/>
+<path d='M 1155.50 679.50 L 1155.50 660.50 Q 1155.50 653.50 1162.50 653.50 L 1252.50 653.50 Q 1259.50 653.50 1259.50 660.50 L 1259.50 679.50 L1155.50 679.50 ' style='fill:url(#tableHeaderGradient1); stroke:none;' />
+<a xlink:href='#manifest'><text x='1181' y='671'>manifest</text><title>Table public.manifest</title></a>
+  <use id='nn' x='1157' y='687' xlink:href='#nn'/><a xlink:href='#manifest.manifest_id'><use id='pk' x='1157' y='686' xlink:href='#pk'/><title>Pk pk_manifest ( manifest_id ) </title></a>
+<a xlink:href='#manifest.manifest_id'><text id='public.manifest.manifest_id' x='1173' y='697' onmouseover="hghl(['experiment_experiment_fk3'])" onmouseout="uhghl(['experiment_experiment_fk3'])">manifest_id</text><title>manifest_id
+* serial</title></a>
+<a xlink:href='#manifest.manifest_id'><use id='ref' x='1248' y='686' xlink:href='#ref'/><title>Referred by experiment ( manifest_id ) </title></a>
+  <use id='nn' x='1157' y='702' xlink:href='#nn'/><a xlink:href='#manifest.name'><text id='public.manifest.name' x='1173' y='712'>name</text><title>name
+* text</title></a>
+  <use id='nn' x='1157' y='717' xlink:href='#nn'/><a xlink:href='#manifest.code'><text id='public.manifest.code' x='1173' y='727'>code</text><title>code
+* text</title></a>
+  <a xlink:href='#manifest.file_path'><text id='public.manifest.file_path' x='1173' y='742'>file_path</text><title>file_path
+text</title></a>
+  <a xlink:href='#manifest.created_by'><text id='public.manifest.created_by' x='1173' y='757'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#manifest.created_date'><text id='public.manifest.created_date' x='1173' y='772'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#manifest.modified_by'><text id='public.manifest.modified_by' x='1173' y='787'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#manifest.modified_date'><text id='public.manifest.modified_date' x='1173' y='802'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+
+<!-- ============= Table 'dnasample' ============= -->
+<rect class='table' x='45' y='638' width='105' height='255' rx='7' ry='7' />
+<line class='delim' x1='45.500000' y1='664.500000' x2='149.500000' y2='664.500000'/>
+<line class='delim' x1='60.500000' y1='664.500000' x2='60.500000' y2='892.500000'/>
+<line class='delim' x1='138.500000' y1='664.500000' x2='138.500000' y2='892.500000'/>
+<path d='M 45.50 664.50 L 45.50 645.50 Q 45.50 638.50 52.50 638.50 L 142.50 638.50 Q 149.50 638.50 149.50 645.50 L 149.50 664.50 L45.50 664.50 ' style='fill:url(#tableHeaderGradient3); stroke:none;' />
+<a xlink:href='#dnasample'><text x='65' y='656'>dnasample</text><title>Table public.dnasample</title></a>
+  <use id='nn' x='47' y='672' xlink:href='#nn'/><a xlink:href='#dnasample.dnasample_id'><use id='pk' x='47' y='671' xlink:href='#pk'/><title>Pk pk_dnasample ( dnasample_id ) </title></a>
+<a xlink:href='#dnasample.dnasample_id'><text id='public.dnasample.dnasample_id' x='63' y='682' onmouseover="hghl(['dnarun_dnarun_fk2','dnasample_prop_dnasample_prop_fk1'])" onmouseout="uhghl(['dnarun_dnarun_fk2','dnasample_prop_dnasample_prop_fk1'])">dnasample_id</text><title>dnasample_id
+* serial</title></a>
+<a xlink:href='#dnasample.dnasample_id'><use id='ref' x='138' y='671' xlink:href='#ref'/><title>Referred by dnarun ( dnasample_id ) 
+Referred by dnasample_prop ( dnasample_id ) </title></a>
+  <use id='nn' x='47' y='687' xlink:href='#nn'/><a xlink:href='#dnasample.name'><text id='public.dnasample.name' x='63' y='697'>name</text><title>name
+* text</title></a>
+  <a xlink:href='#dnasample.code'><text id='public.dnasample.code' x='63' y='712'>code</text><title>code
+text</title></a>
+  <a xlink:href='#dnasample.platename'><text id='public.dnasample.platename' x='63' y='727'>platename</text><title>platename
+text</title></a>
+  <a xlink:href='#dnasample.num'><text id='public.dnasample.num' x='63' y='742'>num</text><title>num
+text</title></a>
+  <a xlink:href='#dnasample.well_row'><text id='public.dnasample.well_row' x='63' y='757'>well_row</text><title>well_row
+text</title></a>
+  <a xlink:href='#dnasample.well_col'><text id='public.dnasample.well_col' x='63' y='772'>well_col</text><title>well_col
+text</title></a>
+  <use id='nn' x='47' y='777' xlink:href='#nn'/><a xlink:href='#dnasample.project_id'><text id='public.dnasample.project_id' x='63' y='787' onmouseover="hghl(['dnasample_dnasample_fk1'])" onmouseout="uhghl(['dnasample_dnasample_fk1'])">project_id</text><title>project_id
+* integer</title></a>
+<a xlink:href='#dnasample.project_id'><use id='fk' x='138' y='776' xlink:href='#fk'/><title>References project ( project_id ) </title></a>
+  <use id='nn' x='47' y='792' xlink:href='#nn'/><a xlink:href='#dnasample.germplasm_id'><text id='public.dnasample.germplasm_id' x='63' y='802' onmouseover="hghl(['dnasample_dnasample_fk2'])" onmouseout="uhghl(['dnasample_dnasample_fk2'])">germplasm_id</text><title>germplasm_id
+* integer</title></a>
+<a xlink:href='#dnasample.germplasm_id'><use id='fk' x='138' y='791' xlink:href='#fk'/><title>References germplasm ( germplasm_id ) </title></a>
+  <a xlink:href='#dnasample.created_by'><text id='public.dnasample.created_by' x='63' y='817'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#dnasample.created_date'><text id='public.dnasample.created_date' x='63' y='832'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#dnasample.modified_by'><text id='public.dnasample.modified_by' x='63' y='847'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#dnasample.modified_date'><text id='public.dnasample.modified_date' x='63' y='862'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <use id='nn' x='47' y='867' xlink:href='#nn'/><a xlink:href='#dnasample.status'><text id='public.dnasample.status' x='63' y='877'>status</text><title>status
+* integer</title></a>
+
+<!-- ============= Table 'project' ============= -->
+<rect class='table' x='45' y='983' width='105' height='195' rx='7' ry='7' />
+<line class='delim' x1='45.500000' y1='1009.500000' x2='149.500000' y2='1009.500000'/>
+<line class='delim' x1='60.500000' y1='1009.500000' x2='60.500000' y2='1177.500000'/>
+<line class='delim' x1='138.500000' y1='1009.500000' x2='138.500000' y2='1177.500000'/>
+<path d='M 45.50 1009.50 L 45.50 990.50 Q 45.50 983.50 52.50 983.50 L 142.50 983.50 Q 149.50 983.50 149.50 990.50 L 149.50 1009.50 L45.50 1009.50 ' style='fill:url(#tableHeaderGradient3); stroke:none;' />
+<a xlink:href='#project'><text x='75' y='1001'>project</text><title>Table public.project</title></a>
+  <use id='nn' x='47' y='1017' xlink:href='#nn'/><a xlink:href='#project.project_id'><use id='pk' x='47' y='1016' xlink:href='#pk'/><title>Pk pk_project ( project_id ) </title></a>
+<a xlink:href='#project.project_id'><text id='public.project.project_id' x='63' y='1027' onmouseover="hghl(['dnasample_dnasample_fk1','experiment_experiment_fk1','project_prop_project_prop_fk1'])" onmouseout="uhghl(['dnasample_dnasample_fk1','experiment_experiment_fk1','project_prop_project_prop_fk1'])">project_id</text><title>project_id
+* serial</title></a>
+<a xlink:href='#project.project_id'><use id='ref' x='138' y='1016' xlink:href='#ref'/><title>Referred by dnasample ( project_id ) 
+Referred by experiment ( project_id ) 
+Referred by project_prop ( project_id ) </title></a>
+  <use id='nn' x='47' y='1032' xlink:href='#nn'/><a xlink:href='#project.name'><use id='unq' x='47' y='1031' xlink:href='#unq'/><title>Unq pi_project_name_key ( pi_contact, name ) </title></a>
+<a xlink:href='#project.name'><text id='public.project.name' x='63' y='1042'>name</text><title>name
+* text</title></a>
+  <a xlink:href='#project.code'><text id='public.project.code' x='63' y='1057'>code</text><title>code
+text</title></a>
+  <a xlink:href='#project.description'><text id='public.project.description' x='63' y='1072'>description</text><title>description
+text</title></a>
+  <use id='nn' x='47' y='1077' xlink:href='#nn'/><a xlink:href='#project.pi_contact'><use id='unq' x='47' y='1076' xlink:href='#unq'/><title>idx_project ( pi_contact ) Unq pi_project_name_key ( pi_contact, name ) </title></a>
+<a xlink:href='#project.pi_contact'><text id='public.project.pi_contact' x='63' y='1087' onmouseover="hghl(['project_fk_project_contact'])" onmouseout="uhghl(['project_fk_project_contact'])">pi_contact</text><title>pi_contact
+* integer</title></a>
+<a xlink:href='#project.pi_contact'><use id='fk' x='138' y='1076' xlink:href='#fk'/><title>References contact ( pi_contact -&gt; contact_id ) </title></a>
+  <a xlink:href='#project.created_by'><text id='public.project.created_by' x='63' y='1102'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#project.created_date'><text id='public.project.created_date' x='63' y='1117'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#project.modified_by'><text id='public.project.modified_by' x='63' y='1132'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#project.modified_date'><text id='public.project.modified_date' x='63' y='1147'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <use id='nn' x='47' y='1152' xlink:href='#nn'/><a xlink:href='#project.status'><text id='public.project.status' x='63' y='1162'>status</text><title>status
+* integer</title></a>
+
+<!-- ============= Table 'dataset_marker' ============= -->
+<rect class='table' x='825' y='428' width='135' height='165' rx='7' ry='7' />
+<line class='delim' x1='825.500000' y1='454.500000' x2='959.500000' y2='454.500000'/>
+<line class='delim' x1='840.500000' y1='454.500000' x2='840.500000' y2='592.500000'/>
+<line class='delim' x1='948.500000' y1='454.500000' x2='948.500000' y2='592.500000'/>
+<path d='M 825.50 454.50 L 825.50 435.50 Q 825.50 428.50 832.50 428.50 L 952.50 428.50 Q 959.50 428.50 959.50 435.50 L 959.50 454.50 L825.50 454.50 ' style='fill:url(#tableHeaderGradient4); stroke:none;' />
+<a xlink:href='#dataset_marker'><text x='848' y='446'>dataset_marker</text><title>Table public.dataset_marker</title></a>
+  <use id='nn' x='827' y='462' xlink:href='#nn'/><a xlink:href='#dataset_marker.dataset_marker_id'><use id='pk' x='827' y='461' xlink:href='#pk'/><title>Pk pk_dataset_marker ( dataset_marker_id ) </title></a>
+<a xlink:href='#dataset_marker.dataset_marker_id'><text id='public.dataset_marker.dataset_marker_id' x='843' y='472'>dataset_marker_id</text><title>dataset_marker_id
+* serial</title></a>
+  <use id='nn' x='827' y='477' xlink:href='#nn'/><a xlink:href='#dataset_marker.dataset_id'><text id='public.dataset_marker.dataset_id' x='843' y='487' onmouseover="hghl(['dataset_marker_dataset_marker_dataset_id_fkey'])" onmouseout="uhghl(['dataset_marker_dataset_marker_dataset_id_fkey'])">dataset_id</text><title>dataset_id
+* integer</title></a>
+<a xlink:href='#dataset_marker.dataset_id'><use id='fk' x='948' y='476' xlink:href='#fk'/><title>References dataset ( dataset_id ) </title></a>
+  <use id='nn' x='827' y='492' xlink:href='#nn'/><a xlink:href='#dataset_marker.marker_id'><text id='public.dataset_marker.marker_id' x='843' y='502' onmouseover="hghl(['dataset_marker_dataset_marker_marker_id_fkey'])" onmouseout="uhghl(['dataset_marker_dataset_marker_marker_id_fkey'])">marker_id</text><title>marker_id
+* integer</title></a>
+<a xlink:href='#dataset_marker.marker_id'><use id='fk' x='948' y='491' xlink:href='#fk'/><title>References marker ( marker_id ) </title></a>
+  <a xlink:href='#dataset_marker.call_rate'><text id='public.dataset_marker.call_rate' x='843' y='517'>call_rate</text><title>call_rate
+real</title></a>
+  <a xlink:href='#dataset_marker.maf'><text id='public.dataset_marker.maf' x='843' y='532'>maf</text><title>maf
+real</title></a>
+  <a xlink:href='#dataset_marker.reproducibility'><text id='public.dataset_marker.reproducibility' x='843' y='547'>reproducibility</text><title>reproducibility
+real</title></a>
+  <a xlink:href='#dataset_marker.scores'><text id='public.dataset_marker.scores' x='843' y='562'>scores</text><title>scores
+jsonb</title></a>
+  <a xlink:href='#dataset_marker.marker_idx'><text id='public.dataset_marker.marker_idx' x='843' y='577'>marker_idx</text><title>marker_idx
+integer</title></a>
+
+<!-- ============= Table 'variant' ============= -->
+<rect class='table' x='1020' y='368' width='105' height='135' rx='7' ry='7' />
+<line class='delim' x1='1020.500000' y1='394.500000' x2='1124.500000' y2='394.500000'/>
+<line class='delim' x1='1035.500000' y1='394.500000' x2='1035.500000' y2='502.500000'/>
+<line class='delim' x1='1113.500000' y1='394.500000' x2='1113.500000' y2='502.500000'/>
+<path d='M 1020.50 394.50 L 1020.50 375.50 Q 1020.50 368.50 1027.50 368.50 L 1117.50 368.50 Q 1124.50 368.50 1124.50 375.50 L 1124.50 394.50 L1020.50 394.50 ' style='fill:url(#tableHeaderGradient0); stroke:none;' />
+<a xlink:href='#variant'><text x='1051' y='386'>variant</text><title>Table public.variant</title></a>
+  <use id='nn' x='1022' y='402' xlink:href='#nn'/><a xlink:href='#variant.variant_id'><use id='pk' x='1022' y='401' xlink:href='#pk'/><title>Pk pk_variant ( variant_id ) </title></a>
+<a xlink:href='#variant.variant_id'><text id='public.variant.variant_id' x='1038' y='412' onmouseover="hghl(['marker_marker_fk2'])" onmouseout="uhghl(['marker_marker_fk2'])">variant_id</text><title>variant_id
+* serial</title></a>
+<a xlink:href='#variant.variant_id'><use id='ref' x='1113' y='401' xlink:href='#ref'/><title>Referred by marker ( variant_id ) </title></a>
+  <a xlink:href='#variant.code'><text id='public.variant.code' x='1038' y='427'>code</text><title>code
+text</title></a>
+  <a xlink:href='#variant.created_by'><text id='public.variant.created_by' x='1038' y='442'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#variant.created_date'><text id='public.variant.created_date' x='1038' y='457'>created_date</text><title>created_date
+date</title></a>
+  <a xlink:href='#variant.modified_by'><text id='public.variant.modified_by' x='1038' y='472'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#variant.modified_date'><text id='public.variant.modified_date' x='1038' y='487'>modified_date</text><title>modified_date
+date</title></a>
+
+<!-- ============= Table 'marker' ============= -->
+<rect class='table' x='1020' y='68' width='105' height='240' rx='7' ry='7' />
+<line class='delim' x1='1020.500000' y1='94.500000' x2='1124.500000' y2='94.500000'/>
+<line class='delim' x1='1035.500000' y1='94.500000' x2='1035.500000' y2='307.500000'/>
+<line class='delim' x1='1113.500000' y1='94.500000' x2='1113.500000' y2='307.500000'/>
+<path d='M 1020.50 94.50 L 1020.50 75.50 Q 1020.50 68.50 1027.50 68.50 L 1117.50 68.50 Q 1124.50 68.50 1124.50 75.50 L 1124.50 94.50 L1020.50 94.50 ' style='fill:url(#tableHeaderGradient0); stroke:none;' />
+<a xlink:href='#marker'><text x='1050' y='86'>marker</text><title>Table public.marker</title></a>
+  <use id='nn' x='1022' y='102' xlink:href='#nn'/><a xlink:href='#marker.marker_id'><use id='pk' x='1022' y='101' xlink:href='#pk'/><title>Pk pk_marker ( marker_id ) </title></a>
+<a xlink:href='#marker.marker_id'><text id='public.marker.marker_id' x='1038' y='112' onmouseover="hghl(['dataset_marker_dataset_marker_marker_id_fkey','marker_linkage_group_marker_map_marker_id_fkey','marker_prop_marker_prop_marker_id_fkey'])" onmouseout="uhghl(['dataset_marker_dataset_marker_marker_id_fkey','marker_linkage_group_marker_map_marker_id_fkey','marker_prop_marker_prop_marker_id_fkey'])">marker_id</text><title>marker_id
+* serial</title></a>
+<a xlink:href='#marker.marker_id'><use id='ref' x='1113' y='101' xlink:href='#ref'/><title>Referred by dataset_marker ( marker_id ) 
+Referred by marker_linkage_group ( marker_id ) 
+Referred by marker_prop ( marker_id ) </title></a>
+  <use id='nn' x='1022' y='117' xlink:href='#nn'/><a xlink:href='#marker.platform_id'><text id='public.marker.platform_id' x='1038' y='127' onmouseover="hghl(['marker_marker_fk1'])" onmouseout="uhghl(['marker_marker_fk1'])">platform_id</text><title>platform_id
+* integer</title></a>
+<a xlink:href='#marker.platform_id'><use id='fk' x='1113' y='116' xlink:href='#fk'/><title>References platform ( platform_id ) </title></a>
+  <a xlink:href='#marker.variant_id'><text id='public.marker.variant_id' x='1038' y='142' onmouseover="hghl(['marker_marker_fk2'])" onmouseout="uhghl(['marker_marker_fk2'])">variant_id</text><title>variant_id
+integer</title></a>
+<a xlink:href='#marker.variant_id'><use id='fk' x='1113' y='131' xlink:href='#fk'/><title>References variant ( variant_id ) </title></a>
+  <use id='nn' x='1022' y='147' xlink:href='#nn'/><a xlink:href='#marker.name'><text id='public.marker.name' x='1038' y='157'>name</text><title>name
+* text</title></a>
+  <a xlink:href='#marker.code'><text id='public.marker.code' x='1038' y='172'>code</text><title>code
+text</title></a>
+  <use id='nn' x='1022' y='177' xlink:href='#nn'/><a xlink:href='#marker.ref'><text id='public.marker.ref' x='1038' y='187'>ref</text><title>ref
+* text</title></a>
+  <use id='nn' x='1022' y='192' xlink:href='#nn'/><a xlink:href='#marker.alts'><text id='public.marker.alts' x='1038' y='202'>alts</text><title>alts
+* _text</title></a>
+  <a xlink:href='#marker.sequence'><text id='public.marker.sequence' x='1038' y='217'>sequence</text><title>sequence
+text</title></a>
+  <a xlink:href='#marker.reference_id'><use id='idx' x='1022' y='221' xlink:href='#idx'/><title>idx_marker_0 ( reference_id ) </title></a>
+<a xlink:href='#marker.reference_id'><text id='public.marker.reference_id' x='1038' y='232' onmouseover="hghl(['marker_fk_marker_reference'])" onmouseout="uhghl(['marker_fk_marker_reference'])">reference_id</text><title>reference_id
+integer</title></a>
+<a xlink:href='#marker.reference_id'><use id='fk' x='1113' y='221' xlink:href='#fk'/><title>References reference ( reference_id ) </title></a>
+  <a xlink:href='#marker.primers'><text id='public.marker.primers' x='1038' y='247'>primers</text><title>primers
+jsonb</title></a>
+  <a xlink:href='#marker.probsets'><text id='public.marker.probsets' x='1038' y='262'>probsets</text><title>probsets
+jsonb</title></a>
+  <a xlink:href='#marker.strand_id'><use id='idx' x='1022' y='266' xlink:href='#idx'/><title>idx_marker ( strand_id ) </title></a>
+<a xlink:href='#marker.strand_id'><text id='public.marker.strand_id' x='1038' y='277' onmouseover="hghl(['marker_fk_marker_cv'])" onmouseout="uhghl(['marker_fk_marker_cv'])">strand_id</text><title>strand_id
+integer</title></a>
+<a xlink:href='#marker.strand_id'><use id='fk' x='1113' y='266' xlink:href='#fk'/><title>References cv ( strand_id -&gt; cv_id ) </title></a>
+  <use id='nn' x='1022' y='282' xlink:href='#nn'/><a xlink:href='#marker.status'><text id='public.marker.status' x='1038' y='292'>status</text><title>status
+* integer</title></a>
+
+<!-- ============= Table 'germplasm_prop' ============= -->
+<rect class='table' x='45' y='323' width='150' height='90' rx='7' ry='7' />
+<line class='delim' x1='45.500000' y1='349.500000' x2='194.500000' y2='349.500000'/>
+<line class='delim' x1='60.500000' y1='349.500000' x2='60.500000' y2='412.500000'/>
+<line class='delim' x1='183.500000' y1='349.500000' x2='183.500000' y2='412.500000'/>
+<path d='M 45.50 349.50 L 45.50 330.50 Q 45.50 323.50 52.50 323.50 L 187.50 323.50 Q 194.50 323.50 194.50 330.50 L 194.50 349.50 L45.50 349.50 ' style='fill:url(#tableHeaderGradient2); stroke:none;' />
+<a xlink:href='#germplasm_prop'><text x='71' y='341'>germplasm_prop</text><title>Table public.germplasm_prop</title></a>
+  <use id='nn' x='47' y='357' xlink:href='#nn'/><a xlink:href='#germplasm_prop.germplasm_prop_id'><use id='pk' x='47' y='356' xlink:href='#pk'/><title>Pk pk_germplasm_prop ( germplasm_prop_id ) </title></a>
+<a xlink:href='#germplasm_prop.germplasm_prop_id'><text id='public.germplasm_prop.germplasm_prop_id' x='63' y='367'>germplasm_prop_id</text><title>germplasm_prop_id
+* serial</title></a>
+  <use id='nn' x='47' y='372' xlink:href='#nn'/><a xlink:href='#germplasm_prop.germplasm_id'><use id='unq' x='47' y='371' xlink:href='#unq'/><title>Unq idx_germplasm_prop ( germplasm_id ) </title></a>
+<a xlink:href='#germplasm_prop.germplasm_id'><text id='public.germplasm_prop.germplasm_id' x='63' y='382' onmouseover="hghl(['germplasm_prop_germplasm_prop_fk1'])" onmouseout="uhghl(['germplasm_prop_germplasm_prop_fk1'])">germplasm_id</text><title>germplasm_id
+* integer</title></a>
+<a xlink:href='#germplasm_prop.germplasm_id'><use id='fk' x='183' y='371' xlink:href='#fk'/><title>References germplasm ( germplasm_id ) </title></a>
+  <a xlink:href='#germplasm_prop.props'><text id='public.germplasm_prop.props' x='63' y='397'>props</text><title>props
+jsonb</title></a>
+
+<!-- ============= Table 'map_prop' ============= -->
+<rect class='table' x='450' y='473' width='105' height='90' rx='7' ry='7' />
+<line class='delim' x1='450.500000' y1='499.500000' x2='554.500000' y2='499.500000'/>
+<line class='delim' x1='465.500000' y1='499.500000' x2='465.500000' y2='562.500000'/>
+<line class='delim' x1='543.500000' y1='499.500000' x2='543.500000' y2='562.500000'/>
+<path d='M 450.50 499.50 L 450.50 480.50 Q 450.50 473.50 457.50 473.50 L 547.50 473.50 Q 554.50 473.50 554.50 480.50 L 554.50 499.50 L450.50 499.50 ' style='fill:url(#tableHeaderGradient5); stroke:none;' />
+<a xlink:href='#map_prop'><text x='472' y='491'>map_prop</text><title>Table public.map_prop</title></a>
+  <use id='nn' x='452' y='507' xlink:href='#nn'/><a xlink:href='#map_prop.map_prop_id'><use id='pk' x='452' y='506' xlink:href='#pk'/><title>Pk pk_map_prop ( map_prop_id ) </title></a>
+<a xlink:href='#map_prop.map_prop_id'><text id='public.map_prop.map_prop_id' x='468' y='517'>map_prop_id</text><title>map_prop_id
+* serial</title></a>
+  <use id='nn' x='452' y='522' xlink:href='#nn'/><a xlink:href='#map_prop.map_id'><use id='unq' x='452' y='521' xlink:href='#unq'/><title>Unq idx_map_prop ( map_id ) </title></a>
+<a xlink:href='#map_prop.map_id'><text id='public.map_prop.map_id' x='468' y='532' onmouseover="hghl(['map_prop_map_prop_map_id_fkey'])" onmouseout="uhghl(['map_prop_map_prop_map_id_fkey'])">map_id</text><title>map_id
+* integer</title></a>
+<a xlink:href='#map_prop.map_id'><use id='fk' x='543' y='521' xlink:href='#fk'/><title>References mapset ( map_id -&gt; mapset_id ) </title></a>
+  <a xlink:href='#map_prop.props'><text id='public.map_prop.props' x='468' y='547'>props</text><title>props
+jsonb</title></a>
+
+<!-- ============= Table 'marker_prop' ============= -->
+<rect class='table' x='840' y='113' width='120' height='90' rx='7' ry='7' />
+<line class='delim' x1='840.500000' y1='139.500000' x2='959.500000' y2='139.500000'/>
+<line class='delim' x1='855.500000' y1='139.500000' x2='855.500000' y2='202.500000'/>
+<line class='delim' x1='948.500000' y1='139.500000' x2='948.500000' y2='202.500000'/>
+<path d='M 840.50 139.50 L 840.50 120.50 Q 840.50 113.50 847.50 113.50 L 952.50 113.50 Q 959.50 113.50 959.50 120.50 L 959.50 139.50 L840.50 139.50 ' style='fill:url(#tableHeaderGradient6); stroke:none;' />
+<a xlink:href='#marker_prop'><text x='862' y='131'>marker_prop</text><title>Table public.marker_prop</title></a>
+  <use id='nn' x='842' y='147' xlink:href='#nn'/><a xlink:href='#marker_prop.marker_prop_id'><use id='pk' x='842' y='146' xlink:href='#pk'/><title>Pk pk_marker_prop ( marker_prop_id ) </title></a>
+<a xlink:href='#marker_prop.marker_prop_id'><text id='public.marker_prop.marker_prop_id' x='858' y='157'>marker_prop_id</text><title>marker_prop_id
+* serial</title></a>
+  <use id='nn' x='842' y='162' xlink:href='#nn'/><a xlink:href='#marker_prop.marker_id'><use id='unq' x='842' y='161' xlink:href='#unq'/><title>Unq idx_marker_prop ( marker_id ) </title></a>
+<a xlink:href='#marker_prop.marker_id'><text id='public.marker_prop.marker_id' x='858' y='172' onmouseover="hghl(['marker_prop_marker_prop_marker_id_fkey'])" onmouseout="uhghl(['marker_prop_marker_prop_marker_id_fkey'])">marker_id</text><title>marker_id
+* integer</title></a>
+<a xlink:href='#marker_prop.marker_id'><use id='fk' x='948' y='161' xlink:href='#fk'/><title>References marker ( marker_id ) </title></a>
+  <a xlink:href='#marker_prop.props'><text id='public.marker_prop.props' x='858' y='187'>props</text><title>props
+jsonb</title></a>
+
+<!-- ============= Table 'platform_prop' ============= -->
+<rect class='table' x='1200' y='458' width='135' height='90' rx='7' ry='7' />
+<line class='delim' x1='1200.500000' y1='484.500000' x2='1334.500000' y2='484.500000'/>
+<line class='delim' x1='1215.500000' y1='484.500000' x2='1215.500000' y2='547.500000'/>
+<line class='delim' x1='1323.500000' y1='484.500000' x2='1323.500000' y2='547.500000'/>
+<path d='M 1200.50 484.50 L 1200.50 465.50 Q 1200.50 458.50 1207.50 458.50 L 1327.50 458.50 Q 1334.50 458.50 1334.50 465.50 L 1334.50 484.50 L1200.50 484.50 ' style='fill:url(#tableHeaderGradient7); stroke:none;' />
+<a xlink:href='#platform_prop'><text x='1225' y='476'>platform_prop</text><title>Table public.platform_prop</title></a>
+  <use id='nn' x='1202' y='492' xlink:href='#nn'/><a xlink:href='#platform_prop.platform_prop_id'><use id='pk' x='1202' y='491' xlink:href='#pk'/><title>Pk pk_platform_prop ( platform_prop_id ) </title></a>
+<a xlink:href='#platform_prop.platform_prop_id'><text id='public.platform_prop.platform_prop_id' x='1218' y='502'>platform_prop_id</text><title>platform_prop_id
+* serial</title></a>
+  <use id='nn' x='1202' y='507' xlink:href='#nn'/><a xlink:href='#platform_prop.platform_id'><use id='unq' x='1202' y='506' xlink:href='#unq'/><title>Unq idx_platform_prop ( platform_id ) </title></a>
+<a xlink:href='#platform_prop.platform_id'><text id='public.platform_prop.platform_id' x='1218' y='517' onmouseover="hghl(['platform_prop_platform_prop_platform_id_fkey'])" onmouseout="uhghl(['platform_prop_platform_prop_platform_id_fkey'])">platform_id</text><title>platform_id
+* integer</title></a>
+<a xlink:href='#platform_prop.platform_id'><use id='fk' x='1323' y='506' xlink:href='#fk'/><title>References platform ( platform_id ) </title></a>
+  <a xlink:href='#platform_prop.props'><text id='public.platform_prop.props' x='1218' y='532'>props</text><title>props
+jsonb</title></a>
+
+<!-- ============= Table 'dnasample_prop' ============= -->
+<rect class='table' x='225' y='683' width='135' height='90' rx='7' ry='7' />
+<line class='delim' x1='225.500000' y1='709.500000' x2='359.500000' y2='709.500000'/>
+<line class='delim' x1='240.500000' y1='709.500000' x2='240.500000' y2='772.500000'/>
+<line class='delim' x1='348.500000' y1='709.500000' x2='348.500000' y2='772.500000'/>
+<path d='M 225.50 709.50 L 225.50 690.50 Q 225.50 683.50 232.50 683.50 L 352.50 683.50 Q 359.50 683.50 359.50 690.50 L 359.50 709.50 L225.50 709.50 ' style='fill:url(#tableHeaderGradient3); stroke:none;' />
+<a xlink:href='#dnasample_prop'><text x='244' y='701'>dnasample_prop</text><title>Table public.dnasample_prop</title></a>
+  <use id='nn' x='227' y='717' xlink:href='#nn'/><a xlink:href='#dnasample_prop.dnasample_prop_id'><use id='pk' x='227' y='716' xlink:href='#pk'/><title>Pk pk_dnasample_prop ( dnasample_prop_id ) </title></a>
+<a xlink:href='#dnasample_prop.dnasample_prop_id'><text id='public.dnasample_prop.dnasample_prop_id' x='243' y='727'>dnasample_prop_id</text><title>dnasample_prop_id
+* serial</title></a>
+  <use id='nn' x='227' y='732' xlink:href='#nn'/><a xlink:href='#dnasample_prop.dnasample_id'><use id='unq' x='227' y='731' xlink:href='#unq'/><title>Unq idx_dnasample_prop ( dnasample_id ) </title></a>
+<a xlink:href='#dnasample_prop.dnasample_id'><text id='public.dnasample_prop.dnasample_id' x='243' y='742' onmouseover="hghl(['dnasample_prop_dnasample_prop_fk1'])" onmouseout="uhghl(['dnasample_prop_dnasample_prop_fk1'])">dnasample_id</text><title>dnasample_id
+* integer</title></a>
+<a xlink:href='#dnasample_prop.dnasample_id'><use id='fk' x='348' y='731' xlink:href='#fk'/><title>References dnasample ( dnasample_id ) </title></a>
+  <a xlink:href='#dnasample_prop.props'><text id='public.dnasample_prop.props' x='243' y='757'>props</text><title>props
+jsonb</title></a>
+
+<!-- ============= Table 'dnarun_prop' ============= -->
+<rect class='table' x='750' y='758' width='120' height='90' rx='7' ry='7' />
+<line class='delim' x1='750.500000' y1='784.500000' x2='869.500000' y2='784.500000'/>
+<line class='delim' x1='765.500000' y1='784.500000' x2='765.500000' y2='847.500000'/>
+<line class='delim' x1='858.500000' y1='784.500000' x2='858.500000' y2='847.500000'/>
+<path d='M 750.50 784.50 L 750.50 765.50 Q 750.50 758.50 757.50 758.50 L 862.50 758.50 Q 869.50 758.50 869.50 765.50 L 869.50 784.50 L750.50 784.50 ' style='fill:url(#tableHeaderGradient0); stroke:none;' />
+<a xlink:href='#dnarun_prop'><text x='771' y='776'>dnarun_prop</text><title>Table public.dnarun_prop</title></a>
+  <use id='nn' x='752' y='792' xlink:href='#nn'/><a xlink:href='#dnarun_prop.dnarun_prop_id'><use id='pk' x='752' y='791' xlink:href='#pk'/><title>Pk pk_dnarun_prop ( dnarun_prop_id ) </title></a>
+<a xlink:href='#dnarun_prop.dnarun_prop_id'><text id='public.dnarun_prop.dnarun_prop_id' x='768' y='802'>dnarun_prop_id</text><title>dnarun_prop_id
+* serial</title></a>
+  <use id='nn' x='752' y='807' xlink:href='#nn'/><a xlink:href='#dnarun_prop.dnarun_id'><use id='unq' x='752' y='806' xlink:href='#unq'/><title>Unq idx_dnarun_prop ( dnarun_id ) </title></a>
+<a xlink:href='#dnarun_prop.dnarun_id'><text id='public.dnarun_prop.dnarun_id' x='768' y='817' onmouseover="hghl(['dnarun_prop_dnarun_prop_dnarun_id_fkey'])" onmouseout="uhghl(['dnarun_prop_dnarun_prop_dnarun_id_fkey'])">dnarun_id</text><title>dnarun_id
+* integer</title></a>
+<a xlink:href='#dnarun_prop.dnarun_id'><use id='fk' x='858' y='806' xlink:href='#fk'/><title>References dnarun ( dnarun_id ) </title></a>
+  <use id='nn' x='752' y='822' xlink:href='#nn'/><a xlink:href='#dnarun_prop.props'><text id='public.dnarun_prop.props' x='768' y='832'>props</text><title>props
+* jsonb</title></a>
+
+<!-- ============= Table 'project_prop' ============= -->
+<rect class='table' x='195' y='1013' width='120' height='90' rx='7' ry='7' />
+<line class='delim' x1='195.500000' y1='1039.500000' x2='314.500000' y2='1039.500000'/>
+<line class='delim' x1='210.500000' y1='1039.500000' x2='210.500000' y2='1102.500000'/>
+<line class='delim' x1='303.500000' y1='1039.500000' x2='303.500000' y2='1102.500000'/>
+<path d='M 195.50 1039.50 L 195.50 1020.50 Q 195.50 1013.50 202.50 1013.50 L 307.50 1013.50 Q 314.50 1013.50 314.50 1020.50 L 314.50 1039.50 L195.50 1039.50 ' style='fill:url(#tableHeaderGradient3); stroke:none;' />
+<a xlink:href='#project_prop'><text x='217' y='1031'>project_prop</text><title>Table public.project_prop</title></a>
+  <use id='nn' x='197' y='1047' xlink:href='#nn'/><a xlink:href='#project_prop.project_prop_id'><use id='pk' x='197' y='1046' xlink:href='#pk'/><title>Pk pk_project_prop ( project_prop_id ) </title></a>
+<a xlink:href='#project_prop.project_prop_id'><text id='public.project_prop.project_prop_id' x='213' y='1057'>project_prop_id</text><title>project_prop_id
+* serial</title></a>
+  <use id='nn' x='197' y='1062' xlink:href='#nn'/><a xlink:href='#project_prop.project_id'><use id='unq' x='197' y='1061' xlink:href='#unq'/><title>Unq idx_project_prop ( project_id ) </title></a>
+<a xlink:href='#project_prop.project_id'><text id='public.project_prop.project_id' x='213' y='1072' onmouseover="hghl(['project_prop_project_prop_fk1'])" onmouseout="uhghl(['project_prop_project_prop_fk1'])">project_id</text><title>project_id
+* integer</title></a>
+<a xlink:href='#project_prop.project_id'><use id='fk' x='303' y='1061' xlink:href='#fk'/><title>References project ( project_id ) </title></a>
+  <a xlink:href='#project_prop.props'><text id='public.project_prop.props' x='213' y='1087'>props</text><title>props
+jsonb</title></a>
+
+<!-- ============= Table 'linkage_group' ============= -->
+<rect class='table' x='660' y='383' width='135' height='120' rx='7' ry='7' />
+<line class='delim' x1='660.500000' y1='409.500000' x2='794.500000' y2='409.500000'/>
+<line class='delim' x1='675.500000' y1='409.500000' x2='675.500000' y2='502.500000'/>
+<line class='delim' x1='783.500000' y1='409.500000' x2='783.500000' y2='502.500000'/>
+<path d='M 660.50 409.50 L 660.50 390.50 Q 660.50 383.50 667.50 383.50 L 787.50 383.50 Q 794.50 383.50 794.50 390.50 L 794.50 409.50 L660.50 409.50 ' style='fill:url(#tableHeaderGradient8); stroke:none;' />
+<a xlink:href='#linkage_group'><text x='686' y='401'>linkage_group</text><title>Table public.linkage_group
+This table will contain different linkage groups, ie. Chromosome 1, Chromosome 2, etc. along with their respective start and stop boundaries.</title></a>
+  <use id='nn' x='662' y='417' xlink:href='#nn'/><a xlink:href='#linkage_group.linkage_group_id'><use id='pk' x='662' y='416' xlink:href='#pk'/><title>Pk pk_linkage_group ( linkage_group_id ) </title></a>
+<a xlink:href='#linkage_group.linkage_group_id'><text id='public.linkage_group.linkage_group_id' x='678' y='427' onmouseover="hghl(['marker_linkage_group_fk_marker_linkage_group'])" onmouseout="uhghl(['marker_linkage_group_fk_marker_linkage_group'])">linkage_group_id</text><title>linkage_group_id
+* serial</title></a>
+<a xlink:href='#linkage_group.linkage_group_id'><use id='ref' x='783' y='416' xlink:href='#ref'/><title>Referred by marker_linkage_group ( linkage_group_id ) </title></a>
+  <use id='nn' x='662' y='432' xlink:href='#nn'/><a xlink:href='#linkage_group.name'><text id='public.linkage_group.name' x='678' y='442'>name</text><title>name
+* varchar(2147483647)
+ex. Chromosome 1, Chromosome 2, ..., ChromosomeN, LG01, LG02, etc.</title></a>
+  <use id='nn' x='662' y='447' xlink:href='#nn'/><a xlink:href='#linkage_group.start'><text id='public.linkage_group.start' x='678' y='457'>start</text><title>start
+* integer default 0
+Start of the linkage group. 0-based, interbased coordinates.</title></a>
+  <use id='nn' x='662' y='462' xlink:href='#nn'/><a xlink:href='#linkage_group.stop'><text id='public.linkage_group.stop' x='678' y='472'>stop</text><title>stop
+* integer default 0
+The maximum position in the linkage group, ex. 200, 200000000
+</title></a>
+  <use id='nn' x='662' y='477' xlink:href='#nn'/><a xlink:href='#linkage_group.map_id'><use id='idx' x='662' y='476' xlink:href='#idx'/><title>idx_linkage_group ( map_id ) </title></a>
+<a xlink:href='#linkage_group.map_id'><text id='public.linkage_group.map_id' x='678' y='487' onmouseover="hghl(['linkage_group_fk_linkage_group_map'])" onmouseout="uhghl(['linkage_group_fk_linkage_group_map'])">map_id</text><title>map_id
+* integer
+Foreign key to the Map table. This defines which map the linkage group belongs to.</title></a>
+<a xlink:href='#linkage_group.map_id'><use id='fk' x='783' y='476' xlink:href='#fk'/><title>References mapset ( map_id -&gt; mapset_id ) </title></a>
+
+<!-- ============= Table 'marker_linkage_group' ============= -->
+<rect class='table' x='630' y='218' width='180' height='120' rx='7' ry='7' />
+<line class='delim' x1='630.500000' y1='244.500000' x2='809.500000' y2='244.500000'/>
+<line class='delim' x1='645.500000' y1='244.500000' x2='645.500000' y2='337.500000'/>
+<line class='delim' x1='798.500000' y1='244.500000' x2='798.500000' y2='337.500000'/>
+<path d='M 630.50 244.50 L 630.50 225.50 Q 630.50 218.50 637.50 218.50 L 802.50 218.50 Q 809.50 218.50 809.50 225.50 L 809.50 244.50 L630.50 244.50 ' style='fill:url(#tableHeaderGradient8); stroke:none;' />
+<a xlink:href='#marker_linkage_group'><text x='656' y='236'>marker_linkage_group</text><title>Table public.marker_linkage_group</title></a>
+  <use id='nn' x='632' y='252' xlink:href='#nn'/><a xlink:href='#marker_linkage_group.marker_linkage_group_id'><use id='pk' x='632' y='251' xlink:href='#pk'/><title>Pk pk_marker_map ( marker_linkage_group_id ) </title></a>
+<a xlink:href='#marker_linkage_group.marker_linkage_group_id'><text id='public.marker_linkage_group.marker_linkage_group_id' x='648' y='262'>marker_linkage_group_id</text><title>marker_linkage_group_id
+* serial</title></a>
+  <use id='nn' x='632' y='267' xlink:href='#nn'/><a xlink:href='#marker_linkage_group.marker_id'><text id='public.marker_linkage_group.marker_id' x='648' y='277' onmouseover="hghl(['marker_linkage_group_marker_map_marker_id_fkey'])" onmouseout="uhghl(['marker_linkage_group_marker_map_marker_id_fkey'])">marker_id</text><title>marker_id
+* integer</title></a>
+<a xlink:href='#marker_linkage_group.marker_id'><use id='fk' x='798' y='266' xlink:href='#fk'/><title>References marker ( marker_id ) </title></a>
+  <a xlink:href='#marker_linkage_group.start'><text id='public.marker_linkage_group.start' x='648' y='292'>start</text><title>start
+numeric(13,3)</title></a>
+  <a xlink:href='#marker_linkage_group.stop'><text id='public.marker_linkage_group.stop' x='648' y='307'>stop</text><title>stop
+numeric(13,3)</title></a>
+  <use id='nn' x='632' y='312' xlink:href='#nn'/><a xlink:href='#marker_linkage_group.linkage_group_id'><use id='idx' x='632' y='311' xlink:href='#idx'/><title>idx_marker_map ( linkage_group_id ) </title></a>
+<a xlink:href='#marker_linkage_group.linkage_group_id'><text id='public.marker_linkage_group.linkage_group_id' x='648' y='322' onmouseover="hghl(['marker_linkage_group_fk_marker_linkage_group'])" onmouseout="uhghl(['marker_linkage_group_fk_marker_linkage_group'])">linkage_group_id</text><title>linkage_group_id
+* integer</title></a>
+<a xlink:href='#marker_linkage_group.linkage_group_id'><use id='fk' x='798' y='311' xlink:href='#fk'/><title>References linkage_group ( linkage_group_id ) </title></a>
+
+<!-- ============= Table 'reference' ============= -->
+<rect class='table' x='375' y='38' width='105' height='120' rx='7' ry='7' />
+<line class='delim' x1='375.500000' y1='64.500000' x2='479.500000' y2='64.500000'/>
+<line class='delim' x1='390.500000' y1='64.500000' x2='390.500000' y2='157.500000'/>
+<line class='delim' x1='468.500000' y1='64.500000' x2='468.500000' y2='157.500000'/>
+<path d='M 375.50 64.50 L 375.50 45.50 Q 375.50 38.50 382.50 38.50 L 472.50 38.50 Q 479.50 38.50 479.50 45.50 L 479.50 64.50 L375.50 64.50 ' style='fill:url(#tableHeaderGradient9); stroke:none;' />
+<a xlink:href='#reference'><text x='399' y='56'>reference</text><title>Table public.reference</title></a>
+  <use id='nn' x='377' y='72' xlink:href='#nn'/><a xlink:href='#reference.reference_id'><use id='pk' x='377' y='71' xlink:href='#pk'/><title>Pk pk_reference ( reference_id ) </title></a>
+<a xlink:href='#reference.reference_id'><text id='public.reference.reference_id' x='393' y='82' onmouseover="hghl(['mapset_map_reference_id_fkey','marker_fk_marker_reference'])" onmouseout="uhghl(['mapset_map_reference_id_fkey','marker_fk_marker_reference'])">reference_id</text><title>reference_id
+* serial</title></a>
+<a xlink:href='#reference.reference_id'><use id='ref' x='468' y='71' xlink:href='#ref'/><title>Referred by mapset ( reference_id ) 
+Referred by marker ( reference_id ) </title></a>
+  <use id='nn' x='377' y='87' xlink:href='#nn'/><a xlink:href='#reference.name'><text id='public.reference.name' x='393' y='97'>name</text><title>name
+* text</title></a>
+  <use id='nn' x='377' y='102' xlink:href='#nn'/><a xlink:href='#reference.version'><text id='public.reference.version' x='393' y='112'>version</text><title>version
+* text</title></a>
+  <a xlink:href='#reference.link'><text id='public.reference.link' x='393' y='127'>link</text><title>link
+text</title></a>
+  <a xlink:href='#reference.file_path'><text id='public.reference.file_path' x='393' y='142'>file_path</text><title>file_path
+text</title></a>
+
+<!-- ============= Table 'mapset' ============= -->
+<rect class='table' x='450' y='218' width='105' height='210' rx='7' ry='7' />
+<line class='delim' x1='450.500000' y1='244.500000' x2='554.500000' y2='244.500000'/>
+<line class='delim' x1='465.500000' y1='244.500000' x2='465.500000' y2='427.500000'/>
+<line class='delim' x1='543.500000' y1='244.500000' x2='543.500000' y2='427.500000'/>
+<path d='M 450.50 244.50 L 450.50 225.50 Q 450.50 218.50 457.50 218.50 L 547.50 218.50 Q 554.50 218.50 554.50 225.50 L 554.50 244.50 L450.50 244.50 ' style='fill:url(#tableHeaderGradient5); stroke:none;' />
+<a xlink:href='#mapset'><text x='480' y='236'>mapset</text><title>Table public.mapset</title></a>
+  <use id='nn' x='452' y='252' xlink:href='#nn'/><a xlink:href='#mapset.mapset_id'><use id='pk' x='452' y='251' xlink:href='#pk'/><title>Pk pk_map ( mapset_id ) </title></a>
+<a xlink:href='#mapset.mapset_id'><text id='public.mapset.mapset_id' x='468' y='262' onmouseover="hghl(['linkage_group_fk_linkage_group_map','map_prop_map_prop_map_id_fkey'])" onmouseout="uhghl(['linkage_group_fk_linkage_group_map','map_prop_map_prop_map_id_fkey'])">mapset_id</text><title>mapset_id
+* serial</title></a>
+<a xlink:href='#mapset.mapset_id'><use id='ref' x='543' y='251' xlink:href='#ref'/><title>Referred by linkage_group ( map_id -&gt; mapset_id ) 
+Referred by map_prop ( map_id -&gt; mapset_id ) </title></a>
+  <use id='nn' x='452' y='267' xlink:href='#nn'/><a xlink:href='#mapset.name'><text id='public.mapset.name' x='468' y='277'>name</text><title>name
+* text</title></a>
+  <use id='nn' x='452' y='282' xlink:href='#nn'/><a xlink:href='#mapset.code'><text id='public.mapset.code' x='468' y='292'>code</text><title>code
+* text</title></a>
+  <a xlink:href='#mapset.description'><text id='public.mapset.description' x='468' y='307'>description</text><title>description
+text</title></a>
+  <a xlink:href='#mapset.reference_id'><text id='public.mapset.reference_id' x='468' y='322' onmouseover="hghl(['mapset_map_reference_id_fkey'])" onmouseout="uhghl(['mapset_map_reference_id_fkey'])">reference_id</text><title>reference_id
+integer</title></a>
+<a xlink:href='#mapset.reference_id'><use id='fk' x='543' y='311' xlink:href='#fk'/><title>References reference ( reference_id ) </title></a>
+  <use id='nn' x='452' y='327' xlink:href='#nn'/><a xlink:href='#mapset.type_id'><text id='public.mapset.type_id' x='468' y='337' onmouseover="hghl(['mapset_map_map_type_fkey'])" onmouseout="uhghl(['mapset_map_map_type_fkey'])">type_id</text><title>type_id
+* integer</title></a>
+<a xlink:href='#mapset.type_id'><use id='fk' x='543' y='326' xlink:href='#fk'/><title>References cv ( type_id -&gt; cv_id ) </title></a>
+  <a xlink:href='#mapset.created_by'><text id='public.mapset.created_by' x='468' y='352'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#mapset.created_date'><text id='public.mapset.created_date' x='468' y='367'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#mapset.modified_by'><text id='public.mapset.modified_by' x='468' y='382'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#mapset.modified_date'><text id='public.mapset.modified_date' x='468' y='397'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <use id='nn' x='452' y='402' xlink:href='#nn'/><a xlink:href='#mapset.status'><text id='public.mapset.status' x='468' y='412'>status</text><title>status
+* integer</title></a>
+
+<!-- ============= Table 'cv' ============= -->
+<rect class='table' x='495' y='38' width='90' height='120' rx='7' ry='7' />
+<line class='delim' x1='495.500000' y1='64.500000' x2='584.500000' y2='64.500000'/>
+<line class='delim' x1='510.500000' y1='64.500000' x2='510.500000' y2='157.500000'/>
+<line class='delim' x1='573.500000' y1='64.500000' x2='573.500000' y2='157.500000'/>
+<path d='M 495.50 64.50 L 495.50 45.50 Q 495.50 38.50 502.50 38.50 L 577.50 38.50 Q 584.50 38.50 584.50 45.50 L 584.50 64.50 L495.50 64.50 ' style='fill:url(#tableHeaderGradient10); stroke:none;' />
+<a xlink:href='#cv'><text x='531' y='56'>cv</text><title>Table public.cv</title></a>
+  <use id='nn' x='497' y='72' xlink:href='#nn'/><a xlink:href='#cv.cv_id'><use id='pk' x='497' y='71' xlink:href='#pk'/><title>Pk pk_cv ( cv_id ) </title></a>
+<a xlink:href='#cv.cv_id'><text id='public.cv.cv_id' x='513' y='82' onmouseover="hghl(['analysis_analysis_analysis_type_id_fkey','germplasm_germplasm_germplasm_type_id_fkey','germplasm_fk_germplasm_species_id_cv','mapset_map_map_type_fkey','marker_fk_marker_cv','platform_fk_platform_cv'])" onmouseout="uhghl(['analysis_analysis_analysis_type_id_fkey','germplasm_germplasm_germplasm_type_id_fkey','germplasm_fk_germplasm_species_id_cv','mapset_map_map_type_fkey','marker_fk_marker_cv','platform_fk_platform_cv'])">cv_id</text><title>cv_id
+* serial</title></a>
+<a xlink:href='#cv.cv_id'><use id='ref' x='573' y='71' xlink:href='#ref'/><title>Referred by analysis ( type_id -&gt; cv_id ) 
+Referred by germplasm ( type_id -&gt; cv_id ) 
+Referred by germplasm ( species_id -&gt; cv_id ) 
+Referred by mapset ( type_id -&gt; cv_id ) 
+Referred by marker ( strand_id -&gt; cv_id ) 
+Referred by platform ( type_id -&gt; cv_id ) </title></a>
+  <use id='nn' x='497' y='87' xlink:href='#nn'/><a xlink:href='#cv.group'><use id='unq' x='497' y='86' xlink:href='#unq'/><title>Unq group_term_key ( group, term ) </title></a>
+<a xlink:href='#cv.group'><text id='public.cv.group' x='513' y='97'>group</text><title>group
+* text
+Groups terms together, ex. map_type, analysis_type</title></a>
+  <use id='nn' x='497' y='102' xlink:href='#nn'/><a xlink:href='#cv.term'><use id='unq' x='497' y='101' xlink:href='#unq'/><title>Unq group_term_key ( group, term ) </title></a>
+<a xlink:href='#cv.term'><text id='public.cv.term' x='513' y='112'>term</text><title>term
+* text</title></a>
+  <use id='nn' x='497' y='117' xlink:href='#nn'/><a xlink:href='#cv.definition'><text id='public.cv.definition' x='513' y='127'>definition</text><title>definition
+* text</title></a>
+  <use id='nn' x='497' y='132' xlink:href='#nn'/><a xlink:href='#cv.rank'><text id='public.cv.rank' x='513' y='142'>rank</text><title>rank
+* integer default 0</title></a>
+
+<!-- ============= Table 'platform' ============= -->
+<rect class='table' x='1185' y='233' width='105' height='210' rx='7' ry='7' />
+<line class='delim' x1='1185.500000' y1='259.500000' x2='1289.500000' y2='259.500000'/>
+<line class='delim' x1='1200.500000' y1='259.500000' x2='1200.500000' y2='442.500000'/>
+<line class='delim' x1='1278.500000' y1='259.500000' x2='1278.500000' y2='442.500000'/>
+<path d='M 1185.50 259.50 L 1185.50 240.50 Q 1185.50 233.50 1192.50 233.50 L 1282.50 233.50 Q 1289.50 233.50 1289.50 240.50 L 1289.50 259.50 L1185.50 259.50 ' style='fill:url(#tableHeaderGradient7); stroke:none;' />
+<a xlink:href='#platform'><text x='1211' y='251'>platform</text><title>Table public.platform</title></a>
+  <use id='nn' x='1187' y='267' xlink:href='#nn'/><a xlink:href='#platform.platform_id'><use id='pk' x='1187' y='266' xlink:href='#pk'/><title>Pk pk_platform ( platform_id ) </title></a>
+<a xlink:href='#platform.platform_id'><text id='public.platform.platform_id' x='1203' y='277' onmouseover="hghl(['experiment_experiment_fk2','marker_marker_fk1','platform_prop_platform_prop_platform_id_fkey'])" onmouseout="uhghl(['experiment_experiment_fk2','marker_marker_fk1','platform_prop_platform_prop_platform_id_fkey'])">platform_id</text><title>platform_id
+* serial</title></a>
+<a xlink:href='#platform.platform_id'><use id='ref' x='1278' y='266' xlink:href='#ref'/><title>Referred by experiment ( platform_id ) 
+Referred by marker ( platform_id ) 
+Referred by platform_prop ( platform_id ) </title></a>
+  <use id='nn' x='1187' y='282' xlink:href='#nn'/><a xlink:href='#platform.name'><text id='public.platform.name' x='1203' y='292'>name</text><title>name
+* text</title></a>
+  <use id='nn' x='1187' y='297' xlink:href='#nn'/><a xlink:href='#platform.code'><text id='public.platform.code' x='1203' y='307'>code</text><title>code
+* text</title></a>
+  <a xlink:href='#platform.vendor_id'><use id='idx' x='1187' y='311' xlink:href='#idx'/><title>idx_platform ( vendor_id ) </title></a>
+<a xlink:href='#platform.vendor_id'><text id='public.platform.vendor_id' x='1203' y='322' onmouseover="hghl(['platform_fk_platform_contact'])" onmouseout="uhghl(['platform_fk_platform_contact'])">vendor_id</text><title>vendor_id
+integer</title></a>
+<a xlink:href='#platform.vendor_id'><use id='fk' x='1278' y='311' xlink:href='#fk'/><title>References contact ( vendor_id -&gt; contact_id ) </title></a>
+  <a xlink:href='#platform.description'><text id='public.platform.description' x='1203' y='337'>description</text><title>description
+text</title></a>
+  <a xlink:href='#platform.created_by'><text id='public.platform.created_by' x='1203' y='352'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#platform.created_date'><text id='public.platform.created_date' x='1203' y='367'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#platform.modified_by'><text id='public.platform.modified_by' x='1203' y='382'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#platform.modified_date'><text id='public.platform.modified_date' x='1203' y='397'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <use id='nn' x='1187' y='402' xlink:href='#nn'/><a xlink:href='#platform.status'><text id='public.platform.status' x='1203' y='412'>status</text><title>status
+* integer</title></a>
+  <use id='nn' x='1187' y='417' xlink:href='#nn'/><a xlink:href='#platform.type_id'><use id='idx' x='1187' y='416' xlink:href='#idx'/><title>idx_platform_0 ( type_id ) </title></a>
+<a xlink:href='#platform.type_id'><text id='public.platform.type_id' x='1203' y='427' onmouseover="hghl(['platform_fk_platform_cv'])" onmouseout="uhghl(['platform_fk_platform_cv'])">type_id</text><title>type_id
+* integer</title></a>
+<a xlink:href='#platform.type_id'><use id='fk' x='1278' y='416' xlink:href='#fk'/><title>References cv ( type_id -&gt; cv_id ) </title></a>
+
+<!-- ============= Table 'germplasm' ============= -->
+<rect class='table' x='60' y='68' width='105' height='210' rx='7' ry='7' />
+<line class='delim' x1='60.500000' y1='94.500000' x2='164.500000' y2='94.500000'/>
+<line class='delim' x1='75.500000' y1='94.500000' x2='75.500000' y2='277.500000'/>
+<line class='delim' x1='153.500000' y1='94.500000' x2='153.500000' y2='277.500000'/>
+<path d='M 60.50 94.50 L 60.50 75.50 Q 60.50 68.50 67.50 68.50 L 157.50 68.50 Q 164.50 68.50 164.50 75.50 L 164.50 94.50 L60.50 94.50 ' style='fill:url(#tableHeaderGradient2); stroke:none;' />
+<a xlink:href='#germplasm'><text x='79' y='86'>germplasm</text><title>Table public.germplasm</title></a>
+  <use id='nn' x='62' y='102' xlink:href='#nn'/><a xlink:href='#germplasm.germplasm_id'><use id='pk' x='62' y='101' xlink:href='#pk'/><title>Pk pk_germplasm ( germplasm_id ) </title></a>
+<a xlink:href='#germplasm.germplasm_id'><text id='public.germplasm.germplasm_id' x='78' y='112' onmouseover="hghl(['dnasample_dnasample_fk2','germplasm_prop_germplasm_prop_fk1'])" onmouseout="uhghl(['dnasample_dnasample_fk2','germplasm_prop_germplasm_prop_fk1'])">germplasm_id</text><title>germplasm_id
+* serial</title></a>
+<a xlink:href='#germplasm.germplasm_id'><use id='ref' x='153' y='101' xlink:href='#ref'/><title>Referred by dnasample ( germplasm_id ) 
+Referred by germplasm_prop ( germplasm_id ) </title></a>
+  <use id='nn' x='62' y='117' xlink:href='#nn'/><a xlink:href='#germplasm.name'><text id='public.germplasm.name' x='78' y='127'>name</text><title>name
+* text</title></a>
+  <a xlink:href='#germplasm.external_code'><text id='public.germplasm.external_code' x='78' y='142'>external_code</text><title>external_code
+text</title></a>
+  <a xlink:href='#germplasm.species_id'><use id='idx' x='62' y='146' xlink:href='#idx'/><title>idx_germplasm_0 ( species_id ) </title></a>
+<a xlink:href='#germplasm.species_id'><text id='public.germplasm.species_id' x='78' y='157' onmouseover="hghl(['germplasm_fk_germplasm_species_id_cv'])" onmouseout="uhghl(['germplasm_fk_germplasm_species_id_cv'])">species_id</text><title>species_id
+integer</title></a>
+<a xlink:href='#germplasm.species_id'><use id='fk' x='153' y='146' xlink:href='#fk'/><title>References cv ( species_id -&gt; cv_id ) </title></a>
+  <a xlink:href='#germplasm.type_id'><text id='public.germplasm.type_id' x='78' y='172' onmouseover="hghl(['germplasm_germplasm_germplasm_type_id_fkey'])" onmouseout="uhghl(['germplasm_germplasm_germplasm_type_id_fkey'])">type_id</text><title>type_id
+integer</title></a>
+<a xlink:href='#germplasm.type_id'><use id='fk' x='153' y='161' xlink:href='#fk'/><title>References cv ( type_id -&gt; cv_id ) </title></a>
+  <a xlink:href='#germplasm.created_by'><text id='public.germplasm.created_by' x='78' y='187'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#germplasm.created_date'><text id='public.germplasm.created_date' x='78' y='202'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#germplasm.modified_by'><text id='public.germplasm.modified_by' x='78' y='217'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#germplasm.modified_date'><text id='public.germplasm.modified_date' x='78' y='232'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <use id='nn' x='62' y='237' xlink:href='#nn'/><a xlink:href='#germplasm.status'><use id='idx' x='62' y='236' xlink:href='#idx'/><title>idx_germplasm ( status ) </title></a>
+<a xlink:href='#germplasm.status'><text id='public.germplasm.status' x='78' y='247'>status</text><title>status
+* integer</title></a>
+  <a xlink:href='#germplasm.code'><text id='public.germplasm.code' x='78' y='262'>code</text><title>code
+text default 0</title></a>
+
+<!-- ============= Table 'marker_group' ============= -->
+<rect class='table' x='825' y='218' width='135' height='195' rx='7' ry='7' />
+<line class='delim' x1='825.500000' y1='244.500000' x2='959.500000' y2='244.500000'/>
+<line class='delim' x1='840.500000' y1='244.500000' x2='840.500000' y2='412.500000'/>
+<line class='delim' x1='948.500000' y1='244.500000' x2='948.500000' y2='412.500000'/>
+<path d='M 825.50 244.50 L 825.50 225.50 Q 825.50 218.50 832.50 218.50 L 952.50 218.50 Q 959.50 218.50 959.50 225.50 L 959.50 244.50 L825.50 244.50 ' style='fill:url(#tableHeaderGradient11); stroke:none;' />
+<a xlink:href='#marker_group'><text x='851' y='236'>marker_group</text><title>Table public.marker_group</title></a>
+  <use id='nn' x='827' y='252' xlink:href='#nn'/><a xlink:href='#marker_group.marker_group_id'><use id='pk' x='827' y='251' xlink:href='#pk'/><title>Pk pk_marker_group ( marker_group_id ) </title></a>
+<a xlink:href='#marker_group.marker_group_id'><text id='public.marker_group.marker_group_id' x='843' y='262'>marker_group_id</text><title>marker_group_id
+* serial</title></a>
+  <use id='nn' x='827' y='267' xlink:href='#nn'/><a xlink:href='#marker_group.name'><text id='public.marker_group.name' x='843' y='277'>name</text><title>name
+* text</title></a>
+  <a xlink:href='#marker_group.code'><text id='public.marker_group.code' x='843' y='292'>code</text><title>code
+text</title></a>
+  <use id='nn' x='827' y='297' xlink:href='#nn'/><a xlink:href='#marker_group.markers'><text id='public.marker_group.markers' x='843' y='307'>markers</text><title>markers
+* jsonb</title></a>
+  <a xlink:href='#marker_group.germplasm_group'><text id='public.marker_group.germplasm_group' x='843' y='322'>germplasm_group</text><title>germplasm_group
+text</title></a>
+  <a xlink:href='#marker_group.created_by'><text id='public.marker_group.created_by' x='843' y='337'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#marker_group.modified_by'><text id='public.marker_group.modified_by' x='843' y='352'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#marker_group.modified_date'><text id='public.marker_group.modified_date' x='843' y='367'>modified_date</text><title>modified_date
+date</title></a>
+  <use id='nn' x='827' y='372' xlink:href='#nn'/><a xlink:href='#marker_group.status'><text id='public.marker_group.status' x='843' y='382'>status</text><title>status
+* integer</title></a>
+  <a xlink:href='#marker_group.created_date'><text id='public.marker_group.created_date' x='843' y='397'>created_date</text><title>created_date
+date</title></a>
+
+<!-- ============= Table 'contact' ============= -->
+<rect class='table' x='420' y='983' width='120' height='210' rx='7' ry='7' />
+<line class='delim' x1='420.500000' y1='1009.500000' x2='539.500000' y2='1009.500000'/>
+<line class='delim' x1='435.500000' y1='1009.500000' x2='435.500000' y2='1192.500000'/>
+<line class='delim' x1='528.500000' y1='1009.500000' x2='528.500000' y2='1192.500000'/>
+<path d='M 420.50 1009.50 L 420.50 990.50 Q 420.50 983.50 427.50 983.50 L 532.50 983.50 Q 539.50 983.50 539.50 990.50 L 539.50 1009.50 L420.50 1009.50 ' style='fill:url(#tableHeaderGradient1); stroke:none;' />
+<a xlink:href='#contact'><text x='457' y='1001'>contact</text><title>Table public.contact</title></a>
+  <use id='nn' x='422' y='1017' xlink:href='#nn'/><a xlink:href='#contact.contact_id'><use id='pk' x='422' y='1016' xlink:href='#pk'/><title>Pk pk_contact ( contact_id ) </title></a>
+<a xlink:href='#contact.contact_id'><text id='public.contact.contact_id' x='438' y='1027' onmouseover="hghl(['platform_fk_platform_contact','project_fk_project_contact'])" onmouseout="uhghl(['platform_fk_platform_contact','project_fk_project_contact'])">contact_id</text><title>contact_id
+* serial</title></a>
+<a xlink:href='#contact.contact_id'><use id='ref' x='528' y='1016' xlink:href='#ref'/><title>Referred by platform ( vendor_id -&gt; contact_id ) 
+Referred by project ( pi_contact -&gt; contact_id ) </title></a>
+  <use id='nn' x='422' y='1032' xlink:href='#nn'/><a xlink:href='#contact.lastname'><text id='public.contact.lastname' x='438' y='1042'>lastname</text><title>lastname
+* text</title></a>
+  <use id='nn' x='422' y='1047' xlink:href='#nn'/><a xlink:href='#contact.firstname'><text id='public.contact.firstname' x='438' y='1057'>firstname</text><title>firstname
+* text</title></a>
+  <use id='nn' x='422' y='1062' xlink:href='#nn'/><a xlink:href='#contact.code'><text id='public.contact.code' x='438' y='1072'>code</text><title>code
+* text</title></a>
+  <use id='nn' x='422' y='1077' xlink:href='#nn'/><a xlink:href='#contact.email'><text id='public.contact.email' x='438' y='1087'>email</text><title>email
+* text</title></a>
+  <a xlink:href='#contact.roles'><text id='public.contact.roles' x='438' y='1102'>roles</text><title>roles
+_int4</title></a>
+  <a xlink:href='#contact.created_by'><text id='public.contact.created_by' x='438' y='1117'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#contact.created_date'><text id='public.contact.created_date' x='438' y='1132'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#contact.modified_by'><text id='public.contact.modified_by' x='438' y='1147'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#contact.modified_date'><text id='public.contact.modified_date' x='438' y='1162'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#contact.organization_id'><text id='public.contact.organization_id' x='438' y='1177' onmouseover="hghl(['contact_fk_organization_contact'])" onmouseout="uhghl(['contact_fk_organization_contact'])">organization_id</text><title>organization_id
+integer</title></a>
+<a xlink:href='#contact.organization_id'><use id='fk' x='528' y='1166' xlink:href='#fk'/><title>References organization ( organization_id ) </title></a>
+
+<!-- ============= Table 'organization' ============= -->
+<rect class='table' x='840' y='1028' width='120' height='180' rx='7' ry='7' />
+<line class='delim' x1='840.500000' y1='1054.500000' x2='959.500000' y2='1054.500000'/>
+<line class='delim' x1='855.500000' y1='1054.500000' x2='855.500000' y2='1207.500000'/>
+<line class='delim' x1='948.500000' y1='1054.500000' x2='948.500000' y2='1207.500000'/>
+<path d='M 840.50 1054.50 L 840.50 1035.50 Q 840.50 1028.50 847.50 1028.50 L 952.50 1028.50 Q 959.50 1028.50 959.50 1035.50 L 959.50 1054.50 L840.50 1054.50 ' style='fill:url(#tableHeaderGradient8); stroke:none;' />
+<a xlink:href='#organization'><text x='863' y='1046'>organization</text><title>Table public.organization</title></a>
+  <use id='nn' x='842' y='1062' xlink:href='#nn'/><a xlink:href='#organization.organization_id'><use id='pk' x='842' y='1061' xlink:href='#pk'/><title>Pk organization_pkey ( organization_id ) </title></a>
+<a xlink:href='#organization.organization_id'><text id='public.organization.organization_id' x='858' y='1072' onmouseover="hghl(['contact_fk_organization_contact'])" onmouseout="uhghl(['contact_fk_organization_contact'])">organization_id</text><title>organization_id
+* serial</title></a>
+<a xlink:href='#organization.organization_id'><use id='ref' x='948' y='1061' xlink:href='#ref'/><title>Referred by contact ( organization_id ) </title></a>
+  <use id='nn' x='842' y='1077' xlink:href='#nn'/><a xlink:href='#organization.name'><use id='unq' x='842' y='1076' xlink:href='#unq'/><title>Unq organization_name_key ( name ) </title></a>
+<a xlink:href='#organization.name'><text id='public.organization.name' x='858' y='1087'>name</text><title>name
+* text</title></a>
+  <a xlink:href='#organization.address'><text id='public.organization.address' x='858' y='1102'>address</text><title>address
+text</title></a>
+  <a xlink:href='#organization.website'><text id='public.organization.website' x='858' y='1117'>website</text><title>website
+text</title></a>
+  <a xlink:href='#organization.created_by'><text id='public.organization.created_by' x='858' y='1132'>created_by</text><title>created_by
+integer</title></a>
+  <a xlink:href='#organization.created_date'><text id='public.organization.created_date' x='858' y='1147'>created_date</text><title>created_date
+date default ('now'::text)::date</title></a>
+  <a xlink:href='#organization.modified_by'><text id='public.organization.modified_by' x='858' y='1162'>modified_by</text><title>modified_by
+integer</title></a>
+  <a xlink:href='#organization.modified_date'><text id='public.organization.modified_date' x='858' y='1177'>modified_date</text><title>modified_date
+date default ('now'::text)::date</title></a>
+  <use id='nn' x='842' y='1182' xlink:href='#nn'/><a xlink:href='#organization.status'><text id='public.organization.status' x='858' y='1192'>status</text><title>status
+* integer default 1</title></a>
+
+</g></svg>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='dataset'>Table dataset</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset.dataset_id'>dataset&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset.experiment_id'>experiment&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset.callinganalysis_id'>callinganalysis&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.analyses'>analyses</a></td>
+		<td> &#95;int4   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.data_table'>data&#95;table</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.data_file'>data&#95;file</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.quality_table'>quality&#95;table</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.quality_file'>quality&#95;file</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.scores'>scores</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.type_id'>type&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;dataset</td>
+		<td> ON dataset&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>dataset_fk2</td>
+		<td > ( callinganalysis&#95;id ) ref <a href='#analysis'>analysis</a> (analysis&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>dataset_fk1</td>
+		<td > ( experiment&#95;id ) ref <a href='#experiment'>experiment</a> (experiment&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='dnarun'>Table dnarun</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='dnarun.dnarun_id'>dnarun&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnarun.experiment_id'>experiment&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnarun.dnasample_id'>dnasample&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnarun.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnarun.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;dnarun</td>
+		<td> ON dnarun&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>dnarun_fk2</td>
+		<td > ( dnasample&#95;id ) ref <a href='#dnasample'>dnasample</a> (dnasample&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>dnarun_fk1</td>
+		<td > ( experiment&#95;id ) ref <a href='#experiment'>experiment</a> (experiment&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='dataset_dnarun'>Table dataset_dnarun</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset_dnarun.dataset_dnarun_id'>dataset&#95;dnarun&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset_dnarun.dataset_id'>dataset&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset_dnarun.dnarun_id'>dnarun&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset_dnarun.dnarun_idx'>dnarun&#95;idx</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;dataset&#95;dnarun</td>
+		<td> ON dataset&#95;dnarun&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>dataset_dnarun_fk1</td>
+		<td > ( dataset&#95;id ) ref <a href='#dataset'>dataset</a> (dataset&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>dataset_dnarun_fk2</td>
+		<td > ( dnarun&#95;id ) ref <a href='#dnarun'>dnarun</a> (dnarun&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='role'>Table role</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='role.role_id'>role&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='role.role_name'>role&#95;name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='role.role_code'>role&#95;code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='role.read_tables'>read&#95;tables</a></td>
+		<td> &#95;int4   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='role.write_tables'>write&#95;tables</a></td>
+		<td> &#95;int4   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;role</td>
+		<td> ON role&#95;id</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='display'>Table display</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='display.display_id'>display&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='display.table_name'>table&#95;name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='display.column_name'>column&#95;name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='display.display_name'>display&#95;name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='display.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='display.created_date'>created&#95;date</a></td>
+		<td> date   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='display.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='display.modified_date'>modified&#95;date</a></td>
+		<td> date   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='display.rank'>rank</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;table&#95;display</td>
+		<td> ON display&#95;id</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='analysis'>Table analysis</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='analysis.analysis_id'>analysis&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.description'>description</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='analysis.type_id'>type&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.program'>program</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.programversion'>programversion</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.algorithm'>algorithm</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.sourcename'>sourcename</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.sourceversion'>sourceversion</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.sourceuri'>sourceuri</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.reference_id'>reference&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.parameters'>parameters</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='analysis.timeexecuted'>timeexecuted</a></td>
+		<td> timestamp   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='analysis.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;analysis</td>
+		<td> ON analysis&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>analysis_analysis_type_id_fkey</td>
+		<td > ( type&#95;id ) ref <a href='#cv'>cv</a> (cv&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='experiment'>Table experiment</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='experiment.experiment_id'>experiment&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='experiment.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='experiment.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='experiment.project_id'>project&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='experiment.platform_id'>platform&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='experiment.manifest_id'>manifest&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='experiment.data_file'>data&#95;file</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='experiment.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='experiment.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='experiment.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='experiment.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='experiment.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;experiment</td>
+		<td> ON experiment&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>name&#95;project&#95;id&#95;platform&#95;id&#95;key</td>
+		<td> ON name&#44; project&#95;id&#44; platform&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>experiment_fk3</td>
+		<td > ( manifest&#95;id ) ref <a href='#manifest'>manifest</a> (manifest&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>experiment_fk2</td>
+		<td > ( platform&#95;id ) ref <a href='#platform'>platform</a> (platform&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>experiment_fk1</td>
+		<td > ( project&#95;id ) ref <a href='#project'>project</a> (project&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='manifest'>Table manifest</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='manifest.manifest_id'>manifest&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='manifest.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='manifest.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='manifest.file_path'>file&#95;path</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='manifest.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='manifest.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='manifest.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='manifest.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;manifest</td>
+		<td> ON manifest&#95;id</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='dnasample'>Table dnasample</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='dnasample.dnasample_id'>dnasample&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnasample.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.platename'>platename</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.num'>num</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.well_row'>well&#95;row</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.well_col'>well&#95;col</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnasample.project_id'>project&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnasample.germplasm_id'>germplasm&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnasample.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;dnasample</td>
+		<td> ON dnasample&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>dnasample_fk2</td>
+		<td > ( germplasm&#95;id ) ref <a href='#germplasm'>germplasm</a> (germplasm&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>dnasample_fk1</td>
+		<td > ( project&#95;id ) ref <a href='#project'>project</a> (project&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='project'>Table project</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='project.project_id'>project&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='project.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='project.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='project.description'>description</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='project.pi_contact'>pi&#95;contact</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='project.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='project.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='project.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='project.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='project.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;project</td>
+		<td> ON project&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;project</td>
+		<td> ON pi&#95;contact</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>pi&#95;project&#95;name&#95;key</td>
+		<td> ON pi&#95;contact&#44; name</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_project_contact</td>
+		<td > ( pi&#95;contact ) ref <a href='#contact'>contact</a> (contact&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='dataset_marker'>Table dataset_marker</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset_marker.dataset_marker_id'>dataset&#95;marker&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset_marker.dataset_id'>dataset&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dataset_marker.marker_id'>marker&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset_marker.call_rate'>call&#95;rate</a></td>
+		<td> real   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset_marker.maf'>maf</a></td>
+		<td> real   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset_marker.reproducibility'>reproducibility</a></td>
+		<td> real   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset_marker.scores'>scores</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dataset_marker.marker_idx'>marker&#95;idx</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;dataset&#95;marker</td>
+		<td> ON dataset&#95;marker&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>dataset_marker_dataset_id_fkey</td>
+		<td > ( dataset&#95;id ) ref <a href='#dataset'>dataset</a> (dataset&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>dataset_marker_marker_id_fkey</td>
+		<td > ( marker&#95;id ) ref <a href='#marker'>marker</a> (marker&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='variant'>Table variant</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='variant.variant_id'>variant&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='variant.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='variant.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='variant.created_date'>created&#95;date</a></td>
+		<td> date   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='variant.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='variant.modified_date'>modified&#95;date</a></td>
+		<td> date   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;variant</td>
+		<td> ON variant&#95;id</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='marker'>Table marker</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='marker.marker_id'>marker&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker.platform_id'>platform&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker.variant_id'>variant&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker.ref'>ref</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker.alts'>alts</a></td>
+		<td> &#95;text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker.sequence'>sequence</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker.reference_id'>reference&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker.primers'>primers</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker.probsets'>probsets</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker.strand_id'>strand&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;marker</td>
+		<td> ON marker&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;marker</td>
+		<td> ON strand&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;marker&#95;0</td>
+		<td> ON reference&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>marker_fk1</td>
+		<td > ( platform&#95;id ) ref <a href='#platform'>platform</a> (platform&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>marker_fk2</td>
+		<td > ( variant&#95;id ) ref <a href='#variant'>variant</a> (variant&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_marker_cv</td>
+		<td > ( strand&#95;id ) ref <a href='#cv'>cv</a> (cv&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_marker_reference</td>
+		<td > ( reference&#95;id ) ref <a href='#reference'>reference</a> (reference&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='germplasm_prop'>Table germplasm_prop</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='germplasm_prop.germplasm_prop_id'>germplasm&#95;prop&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='germplasm_prop.germplasm_id'>germplasm&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm_prop.props'>props</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;germplasm&#95;prop</td>
+		<td> ON germplasm&#95;prop&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>idx&#95;germplasm&#95;prop</td>
+		<td> ON germplasm&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>germplasm_prop_fk1</td>
+		<td > ( germplasm&#95;id ) ref <a href='#germplasm'>germplasm</a> (germplasm&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='map_prop'>Table map_prop</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='map_prop.map_prop_id'>map&#95;prop&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='map_prop.map_id'>map&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='map_prop.props'>props</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;map&#95;prop</td>
+		<td> ON map&#95;prop&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>idx&#95;map&#95;prop</td>
+		<td> ON map&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>map_prop_map_id_fkey</td>
+		<td > ( map&#95;id ) ref <a href='#mapset'>mapset</a> (mapset&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='marker_prop'>Table marker_prop</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_prop.marker_prop_id'>marker&#95;prop&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_prop.marker_id'>marker&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_prop.props'>props</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;marker&#95;prop</td>
+		<td> ON marker&#95;prop&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>idx&#95;marker&#95;prop</td>
+		<td> ON marker&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>marker_prop_marker_id_fkey</td>
+		<td > ( marker&#95;id ) ref <a href='#marker'>marker</a> (marker&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='platform_prop'>Table platform_prop</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='platform_prop.platform_prop_id'>platform&#95;prop&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='platform_prop.platform_id'>platform&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='platform_prop.props'>props</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;platform&#95;prop</td>
+		<td> ON platform&#95;prop&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>idx&#95;platform&#95;prop</td>
+		<td> ON platform&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>platform_prop_platform_id_fkey</td>
+		<td > ( platform&#95;id ) ref <a href='#platform'>platform</a> (platform&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='dnasample_prop'>Table dnasample_prop</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='dnasample_prop.dnasample_prop_id'>dnasample&#95;prop&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnasample_prop.dnasample_id'>dnasample&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='dnasample_prop.props'>props</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;dnasample&#95;prop</td>
+		<td> ON dnasample&#95;prop&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>idx&#95;dnasample&#95;prop</td>
+		<td> ON dnasample&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>dnasample_prop_fk1</td>
+		<td > ( dnasample&#95;id ) ref <a href='#dnasample'>dnasample</a> (dnasample&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='dnarun_prop'>Table dnarun_prop</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='dnarun_prop.dnarun_prop_id'>dnarun&#95;prop&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnarun_prop.dnarun_id'>dnarun&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='dnarun_prop.props'>props</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;dnarun&#95;prop</td>
+		<td> ON dnarun&#95;prop&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>idx&#95;dnarun&#95;prop</td>
+		<td> ON dnarun&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>dnarun_prop_dnarun_id_fkey</td>
+		<td > ( dnarun&#95;id ) ref <a href='#dnarun'>dnarun</a> (dnarun&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='project_prop'>Table project_prop</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='project_prop.project_prop_id'>project&#95;prop&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='project_prop.project_id'>project&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='project_prop.props'>props</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;project&#95;prop</td>
+		<td> ON project&#95;prop&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>idx&#95;project&#95;prop</td>
+		<td> ON project&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>project_prop_fk1</td>
+		<td > ( project&#95;id ) ref <a href='#project'>project</a> (project&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='linkage_group'>Table linkage_group</a></th></tr>
+<tr><td colspan='3'>This table will contain different linkage groups&#44; ie&#46; Chromosome 1&#44; Chromosome 2&#44; etc&#46; along with their respective start and stop boundaries&#46; </td></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='linkage_group.linkage_group_id'>linkage&#95;group&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='linkage_group.name'>name</a></td>
+		<td> varchar&#40; 2147483647 &#41;   </td>
+		<td> ex&#46; Chromosome 1&#44; Chromosome 2&#44; &#46;&#46;&#46;&#44; ChromosomeN&#44; LG01&#44; LG02&#44; etc&#46; </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='linkage_group.start'>start</a></td>
+		<td> integer   DEFO 0 </td>
+		<td> Start of the linkage group&#46; 0&#45;based&#44; interbased coordinates&#46; </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='linkage_group.stop'>stop</a></td>
+		<td> integer   DEFO 0 </td>
+		<td> The maximum position in the linkage group&#44; ex&#46; 200&#44; 200000000
+ </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='linkage_group.map_id'>map&#95;id</a></td>
+		<td> integer   </td>
+		<td> Foreign key to the Map table&#46; This defines which map the linkage group belongs to&#46; </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;linkage&#95;group</td>
+		<td> ON linkage&#95;group&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;linkage&#95;group</td>
+		<td> ON map&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_linkage_group_map</td>
+		<td > ( map&#95;id ) ref <a href='#mapset'>mapset</a> (mapset&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='marker_linkage_group'>Table marker_linkage_group</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_linkage_group.marker_linkage_group_id'>marker&#95;linkage&#95;group&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_linkage_group.marker_id'>marker&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_linkage_group.start'>start</a></td>
+		<td> numeric&#40; 13&#44; 3 &#41;   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_linkage_group.stop'>stop</a></td>
+		<td> numeric&#40; 13&#44; 3 &#41;   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_linkage_group.linkage_group_id'>linkage&#95;group&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;marker&#95;map</td>
+		<td> ON marker&#95;linkage&#95;group&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;marker&#95;map</td>
+		<td> ON linkage&#95;group&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_marker_linkage_group</td>
+		<td > ( linkage&#95;group&#95;id ) ref <a href='#linkage&#95;group'>linkage&#95;group</a> (linkage&#95;group&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>marker_map_marker_id_fkey</td>
+		<td > ( marker&#95;id ) ref <a href='#marker'>marker</a> (marker&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='reference'>Table reference</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='reference.reference_id'>reference&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='reference.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='reference.version'>version</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='reference.link'>link</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='reference.file_path'>file&#95;path</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;reference</td>
+		<td> ON reference&#95;id</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='mapset'>Table mapset</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='mapset.mapset_id'>mapset&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='mapset.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='mapset.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='mapset.description'>description</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='mapset.reference_id'>reference&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='mapset.type_id'>type&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='mapset.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='mapset.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='mapset.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='mapset.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='mapset.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;map</td>
+		<td> ON mapset&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>map_map_type_fkey</td>
+		<td > ( type&#95;id ) ref <a href='#cv'>cv</a> (cv&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>map_reference_id_fkey</td>
+		<td > ( reference&#95;id ) ref <a href='#reference'>reference</a> (reference&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='cv'>Table cv</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='cv.cv_id'>cv&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='cv.group'>group</a></td>
+		<td> text   </td>
+		<td> Groups terms together&#44; ex&#46; map&#95;type&#44; analysis&#95;type </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='cv.term'>term</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='cv.definition'>definition</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='cv.rank'>rank</a></td>
+		<td> integer   DEFO 0 </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;cv</td>
+		<td> ON cv&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>group&#95;term&#95;key</td>
+		<td> ON group&#44; term</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='platform'>Table platform</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='platform.platform_id'>platform&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='platform.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='platform.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='platform.vendor_id'>vendor&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='platform.description'>description</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='platform.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='platform.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='platform.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='platform.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='platform.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='platform.type_id'>type&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;platform</td>
+		<td> ON platform&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;platform</td>
+		<td> ON vendor&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;platform&#95;0</td>
+		<td> ON type&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_platform_contact</td>
+		<td > ( vendor&#95;id ) ref <a href='#contact'>contact</a> (contact&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_platform_cv</td>
+		<td > ( type&#95;id ) ref <a href='#cv'>cv</a> (cv&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='germplasm'>Table germplasm</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='germplasm.germplasm_id'>germplasm&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='germplasm.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm.external_code'>external&#95;code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm.species_id'>species&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm.type_id'>type&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='germplasm.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='germplasm.code'>code</a></td>
+		<td> text   DEFO 0 </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;germplasm</td>
+		<td> ON germplasm&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;germplasm</td>
+		<td> ON status</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>&nbsp;</td><td>idx&#95;germplasm&#95;0</td>
+		<td> ON species&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>germplasm_germplasm_type_id_fkey</td>
+		<td > ( type&#95;id ) ref <a href='#cv'>cv</a> (cv&#95;id) </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_germplasm_species_id_cv</td>
+		<td > ( species&#95;id ) ref <a href='#cv'>cv</a> (cv&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='marker_group'>Table marker_group</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_group.marker_group_id'>marker&#95;group&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_group.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_group.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_group.markers'>markers</a></td>
+		<td> jsonb   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_group.germplasm_group'>germplasm&#95;group</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_group.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_group.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_group.modified_date'>modified&#95;date</a></td>
+		<td> date   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='marker_group.status'>status</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='marker_group.created_date'>created&#95;date</a></td>
+		<td> date   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;marker&#95;group</td>
+		<td> ON marker&#95;group&#95;id</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='contact'>Table contact</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='contact.contact_id'>contact&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='contact.lastname'>lastname</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='contact.firstname'>firstname</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='contact.code'>code</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='contact.email'>email</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='contact.roles'>roles</a></td>
+		<td> &#95;int4   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='contact.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='contact.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='contact.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='contact.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='contact.organization_id'>organization&#95;id</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>pk&#95;contact</td>
+		<td> ON contact&#95;id</td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Foreign Keys</b></th></tr>
+	<tr>
+		<td>&nbsp;</td><td>fk_organization_contact</td>
+		<td > ( organization&#95;id ) ref <a href='#organization'>organization</a> (organization&#95;id) </td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+<br/><br/>
+<table class='bordered'>
+<thead>
+<tr><th colspan='4'><a name='organization'>Table organization</a></th></tr>
+</thead>
+<tbody>
+	<tr>
+		<td>*</td>
+		<td><a name='organization.organization_id'>organization&#95;id</a></td>
+		<td> serial   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='organization.name'>name</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='organization.address'>address</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='organization.website'>website</a></td>
+		<td> text   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='organization.created_by'>created&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='organization.created_date'>created&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='organization.modified_by'>modified&#95;by</a></td>
+		<td> integer   </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><a name='organization.modified_date'>modified&#95;date</a></td>
+		<td> date   DEFO ('now'::text)::date </td>
+		<td>  </td>
+	</tr>
+	<tr>
+		<td>*</td>
+		<td><a name='organization.status'>status</a></td>
+		<td> integer   DEFO 1 </td>
+		<td>  </td>
+	</tr>
+<tr><th colspan='4'><b>Indexes</b></th></tr>
+	<tr>		<td>Pk</td><td>organization&#95;pkey</td>
+		<td> ON organization&#95;id</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td>U</td><td>organization&#95;name&#95;key</td>
+		<td> ON name</td>
+		<td>  </td>
+	</tr>
+</tbody>
+</table>
+
+</body></html>

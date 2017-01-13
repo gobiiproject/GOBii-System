@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.gobiiproject</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.0.6-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.gobiiproject</groupId>
+    <artifactId>gobii-web</artifactId>
+    <packaging>war</packaging>
+
+    <properties>
+
+
+        <!-- Generic properties -->
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+
+        <!-- Liquibase properties -->
+        <liquibase.version>3.3.2</liquibase.version>
+
+        <!-- Web -->
+        <jsp.version>2.2</jsp.version>
+        <jstl.version>1.2</jstl.version>
+        <servlet.version>2.5</servlet.version>
+
+
+        <!-- Test -->
+
+        <httpclient.version>4.4</httpclient.version>
+        <httpcore.version>4.4</httpcore.version>
+
+        <!-- DBCP -->
+        <dbpc.version>1.4</dbpc.version>
+        <opencsv-version>2.3</opencsv-version>
+
+    </properties>
+
+    <dependencies>
+
+        <!-- gobii dependencies -->
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-model</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-domain</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
+
+            <!--
+            **** Ideally we would want to prevent the transitive dependency of gobii-domain on gobii-dao from bringing
+            **** the gobii-dao project into the web context: we always want entityaccess to the dao layer to go through the
+            **** service layer (which is implemented in the domain). However, if we exclude the dependency, spring
+            **** security filter chain initialization fails because the framework class that's consuming the
+            **** user detail service can't get supply the user detail service with user dao class. So we're all on
+            **** scout's honor to avoid accessing dao directly from anywhere but the service layer.
+            -->
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.gobiiproject</groupId>-->
+            <!--<artifactId>gobii-dao</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
+        </dependency>
+
+        <!-- Spring WEB -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring-framework.version}</version>
+        </dependency>
+
+        <!-- Spring MVC -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring-framework.version}</version>
+        </dependency>
+
+
+        <!-- Spring and Transactions -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring-framework.version}</version>
+        </dependency>
+
+        <!--Spring ORM support-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring-framework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.0.0.Beta5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.1.1.GA</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring-security.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring-security.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring-security.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-taglibs</artifactId>
+            <version>${spring-security.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>${spring-security.crypto}</version>
+        </dependency>
+
+
+        <!-- Spring and Transactions -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring-framework.version}</version>
+        </dependency>
+
+        <!-- Logging with SLF4J & LogBack -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <!--Hibernate-->
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>${hibernate.javax.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${hibernate.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Test Artifacts -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring-framework.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>${httpcore.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-cache</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>fluent-hc</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+
+        <!-- Liquibase -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+        </dependency>
+
+
+        <!-- DBCP -->
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>${dbpc.version}</version>
+        </dependency>
+
+        <!-- servlet container provided dependencies -->
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>7.0.30</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Jackson JSON Processor -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+
+        <!-- Jackson JSON Mapper -->
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>${jackson-mapper-version}</version>
+        </dependency>
+
+
+        <!-- CSV Processor -->
+        <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>2.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.1.3.v20140225</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+
+            <!--
+               Delegates build to "grunt" for several phases
+            -->
+            <plugin>
+                <groupId>pl.allegro</groupId>
+                <artifactId>grunt-maven-plugin</artifactId>
+                <version>${grunt-plugin-version}</version>
+                <configuration>
+                    <gruntBuildDirectory>${project.build.directory}/grunt</gruntBuildDirectory>
+                </configuration>
+                <executions>
+
+                    <!--
+                    Maven "validate" phase:
+                    This execution will result in running npm install
+                    -->
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <!--<goal>create-resources</goal>-->
+                            <goal>npm</goal><!-- setup grunt and plugin -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>prepare-package-nodemodules</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Copy all generated javascript files into the final directory structure -->
+                            <!--<outputDirectory>${project.build.outputDirectory}/${project.artifactId}</outputDirectory>-->
+                            <outputDirectory>${project.build.directory}/${project.build.finalName}/js/node_modules
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <!-- Take the node-module code from where npm puts it -->
+                                    <directory>${project.basedir}/node_modules</directory>
+                                    <includes>
+                                        <!-- *************************************************-->
+                                        <!-- deployed javascript libraries to support angular2-->
+                                        <!-- ***** GROUP 1: supporting libraries -->
+                                        <include>es6-shim/es6-shim.min.js</include>
+                                        <include>systemjs/dist/system-polyfills.js</include>
+                                        <include>systemjs/dist/system.src.js</include>
+                                        <include>rxjs/bundles/Rx.js</include>
+                                        <include>bootstrap/dist/css/bootstrap.min.css</include>
+                                        <include>zone.js/dist/zone.js</include>
+                                        <include>core-js/client/shim.min.js</include>
+                                        <include>reflect-metadata/Reflect.js</include>
+                                        <include>rxjs/bundles/Rx.js</include>
+                                        <include>rxjs/add/**</include>
+
+
+                                        <!-- ***** GROUP 2: angular files from beta 2 that we probably don't want-->
+                                        <!--<include>angular2/bundles/angular2.dev.js</include>-->
+                                        <!--<include>angular2/bundles/router.dev.js</include>-->
+                                        <!--<include>angular2/es6/dev/src/testing/shims_for_IE.js</include>-->
+                                        <!--<include>angular2/bundles/angular2-polyfills.js</include>-->
+                                        <!--<include>angular2/bundles/http.dev.js</include>-->
+
+
+                                        <!-- ***** GROUP 3: angular index.js files-->
+                                        <include>@angular/core/index.js</include>
+                                        <include>@angular/common/index.js</include>
+                                        <include>@angular/compiler/index.js</include>
+                                        <include>@angular/router/index.js</include>
+                                        <include>@angular/router-deprecated/index.js</include>
+                                        <include>@angular/http/index.js</include>
+                                        <include>@angular/platform-browser/index.js</include>
+                                        <include>@angular/platform-browser-dynamic/index.js</include>
+
+                                        <!-- ***** GROUP 4: angular source files -->
+                                        <include>@angular/core/private_export.js</include>
+                                        <include>@angular/core/src/**</include>
+                                        <include>@angular/platform-browser-dynamic/platform_browser_dynamic.js</include>
+                                        <include>@angular/platform-browser-dynamic/core_private.js</include>
+                                        <include>@angular/platform-browser-dynamic/src/**</include>
+                                        <include>@angular/http/http.js</include>
+                                        <include>@angular/http/src/**</include>
+                                        <include>@angular/platform-browser/src/**</include>
+                                        <include>@angular/platform-browser/private_export.js</include>
+                                        <include>@angular/platform-browser/core_private.js</include>
+                                        <include>@angular/compiler/compiler.js</include>
+                                        <include>@angular/compiler/private_export.js</include>
+                                        <include>@angular/compiler/core_private.js</include>
+                                        <include>@angular/compiler/src/**</include>
+                                        <include>@angular/common/src/**</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

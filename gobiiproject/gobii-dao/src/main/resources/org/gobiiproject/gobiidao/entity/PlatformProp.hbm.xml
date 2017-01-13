@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.PlatformProp" table="platform_prop" schema="public">
+        <id name="platformPropId" type="int">
+            <column name="platform_prop_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="platformId" type="int">
+            <column name="platform_id" not-null="true" />
+        </property>
+        <property name="props" type="serializable">
+            <column name="props" />
+        </property>
+    </class>
+</hibernate-mapping>

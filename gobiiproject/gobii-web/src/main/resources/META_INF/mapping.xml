@@ -1,0 +1,28 @@
+<entity-mappings
+        xmlns="http://java.sun.com/xml/ns/persistence/orm"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm/orm_2_0.xsd"
+        version="2.0">
+
+    <sql-result-set-mapping name="ContactRoleMapping">
+        <entity-result entity-class="org.gobiiproject.gobiidao.entity.pojos.Contact">
+            <field-result name="contactId" column="contact_id"/>
+            <field-result name="lastName" column="lastname"/>
+            <field-result name="firstName" column="firstname"/>
+            <field-result name="email" column="email"/>
+            <field-result name="code" column="code"/>
+        </entity-result>
+        <entity-result entity-class="org.gobiiproject.gobiidao.entity.pojos.Role">
+            <field-result name="roleId" column="role_id"/>
+            <field-result name="roleName" column="role_name"/>
+            <field-result name="roleCode" column="role_code"/>
+        </entity-result>
+    </sql-result-set-mapping>
+
+
+</entity-mappings>
+
+<!--<named-stored-procedure-query name="SPGetContactsByType" procedure-name="get_contacts_by_type">-->
+<!--<parameter direction="IN" name="_role_name" type="String"/>-->
+<!--<parameter direction="OUT" type="REF_CURSOR"/>-->
+<!--</named-stored-procedure-query>-->

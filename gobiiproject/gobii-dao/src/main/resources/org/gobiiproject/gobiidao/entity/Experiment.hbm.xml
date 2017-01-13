@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Experiment" table="experiment" schema="public">
+        <id name="experimentId" type="int">
+            <column name="experiment_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="experimentName" type="string">
+            <column name="experiment_name" not-null="true" />
+        </property>
+        <property name="experimentCode" type="string">
+            <column name="experiment_code" not-null="true" />
+        </property>
+        <property name="projectId" type="int">
+            <column name="project_id" not-null="true" />
+        </property>
+        <property name="platformId" type="java.lang.Integer">
+            <column name="platform_id" />
+        </property>
+        <property name="manifestId" type="java.lang.Integer">
+            <column name="manifest_id" />
+        </property>
+        <property name="dataFile" type="string">
+            <column name="data_file" />
+        </property>
+        <property name="createdBy" type="string">
+            <column name="created_by" not-null="true" />
+        </property>
+        <property name="createdDate" type="date">
+            <column name="created_date" length="13" not-null="true" />
+        </property>
+        <property name="modifiedBy" type="string">
+            <column name="modified_by" not-null="true" />
+        </property>
+        <property name="modifiedDate" type="date">
+            <column name="modified_date" length="13" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

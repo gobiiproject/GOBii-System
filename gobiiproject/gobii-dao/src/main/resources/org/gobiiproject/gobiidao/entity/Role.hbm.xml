@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Role" table="role" schema="public">
+        <id name="roleId" type="int">
+            <column name="role_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="roleName" type="string">
+            <column name="role_name" not-null="true" />
+        </property>
+        <property name="roleCode" type="string">
+            <column name="role_code" not-null="true" />
+        </property>
+        <property name="readTables" type="serializable">
+            <column name="read_tables" />
+        </property>
+        <property name="writeTables" type="serializable">
+            <column name="write_tables" />
+        </property>
+    </class>
+</hibernate-mapping>

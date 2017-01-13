@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Platform" table="platform" schema="public">
+        <id name="platformId" type="int">
+            <column name="platform_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="platformName" type="string">
+            <column name="platform_name" not-null="true" />
+        </property>
+        <property name="platformCode" type="string">
+            <column name="platform_code" not-null="true" />
+        </property>
+        <property name="platformVendor" type="string">
+            <column name="platform_vendor" not-null="true" />
+        </property>
+        <property name="platformDescription" type="string">
+            <column name="platform_description" />
+        </property>
+        <property name="createdBy" type="string">
+            <column name="created_by" not-null="true" />
+        </property>
+        <property name="createdDate" type="date">
+            <column name="created_date" length="13" not-null="true" />
+        </property>
+        <property name="modifiedBy" type="string">
+            <column name="modified_by" not-null="true" />
+        </property>
+        <property name="modifiedDate" type="date">
+            <column name="modified_date" length="13" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

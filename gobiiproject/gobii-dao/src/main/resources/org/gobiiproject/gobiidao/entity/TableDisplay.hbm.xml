@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.TableDisplay" table="table_display" schema="public">
+        <id name="tableId" type="int">
+            <column name="table_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="tableName" type="string">
+            <column name="table_name" not-null="true" />
+        </property>
+        <property name="col" type="string">
+            <column name="col" />
+        </property>
+        <property name="createdBy" type="java.lang.Integer">
+            <column name="created_by" />
+        </property>
+        <property name="createdDate" type="date">
+            <column name="created_date" length="13" />
+        </property>
+        <property name="modifiedBy" type="java.lang.Integer">
+            <column name="modified_by" />
+        </property>
+        <property name="modifiedDate" type="date">
+            <column name="modified_date" length="13" />
+        </property>
+    </class>
+</hibernate-mapping>

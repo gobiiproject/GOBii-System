@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Project" table="project" schema="public">
+        <id name="projectId" type="int">
+            <column name="project_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="projectName" type="string">
+            <column name="project_name" not-null="true" />
+        </property>
+        <property name="projectCode" type="string">
+            <column name="project_code" />
+        </property>
+        <property name="projectDescription" type="string">
+            <column name="project_description" />
+        </property>
+        <property name="piContact" type="int">
+            <column name="pi_contact" not-null="true" />
+        </property>
+        <property name="createdBy" type="int">
+            <column name="created_by" not-null="true" />
+        </property>
+        <property name="createdDate" type="date">
+            <column name="created_date" length="13" not-null="true" />
+        </property>
+        <property name="modifiedBy" type="int">
+            <column name="modified_by" not-null="true" />
+        </property>
+        <property name="modifiedDate" type="date">
+            <column name="modified_date" length="13" not-null="true" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

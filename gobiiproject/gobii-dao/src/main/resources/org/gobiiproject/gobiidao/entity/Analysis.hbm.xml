@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Analysis" table="analysis" schema="public">
+        <id name="analysisId" type="int">
+            <column name="analysis_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="analysisName" type="string">
+            <column name="analysis_name" />
+        </property>
+        <property name="analysisDescription" type="string">
+            <column name="analysis_description" />
+        </property>
+        <property name="anlaysisTypeId" type="int">
+            <column name="anlaysis_type_id" not-null="true" />
+        </property>
+        <property name="program" type="string">
+            <column name="program" />
+        </property>
+        <property name="programversion" type="string">
+            <column name="programversion" />
+        </property>
+        <property name="algorithm" type="string">
+            <column name="algorithm" />
+        </property>
+        <property name="sourcename" type="string">
+            <column name="sourcename" />
+        </property>
+        <property name="sourceversion" type="string">
+            <column name="sourceversion" />
+        </property>
+        <property name="sourceuri" type="string">
+            <column name="sourceuri" />
+        </property>
+        <property name="referenceId" type="java.lang.Integer">
+            <column name="reference_id" />
+        </property>
+        <property name="parameters" type="serializable">
+            <column name="parameters" />
+        </property>
+        <property name="timeexecuted" type="timestamp">
+            <column name="timeexecuted" length="29" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

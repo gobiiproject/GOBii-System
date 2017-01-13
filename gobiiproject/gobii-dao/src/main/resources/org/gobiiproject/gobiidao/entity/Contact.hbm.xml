@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 31, 2016 1:44:36 PM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="org.gobiiproject.gobiidao.entity.pojos.Contact" table="contact" schema="public">
+        <id name="contactId" type="int">
+            <column name="contact_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="lastname" type="string">
+            <column name="lastname" not-null="true" />
+        </property>
+        <property name="firstname" type="string">
+            <column name="firstname" not-null="true" />
+        </property>
+        <property name="code" type="string">
+            <column name="code" not-null="true" />
+        </property>
+        <property name="email" type="string">
+            <column name="email" not-null="true" />
+        </property>
+        <property name="roles" type="serializable">
+            <column name="roles" />
+        </property>
+        <property name="createdBy" type="int">
+            <column name="created_by" not-null="true" />
+        </property>
+        <property name="createdDate" type="date">
+            <column name="created_date" length="13" not-null="true" />
+        </property>
+        <property name="modifiedBy" type="java.lang.Integer">
+            <column name="modified_by" />
+        </property>
+        <property name="modifiedDate" type="date">
+            <column name="modified_date" length="13" />
+        </property>
+    </class>
+</hibernate-mapping>

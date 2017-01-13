@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<columns>
+    <column>
+        <name>name</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>dnasample_name</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>platename</name>
+    	<required>false</required>    
+    </column>
+    <column>
+        <name>num</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>well_col</name>
+    	<required>false</required>    
+    </column>
+    <column>
+        <name>well_row</name>
+    	<required>false</required>    
+    </column>
+</columns>

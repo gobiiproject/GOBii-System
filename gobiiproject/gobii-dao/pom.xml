@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>parent</artifactId>
+        <groupId>org.gobiiproject</groupId>
+        <version>1.0.6-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.gobiiproject</groupId>
+    <artifactId>gobii-dao</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- gobii dependencies -->
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-model</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring-framework.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring-framework.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>${hibernate.javax.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${hibernate.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
+        <!--<dependency>-->
+        <!--<groupId>org.hibernate</groupId>-->
+        <!--<artifactId>hibernate-core</artifactId>-->
+        <!--<version>${hibernate.version}</version>-->
+        <!--<exclusions>-->
+        <!--<exclusion>-->
+        <!--<groupId>org.jboss.logging</groupId>-->
+        <!--<artifactId>jboss-logging</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>org.jboss.logging</groupId>-->
+        <!--<artifactId>jboss-logging-annotations</artifactId>-->
+        <!--</exclusion>-->
+        <!--</exclusions>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Logging with SLF4J & LogBack -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+
+        <!-- Hibernate -->
+    </dependencies>
+
+    <!-- DO NOT USE THIS PLUGIN FOR NOW.
+         IT WAS USED TO GENERATE INITIAL VERSIONS OF THE ENTITIES.
+         HOWEVER, JSONB SERIALIZATION REQUIRES MODIFICAITON OF THE ENTITIES.
+         THERE IS ALMOST CERTAINLY A WAY TO BAKE THESE MODIFICATIONS INTO THE
+         ENTITY GENERATION PROCESS USING THE reveng.xml FILE. HOWEVER, WE DON'T
+         HAVE TIME FOR THAT NOW
+         -->
+    <!--<build>-->
+    <!--<plugins>-->
+
+    <!--
+        This plugin will generate Hibernate entity classes from the database specified
+        at resources/hibernate.properties.
+        For this to work, you have to set up a maven run configuration as follows:
+        Commandline: clean hibernate3:hbm2hbmxml hibernate3:hbm2java compile
+        Working directory: <physical-path-to-module> (e.g., C:/phil-source/IntelliJ/gobiiproject/gobii-dao)
+
+        This goal has to be run whenever changes are made to the database schema.
+        These files are dumped into src/main/java because otherwise (if they are dumped
+        to target) the maven compiler does not see them (the maven compile plugin could
+        probably be configured to do otherwise). In order for the IDE to see the changes,
+        you have to do generate sources).
+
+
+    -->
+    <!--<plugin>-->
+    <!--<groupId>org.codehaus.mojo</groupId>-->
+    <!--<artifactId>hibernate3-maven-plugin</artifactId>-->
+    <!--<version>${maven-hibernate-plugin.version}</version>-->
+    <!--<configuration>-->
+    <!--<components>-->
+    <!--<component>-->
+    <!--<name>hbm2hbmxml</name>-->
+    <!--<implementation>jdbcconfiguration</implementation>-->
+    <!--<outputDirectory>src/main/resources</outputDirectory>-->
+    <!--</component>-->
+    <!--<component>-->
+    <!--<name>hbm2java</name>-->
+    <!--<implementation>jdbcconfiguration</implementation>-->
+    <!--<outputDirectory>src/main/java</outputDirectory>-->
+    <!--</component>-->
+    <!--</components>-->
+    <!--<componentProperties>-->
+    <!--<revengfile>src/main/resources/reveng.xml</revengfile>-->
+    <!--<propertyfile>src/main/resources/hibernate.properties</propertyfile>-->
+    <!--<packagename>org.gobiiproject.gobiidao.generated.entity</packagename>-->
+    <!--<jdk5>false</jdk5>-->
+    <!--<ejb3>true</ejb3>-->
+    <!--</componentProperties>-->
+    <!--</configuration>-->
+    <!--<dependencies>-->
+    <!--<dependency>-->
+    <!--<groupId>cglib</groupId>-->
+    <!--<artifactId>cglib</artifactId>-->
+    <!--<version>${cglib.version}</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+    <!--<groupId>org.postgresql</groupId>-->
+    <!--<artifactId>postgresql</artifactId>-->
+    <!--<version>${postgres.version}</version>-->
+    <!--</dependency>-->
+    <!--</dependencies>-->
+    <!--</plugin>-->
+    <!--</plugins>-->
+    <!--</build>-->
+</project>

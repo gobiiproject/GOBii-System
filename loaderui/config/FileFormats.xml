@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FileFormats>
+    <FileFormat>
+        <name>GENERIC</name>
+        <extention>txt</extention>
+        <delim>\t</delim>
+    </FileFormat>
+    <FileFormat>
+        <name>GENERIC</name>
+        <extention>csv</extention>
+        <delim>,</delim>
+    </FileFormat>
+    <FileFormat>
+        <name>HAPMAP</name>
+        <extention>hmp.txt</extention>
+        <delim>\t</delim>
+    </FileFormat>
+    <FileFormat>
+        <name>VCF</name>
+        <extention>vcf</extention>
+        <delim>,</delim>
+    </FileFormat>
+</FileFormats>

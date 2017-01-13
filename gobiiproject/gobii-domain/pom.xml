@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>parent</artifactId>
+        <groupId>org.gobiiproject</groupId>
+        <version>1.0.6-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.gobiiproject</groupId>
+    <artifactId>gobii-domain</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- gobii dependencies -->
+
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-dtomapping</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-model</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Spring and Transactions -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring-framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring-security.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>

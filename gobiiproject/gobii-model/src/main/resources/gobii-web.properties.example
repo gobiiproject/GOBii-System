@@ -1,0 +1,180 @@
+## GLOBAL SETTINGS -------------------------------------
+websvr.defaultcrop=TEST
+mailsvr.type=SMTP
+mailsvr.domain=smtp.gmail.com
+mailsvr.user=gobii.jira@gmail.com
+mailsvr.port=465
+mailsvr.hashtype=na
+mailsvr.pwd=na
+ifl.integritycheck=false
+filesys.root=/shared_data/gobii/
+
+
+## DEV  -------------------------------------------------
+crops.dev.servicedomain=cbsugobii06.tc.cornell.edu
+crops.dev.serviceapproot=/gobii-dev/
+crops.dev.serviceport=8080
+crops.dev.active=true
+# ---------- FILE MANAGEMENT
+crops.dev.usrfloc=/shared_data/gobii/crops/dev/files/
+crops.dev.ldrfloc=/shared_data/gobii/crops/dev/loader/instructions/
+crops.dev.extrfloc=/shared_data/gobii/crops/dev/extractor/instructions/
+crops.dev.intfloc=/shared_data/gobii/crops/dev/loader/digest/
+# ---------- MONET
+crops.dev.db.monetdb.host=cbsugobii06.tc.cornell.edu
+crops.dev.db.monetdb.dbname=gobii_dev
+crops.dev.db.monetdb.port=5000
+crops.dev.db.monetdb.username=appuser
+crops.dev.db.monetdb.password=appuser
+# ---------- POSTGRES
+crops.dev.db.postgresql.host=cbsugobii06.tc.cornell.edu
+crops.dev.db.postgresql.dbname=gobii_dev
+crops.dev.db.postgresql.port=5432
+crops.dev.db.postgresql.username=appuser
+crops.dev.db.postgresql.password=appuser
+
+
+## TEST  -------------------------------------------------
+crops.test.servicedomain=cbsugobii06.tc.cornell.edu
+crops.test.serviceapproot=/gobii-test/
+crops.test.serviceport=8080
+crops.test.active=true
+# ---------- FILE MANAGEMENT
+crops.test.usrfloc=/shared_data/gobii/crops/test/files/
+crops.test.ldrfloc=/shared_data/gobii/crops/test/loader/instructions/
+crops.test.extrfloc=/shared_data/gobii/crops/test/extractor/instructions/
+crops.test.intfloc=/shared_data/gobii/crops/test/loader/digest/
+# ---------- MONET
+crops.test.db.monetdb.host=cbsugobii06.tc.cornell.edu
+crops.test.db.monetdb.dbname=gobii_test
+crops.test.db.monetdb.port=5000
+crops.test.db.monetdb.username=appuser
+crops.test.db.monetdb.password=appuser
+# ---------- POSTGRES
+crops.test.db.postgresql.host=cbsugobii06.tc.cornell.edu
+crops.test.db.postgresql.dbname=gobii_test
+crops.test.db.postgresql.port=5432
+crops.test.db.postgresql.username=appuser
+crops.test.db.postgresql.password=appuser
+
+
+
+## CHICKPEA  -------------------------------------------------
+crops.chickpea.servicedomain=cbsugobii06.tc.cornell.edu
+crops.chickpea.serviceapproot=/gobii-chickpea/
+crops.chickpea.serviceport=8080
+crops.chickpea.active=true
+# ---------- FILE MANAGEMENT
+crops.chickpea.usrfloc=/shared_data/gobii/crops/chickpea/files/
+crops.chickpea.ldrfloc=/shared_data/gobii/crops/chickpea/loader/instructions/
+crops.chickpea.extrfloc=/shared_data/gobii/crops/chickpea/extractor/instructions/
+crops.chickpea.intfloc=/shared_data/gobii/crops/chickpea/loader/digest/
+# ---------- MONET
+crops.chickpea.db.monetdb.host=cbsugobii06.tc.cornell.edu
+crops.chickpea.db.monetdb.dbname=gobii_chickpea
+crops.chickpea.db.monetdb.port=5000
+crops.chickpea.db.monetdb.username=appuser
+crops.chickpea.db.monetdb.password=appuser
+# ---------- POSTGRES
+crops.chickpea.db.postgresql.host=cbsugobii08.tc.cornell.edu
+crops.chickpea.db.postgresql.dbname=gobii_chickpea
+crops.chickpea.db.postgresql.port=5432
+crops.chickpea.db.postgresql.username=appuser
+crops.chickpea.db.postgresql.password=appuser
+
+
+## MAIZE  -------------------------------------------------
+crops.maize.servicedomain=cbsugobii06.tc.cornell.edu
+crops.maize.serviceapproot=/gobii-maize/
+crops.maize.serviceport=8080
+crops.maize.active=true
+# ---------- FILE MANAGEMENT
+crops.maize.usrfloc=/shared_data/gobii/crops/maize/files/
+crops.maize.ldrfloc=/shared_data/gobii/crops/maize/loader/instructions/
+crops.maize.extrfloc=/shared_data/gobii/crops/maize/extractor/instructions/
+crops.maize.intfloc=/shared_data/gobii/crops/maize/loader/digest/
+# ---------- MONET
+crops.maize.db.monetdb.host=localhost
+crops.maize.db.monetdb.dbname=gobii_maize
+crops.maize.db.monetdb.port=5000
+crops.maize.db.monetdb.username=appuser
+crops.maize.db.monetdb.password=appuser
+# ---------- POSTGRES
+crops.maize.db.postgresql.host=cbsugobii07.tc.cornell.edu
+crops.maize.db.postgresql.dbname=gobii_maize
+crops.maize.db.postgresql.port=5432
+crops.maize.db.postgresql.username=appuser
+crops.maize.db.postgresql.password=appuser
+
+## RICE -------------------------------------------------
+crops.rice.servicedomain=cbsugobii06.tc.cornell.edu
+#crops.rice.servicedomain=localhost
+crops.rice.serviceapproot=/gobii-rice/
+crops.rice.serviceport=8080
+crops.rice.active=true
+# ---------- FILE MANAGEMENT
+crops.rice.usrfloc=/shared_data/gobii/crops/rice/files/
+crops.rice.ldrfloc=/shared_data/gobii/crops/rice/loader/instructions/
+crops.rice.extrfloc=/shared_data/gobii/crops/rice/extractor/instructions/
+crops.rice.intfloc=/shared_data/gobii/crops/rice/loader/digest/
+# ---------- MONET
+crops.rice.db.monetdb.host=cbsugobii06.tc.cornell.edu
+crops.rice.db.monetdb.dbname=gobii_rice
+crops.rice.db.monetdb.port=5000
+crops.rice.db.monetdb.username=appuser
+crops.rice.db.monetdb.password=appuser
+# ---------- POSTGRES
+crops.rice.db.postgresql.host=cbsugobii08.tc.cornell.edu
+crops.rice.db.postgresql.dbname=gobii_rice
+crops.rice.db.postgresql.port=5432
+crops.rice.db.postgresql.username=appuser
+crops.rice.db.postgresql.password=appuser
+
+
+## SORGHUM  -------------------------------------------------
+crops.sorghum.servicedomain=cbsugobii06.tc.cornell.edu
+crops.sorghum.serviceapproot=/gobii-sorghum/
+crops.sorghum.serviceport=8080
+crops.sorghum.active=true
+# ---------- FILE MANAGEMENT
+crops.sorghum.usrfloc=/shared_data/gobii/crops/sorghum/files/
+crops.sorghum.ldrfloc=/shared_data/gobii/crops/sorghum/loader/instructions/
+crops.sorghum.extrfloc=/shared_data/gobii/crops/sorghum/extractor/instructions/
+crops.sorghum.intfloc=/shared_data/gobii/crops/sorghum/loader/digest/
+# ---------- MONET
+crops.sorghum.db.monetdb.host=cbsugobii06.tc.cornell.edu
+crops.sorghum.db.monetdb.dbname=gobii_sorghum
+crops.sorghum.db.monetdb.port=5000
+crops.sorghum.db.monetdb.username=appuser
+crops.sorghum.db.monetdb.password=appuser
+# ---------- POSTGRES
+crops.sorghum.db.postgresql.host=cbsugobii08.tc.cornell.edu
+crops.sorghum.db.postgresql.dbname=gobii_sorghum
+crops.sorghum.db.postgresql.port=5432
+crops.sorghum.db.postgresql.username=appuser
+crops.sorghum.db.postgresql.password=appuser
+
+## WHEAT  -------------------------------------------------
+crops.wheat.servicedomain=cbsugobii06.tc.cornell.edu
+crops.wheat.serviceapproot=/gobii-wheat/
+crops.wheat.serviceport=8080
+# ---------- FILE MANAGEMENT
+crops.wheat.usrfloc=/shared_data/gobii/crops/wheat/files/
+crops.wheat.ldrfloc=/shared_data/gobii/crops/wheat/loader/instructions/
+crops.wheat.extrfloc=/shared_data/gobii/crops/wheat/extractor/instructions/
+crops.wheat.intfloc=/shared_data/gobii/crops/wheat/loader/digest/
+crops.wheat.active=true
+# ---------- MONET
+crops.wheat.db.monetdb.host=cbsugobii06.tc.cornell.edu
+crops.wheat.db.monetdb.dbname=gobii_wheat
+crops.wheat.db.monetdb.port=5000
+crops.wheat.db.monetdb.username=appuser
+crops.wheat.db.monetdb.password=appuser
+# ---------- POSTGRES
+crops.wheat.db.postgresql.host=cbsugobii07.tc.cornell.edu
+crops.wheat.db.postgresql.dbname=gobii_wheat
+crops.wheat.db.postgresql.port=5432
+crops.wheat.db.postgresql.username=appuser
+crops.wheat.db.postgresql.password=appuser
+
+
