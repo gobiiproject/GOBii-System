@@ -29,7 +29,7 @@ System.register(["@angular/core", "../../model/type-process", "../../model/serve
                     this.processType = type_process_1.ProcessType.READ;
                 }
                 DtoRequestItemServerConfigs.prototype.getUrl = function () {
-                    return "load/configsettings";
+                    return "gobii/v1/configsettings";
                 }; // getUrl()
                 DtoRequestItemServerConfigs.prototype.getRequestBody = function () {
                     return JSON.stringify({
@@ -38,15 +38,13 @@ System.register(["@angular/core", "../../model/type-process", "../../model/serve
                 };
                 DtoRequestItemServerConfigs.prototype.resultFromJson = function (json) {
                     var returnVal = [];
-                    console.log("*************ENTITY NAME: " + json.entityName);
-                    console.log(json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages);
-                    console.log(json.namesById);
-                    var arrayOfIds = Object.keys(json.serverConfigs);
+                    var serverConfigs = json.payload.data[0].serverConfigs;
+                    var arrayOfIds = Object.keys(serverConfigs);
                     arrayOfIds.forEach(function (crop) {
                         var currentCrop = crop;
-                        var currentDomain = json.serverConfigs[crop].domain;
-                        var currentContextRoot = json.serverConfigs[crop].contextRoot;
-                        var currentPort = Number(json.serverConfigs[crop].port);
+                        var currentDomain = serverConfigs[crop].domain;
+                        var currentContextRoot = serverConfigs[crop].contextRoot;
+                        var currentPort = Number(serverConfigs[crop].port);
                         returnVal.push(new server_config_1.ServerConfig(currentCrop, currentDomain, currentContextRoot, currentPort));
                     });
                     return returnVal;

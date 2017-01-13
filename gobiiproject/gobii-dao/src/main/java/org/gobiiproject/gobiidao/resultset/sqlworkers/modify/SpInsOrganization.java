@@ -11,7 +11,7 @@ public class SpInsOrganization extends SpDef {
 
     public SpInsOrganization() {
 
-        super("{call createorganization(?,?,?,?,?,?,?)}");
+        super("{call createorganization(?,?,?,?,?,?,?,?)}");
 
         this.addParamDef("name", String.class).setNullable(false);
         this.addParamDef("address", String.class).setNullable(false);
@@ -20,6 +20,7 @@ public class SpInsOrganization extends SpDef {
         this.addParamDef("createdDate", Date.class).setNullable(true);
         this.addParamDef("modifiedBy", Integer.class).setNullable(true);
         this.addParamDef("modifiedDate", Date.class).setNullable(true);
+        this.addParamDef("status", Integer.class).setNullable(false);
 
 
     } // ctor

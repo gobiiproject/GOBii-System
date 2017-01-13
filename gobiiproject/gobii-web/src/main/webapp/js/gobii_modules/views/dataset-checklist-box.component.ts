@@ -10,6 +10,7 @@ import {DtoRequestItemDataSet} from "../services/app/dto-request-item-dataset";
 import {DataSet} from "../model/dataset";
 import {DtoRequestItemAnalysis} from "../services/app/dto-request-item-analysis";
 import {Analysis} from "../model/analysis";
+import {EntityFilter} from "../model/type-entity-filter";
 
 
 @Component({
@@ -114,8 +115,9 @@ export class DataSetCheckListBoxComponent implements OnInit,OnChanges {
 
         if( scope$.experimentId) {
 
-            this._dtoRequestServiceNameId.getResult(new DtoRequestItemNameIds(ProcessType.READ,
-                EntityType.DataSetNamesByExperimentId,
+            this._dtoRequestServiceNameId.get(new DtoRequestItemNameIds(
+                EntityType.DataSets,
+                EntityFilter.BYTYPEID,
                 this.experimentId)).subscribe(nameIds => {
                     if (nameIds && ( nameIds.length > 0 )) {
 
@@ -151,7 +153,7 @@ export class DataSetCheckListBoxComponent implements OnInit,OnChanges {
 
         if( dataSetId ) {
             let scope$ = this;
-            scope$._dtoRequestServiceDataSetDetail.getResult(new DtoRequestItemDataSet(dataSetId))
+            scope$._dtoRequestServiceDataSetDetail.get(new DtoRequestItemDataSet(dataSetId))
                 .subscribe(dataSet => {
 
                         if (dataSet) {
@@ -206,7 +208,9 @@ export class DataSetCheckListBoxComponent implements OnInit,OnChanges {
 
         let scope$ = this;
         scope$._dtoRequestServiceNameId
-            .getResult(new DtoRequestItemNameIds(ProcessType.READ, EntityType.CvGroupTerms, "analysis_type"))
+            .get(new DtoRequestItemNameIds(EntityType.CvTerms,
+                EntityFilter.BYTYPENAME,
+                "analysis_type"))
             .subscribe(nameIdList => {
                     scope$.nameIdListAnalysisTypes = nameIdList;
                     if (this.experimentId) {

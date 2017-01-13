@@ -68,13 +68,13 @@ public class DlgWizTemplate extends Dialog {
 		lblTemplateName.setText("Template Name:");
 		
 		Combo cbName = new Combo(shell, SWT.NONE);
-		cbName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		new Label(shell, SWT.NONE);
 		WizardUtils.getTemplateFiles(null, cbName);
 		
 		Composite composite = new Composite(shell, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
-		GridData gd_composite = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		GridData gd_composite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_composite.heightHint = 35;
 		composite.setLayoutData(gd_composite);
 		
@@ -87,7 +87,7 @@ public class DlgWizTemplate extends Dialog {
 				shell.close();
 			}
 		});
-		btnOk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnOk.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnOk.setText("OK");
 		
 		Button btnCancel = new Button(composite, SWT.NONE);
@@ -98,7 +98,7 @@ public class DlgWizTemplate extends Dialog {
 				shell.close();
 			}
 		});
-		btnCancel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnCancel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnCancel.setText("Cancel");
 
 	}

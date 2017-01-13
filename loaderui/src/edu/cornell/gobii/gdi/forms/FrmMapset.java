@@ -15,9 +15,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiclient.dtorequests.DtoRequestMapset;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
 import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
 import org.gobiiproject.gobiimodel.dto.container.MapsetDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
@@ -62,7 +62,7 @@ public class FrmMapset extends AbstractFrm {
 
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -72,6 +72,8 @@ public class FrmMapset extends AbstractFrm {
 		lblCode.setText("Code:");
 
 		txtCode = new Text(cmpForm, SWT.BORDER);
+		txtCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label lblDescription = new Label(cmpForm, SWT.NONE);
@@ -87,17 +89,17 @@ public class FrmMapset extends AbstractFrm {
 		cbReference = new Combo(cmpForm, SWT.READ_ONLY);
 		cbReference.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		FormUtils.entrySetToCombo(Controller.getReferenceNames(), cbReference);
-		
+
 		Label lblMapType = new Label(cmpForm, SWT.NONE);
 		lblMapType.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblMapType.setText("Map type:");
+		lblMapType.setText("*Map type:");
 
 		cbMapType = new Combo(cmpForm, SWT.READ_ONLY);
 		cbMapType.setEnabled(false);
 		cbMapType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		populateMapTypesCombo(cbMapType);
 		FormUtils.entrySetToCombo(Controller.getMapTypes(), cbMapType);
-		
+
 		Label lblProperties = new Label(cmpForm, SWT.NONE);
 		lblProperties.setText("Properties:");
 
@@ -111,61 +113,61 @@ public class FrmMapset extends AbstractFrm {
 			private TableEditor editor;
 
 			@Override
-	         public void widgetSelected(SelectionEvent e) {
-	             // Clean up any previous editor control
-	             editor = new TableEditor(tbProperties);
-	             // The editor must have the same size as the cell and must
-	             // not be any smaller than 50 pixels.
-	             editor.horizontalAlignment = SWT.LEFT;
-	             editor.grabHorizontal = true;
-	             editor.minimumWidth = 50;
-	             Control oldEditor = editor.getEditor();
-	             if (oldEditor != null)
-	                 oldEditor.dispose();                
+			public void widgetSelected(SelectionEvent e) {
+				// Clean up any previous editor control
+				editor = new TableEditor(tbProperties);
+				// The editor must have the same size as the cell and must
+				// not be any smaller than 50 pixels.
+				editor.horizontalAlignment = SWT.LEFT;
+				editor.grabHorizontal = true;
+				editor.minimumWidth = 50;
+				Control oldEditor = editor.getEditor();
+				if (oldEditor != null)
+					oldEditor.dispose();                
 
-	             // Identify the selected row
-	             TableItem item = (TableItem) e.item;
-	             if (item == null)
-	                 return;
+				// Identify the selected row
+				TableItem item = (TableItem) e.item;
+				if (item == null)
+					return;
 
-	             // The control that will be the editor must be a child of the
-	             // Table
-	             Text newEditor = new Text(tbProperties, SWT.NONE);
-	             final int EDITABLECOLUMN=1;
-	             newEditor.setText(item.getText(EDITABLECOLUMN));
-	             Listener textListener = new Listener() {
-	 				public void handleEvent(final Event e) {
-	 					switch (e.type) {
-	 					case SWT.FocusOut:
-	 						item.setText(EDITABLECOLUMN, newEditor.getText());
-	 						newEditor.dispose();
-	 						break;
-	 					case SWT.Traverse:
-	 						switch (e.detail) {
-	 						case SWT.TRAVERSE_RETURN:
-	 							item
-	 							.setText(EDITABLECOLUMN, newEditor.getText());
-	 							// FALL THROUGH
-	 						case SWT.TRAVERSE_ESCAPE:
-	 							newEditor.dispose();
-	 							e.doit = false;
-	 						}
-	 						break;
-	 					}
-	 				}
-	 			};
-	 			newEditor.addListener(SWT.FocusOut, textListener);
-	 			newEditor.addListener(SWT.Traverse, textListener);
-	 			newEditor.selectAll();
-	 			newEditor.setFocus();           
-	 			editor.setEditor(newEditor, item, EDITABLECOLUMN);      
-	         }
-	     });
-		
+				// The control that will be the editor must be a child of the
+				// Table
+				Text newEditor = new Text(tbProperties, SWT.NONE);
+				final int EDITABLECOLUMN=1;
+				newEditor.setText(item.getText(EDITABLECOLUMN));
+				Listener textListener = new Listener() {
+					public void handleEvent(final Event e) {
+						switch (e.type) {
+						case SWT.FocusOut:
+							item.setText(EDITABLECOLUMN, newEditor.getText());
+							newEditor.dispose();
+							break;
+						case SWT.Traverse:
+							switch (e.detail) {
+							case SWT.TRAVERSE_RETURN:
+								item
+								.setText(EDITABLECOLUMN, newEditor.getText());
+								// FALL THROUGH
+							case SWT.TRAVERSE_ESCAPE:
+								newEditor.dispose();
+								e.doit = false;
+							}
+							break;
+						}
+					}
+				};
+				newEditor.addListener(SWT.FocusOut, textListener);
+				newEditor.addListener(SWT.Traverse, textListener);
+				newEditor.selectAll();
+				newEditor.setFocus();           
+				editor.setEditor(newEditor, item, EDITABLECOLUMN);      
+			}
+		});
+
 		TableColumn tblclmnProperty = new TableColumn(tbProperties, SWT.NONE);
 		tblclmnProperty.setWidth(150);
 		tblclmnProperty.setText("Property");
-		
+
 		TableColumn tblclmnValue = new TableColumn(tbProperties, SWT.NONE);
 		tblclmnValue.setWidth(100);
 		tblclmnValue.setText("Value");
@@ -179,7 +181,7 @@ public class FrmMapset extends AbstractFrm {
 					if(!validate(true)) return;
 
 					DtoRequestMapset dtoRequestMapset = new DtoRequestMapset();
-					MapsetDTO mapsetDTO = new MapsetDTO(DtoMetaData.ProcessType.CREATE);
+					MapsetDTO mapsetDTO = new MapsetDTO(GobiiProcessType.CREATE);
 					mapsetDTO.setName(txtName.getText());
 					mapsetDTO.setCode(cbList.getText()+"_"+txtName.getText().replaceAll(" ", "_"));
 					mapsetDTO.setDescription(memoDescription.getText() == null ? "" : memoDescription.getText());
@@ -201,10 +203,10 @@ public class FrmMapset extends AbstractFrm {
 					mapsetDTO.setModifiedBy(1);
 					mapsetDTO.setCreatedDate(new Date());
 					mapsetDTO.setModifiedDate(new Date());
-					mapsetDTO.setStatus(1);
+					mapsetDTO.setStatusId(1);
 					try{
 						MapsetDTO mapsetDTOResponse = dtoRequestMapset.process(mapsetDTO);
-						if(Controller.getDTOResponse(shell, mapsetDTOResponse, memInfo)){
+						if(Controller.getDTOResponse(shell, mapsetDTOResponse, memInfo, true)){
 							populateMapsetFromSelectedMapType(cbList.getText());
 						};
 					}catch(Exception err){
@@ -215,7 +217,7 @@ public class FrmMapset extends AbstractFrm {
 				}
 			}
 		});
-		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
 
@@ -227,7 +229,7 @@ public class FrmMapset extends AbstractFrm {
 					if(!validate(false)) return;
 					if(!FormUtils.updateForm(getShell(), "Mapset", IDs.mapsetName)) return;
 					DtoRequestMapset dtoRequestMapset = new DtoRequestMapset();
-					MapsetDTO mapsetDTO = new MapsetDTO(DtoMetaData.ProcessType.UPDATE);
+					MapsetDTO mapsetDTO = new MapsetDTO(GobiiProcessType.UPDATE);
 					mapsetDTO.setMapsetId(IDs.mapsetId);
 					mapsetDTO.setName(txtName.getText());
 					mapsetDTO.setCode(cbList.getText()+"_"+txtName.getText().replaceAll(" ", "_"));
@@ -250,10 +252,10 @@ public class FrmMapset extends AbstractFrm {
 					mapsetDTO.setModifiedBy(1);
 					mapsetDTO.setCreatedDate(new Date());
 					mapsetDTO.setModifiedDate(new Date());
-					mapsetDTO.setStatus(1);
+					mapsetDTO.setStatusId(1);
 					try{
 						MapsetDTO mapsetDTOResponse = dtoRequestMapset.process(mapsetDTO);
-						if(Controller.getDTOResponse(shell, mapsetDTOResponse, memInfo)){
+						if(Controller.getDTOResponse(shell, mapsetDTOResponse, memInfo, true)){
 							populateMapsetFromSelectedMapType(cbList.getText());
 						};
 					}catch(Exception err){
@@ -264,10 +266,10 @@ public class FrmMapset extends AbstractFrm {
 				}
 			}
 		});
-		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnUpdate.setText("Update");
 		new Label(cmpForm, SWT.NONE);
-		
+
 		Button btnClearFields = new Button(cmpForm, SWT.NONE);
 		btnClearFields.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -275,7 +277,7 @@ public class FrmMapset extends AbstractFrm {
 				cleanDetails();
 			}
 		});
-		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnClearFields.setText("Clear Fields");
 		new Label(cmpForm, SWT.NONE);
 
@@ -287,7 +289,7 @@ public class FrmMapset extends AbstractFrm {
 				WizardUtils.CreateMarkerWizard(shell, config);
 			}
 		});
-		btnMarkerWizard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnMarkerWizard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnMarkerWizard.setText("Marker Wizard");
 
 	}
@@ -301,6 +303,7 @@ public class FrmMapset extends AbstractFrm {
 	protected void createContent() {
 		try{
 			FormUtils.entrySetToCombo(Controller.getMapTypes(), cbList);
+			cbList.setText("*Select mapset type");
 			FormUtils.entrySetToTable(Controller.getMapNames(), tbList);
 
 			TableColumn tblclmnMapsets = new TableColumn(tbList, SWT.NONE);
@@ -310,6 +313,7 @@ public class FrmMapset extends AbstractFrm {
 				public void handleEvent(Event e) {
 					String selected = cbList.getText(); //single selection
 					cbMapType.select(cbMapType.indexOf(selected));
+					cleanDetails();
 					populateMapsetFromSelectedMapType(selected);
 				}
 			});
@@ -323,21 +327,40 @@ public class FrmMapset extends AbstractFrm {
 
 
 			});
+
+			btnRefresh.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					tbList.removeAll();
+					Integer id = FormUtils.getIdFromFormList(cbList);
+					if(id>0){
+						cleanDetails();
+						populateMapsetFromSelectedMapType(cbList.getText());
+						FormUtils.entrySetToComboSelectId(Controller.getMapTypes(), cbList, id);
+					}
+					else{
+						FormUtils.entrySetToCombo(Controller.getMapTypes(), cbList);
+						FormUtils.entrySetToTable(Controller.getMapNames(), tbList);
+					}
+
+					FormUtils.entrySetToCombo(Controller.getReferenceNames(), cbReference);
+					cleanDetails();
+				}
+			});
 		}catch (Exception err) {
 			Utils.log(shell, memInfo, log, "Error retrieving Mapsets", err);
 		}
 	}
-	
+
 	protected void populateMapsetFromSelectedMapType(String selected){
 		try{
-			cleanDetails();
 			IDs.mapTypeId = Integer.parseInt((String) cbList.getData(selected));
 			populateMapsetFromSelectedMapType(IDs.mapTypeId);
 		}catch (Exception err) {
 			Utils.log(shell, memInfo, log, "Error retrieving Mapsets", err);
 		}
 	}
-	
+
 	protected void populateMapsetFromSelectedMapType(Integer selected){
 		try{
 			tbList.removeAll();
@@ -346,7 +369,7 @@ public class FrmMapset extends AbstractFrm {
 			Utils.log(shell, memInfo, log, "Error retrieving Mapsets", err);
 		}
 	}
-	
+
 	protected void cleanDetails() {
 		try{
 			txtName.setText("");
@@ -364,15 +387,17 @@ public class FrmMapset extends AbstractFrm {
 	protected void populateMapsetDetails(int mapsetId) {
 		cleanDetails();
 		DtoRequestMapset dtoRequestMapset = new DtoRequestMapset();
-        MapsetDTO MapsetDTORequest = new MapsetDTO();
-        MapsetDTORequest.setMapsetId(IDs.mapsetId);
-        try {
+		MapsetDTO MapsetDTORequest = new MapsetDTO(GobiiProcessType.READ);
+		MapsetDTORequest.setMapsetId(IDs.mapsetId);
+		try {
 			MapsetDTO mapsetDTOResponse = dtoRequestMapset.process(MapsetDTORequest);
+			if(mapsetDTOResponse.getReferenceId() != null){
+				FormUtils.entrySetToComboSelectId(Controller.getReferenceNames(), cbReference, mapsetDTOResponse.getReferenceId());
+			}
+			selectedName = mapsetDTOResponse.getName();
 			txtName.setText(mapsetDTOResponse.getName());
 			txtCode.setText(mapsetDTOResponse.getCode());
 			memoDescription.setText(mapsetDTOResponse.getDescription());
-			if(mapsetDTOResponse.getReferenceId() != null)
-				FormUtils.entrySetToComboSelectId(Controller.getReferenceNames(), cbReference, mapsetDTOResponse.getReferenceId());
 			for(TableItem item : tbProperties.getItems()){
 				for(EntityPropertyDTO prop : mapsetDTOResponse.getProperties()){
 					String key = (String) item.getData(item.getText(0));
@@ -382,11 +407,12 @@ public class FrmMapset extends AbstractFrm {
 					}
 				}
 			}
+//			}
 		} catch (Exception err) {
 			Utils.log(shell, memInfo, log, "Error retrieving Mapset details", err);
 		}
 	}
-	
+
 	private void populateMapTypesCombo(Combo combo) {
 		try{
 			FormUtils.entrySetToCombo(Controller.getMapTypes(), combo);
@@ -404,9 +430,12 @@ public class FrmMapset extends AbstractFrm {
 		}else if(txtName.getText().isEmpty()){
 			successful = false;
 			message = "Name is a required field!";
-		}else if(isNew){
+		}else if(!isNew && IDs.mapsetId==0){
+			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
+			successful = false;
+		}else if(isNew|| !txtName.getText().equalsIgnoreCase(selectedName)){
 			for(TableItem item : tbList.getItems()){
-				if(item.getText().equals(txtName.getText())){
+				if(item.getText().equalsIgnoreCase(txtName.getText())){
 					successful = false;
 					message = "Mapset name already exists for this Map Type!";
 					break;

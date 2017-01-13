@@ -14,6 +14,5 @@ public interface RsDataSetDao {
     ResultSet getDataSetDetailsByDataSetId(Integer projectId) throws GobiiDaoException;
     Integer createDataset(Map<String,Object> parameters) throws GobiiDaoException;
     void updateDataSet(Map<String,Object> parameters) throws GobiiDaoException;
-    Integer createUpdateParameter(Map<String, Object> parameters) throws GobiiDaoException;
 	ResultSet getDatasetNames() throws GobiiDaoException;
 }

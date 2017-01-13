@@ -28,7 +28,7 @@ public class SpGetCvGroups implements Work {
     @Override
     public void execute(Connection dbConnection) throws SQLException {
 
-        String sql = "select distinct on (lower(cv.group)) lower(cv.group), cv.cv_id  from cv order by lower(cv.group)";
+        String sql = "select cvgroup_id,lower(name) from cvgroup order by lower(name)";
 
         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
 

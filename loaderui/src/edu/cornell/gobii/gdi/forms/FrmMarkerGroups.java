@@ -21,7 +21,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiclient.dtorequests.DtoRequestMarkerGroup;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
 import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
 import org.gobiiproject.gobiimodel.dto.container.MarkerGroupMarkerDTO;
 
@@ -62,7 +61,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -72,6 +71,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 		lblCode.setText("Code:");
 
 		txtCode = new Text(cmpForm, SWT.BORDER);
+		txtCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
@@ -163,7 +163,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 				}
 			}
 		});
-		btnImportMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnImportMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnImportMarkers.setText("Import Markers");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -202,7 +202,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 				}
 			}
 		});
-		btnDeleteMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnDeleteMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnDeleteMarkers.setText("Delete Selected Marker(s)");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -231,19 +231,19 @@ public class FrmMarkerGroups extends AbstractFrm {
 						marker.setMarkerName(item.getText(1));
 						marker.setFavorableAllele(item.getText(2));
 					}
-					MarkerGroupDTO markerGroupDTORequest = new MarkerGroupDTO(isNew ? DtoMetaData.ProcessType.CREATE : DtoMetaData.ProcessType.UPDATE);
+					MarkerGroupDTO markerGroupDTORequest = new MarkerGroupDTO(); //isNew ? Header.ProcessType.CREATE : Header.ProcessType.UPDATE
 					if(!isNew) markerGroupDTORequest.setMarkerGroupId(IDs.MarkerGroupId);
 					markerGroupDTORequest.setName(txtName.getText());
 					markerGroupDTORequest.setCode(txtName.getText());
 					markerGroupDTORequest.setGermplasmGroup(txtGermplasmGroup.getText());
 					markerGroupDTORequest.setMarkers(markers);
-					markerGroupDTORequest.setStatus(1);
+					markerGroupDTORequest.setStatusId(1);
 					markerGroupDTORequest.setCreatedBy(App.INSTANCE.getUser().getUserId());
 					markerGroupDTORequest.setModifiedBy(App.INSTANCE.getUser().getUserId());
 					
 					DtoRequestMarkerGroup dtoRequestMarkerGroup = new DtoRequestMarkerGroup();
 					MarkerGroupDTO mgRequest = dtoRequestMarkerGroup.process(markerGroupDTORequest);
-					if(Controller.getDTOResponse(shell, mgRequest, memInfo)){
+					if(Controller.getDTOResponse(shell, mgRequest, memInfo, true)){
 						cleanDetails();
 						populateMarkerGroupList();
 					}
@@ -252,7 +252,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 				}
 			}
 		});
-		btnSave.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnSave.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnSave.setText("Save MarkerGroup");
 		new Label(cmpForm, SWT.NONE);
 
@@ -279,7 +279,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 			}
 		});
-		btnMarkerGroupWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnMarkerGroupWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnMarkerGroupWiz.setText("Marker Group Wizard");
 
 	}
@@ -390,7 +390,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 		}
 		if(isNew){
 			for(TableItem item : tbList.getItems()){
-				if(item.getText(0).equals(txtName.getText())){
+				if(item.getText(0).equalsIgnoreCase(txtName.getText())){
 					successful = false;
 					message = "Marker Group name already exists, kindly change name and try saving again.";
 					break;

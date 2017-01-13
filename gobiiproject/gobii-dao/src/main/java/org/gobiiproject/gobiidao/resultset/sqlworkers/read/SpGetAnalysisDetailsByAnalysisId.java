@@ -28,19 +28,7 @@ public class SpGetAnalysisDetailsByAnalysisId implements Work {
     @Override
     public void execute(Connection dbConnection) throws SQLException {
 
-        String sql = "select\ta.analysis_id,\n" +
-                "\ta.\"name\",\n" +
-                "\ta.description,\n" +
-                "\ta.type_id,\n" +
-                "\ta.program,\n" +
-                "\ta.programversion,\n" +
-                "\ta.algorithm,\n" +
-                "\ta.sourcename,\n" +
-                "\ta.sourceversion,\n" +
-                "\ta.sourceuri,\n" +
-                "\ta.reference_id,\n" +
-                "\ta.status,\n" +
-                "\ta.timeexecuted\n" +
+        String sql = "select * \n" +
                 "from analysis a \n" +
                 "where analysis_id=?";
 

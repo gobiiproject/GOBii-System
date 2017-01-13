@@ -1,5 +1,5 @@
 // ************************************************************************
-// (c) 2016 GOBii Project
+// (c) 2016 GOBii Projects
 // Initial Version: Phil Glaser
 // Create Date:   2016-03-24
 // ************************************************************************
@@ -7,11 +7,9 @@ package org.gobiiproject.gobiiweb.controllers;
 
 import org.gobiiproject.gobidomain.services.*;
 import org.gobiiproject.gobiimodel.dto.container.*;
-import org.gobiiproject.gobiimodel.dto.container.ProjectDTO;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,11 +32,6 @@ public class LoadController {
     @Autowired
     private PingService pingService = null;
 
-    @Autowired
-    private ProjectService projectService = null;
-
-    @Autowired
-    private ContactService contactService = null;
 
     @Autowired
     private ReferenceService referenceService = null;
@@ -53,28 +46,10 @@ public class LoadController {
     private MarkerGroupService markerGroupService = null;
 
     @Autowired
-    private OrganizationService organizationService = null;
-
-    @Autowired
-    private ExperimentService experimentService = null;
-
-    @Autowired
-    private NameIdListService nameIdListService = null;
-
-    @Autowired
-    private LoaderInstructionFilesService loaderInstructionFilesService = null;
-
-    @Autowired
     private DisplayService displayService = null;
     
     @Autowired
     private CvService cvService = null;
-
-    @Autowired
-    private DataSetService dataSetService = null;
-
-    @Autowired
-    private PlatformService platformService = null;
 
     @Autowired
     private MapsetService mapsetService;
@@ -94,13 +69,13 @@ public class LoadController {
             returnVal.getPingResponses().add(newResponseString);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error(e.getMessage());
         }
 
         return (returnVal);
 
-    }//getPingResponse()
+    }
 
     @RequestMapping(value = "/auth", method = RequestMethod.POST)
     @ResponseBody
@@ -112,7 +87,7 @@ public class LoadController {
         } catch (Exception e) {
             String msg = e.getMessage();
             String tmp = msg;
-            throw (e);
+//            throw (e);
         }
 
         return (returnVal);
@@ -130,63 +105,12 @@ public class LoadController {
             returnVal = cvService.procesCv(CvDTO);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error(e.getMessage());
         }
         return (returnVal);
 
-    }//getPingResponse()
-
-    @RequestMapping(value = "/experiment", method = RequestMethod.POST)
-    @ResponseBody
-    public ExperimentDTO getPingResponse(@RequestBody ExperimentDTO experimentDTO) {
-
-        ExperimentDTO returnVal = null;
-
-        try {
-            returnVal = experimentService.processExperiment(experimentDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-        return (returnVal);
-
-    }//getPingResponse()
-    
-    @RequestMapping(value = "/project", method = RequestMethod.POST)
-    @ResponseBody
-    public ProjectDTO processProject(@RequestBody ProjectDTO projectDTO) {
-
-        ProjectDTO returnVal = null;
-
-        try {
-            returnVal = projectService.processProject(projectDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-        return (returnVal);
-
-    }//getPingResponse()
-
-    @RequestMapping(value = "/contact", method = RequestMethod.POST)
-    @ResponseBody
-    public ContactDTO processContact(@RequestBody ContactDTO contactDTO) {
-
-        ContactDTO returnVal = new ContactDTO();
-        //PingDTO pingDTORequest = new PingDTO();
-        try {
-            returnVal = contactService.processContact(contactDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-        return (returnVal);
-
-    }//processCOntact
+    }
 
 
     @RequestMapping(value = "/reference", method = RequestMethod.POST)
@@ -199,7 +123,7 @@ public class LoadController {
             returnVal = referenceService.processReference(referenceDTO);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error(e.getMessage());
         }
         return (returnVal);
@@ -216,64 +140,12 @@ public class LoadController {
             returnVal = manifestService.process(manifestDTO);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error(e.getMessage());
         }
         return (returnVal);
 
     }//processManifest
-
-    @RequestMapping(value = "/organization", method = RequestMethod.POST)
-    @ResponseBody
-    public OrganizationDTO process(@RequestBody OrganizationDTO organizationDTO) {
-
-        OrganizationDTO returnVal = new OrganizationDTO();
-        try {
-            returnVal = organizationService.process(organizationDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-        return (returnVal);
-
-    }//processOrganization
-
-    @RequestMapping(value = "/nameidlist", method = RequestMethod.POST)
-    @ResponseBody
-    public NameIdListDTO getNameIdList(@RequestBody NameIdListDTO nameIdListDTO) {
-
-        NameIdListDTO returnVal = nameIdListDTO;
-
-        try {
-            returnVal = nameIdListService.getNameIdList(nameIdListDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-
-        return (returnVal);
-
-    }
-
-    @RequestMapping(value = "/instructions", method = RequestMethod.POST)
-    @ResponseBody
-    public LoaderInstructionFilesDTO processInstructions(@RequestBody LoaderInstructionFilesDTO loaderInstructionFilesDTO) {
-
-        LoaderInstructionFilesDTO returnVal = new LoaderInstructionFilesDTO();
-
-        try {
-            returnVal = loaderInstructionFilesService.processLoaderFileInstructions(loaderInstructionFilesDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-
-        return (returnVal);
-
-    }
 
     @RequestMapping(value = "/display", method = RequestMethod.POST)
     @ResponseBody
@@ -285,7 +157,7 @@ public class LoadController {
             returnVal = displayService.process(displayDTO);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error(e.getMessage());
         }
 
@@ -293,23 +165,23 @@ public class LoadController {
 
     }
 
-    @RequestMapping(value = "/dataset", method = RequestMethod.POST)
-    @ResponseBody
-    public DataSetDTO processDataset(@RequestBody DataSetDTO dataSetDTO) {
-
-        DataSetDTO returnVal = new DataSetDTO();
-
-        try {
-            returnVal = dataSetService.processDataSet(dataSetDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-
-        return (returnVal);
-
-    }
+//    @RequestMapping(value = "/dataset", method = RequestMethod.POST)
+//    @ResponseBody
+//    public DataSetDTO processDataset(@RequestBody DataSetDTO dataSetDTO) {
+//
+//        DataSetDTO returnVal = new DataSetDTO();
+//
+//        try {
+//            returnVal = dataSetService.processDataSet(dataSetDTO);
+//        } catch (Exception e) {
+//
+//            returnVal.getStatus().addException(e);
+//            LOGGER.error(e.getMessage());
+//        }
+//
+//        return (returnVal);
+//
+//    }
 
     @RequestMapping(value = "/analysis", method = RequestMethod.POST)
     @ResponseBody
@@ -321,7 +193,7 @@ public class LoadController {
             returnVal = analysisService.getAnalysisDetails(analysisDTO);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error(e.getMessage());
         }
 
@@ -339,25 +211,7 @@ public class LoadController {
             returnVal = markerGroupService.process(markerGroupDTO);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-
-        return (returnVal);
-
-    }
-
-    @RequestMapping(value = "/platform", method = RequestMethod.POST)
-    @ResponseBody
-    public PlatformDTO processPlatform(@RequestBody PlatformDTO platformDTO) {
-
-        PlatformDTO returnVal = new PlatformDTO();
-
-        try {
-            returnVal = platformService.processPlatform(platformDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error(e.getMessage());
         }
 
@@ -375,24 +229,7 @@ public class LoadController {
             returnVal = mapsetService.processMapset(MapsetDTO);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error(e.getMessage());
-        }
-
-        return (returnVal);
-
-    }
-    @RequestMapping(value = "/configsettings", method = RequestMethod.POST)
-    @ResponseBody
-    public ConfigSettingsDTO process(@RequestBody ConfigSettingsDTO configSettingsDTO) {
-
-        ConfigSettingsDTO returnVal = new ConfigSettingsDTO();
-
-        try {
-            returnVal = configSettingsService.process(configSettingsDTO);
-        } catch (Exception e) {
-
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error(e.getMessage());
         }
 

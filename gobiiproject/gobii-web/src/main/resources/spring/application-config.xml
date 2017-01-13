@@ -58,11 +58,6 @@
           class="org.gobiiproject.gobidomain.services.impl.PingServiceImpl"/>
 
 
-    <!-- **** Marker Beans *************************************** -->
-    <bean id="markerDao"
-          class="org.gobiiproject.gobiidao.entity.access.impl.mock.MarkerEntityDaoImplMock"/>
-    <bean id="dtoMapMarker" class="org.gobiiproject.gobiidtomapping.impl.DtoMapMarkerImpl"/>
-
     <!-- **** NameIdList Beans *************************************** -->
     <bean id="rsContact"
           class="org.gobiiproject.gobiidao.resultset.access.impl.RsContactDaoImpl"/>
@@ -71,12 +66,138 @@
     <!--<bean id="rsCvTerm" class="org.gobiiproject.gobiidao.resultset.access.impl.RsCvTermDaoImpl"/> -->
     <bean id="rsPlatform"
           class="org.gobiiproject.gobiidao.resultset.access.impl.RsPlatformDaoImpl"/>
+
+
+    <bean id="dtoMapNameIdFetchAnalyses"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchAnalyses"/>
+
+    <bean id="dtoMapNameIdFetchContacts"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchContacts"/>
+
+    <bean id="dtoMapNameIdFetchDataSets"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchDataSets"/>
+
+    <bean id="dtoMapNameIdFetchCvTerms"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchCvTerms"/>
+
+    <bean id="dtoMapNameIdFetchCvGroups"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchCvGroups"/>
+
+    <bean id="dtoMapNameIdFetchProjects"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchProjects"/>
+
+    <bean id="dtoMapNameIdFetchOrganizations"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchOrganizations"/>
+
+    <bean id="dtoMapNameIdFetchPlatforms"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchPlatforms"/>
+
+    <bean id="dtoMapNameIdFetchManifests"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchManifests"/>
+
+    <bean id="dtoMapNameIdFetchMapsets"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchMapsets"/>
+
+    <bean id="dtoMapNameIdFetchMarkerGroups"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchMarkerGroups"/>
+
+    <bean id="dtoMapNameIdFetchExperiments"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchExperiments"/>
+
+    <bean id="dtoMapNameIdFetchReferences"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchReferences"/>
+
+    <bean id="dtoMapNameIdFetchRoles"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchRoles"/>
+
+    <bean id="dtoMapNameIdFetchProtocolNames"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchProtocols"/>
+
     <bean id="dtoMapNameIdList"
-          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIdListImpl"/>
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIdListImpl">
+        <property name="dtoMapNameIdFetchMap">
+            <map>
+                <!-- ANLYSES -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).ANALYSES}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchAnalyses"/>
+                </entry>
+                <!-- CONTACTS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).CONTACTS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchContacts"/>
+                </entry>
+                <!-- DATASETS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).DATASETS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchDataSets"/>
+                </entry>
+                <!-- CVTERMS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).CVTERMS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchCvTerms"/>
+                </entry>
+                <!-- CVGROUPS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).CVGROUPS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchCvGroups"/>
+                </entry>
+                <!-- PROJECTS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).PROJECTS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchProjects"/>
+                </entry>
+                <!-- ORGANIZATIONS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).ORGANIZATIONS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchOrganizations"/>
+                </entry>
+                <!-- PLATFORMS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).PLATFORMS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchPlatforms"/>
+                </entry>
+                <!-- MANIFESTS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).MANIFESTS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchManifests"/>
+                </entry>
+                <!-- MAPSETS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).MAPSETS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchMapsets"/>
+                </entry>
+                <!-- MARKERGROUPS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).MARKERGROUPS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchMarkerGroups"/>
+                </entry>
+                <!-- EXPERIMENTS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).EXPERIMENTS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchExperiments"/>
+                </entry>
+                <!-- REFERENCES -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).REFERENCES}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchReferences"/>
+                </entry>
+                <!-- ROLES -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).ROLES}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchRoles"/>
+                </entry>
+                <!-- PROTOCOLS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).PROTOCOLS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchProtocols"/>
+                </entry>
+                <!-- VENDORS_PROTOCOLS -->
+                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiEntityNameType).VENDORS_PROTOCOLS}">
+                    <bean class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchVendorProtocols"/>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+
     <bean id="nameIdListService"
           class="org.gobiiproject.gobidomain.services.impl.NameIdListServiceImpl"/>
 
     <!-- **** Loader File Beans *************************************** -->
+    <bean id="loaderFilesDAO"
+          class="org.gobiiproject.gobiidao.filesystem.impl.LoaderFilesDAOImpl"/>
+    <bean id="dtoMapLoaderFiles"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapLoaderFilesImpl"/>
+    <bean id="loaderFilesService"
+          class="org.gobiiproject.gobidomain.services.impl.LoaderFilesServiceImpl"/>
+
+    <!-- **** Loader Instruction File Beans *************************************** -->
     <bean id="loaderFileDAO"
           class="org.gobiiproject.gobiidao.filesystem.impl.LoaderInstructionsDAOImpl"/>
     <bean id="dtoMapLoaderInstructions"
@@ -111,7 +232,7 @@
     <bean id="DataSetService"
           class="org.gobiiproject.gobidomain.services.impl.DataSetServiceImpl"/>
 
-    <!-- **** Experiment Beans *************************************** -->
+    <!-- **** Experiments Beans *************************************** -->
     <bean id="rsExperimentDao"
           class="org.gobiiproject.gobiidao.resultset.access.impl.RsExperimentDaoImpl"/>
     <bean id="dtoMapExperiment"
@@ -141,9 +262,20 @@
     <!-- **** Map Beans *************************************** -->
     <bean id="rsMapDao"
           class="org.gobiiproject.gobiidao.resultset.access.impl.RsMapSetDaoImpl"/>
-    <bean id="dtoMapMapset" class="org.gobiiproject.gobiidtomapping.impl.DtoMapMapsetImpl"/>
+    <bean id="dtoMapMapset"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapMapsetImpl"/>
     <bean id="MapsetService"
           class="org.gobiiproject.gobidomain.services.impl.MapsetServiceImpl"/>
+
+
+    <!-- **** Marker Beans *************************************** -->
+    <bean id="rsMarkerDao"
+          class="org.gobiiproject.gobiidao.resultset.access.impl.RsMarkerDaoImpl"/>
+    <bean id="dtoMapMarker" class="org.gobiiproject.gobiidtomapping.impl.DtoMapMarkerImpl"/>
+    <bean id="markerService"
+          class="org.gobiiproject.gobidomain.services.impl.MarkerServiceImpl"/>
+
+
 
     <!-- <bean id="dtoMapMap" class="org.gobiiproject.gobiidtomapping.impl.DtoMapMapImpl"/>
         <bean id="MapService" class="org.gobiiproject.gobidomain.services.impl.MapServiceImpl"/> -->
@@ -173,7 +305,7 @@
     <bean id="rsRoleDao"
           class="org.gobiiproject.gobiidao.resultset.access.impl.RsRoleDaoImpl"/>
 
-    <!-- **** Project Beans *************************************** -->
+    <!-- **** Projects Beans *************************************** -->
     <bean id="rsProjectDao"
           class="org.gobiiproject.gobiidao.resultset.access.impl.RsProjectDaoImpl"/>
 
@@ -189,192 +321,308 @@
     <bean id="dtoMapOrganization" class="org.gobiiproject.gobiidtomapping.impl.DtoMapOrganizationImpl"/>
     <bean id="OrganizationService" class="org.gobiiproject.gobidomain.services.impl.OrganizationServiceImpl"/>
 
-    <!-- ************************ DATA ACCESS BEANS ************************* -->
 
-    <!--************************** SET UP CONFIGURAITON FOR JDBC settings-->
-    <bean id="configSettings" class="org.gobiiproject.gobiimodel.config.ConfigSettings"/>
-    <!--**************** JDBC Configuraiton: RICE *********************************-->
-    <bean id="cropConfigRice"
-          class="org.gobiiproject.gobiimodel.config.CropConfig"
-          factory-bean="configSettings"
-          factory-method="getCropConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).RICE}"/>
-    </bean>
+    <!-- **** Protocol Beans *************************************** -->
+    <bean id="rsProtocolDao" class="org.gobiiproject.gobiidao.resultset.access.impl.RsProtocolDaoImpl"/>
+    <bean id="dtoMapProtocol" class="org.gobiiproject.gobiidtomapping.impl.DtoMapProtocolImpl"/>
+    <bean id="ProtocolService" class="org.gobiiproject.gobidomain.services.impl.ProtocolServiceImpl"/>
 
-    <bean id="cropDbConfigRice"
-          class="org.gobiiproject.gobiimodel.config.CropDbConfig"
-          factory-bean="cropConfigRice"
-          factory-method="getCropDbConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>
-    </bean>
-
-    <bean id="dataSourceRice"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="#{cropDbConfigRice.getConnectionString()}"/>
-        <property name="username" value="#{cropDbConfigRice.getUserName()}"/>
-        <property name="password" value="#{cropDbConfigRice.getPassword()}"/>
-    </bean>
-
-
-    <!--**************** JDBC Configuraiton: WHEAT *********************************-->
-    <bean id="cropConfigWheat"
-          class="org.gobiiproject.gobiimodel.config.CropConfig"
-          factory-bean="configSettings"
-          factory-method="getCropConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).WHEAT}"/>
-    </bean>
-
-    <bean id="cropDbConfigWheat"
-          class="org.gobiiproject.gobiimodel.config.CropDbConfig"
-          factory-bean="cropConfigWheat"
-          factory-method="getCropDbConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>
-    </bean>
-
-    <bean id="dataSourceWheat"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="#{cropDbConfigWheat.getConnectionString()}"/>
-        <property name="username" value="#{cropDbConfigWheat.getUserName()}"/>
-        <property name="password" value="#{cropDbConfigWheat.getPassword()}"/>
-    </bean>
-
-    <!--**************** JDBC Configuraiton: MAIZE *********************************-->
-    <bean id="cropConfigMaize"
-          class="org.gobiiproject.gobiimodel.config.CropConfig"
-          factory-bean="configSettings"
-          factory-method="getCropConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).MAIZE}"/>
-    </bean>
-
-    <bean id="cropDbConfigMaize"
-          class="org.gobiiproject.gobiimodel.config.CropDbConfig"
-          factory-bean="cropConfigMaize"
-          factory-method="getCropDbConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>
-    </bean>
-
-    <bean id="dataSourceMaize"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="#{cropDbConfigMaize.getConnectionString()}"/>
-        <property name="username" value="#{cropDbConfigMaize.getUserName()}"/>
-        <property name="password" value="#{cropDbConfigMaize.getPassword()}"/>
-    </bean>
-
-    <!--**************** JDBC Configuraiton: DEV *********************************-->
-    <bean id="cropConfigDev"
-          class="org.gobiiproject.gobiimodel.config.CropConfig"
-          factory-bean="configSettings"
-          factory-method="getCropConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).DEV}"/>
-    </bean>
-
-    <bean id="cropDbConfigDev"
-          class="org.gobiiproject.gobiimodel.config.CropDbConfig"
-          factory-bean="cropConfigDev"
-          factory-method="getCropDbConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>
-    </bean>
-
-    <bean id="dataSourceDev"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="#{cropDbConfigDev.getConnectionString()}"/>
-        <property name="username" value="#{cropDbConfigDev.getUserName()}"/>
-        <property name="password" value="#{cropDbConfigDev.getPassword()}"/>
-    </bean>
-
-    <!--**************** JDBC Configuraiton: TEST *********************************-->
-    <bean id="cropConfigTest"
-          class="org.gobiiproject.gobiimodel.config.CropConfig"
-          factory-bean="configSettings"
-          factory-method="getCropConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).TEST}"/>
-    </bean>
-
-    <bean id="cropDbConfigTest"
-          class="org.gobiiproject.gobiimodel.config.CropDbConfig"
-          factory-bean="cropConfigTest"
-          factory-method="getCropDbConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>
-    </bean>
-
-    <bean id="dataSourceTest"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="#{cropDbConfigTest.getConnectionString()}"/>
-        <property name="username" value="#{cropDbConfigTest.getUserName()}"/>
-        <property name="password" value="#{cropDbConfigTest.getPassword()}"/>
-    </bean>
-
-
-    <!--**************** JDBC Configuraiton: SORGHUM *********************************-->
-    <bean id="cropConfigSorghum"
-          class="org.gobiiproject.gobiimodel.config.CropConfig"
-          factory-bean="configSettings"
-          factory-method="getCropConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).SORGHUM}"/>
-    </bean>
-
-    <bean id="cropDbConfigSorghum"
-          class="org.gobiiproject.gobiimodel.config.CropDbConfig"
-          factory-bean="cropConfigSorghum"
-          factory-method="getCropDbConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>
-    </bean>
-
-    <bean id="dataSourceSorghum"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="#{cropDbConfigSorghum.getConnectionString()}"/>
-        <property name="username" value="#{cropDbConfigSorghum.getUserName()}"/>
-        <property name="password" value="#{cropDbConfigSorghum.getPassword()}"/>
-    </bean>
-
-    <!--**************** JDBC Configuraiton: CHICKPEA *********************************-->
-    <bean id="cropConfigChickpea"
-          class="org.gobiiproject.gobiimodel.config.CropConfig"
-          factory-bean="configSettings"
-          factory-method="getCropConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).CHICKPEA}"/>
-    </bean>
-
-    <bean id="cropDbConfigChickpea"
-          class="org.gobiiproject.gobiimodel.config.CropDbConfig"
-          factory-bean="cropConfigChickpea"
-          factory-method="getCropDbConfig">
-        <constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>
-    </bean>
-
-    <bean id="dataSourceChickpea"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="#{cropDbConfigChickpea.getConnectionString()}"/>
-        <property name="username" value="#{cropDbConfigChickpea.getUserName()}"/>
-        <property name="password" value="#{cropDbConfigChickpea.getPassword()}"/>
-    </bean>
-
-    <!--**************** JDBC Configuraiton: CHICKPEA *********************************-->
-
-
-    <!--**************** Add data sources to manager *********************************-->
-    <bean id="dataSourceMulti" class="org.gobiiproject.gobiiweb.DataSourceSelector">
-        <property name="targetDataSources">
-            <map key-type="java.lang.String">
-                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).DEV.toString()}" value-ref="dataSourceDev"/>
-                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).TEST.toString()}" value-ref="dataSourceTest"/>
-                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).RICE.toString()}" value-ref="dataSourceRice"/>
-                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).WHEAT.toString()}" value-ref="dataSourceWheat"/>
-                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).MAIZE.toString()}" value-ref="dataSourceMaize"/>
-                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).SORGHUM.toString()}" value-ref="dataSourceSorghum"/>
-                <entry key="#{T(org.gobiiproject.gobiimodel.types.GobiiCropType).CHICKPEA.toString()}" value-ref="dataSourceChickpea"/>
+    <bean id="dtoListQueryColl"
+          class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQueryColl">
+        <property name="listQueriesBySqlId">
+            <map>
+                <!--DATASET -->
+                <entry key="#{T(org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId).QUERY_ID_DATASET_ALL}">
+                    <bean class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQuery">
+                        <constructor-arg ref="storedProcExec"/>
+                        <constructor-arg>
+                            <value>org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO</value>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <value>QUERY_ID_DATASET_ALL</value>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+                <!--CONTACT -->
+                <entry key="#{T(org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId).QUERY_ID_CONTACT_ALL}">
+                    <bean class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQuery">
+                        <constructor-arg ref="storedProcExec"/>
+                        <constructor-arg>
+                            <value>org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO</value>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <value>QUERY_ID_CONTACT_ALL</value>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+                <!--ORGANIZATION -->
+                <entry key="#{T(org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId).QUERY_ID_ORGANIZATION_ALL}">
+                    <bean class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQuery">
+                        <constructor-arg ref="storedProcExec"/>
+                        <constructor-arg>
+                            <value>org.gobiiproject.gobiimodel.headerlesscontainer.OrganizationDTO</value>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <value>QUERY_ID_ORGANIZATION_ALL</value>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+                <!--PLATFORM -->
+                <entry key="#{T(org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId).QUERY_ID_PLATFORM_ALL}">
+                    <bean class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQuery">
+                        <constructor-arg ref="storedProcExec"/>
+                        <constructor-arg>
+                            <value>org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO</value>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <value>QUERY_ID_PLATFORM_ALL</value>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+                <!--PROJECT -->
+                <entry key="#{T(org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId).QUERY_ID_PROJECT_ALL}">
+                    <bean class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQuery">
+                        <constructor-arg ref="storedProcExec"/>
+                        <constructor-arg>
+                            <value>org.gobiiproject.gobiimodel.headerlesscontainer.ProjectDTO</value>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <value>QUERY_ID_PROJECT_ALL</value>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+                <!--EXPERIMENT -->
+                <entry key="#{T(org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId).QUERY_ID_EXPERIMENT}">
+                    <bean class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQuery">
+                        <constructor-arg ref="storedProcExec"/>
+                        <constructor-arg>
+                            <value>org.gobiiproject.gobiimodel.headerlesscontainer.ExperimentDTO</value>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <value>QUERY_ID_EXPERIMENT</value>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+                <!--MARKER -->
+                <entry key="#{T(org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId).QUERY_ID_MARKER_ALL}">
+                    <bean class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQuery">
+                        <constructor-arg ref="storedProcExec"/>
+                        <constructor-arg>
+                            <value>org.gobiiproject.gobiimodel.headerlesscontainer.MarkerDTO</value>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <value>QUERY_ID_MARKER_ALL</value>
+                        </constructor-arg>
+                    </bean>
+                </entry>
+                <!--PROTOCOL -->
+                <entry key="#{T(org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId).QUERY_ID_PROTOCOL_ALL}">
+                    <bean class="org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQuery">
+                        <constructor-arg ref="storedProcExec"/>
+                        <constructor-arg>
+                            <value>org.gobiiproject.gobiimodel.headerlesscontainer.ProtocolDTO</value>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <value>QUERY_ID_PROTOCOL_ALL</value>
+                        </constructor-arg>
+                    </bean>
+                </entry>
             </map>
         </property>
-        <!-- <property name="defaultTargetDataSource" ref="concreteDataSourceOne"/> -->
     </bean>
 
+    <!-- ************************ DATA ACCESS BEANS ************************* -->
+
+    <!--&lt;!&ndash;************************** SET UP CONFIGURAITON FOR JDBC settings&ndash;&gt;-->
+    <!--<bean id="configSettings" class="org.gobiiproject.gobiimodel.config.ConfigSettings"/>-->
+    <!--&lt;!&ndash;**************** JDBC Configuraiton: RICE *********************************&ndash;&gt;-->
+    <!--<bean id="cropConfigRice"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--factory-bean="configSettings"-->
+    <!--factory-method="getCropConfig">-->
+    <!--<constructor-arg value="RICE"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="cropDbConfigRice"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--factory-bean="cropConfigRice"-->
+    <!--factory-method="getCropDbConfig">-->
+    <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="dataSourceRice"-->
+    <!--class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+    <!--<property name="driverClassName" value="org.postgresql.Driver"/>-->
+    <!--<property name="url" value="#{cropDbConfigRice.getConnectionString()}"/>-->
+    <!--<property name="username" value="#{cropDbConfigRice.getUserName()}"/>-->
+    <!--<property name="password" value="#{cropDbConfigRice.getPassword()}"/>-->
+    <!--</bean>-->
+
+
+    <!--&lt;!&ndash;**************** JDBC Configuraiton: WHEAT *********************************&ndash;&gt;-->
+    <!--<bean id="cropConfigWheat"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--factory-bean="configSettings"-->
+    <!--factory-method="getCropConfig">-->
+    <!--<constructor-arg value="WHEAT"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="cropDbConfigWheat"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--factory-bean="cropConfigWheat"-->
+    <!--factory-method="getCropDbConfig">-->
+    <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="dataSourceWheat"-->
+    <!--class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+    <!--<property name="driverClassName" value="org.postgresql.Driver"/>-->
+    <!--<property name="url" value="#{cropDbConfigWheat.getConnectionString()}"/>-->
+    <!--<property name="username" value="#{cropDbConfigWheat.getUserName()}"/>-->
+    <!--<property name="password" value="#{cropDbConfigWheat.getPassword()}"/>-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash;**************** JDBC Configuraiton: MAIZE *********************************&ndash;&gt;-->
+    <!--<bean id="cropConfigMaize"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--factory-bean="configSettings"-->
+    <!--factory-method="getCropConfig">-->
+    <!--<constructor-arg value="MAIZE"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="cropDbConfigMaize"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--factory-bean="cropConfigMaize"-->
+    <!--factory-method="getCropDbConfig">-->
+    <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="dataSourceMaize"-->
+    <!--class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+    <!--<property name="driverClassName" value="org.postgresql.Driver"/>-->
+    <!--<property name="url" value="#{cropDbConfigMaize.getConnectionString()}"/>-->
+    <!--<property name="username" value="#{cropDbConfigMaize.getUserName()}"/>-->
+    <!--<property name="password" value="#{cropDbConfigMaize.getPassword()}"/>-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash;**************** JDBC Configuraiton: DEV *********************************&ndash;&gt;-->
+    <!--<bean id="cropConfigDev"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--factory-bean="configSettings"-->
+    <!--factory-method="getCropConfig">-->
+    <!--<constructor-arg value="DEV"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="cropDbConfigDev"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--factory-bean="cropConfigDev"-->
+    <!--factory-method="getCropDbConfig">-->
+    <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="dataSourceDev"-->
+    <!--class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+    <!--<property name="driverClassName" value="org.postgresql.Driver"/>-->
+    <!--<property name="url" value="#{cropDbConfigDev.getConnectionString()}"/>-->
+    <!--<property name="username" value="#{cropDbConfigDev.getUserName()}"/>-->
+    <!--<property name="password" value="#{cropDbConfigDev.getPassword()}"/>-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash;**************** JDBC Configuraiton: TEST *********************************&ndash;&gt;-->
+    <!--<bean id="cropConfigTest"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--factory-bean="configSettings"-->
+    <!--factory-method="getCropConfig">-->
+    <!--<constructor-arg value="TEST"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="cropDbConfigTest"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--factory-bean="cropConfigTest"-->
+    <!--factory-method="getCropDbConfig">-->
+    <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="dataSourceTest"-->
+    <!--class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+    <!--<property name="driverClassName" value="org.postgresql.Driver"/>-->
+    <!--<property name="url" value="#{cropDbConfigTest.getConnectionString()}"/>-->
+    <!--<property name="username" value="#{cropDbConfigTest.getUserName()}"/>-->
+    <!--<property name="password" value="#{cropDbConfigTest.getPassword()}"/>-->
+    <!--</bean>-->
+
+
+    <!--&lt;!&ndash;**************** JDBC Configuraiton: SORGHUM *********************************&ndash;&gt;-->
+    <!--<bean id="cropConfigSorghum"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--factory-bean="configSettings"-->
+    <!--factory-method="getCropConfig">-->
+    <!--<constructor-arg value="SORGHUM"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="cropDbConfigSorghum"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--factory-bean="cropConfigSorghum"-->
+    <!--factory-method="getCropDbConfig">-->
+    <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="dataSourceSorghum"-->
+    <!--class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+    <!--<property name="driverClassName" value="org.postgresql.Driver"/>-->
+    <!--<property name="url" value="#{cropDbConfigSorghum.getConnectionString()}"/>-->
+    <!--<property name="username" value="#{cropDbConfigSorghum.getUserName()}"/>-->
+    <!--<property name="password" value="#{cropDbConfigSorghum.getPassword()}"/>-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash;**************** JDBC Configuraiton: CHICKPEA *********************************&ndash;&gt;-->
+    <!--<bean id="cropConfigChickpea"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--factory-bean="configSettings"-->
+    <!--factory-method="getCropConfig">-->
+    <!--<constructor-arg value="CHICKPEA"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="cropDbConfigChickpea"-->
+    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--factory-bean="cropConfigChickpea"-->
+    <!--factory-method="getCropDbConfig">-->
+    <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="dataSourceChickpea"-->
+    <!--class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+    <!--<property name="driverClassName" valu   e="org.postgresql.Driver"/>-->
+    <!--<property name="url" value="#{cropDbConfigChickpea.getConnectionString()}"/>-->
+    <!--<property name="username" value="#{cropDbConfigChickpea.getUserName()}"/>-->
+    <!--<property name="password" value="#{cropDbConfigChickpea.getPassword()}"/>-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash;**************** JDBC Configuraiton: CHICKPEA *********************************&ndash;&gt;-->
+
+
+    <!--&lt;!&ndash;**************** Add data sources to manager *********************************&ndash;&gt;-->
+    <!--<bean id="dataSourceMulti" class="org.gobiiproject.gobiiweb.DataSourceSelector">-->
+    <!--<property name="targetDataSources">-->
+    <!--<map key-type="java.lang.String">-->
+    <!--<entry key="DEV" value-ref="dataSourceDev"/>-->
+    <!--<entry key="TEST" value-ref="dataSourceTest"/>-->
+    <!--<entry key="RICE" value-ref="dataSourceRice"/>-->
+    <!--<entry key="WHEAT" value-ref="dataSourceWheat"/>-->
+    <!--<entry key="MAIZE" value-ref="dataSourceMaize"/>-->
+    <!--<entry key="SORGHUM" value-ref="dataSourceSorghum"/>-->
+    <!--<entry key="CHICKPEA" value-ref="dataSourceChickpea"/>-->
+    <!--</map>-->
+    <!--</property>-->
+    <!--&lt;!&ndash; <property name="defaultTargetDataSource" ref="concreteDataSourceOne"/> &ndash;&gt;-->
+    <!--</bean>-->
+
+    <!-- We need these to make JavaConfig-based class visible -->
+    <!--<bean class="org.gobiiproject.gobiiweb.spring.ConfigSupplement"/>-->
+    <!--&lt;!&ndash; be sure to include the JavaConfig bean post-processor &ndash;&gt;-->
+    <!--<bean class="org.springframework.config.java.process.ConfigurationPostProcessor"/>-->
+
+    <context:component-scan base-package="org.gobiiproject.gobiiweb.spring"/>
     <bean id="entityManagerFactory"
           class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSourceMulti"/>

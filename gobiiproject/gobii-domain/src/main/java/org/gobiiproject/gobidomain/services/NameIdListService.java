@@ -5,12 +5,16 @@
 // ************************************************************************
 package org.gobiiproject.gobidomain.services;
 
-import org.gobiiproject.gobiimodel.dto.container.NameIdListDTO;
+import org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdParams;
+import org.gobiiproject.gobiimodel.config.GobiiException;
+import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
+
+import java.util.List;
 
 /**
  * Created by Phil on 3/24/2016.
  */
 public interface NameIdListService {
 
-    NameIdListDTO getNameIdList(NameIdListDTO nameIdListDTO);
+    List<NameIdDTO> getNameIdList(DtoMapNameIdParams dtoMapNameIdParams) throws GobiiException;
 }

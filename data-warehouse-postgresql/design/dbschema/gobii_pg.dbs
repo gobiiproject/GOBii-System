@@ -3298,7 +3298,7 @@ $function$
 ]]></string>
 		</function>
 	</schema>
-	<connector name="gobii_rice" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-9.4-1203.jdbc41.jar" host="cbsugobii07.tc.cornell.edu" port="5432" instance="gobii_rice" user="kpalis" passwd="a3BhbGlzQDFSUmk=" sshEnable="true" sshHost="cbsugobii05.tc.cornell.edu" sshPort="22" sshUser="kpalis" sshUseKey="false" sshPassword="kpalis@1RRi" sshPublicKey="" sshPassphrase="" />
+	<connector name="gobii_rice" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-9.4-1203.jdbc41.jar" host="example.com" port="5432" instance="gobii_rice" user="kpalis" passwd="a3BhbGlzQDFSUmk=" sshEnable="true" sshHost="example.com" sshPort="22" sshUser="kpalis" sshUseKey="false" sshPassword="kpalis@1RRi" sshPublicKey="" sshPassphrase="" />
 	<layout id="Layout_2e681c40" name="Default" show_relation_columns="y" >
 		<entity schema="public" name="analysis" color="d2bff5" x="450" y="300" />
 		<entity schema="public" name="contact" color="bfd4f5" x="1290" y="150" />

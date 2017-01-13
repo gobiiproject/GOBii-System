@@ -56,11 +56,11 @@ export class ProjectListBoxComponent implements OnInit,OnChanges {
 
     private setProjectDetails(projectId:string):void {
         let scope$ = this;
-        this._dtoRequestServiceProject.getResult(new DtoRequestItemProject(Number(projectId)))
-            .subscribe(project => {
-                    if (project) {
-                        scope$.project = project;
-                        scope$.primaryInvestigatorId = String(project.piContact);
+        this._dtoRequestServiceProject.get(new DtoRequestItemProject(Number(projectId)))
+            .subscribe(projects => {
+                    if (projects[0]) {
+                        scope$.project = projects[0];
+                        scope$.primaryInvestigatorId = String(projects[0].piContact);
                         scope$.setPiName();
                     }
                 },

@@ -11,8 +11,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiclient.dtorequests.DtoRequestManifest;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
 import org.gobiiproject.gobiimodel.dto.container.ManifestDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class FrmManifest extends AbstractFrm {
 	private static Logger log = Logger.getLogger(FrmManifest.class.getName());
@@ -45,7 +46,7 @@ public class FrmManifest extends AbstractFrm {
 		
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Name:");
 		
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -55,6 +56,7 @@ public class FrmManifest extends AbstractFrm {
 		lblCode.setText("Code:");
 		
 		txtCode = new Text(cmpForm, SWT.BORDER | SWT.READ_ONLY);
+		txtCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
@@ -74,7 +76,7 @@ public class FrmManifest extends AbstractFrm {
 					if(!validate(true)) return;
 
 					DtoRequestManifest dtoRequestManifest = new DtoRequestManifest();
-					ManifestDTO manifestDTORequest = new ManifestDTO(DtoMetaData.ProcessType.CREATE);
+					ManifestDTO manifestDTORequest = new ManifestDTO(GobiiProcessType.CREATE);
 					String name = txtName.getText();
 					manifestDTORequest.setName(name);
 					manifestDTORequest.setCode(name);
@@ -82,8 +84,7 @@ public class FrmManifest extends AbstractFrm {
 
 					try {
 						ManifestDTO manifestDTOResponse = dtoRequestManifest.process(manifestDTORequest);
-						if(Controller.getDTOResponse(shell, manifestDTOResponse, memInfo)){
-							clearDetails();
+						if(Controller.getDTOResponse(shell, manifestDTOResponse, memInfo, true)){
 							populateManifestTable();
 						};
 					} catch (Exception err) {
@@ -94,7 +95,7 @@ public class FrmManifest extends AbstractFrm {
 				}
 			}
 		});
-		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -106,7 +107,7 @@ public class FrmManifest extends AbstractFrm {
 					if(!validate(false)) return;
 					if(!FormUtils.updateForm(getShell(), "Manifest", IDs.manifestName)) return;
 					DtoRequestManifest dtoRequestManifest = new DtoRequestManifest();
-					ManifestDTO manifestDTORequest = new ManifestDTO(DtoMetaData.ProcessType.UPDATE);
+					ManifestDTO manifestDTORequest = new ManifestDTO(GobiiProcessType.UPDATE);
 					manifestDTORequest.setManifestId(IDs.manifestId);
 					String name = txtName.getText();
 					manifestDTORequest.setName(name);
@@ -115,8 +116,7 @@ public class FrmManifest extends AbstractFrm {
 
 					try {
 						ManifestDTO manifestDTOResponse = dtoRequestManifest.process(manifestDTORequest);
-						if(Controller.getDTOResponse(shell, manifestDTOResponse, memInfo)){
-							clearDetails();
+						if(Controller.getDTOResponse(shell, manifestDTOResponse, memInfo, true)){
 							populateManifestTable();
 						};
 					} catch (Exception err) {
@@ -127,7 +127,7 @@ public class FrmManifest extends AbstractFrm {
 				}
 			}
 		});
-		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnUpdate.setText("Update");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -138,7 +138,7 @@ public class FrmManifest extends AbstractFrm {
 				clearDetails();
 			}
 		});
-		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnClearFields.setText("Clear Fields");
 
 	}
@@ -156,6 +156,15 @@ public class FrmManifest extends AbstractFrm {
 		tblclmnManifests.setText("Manifests:");
 		
 		populateManifestTable();
+		
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				populateManifestTable();
+				clearDetails();
+			}
+		});
+		
 		tbList.addListener (SWT.Selection, new Listener() {
 
 			public void handleEvent(Event e) {
@@ -169,19 +178,21 @@ public class FrmManifest extends AbstractFrm {
 			protected void populateManifestDetails(int manifestId) {
 				try{
 					DtoRequestManifest dtoRequestManifest = new DtoRequestManifest();
-					ManifestDTO manifestDTO = new ManifestDTO();
+					ManifestDTO manifestDTO = new ManifestDTO(GobiiProcessType.READ);
 					manifestDTO.setManifestId(manifestId);
 					try {
 						manifestDTO = dtoRequestManifest.process(manifestDTO);
+						//displayDetails
+						txtName.setText(manifestDTO.getName());
+						txtCode.setText(manifestDTO.getCode());
+						txtFilePath.setText(manifestDTO.getFilePath()==null ? "" : manifestDTO.getFilePath());
+						selectedName = manifestDTO.getName();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
-					//displayDetails
-					txtName.setText(manifestDTO.getName());
-					txtCode.setText(manifestDTO.getCode());
-					txtFilePath.setText(manifestDTO.getFilePath()==null ? "" : manifestDTO.getFilePath());
+				
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving Manifests", err);
 				}
@@ -215,17 +226,17 @@ public class FrmManifest extends AbstractFrm {
 		if(txtName.getText().isEmpty()){
 			successful = false;
 			message = "Name is required field!";
-		}else if(isNew){
+		}else if(!isNew && IDs.manifestId==0){
+			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
+			successful = false;
+		}else if(isNew || !txtName.getText().equalsIgnoreCase(selectedName)){
 			for(TableItem item : tbList.getItems()){
-				if(item.getText().equals(txtName.getText())){
+				if(item.getText().equalsIgnoreCase(txtName.getText())){
 					successful = false;
 					message = "Manifest name already exists!";
 					break;
 				}
 			}
-		}else if(!isNew && IDs.manifestId==0){
-			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
-			successful = false;
 		}
 		if(!successful){
 			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);

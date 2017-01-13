@@ -35,7 +35,8 @@ public class SpGetOrganizationDetailsByOrganizationId implements Work {
                 "r.created_by,\n" +
                 "r.created_date,\n" +
                 "r.modified_by,\n" +
-                "r.modified_date\n" +
+                "r.modified_date\n," +
+                "r.status\n" +
                 "from organization r\n" +
                 "where organization_id=?";
 

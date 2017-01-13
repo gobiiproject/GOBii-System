@@ -7,12 +7,11 @@ System.register([], function(exports_1, context_1) {
         execute: function() {
             (function (EntityType) {
                 EntityType[EntityType["DataSetNames"] = 0] = "DataSetNames";
-                EntityType[EntityType["Contact"] = 1] = "Contact";
-                EntityType[EntityType["AllContacts"] = 2] = "AllContacts";
-                EntityType[EntityType["Project"] = 3] = "Project";
-                EntityType[EntityType["Experiment"] = 4] = "Experiment";
-                EntityType[EntityType["DataSetNamesByExperimentId"] = 5] = "DataSetNamesByExperimentId";
-                EntityType[EntityType["CvGroupTerms"] = 6] = "CvGroupTerms";
+                EntityType[EntityType["Contacts"] = 1] = "Contacts";
+                EntityType[EntityType["Projects"] = 2] = "Projects";
+                EntityType[EntityType["Experiments"] = 3] = "Experiments";
+                EntityType[EntityType["DataSets"] = 4] = "DataSets";
+                EntityType[EntityType["CvTerms"] = 5] = "CvTerms";
             })(EntityType || (EntityType = {}));
             exports_1("EntityType", EntityType);
             ;

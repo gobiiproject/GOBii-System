@@ -35,7 +35,7 @@ public class PingServiceImpl implements PingService {
             returnVal.getPingResponses().add(newPingMessage);
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii service error", e);
         }
 

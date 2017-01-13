@@ -8,6 +8,7 @@ import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsManifest;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdManifest;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetManifestNames;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetManifestDetailsByManifestId;
+import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class RsManifestDaoImpl implements RsManifestDao {
 
     @Autowired
     private SpRunnerCallable spRunnerCallable;
-    
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public ResultSet getManifestNames() throws GobiiDaoException {
@@ -89,20 +90,14 @@ public class RsManifestDaoImpl implements RsManifestDao {
 
         try {
 
-            if (spRunnerCallable.run(new SpInsManifest(), parameters)) {
+            spRunnerCallable.run(new SpInsManifest(), parameters);
+            returnVal = spRunnerCallable.getResult();
 
-                returnVal = spRunnerCallable.getResult();
 
-            } else {
+        } catch (SQLGrammarException e) {
 
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-
-            }
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error creating manifest", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating manifest with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -115,14 +110,12 @@ public class RsManifestDaoImpl implements RsManifestDao {
 
         try {
 
-            if (!spRunnerCallable.run(new SpUpdManifest(), parameters)) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-            }
+            spRunnerCallable.run(new SpUpdManifest(), parameters);
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error creating manifest", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating manifest with SQL + " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
     }
 }

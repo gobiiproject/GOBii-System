@@ -1,14 +1,18 @@
 package edu.cornell.gobii.gdi.wizards.datasets;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Text;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderFilePreviewDTO;
 import org.gobiiproject.gobiimodel.types.DataSetOrientationType;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
 import org.gobiiproject.gobiimodel.types.GobiiFileType;
@@ -16,6 +20,7 @@ import org.gobiiproject.gobiimodel.types.GobiiFileType;
 import edu.cornell.gobii.gdi.objects.xml.FileFormats;
 import edu.cornell.gobii.gdi.objects.xml.FileFormats.FileFormat;
 import edu.cornell.gobii.gdi.services.Controller;
+import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.utils.FormUtils;
 import edu.cornell.gobii.gdi.utils.Utils;
 import edu.cornell.gobii.gdi.utils.WizardUtils;
@@ -30,11 +35,18 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+
+import java.io.File;
+
 import org.apache.log4j.Logger;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.swt.custom.SashForm;
 
 public class Page1Datasets extends WizardPage {
 	private static Logger log = Logger.getLogger(Page1Datasets.class.getName());
@@ -58,6 +70,7 @@ public class Page1Datasets extends WizardPage {
 	private Combo cbMapset;
 	private Combo cbTemplates;
 	private Combo cbPi;
+	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 
 	/**
 	 * Create the wizard.
@@ -78,13 +91,19 @@ public class Page1Datasets extends WizardPage {
 		Composite container = new Composite(parent, SWT.NULL);
 
 		setControl(container);
-		container.setLayout(new GridLayout(2, false));
+		container.setLayout(new GridLayout(1, false));
 		
-		Group grpInformation = new Group(container, SWT.NONE);
-		GridData gd_grpInformation = new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1);
-		gd_grpInformation.heightHint = 566;
-		gd_grpInformation.widthHint = 350;
-		grpInformation.setLayoutData(gd_grpInformation);
+		SashForm sashForm = new SashForm(container, SWT.NONE);
+		sashForm.setBackground(SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY));
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		formToolkit.adapt(sashForm);
+		formToolkit.paintBordersFor(sashForm);
+		
+		ScrolledComposite scrolledComposite = new ScrolledComposite(sashForm, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		
+		Group grpInformation = new Group(scrolledComposite, SWT.NONE);
 		grpInformation.setLayout(new GridLayout(2, false));
 		grpInformation.setText("Information");
 		
@@ -121,10 +140,12 @@ public class Page1Datasets extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					dto.setProjectID(null);
+					dto.setProjectName(null);
 					FormUtils.resetCombo(cbExperiment);	dto.setExperimentID(null);
 					FormUtils.resetCombo(cbDataset);	dto.setDatasetID(null);
 					if(cbProject.getSelectionIndex() > -1){
 						String key = (String) cbProject.getData(cbProject.getItem(cbProject.getSelectionIndex()));
+						dto.setProjectName(cbProject.getText());
 						dto.setProjectID(Integer.parseInt(key));
 						FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(dto.getProjectID()), cbExperiment);
 					}
@@ -146,10 +167,12 @@ public class Page1Datasets extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					dto.setExperimentID(null);
+					dto.setExperimentName(null);
 					FormUtils.resetCombo(cbDataset);	dto.setDatasetID(null);
 					if(cbExperiment.getSelectionIndex() > -1){
 						String key = (String) cbExperiment.getData(cbExperiment.getItem(cbExperiment.getSelectionIndex()));
 						dto.setExperimentID(Integer.parseInt(key));
+						dto.setExperimentName(cbExperiment.getText());
 						FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(dto.getExperimentID()), cbDataset);
 					}
 				}catch(Exception err){
@@ -168,10 +191,14 @@ public class Page1Datasets extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
+					dto.setDatasetName(null);
 					dto.setDatasetID(null);
 					if(cbDataset.getSelectionIndex() > -1){
 						String key = (String) cbDataset.getData(cbDataset.getItem(cbDataset.getSelectionIndex()));
-						dto.setDatasetID(Integer.parseInt(key));
+						dto.setDatasetName(cbDataset.getText());
+						Integer datasetId = Integer.parseInt(key);
+						dto.setDatasetID(datasetId);
+						WizardUtils.populateDatasetInformation(getShell(), datasetId, cbDatasetType, dto);
 					}
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error selecting Datasets", err);
@@ -210,9 +237,11 @@ public class Page1Datasets extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				if(cbPlatform.getSelectionIndex() == -1){
 					dto.setPlatformID(null);
+					dto.setPlatformName(null);
 				}else{
 					String key = (String) cbPlatform.getData(cbPlatform.getItem(cbPlatform.getSelectionIndex()));
 					dto.setPlatformID(Integer.parseInt(key));
+					dto.setPlatformName(cbPlatform.getText());
 				}
 			}
 		});
@@ -228,9 +257,11 @@ public class Page1Datasets extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				if(cbMapset.getSelectionIndex() == -1){
 					dto.setMapsetID(null);
+					dto.setMapsetName(null);
 				}else{
 					String key = (String) cbMapset.getData(cbMapset.getItem(cbMapset.getSelectionIndex()));
 					dto.setMapsetID(Integer.parseInt(key));
+					dto.setMapsetName(cbMapset.getText());
 				}
 			}
 		});
@@ -251,11 +282,46 @@ public class Page1Datasets extends WizardPage {
 		txtRemotePath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblLocalFiles = new Label(grpInformation, SWT.NONE);
-		lblLocalFiles.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblLocalFiles.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 2));
 		lblLocalFiles.setText("Local files:");
 		
+		Button btnBrowse = new Button(grpInformation, SWT.NONE);
+		btnBrowse.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog dlg = new FileDialog(parent.getShell(), SWT.MULTI);
+//		        dlg.setFilterNames(FILTER_NAMES);
+//		        dlg.setFilterExtensions(FILTER_EXTS);
+		        String fn = dlg.open();
+		        if (fn != null) {
+		          // Append all the selected files. Since getFileNames() returns only 
+		          // the names, and not the path, prepend the path, normalizing
+		          // if necessary
+		          StringBuffer buf = new StringBuffer();
+		          String[] files = dlg.getFileNames();
+		          for (int i = 0, n = files.length; i < n; i++) {
+		        	buf = new StringBuffer();
+		            buf.append(dlg.getFilterPath());
+		            if (buf.charAt(buf.length() - 1) != File.separatorChar) {
+		              buf.append(File.separatorChar);
+		            }
+		            buf.append(files[i]);
+
+					if(!dto.getFiles().contains(buf.toString())){
+						TableItem item = new TableItem(tbLocalfiles, SWT.NONE);
+						item.setText(buf.toString());
+						dto.getFiles().add(buf.toString());
+					}
+		          }
+		        }
+			}
+		});
+		btnBrowse.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnBrowse.setText("Browse");
+		
 		tbLocalfiles = new Table(grpInformation, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
-		GridData gd_tbLocalfiles = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		GridData gd_tbLocalfiles = new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1);
+		gd_tbLocalfiles.heightHint = 185;
 		gd_tbLocalfiles.minimumWidth = 120;
 		gd_tbLocalfiles.minimumHeight = 100;
 		tbLocalfiles.setLayoutData(gd_tbLocalfiles);
@@ -315,24 +381,59 @@ public class Page1Datasets extends WizardPage {
 			}
 		});
 		cbFileFormat.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(grpInformation, SWT.NONE);
 		fileformats = (FileFormats) Utils.unmarshalFileFormats(config+"/fileformats.xml");
 		for(FileFormat fileformat : fileformats.getFileFormat()){
 			cbFileFormat.add(fileformat.toString());
 		}
-		new Label(grpInformation, SWT.NONE);
 		
 		Button btnPreviewData = new Button(grpInformation, SWT.NONE);
 		btnPreviewData.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+//				int index = cbFileFormat.getSelectionIndex();
+//				if(index > -1){
+//					FileFormat ff = fileformats.getFileFormat().get(index);
+//					Utils.loadSampleLocalData(tbData, tbLocalfiles, ff.getExtention(), ff.getDelim());
+//				}
 				int index = cbFileFormat.getSelectionIndex();
-				if(index > -1){
+				if(txtRemotePath.getText().trim().isEmpty() && tbLocalfiles.getItems().length<1){
+					MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_WARNING | SWT.OK);  
+					messageBox.setMessage("Please select a file or specify a remote path.");  
+					messageBox.open();
+					return;
+				}
+				else if(index > -1){
 					FileFormat ff = fileformats.getFileFormat().get(index);
-					Utils.loadSampleLocalData(tbData, tbLocalfiles, ff.getExtention(), ff.getDelim());
+					String folder;
+					boolean isRemote;
+					if(txtRemotePath.getText().trim().isEmpty()){
+						folder = null;
+						isRemote = false;
+					}else{
+						folder = txtRemotePath.getText();
+						isRemote = true;
+					}
+					LoaderFilePreviewDTO previewDTO = WizardUtils.previewData(getShell(), isRemote, folder, dto.getFiles(), ff.getExtention());
+					if(previewDTO.getDirectoryName() != null){
+						dto.setPreviewDTO(previewDTO);
+						txtRemotePath.setText(new File(previewDTO.getDirectoryName()).getName());
+						Utils.previewData(tbData, previewDTO);
+						tbLocalfiles.removeAll();
+						for(int i=0; i<dto.getFiles().size(); i++){
+							TableItem item = new TableItem(tbLocalfiles, SWT.NONE);
+							item.setText(dto.getFiles().get(i));
+//							}
+						}
+					}
+				}else{
+					MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_WARNING | SWT.OK);  
+					messageBox.setMessage("Please select a file format.");  
+					messageBox.open();
 				}
 			}
 		});
-		btnPreviewData.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnPreviewData.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnPreviewData.setText("Preview Data");
 		
 		Label lblMarkerOrientation = new Label(grpInformation, SWT.NONE);
@@ -354,6 +455,7 @@ public class Page1Datasets extends WizardPage {
 							dto.setOrientation(DataSetOrientationType.SAMPLE_FAST);
 							break;
 				}
+				validateDataCoordinate();
 			}
 		});
 		cbMarkerOrientation.setItems(new String[] {"LEFT", "TOP"});
@@ -378,6 +480,7 @@ public class Page1Datasets extends WizardPage {
 							dto.setOrientation(DataSetOrientationType.MARKER_FAST);
 							break;
 				}
+				validateDataCoordinate();
 			}
 		});
 		cbDNAsampleOrientation.setItems(new String[] {"LEFT", "TOP"});
@@ -389,19 +492,26 @@ public class Page1Datasets extends WizardPage {
 		
 		Group group = new Group(grpInformation, SWT.NONE);
 		group.setLayout(new GridLayout(2, false));
-		GridData gd_group = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_group.heightHint = 27;
+		GridData gd_group = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_group.heightHint = 30;
 		group.setLayoutData(gd_group);
 		
-		txtRowCoord = new Text(group, SWT.BORDER);
-		txtRowCoord.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtRowCoord = new Text(group, SWT.BORDER | SWT.READ_ONLY);
+		txtRowCoord.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtRowCoord.setEnabled(false);
+		txtRowCoord.setEditable(false);
+		txtRowCoord.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		
-		txtColCoord = new Text(group, SWT.BORDER);
-		txtColCoord.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtColCoord = new Text(group, SWT.BORDER | SWT.READ_ONLY);
+		txtColCoord.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtColCoord.setEnabled(false);
+		txtColCoord.setEditable(false);
+		txtColCoord.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		scrolledComposite.setContent(grpInformation);
+		scrolledComposite.setMinSize(grpInformation.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
-		tbData = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
+		tbData = new Table(sashForm, SWT.BORDER | SWT.FULL_SELECTION);
 		tbData.setLinesVisible(true);
-		tbData.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		tbData.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent event) {
@@ -477,16 +587,48 @@ public class Page1Datasets extends WizardPage {
 			}
 		});
 		tbData.setHeaderVisible(true);
+		sashForm.setWeights(new int[] {416, 630});
 		createContent();
 	}
 	
 	public void createContent(){
-		FormUtils.entrySetToCombo(Controller.getPIContactNames(), cbPi);
+		if(IDs.PIid!=0){
+			FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbPi, IDs.PIid);
+			if(IDs.projectId!=0){
+				FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(IDs.PIid), cbProject,IDs.projectId);
+				dto.setProjectName(cbProject.getText());
+				dto.setProjectID(IDs.projectId);
+				if(IDs.experimentId!=0){
+					FormUtils.entrySetToComboSelectId(Controller.getExperimentNamesByProjectId(IDs.projectId), cbExperiment, IDs.experimentId);
+					dto.setExperimentName(cbExperiment.getText());
+					dto.setExperimentID(IDs.experimentId);
+					if(IDs.datasetId!=0){
+					 FormUtils.entrySetToComboSelectId(Controller.getDataSetNamesByExperimentId(IDs.experimentId), cbDataset, IDs.datasetId);
+						dto.setDatasetName(cbDataset.getText());
+						dto.setDatasetID(IDs.datasetId);
+						WizardUtils.populateDatasetInformation(getShell(), IDs.datasetId, cbDatasetType, dto);
+					}else FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(IDs.experimentId), cbDataset);
+				}else FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(IDs.projectId), cbExperiment);
+			}else FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(IDs.PIid), cbProject);
+		}
+		else FormUtils.entrySetToCombo(Controller.getPIContactNames(), cbPi);
 		FormUtils.entrySetToCombo(Controller.getPlatformNames(), cbPlatform);
 		FormUtils.entrySetToCombo(Controller.getMapNames(), cbMapset);
 		FormUtils.entrySetToCombo(Controller.getCVByGroup("dataset_type"), cbDatasetType);
 	}
 	
+	public void validateDataCoordinate(){
+		if(tbData.getItems().length==0){
+			MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Check first data coordinate", "Please click 'preview data' and select the first data coordinate");
+		}
+		else if(txtRowCoord.getText().isEmpty()){
+			MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Check first data coordinate", "Please select the first data coordinate from the data preview");
+		}else{
+			MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Check first data coordinate", "Please re-select the first data coordinate from the data preview");
+		}
+		txtColCoord.setText(""); dto.setcCoord(-1);
+		txtRowCoord.setText(""); dto.setrCoord(-1);
+	}
 	private void setRowColors(int col, int index){
 		Color gray = Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
 		for(int i=0; i<index; i++){

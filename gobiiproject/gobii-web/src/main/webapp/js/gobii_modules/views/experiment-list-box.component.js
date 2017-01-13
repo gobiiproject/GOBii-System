@@ -39,9 +39,9 @@ System.register(["@angular/core", "../services/core/dto-request.service", "../se
                 };
                 ExperimentListBoxComponent.prototype.setExperimentDetail = function (experimentId) {
                     var scope$ = this;
-                    scope$._dtoRequestServiceExperiment.getResult(new dto_request_item_experiment_1.DtoRequestItemExperiment(Number(experimentId))).subscribe(function (experiment) {
-                        if (experiment) {
-                            scope$.experiment = experiment;
+                    scope$._dtoRequestServiceExperiment.get(new dto_request_item_experiment_1.DtoRequestItemExperiment(Number(experimentId))).subscribe(function (experiment) {
+                        if (experiment[0]) {
+                            scope$.experiment = experiment[0];
                         }
                     }, function (dtoHeaderResponse) {
                         dtoHeaderResponse.statusMessages.forEach(function (m) { return scope$.handleAddMessage("Retrieving experiment detail: "

@@ -11,7 +11,16 @@ export class DtoRequestItemExperiment implements DtoRequestItem<Experiment> {
     }
 
     public getUrl():string {
-        return "load/experiment";
+
+        let baseUrl:string = "gobii/v1/experiments";
+
+        let returnVal:string = baseUrl;
+        if (this.experimentId) {
+            returnVal = baseUrl + "/" + this.experimentId;
+        }
+
+        return returnVal;
+
     } // getUrl()
 
     private processType:ProcessType = ProcessType.READ;
@@ -26,38 +35,29 @@ export class DtoRequestItemExperiment implements DtoRequestItem<Experiment> {
 
     public resultFromJson(json):Experiment {
 
-        let returnVal:Experiment;
-        console.log("*************ENTITY NAME: " + json.entityName);
-        console.log(json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages)
-        console.log(json.namesById);
+        let returnVal:Experiment = undefined;
 
-        // let arrayOfIds = Object.keys(json.serverConfigs);
-        // arrayOfIds.forEach(crop => {
-        //     let currentCrop = crop;
-        //     let currentDomain:string = json.serverConfigs[crop].domain;
-        //     let currentContextRoot:string = json.serverConfigs[crop].contextRoot;
-        //     let currentPort:number = Number(json.serverConfigs[crop].port);
-        //     returnVal.push(new ServerConfig(currentCrop,
-        //         currentDomain,
-        //         currentContextRoot,
-        //         currentPort));
+        if (json.payload.data[0]) {
+            returnVal = json.payload.data[0];
+        }
+
+        // json.payload.data.forEach(item => {
+        //
+        //     returnVal.push(new Experiment(item.experimentId,
+        //         item.experimentName,
+        //         item.experimentCode,
+        //         item.experimentDataFile,
+        //         item.projectId,
+        //         item.platformId,
+        //         item.manifestId,
+        //         item.createdBy,
+        //         item.createdstring,
+        //         item.modifiedBy,
+        //         item.modifiedstring,
+        //         item.status,
+        //         item.platformName
+        //     ));
         // });
-
-        returnVal = new Experiment(json.experimentId,
-            json.experimentName,
-            json.experimentCode,
-            json.experimentDataFile,
-            json.projectId,
-            json.platformId,
-            json.manifestId,
-            json.createdBy,
-            json.createdstring,
-            json.modifiedBy,
-            json.modifiedstring,
-            json.status,
-            json.platformName
-        );
-
 
         return returnVal;
         //return [new NameId(1, 'foo'), new NameId(2, 'bar')];

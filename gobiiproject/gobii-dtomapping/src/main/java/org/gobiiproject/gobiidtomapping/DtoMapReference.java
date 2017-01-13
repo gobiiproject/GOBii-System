@@ -1,10 +1,7 @@
 
 package org.gobiiproject.gobiidtomapping;
 
-import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
-import org.gobiiproject.gobiimodel.dto.container.AnalysisDTO;
 import org.gobiiproject.gobiimodel.dto.container.ReferenceDTO;
-import org.gobiiproject.gobiimodel.dto.container.DataSetDTO;
 
 /**
  * Created by Angel on 5/4/2016.

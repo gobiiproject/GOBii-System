@@ -14,7 +14,52 @@
 	<classpathentry kind="lib" path="lib/org.eclipse.text_3.5.400.v20150505-1044.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.ui.forms_3.6.200.v20150506-2029.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.ui.workbench_3.107.1.v20160120-2131.jar"/>
-	<classpathentry kind="lib" path="/gobii-client/target/gobii-client-1.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="/gobii-model/target/gobii-model-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/aopalliance-1.0.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/commons-codec-1.9.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/commons-pool-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/fluent-hc-4.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/gson-2.6.2.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/httpclient-4.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/httpclient-cache-4.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/httpcore-4.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/httpmime-4.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jackson-annotations-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jackson-core-2.4.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jackson-core-asl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jackson-databind-2.4.4.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jackson-mapper-asl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jandex-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/javassist-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jboss-logging-3.1.1.GA.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jboss-transaction-api_1.2_spec-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jcl-over-slf4j-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jna-4.1.0.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jna-platform-4.1.0.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jsch-0.1.53.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/jstl-1.2.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/liquibase-core-3.3.2.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/log4j-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/log4j-core-2.5.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/logback-classic-1.1.3.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/logback-core-1.1.3.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/opencsv-2.3.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/persistence-api-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/postgresql-9.4-1200-jdbc41.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/slf4j-log4j12-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/slf4j-simple-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/waffle-jna-1.7.jar"/>
+	<classpathentry kind="lib" path="lib-gobii/xml-apis-1.0.b2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
+	<classpathentry kind="lib" path="/gobii-model/target/gobii-model-1.0.14-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/gobii-api-model/target/gobii-api-model-1.0.14-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/gobii-client/target/gobii-client-1.0.14-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

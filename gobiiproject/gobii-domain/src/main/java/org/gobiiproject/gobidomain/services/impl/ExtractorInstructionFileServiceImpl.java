@@ -1,9 +1,12 @@
 package org.gobiiproject.gobidomain.services.impl;
 
+import org.gobiiproject.gobidomain.GobiiDomainException;
 import org.gobiiproject.gobidomain.services.ExtractorInstructionFilesService;
 import org.gobiiproject.gobiidtomapping.DtoMapExtractorInstructions;
-import org.gobiiproject.gobiimodel.dto.container.ExtractorInstructionFilesDTO;
-import org.gobiiproject.gobiimodel.dto.header.DtoHeaderResponse;
+import org.gobiiproject.gobiimodel.config.GobiiException;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ExtractorInstructionFilesDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
+import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,39 +22,35 @@ public class ExtractorInstructionFileServiceImpl implements ExtractorInstruction
     @Autowired
     private DtoMapExtractorInstructions dtoMapExtractorInstructions = null;
 
+    @Override
+    public ExtractorInstructionFilesDTO createInstruction(String cropType, ExtractorInstructionFilesDTO ExtractorInstructionFilesDTO)
+            throws GobiiException {
+        ExtractorInstructionFilesDTO returnVal;
+
+        returnVal = dtoMapExtractorInstructions.writeInstructions(cropType,ExtractorInstructionFilesDTO);
+
+        returnVal.getAllowedProcessTypes().add(GobiiProcessType.READ);
+
+        return returnVal;
+    }
 
     @Override
-    public ExtractorInstructionFilesDTO processExtractorFileInstructions(ExtractorInstructionFilesDTO extractorInstructionFilesDTO) {
+    public ExtractorInstructionFilesDTO getStatus(String cropType, String jobId)  throws GobiiException {
 
-        ExtractorInstructionFilesDTO returnVal = extractorInstructionFilesDTO;
+        ExtractorInstructionFilesDTO returnVal;
 
         try {
+            returnVal = dtoMapExtractorInstructions.getStatus(cropType,jobId);
 
-            switch (returnVal.getProcessType()) {
-
-                case CREATE:
-                    returnVal = dtoMapExtractorInstructions.writeInstructions(extractorInstructionFilesDTO);
-                    break;
-
-                case READ:
-                    returnVal = dtoMapExtractorInstructions.readInstructions(extractorInstructionFilesDTO);
-                    break;
-
-                default:
-                    returnVal.getDtoHeaderResponse().addStatusMessage(DtoHeaderResponse.StatusLevel.ERROR,
-                            DtoHeaderResponse.ValidationStatusType.BAD_REQUEST,
-                            "Unsupported proces type " + returnVal.getProcessType().toString());
-
-            } // switch
+            returnVal.getAllowedProcessTypes().add(GobiiProcessType.READ);
 
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
             LOGGER.error("Gobii service error", e);
+            throw new GobiiDomainException(e);
+
         }
 
         return returnVal;
-
-    } // processExtractorFileInstructions
-
+    }
 } // ExtractorInstructionFileServiceImpl

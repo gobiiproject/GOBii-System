@@ -13,11 +13,14 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.GridLayout;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestDataSet;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
-import org.gobiiproject.gobiimodel.dto.container.DataSetDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
 //import org.gobiiproject.gobiiclient.dtorequests.DtoRequestMarkers;
 //import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
@@ -44,7 +47,6 @@ public class FrmDatasets extends AbstractFrm {
 	private Button btnAddNew;
 	private Button btnUpdate;
 
-	private String config;
 	private Combo cbType;
 	private Label lblDatasetType;
 	private Button btnClearFields;
@@ -63,59 +65,61 @@ public class FrmDatasets extends AbstractFrm {
 	 */
 	public FrmDatasets(final Shell shell, Composite parent, int style, final String config) {
 		super(shell, parent, style);
-		((GridData) cmpForm.getLayoutData()).heightHint = 585;
-		this.config = config;
+//		((GridData) cmpForm.getLayoutData()).heightHint = 585;
 
 		GridLayout gridLayout = (GridLayout) cmpForm.getLayout();
 		gridLayout.numColumns = 2;
-		
+
 		lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
-		
+		lblName.setText("*Name:");
+
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label lblExperiment = new Label(cmpForm, SWT.NONE);
 		lblExperiment.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblExperiment.setText("Experiment:");
+		lblExperiment.setText("*Experiment:");
 
 		cbExperiment = new Combo(cmpForm, SWT.NONE);
 		cbExperiment.setEnabled(false);
 		cbExperiment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		FormUtils.entrySetToCombo(Controller.getExperimentNames(), cbExperiment);
-		
+		if(IDs.experimentId > 0)
+			FormUtils.entrySetToComboSelectId(Controller.getExperimentNames(), cbExperiment, IDs.experimentId);
+		else
+			FormUtils.entrySetToCombo(Controller.getExperimentNames(), cbExperiment);
+
 		lblDatasetType = new Label(cmpForm, SWT.NONE);
 		lblDatasetType.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblDatasetType.setText("Dataset Type:");
-		
+		lblDatasetType.setText("*Dataset Type:");
+
 		cbType = new Combo(cmpForm, SWT.NONE);
 		cbType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		FormUtils.entrySetToCombo(Controller.getCVByGroup("dataset_type"), cbType);
 
 		Label lblCallAnalysis = new Label(cmpForm, SWT.NONE);
 		lblCallAnalysis.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblCallAnalysis.setText("Call Analysis:");
+		lblCallAnalysis.setText("*Call Analysis:");
 
 		cbAnalysis = new Combo(cmpForm, SWT.NONE);
 		cbAnalysis.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		FormUtils.entrySetToCombo(Controller.getAnalysisNamesByType("calling"), cbAnalysis);
-		
+
 		lblDataFile = new Label(cmpForm, SWT.NONE);
 		lblDataFile.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblDataFile.setText("Data File:");
-		
+
 		txtDataFile = new Text(cmpForm, SWT.BORDER | SWT.READ_ONLY);
 		txtDataFile.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		lblDataTable = new Label(cmpForm, SWT.NONE);
 		lblDataTable.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblDataTable.setText("Data Table:");
-		
+
 		txtDataTable = new Text(cmpForm, SWT.BORDER | SWT.READ_ONLY);
 		txtDataTable.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		
+
+
 		Label lblAnalyses = new Label(cmpForm, SWT.NONE);
 		lblAnalyses.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblAnalyses.setText("Analyses:");
@@ -141,7 +145,7 @@ public class FrmDatasets extends AbstractFrm {
 				}
 			}
 		});
-		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
 
@@ -158,10 +162,10 @@ public class FrmDatasets extends AbstractFrm {
 				}
 			}
 		});
-		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnUpdate.setText("Update");
 		new Label(cmpForm, SWT.NONE);
-		
+
 		btnClearFields = new Button(cmpForm, SWT.NONE);
 		btnClearFields.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -169,10 +173,10 @@ public class FrmDatasets extends AbstractFrm {
 				cleanDetails();
 			}
 		});
-		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnClearFields.setText("Clear Fields");
 		new Label(cmpForm, SWT.NONE);
-		
+
 		btnDatasetWizard = new Button(cmpForm, SWT.FLAT);
 		btnDatasetWizard.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -181,9 +185,9 @@ public class FrmDatasets extends AbstractFrm {
 			}
 		});
 		btnDatasetWizard.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
-		btnDatasetWizard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnDatasetWizard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnDatasetWizard.setText("Dataset Wizard");
-		
+
 		tblclmnDatasets = new TableColumn(tbList, SWT.NONE);
 		tblclmnDatasets.setWidth(300);
 		tblclmnDatasets.setText("Datasets:");
@@ -197,7 +201,7 @@ public class FrmDatasets extends AbstractFrm {
 
 	@Override
 	protected void createContent() {
-		cbList.setText("Select Experiment");
+		cbList.setText("*Select Experiment");
 		try{
 			// get experiments
 			if(IDs.projectId>0 ){
@@ -213,20 +217,33 @@ public class FrmDatasets extends AbstractFrm {
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error retrieving Projects and Experiemnts", err);
 		}
-		
-//		if(IDs.projectId > 0){
-//			if(IDs.experimentId> 0) FormUtils.entrySetToComboSelectId(Controller.getExperimentNamesByProjectId(IDs.projectId), cbList, IDs.experimentId);
-//			else FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(IDs.projectId), cbList);
-//		}else{
-//			if(IDs.experimentId> 0){
-//				FormUtils.entrySetToComboSelectId(Controller.getExperimentNames(), cbList, IDs.experimentId);
-//				FormUtils.entrySetToTable(Controller.getDataSetNamesByExperimentId(IDs.experimentId), tbList);
-//			}
-//			else{
-//				populateExperimentList(cbList);
-//				populateDatasetTable(tbList);
-//			}
-//		}
+
+
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				tbList.removeAll();
+				Integer id = FormUtils.getIdFromFormList(cbList);
+
+				if (IDs.projectId>0){
+					FormUtils.entrySetToComboSelectId(Controller.getExperimentNamesByProjectId(IDs.projectId), cbList, id);
+					FormUtils.entrySetToTable(Controller.getDataSetNames(), tbList);
+				}
+				else if(id>0){ //if there is a selected experiment
+					FormUtils.entrySetToComboSelectId(Controller.getExperimentNames(), cbList, id);
+					FormUtils.entrySetToTable(Controller.getDataSetNamesByExperimentId(id), tbList);
+				}
+				else{
+					FormUtils.entrySetToCombo(Controller.getExperimentNames(), cbList);
+					cbList.setText("Select Experiment");
+					FormUtils.entrySetToTable(Controller.getDataSetNames(), tbList);
+				}
+
+				FormUtils.entrySetToCombo(Controller.getAnalysisNamesByType("calling"), cbAnalysis);
+				FormUtils.entrySetToCombo(Controller.getCVByGroup("dataset_type"), cbType);
+				cleanDetails();
+			}
+		});
 
 		cbList.addListener (SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
@@ -243,78 +260,78 @@ public class FrmDatasets extends AbstractFrm {
 
 		tbList.addListener (SWT.Selection, new Listener() {
 
-		public void handleEvent(Event e) {
-			String selected = tbList.getSelection()[0].getText(); //single selection
-			IDs.datasetName = selected;
-			IDs.datasetId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-			populateDatasetDetails(IDs.datasetId); //retrieve and display projects by contact Id
-		}
+			public void handleEvent(Event e) {
+				String selected = tbList.getSelection()[0].getText(); //single selection
+				IDs.datasetName = selected;
+				IDs.datasetId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				populateDatasetDetails(IDs.datasetId); //retrieve and display projects by contact Id
+			}
 
-		protected void populateDatasetDetails(int experimentId) {
-			cleanDetails();
-			try{
-				DtoRequestDataSet dtoRequestDataSet = new DtoRequestDataSet();
-				DataSetDTO dataSetDTORequest = new DataSetDTO();
-				dataSetDTORequest.setDataSetId(IDs.datasetId);
-				try {
-					DataSetDTO dataSetDTOResponse = dtoRequestDataSet.process(dataSetDTORequest);
-					if(dataSetDTOResponse.getName() != null)
-						txtName.setText(dataSetDTOResponse.getName());
-					for(int i=0; i<cbExperiment.getItemCount(); i++){
-						String name = cbExperiment.getItem(i);
-						Integer id = Integer.parseInt((String)cbExperiment.getData(name));
-						if(id == dataSetDTOResponse.getExperimentId()){
-							cbExperiment.select(i);
-							break;
+			protected void populateDatasetDetails(int experimentId) {
+				cleanDetails();
+				try{
+					RestUri projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DATASETS);
+					projectsUri.setParamValue("id", Integer.toString(IDs.datasetId));
+					GobiiEnvelopeRestResource<DataSetDTO> restResourceForProjects = new GobiiEnvelopeRestResource<>(projectsUri);
+
+
+
+					try {
+						
+						PayloadEnvelope<DataSetDTO> resultEnvelope = restResourceForProjects
+								.get(DataSetDTO.class);
+
+						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, false)){
+							DataSetDTO dataSetDTOResponse = resultEnvelope.getPayload().getData().get(0);
+							selectedName = dataSetDTOResponse.getName(); 
+							if(dataSetDTOResponse.getName() != null)
+								txtName.setText(dataSetDTOResponse.getName());
+							for(int i=0; i<cbExperiment.getItemCount(); i++){
+								String name = cbExperiment.getItem(i);
+								Integer id = Integer.parseInt((String)cbExperiment.getData(name));
+								if(id.equals(dataSetDTOResponse.getExperimentId())){
+									cbExperiment.select(i);
+									break;
+								}
+							}
+							for(int i=0; i<cbType.getItemCount(); i++){
+								String name = cbType.getItem(i);
+								Integer id = Integer.parseInt((String)cbType.getData(name));
+								if(id.equals(dataSetDTOResponse.getTypeId())){
+									cbType.select(i);
+									break;
+								}
+							}
+							for(int i=0; i<cbAnalysis.getItemCount(); i++){
+								String name = cbAnalysis.getItem(i);
+								Integer id = Integer.parseInt((String)cbAnalysis.getData(name));
+								if(id.equals(dataSetDTOResponse.getCallingAnalysisId())){
+									cbAnalysis.select(i);
+									break;
+								}
+							}
+							if(dataSetDTOResponse.getDataFile() != null)
+								txtDataFile.setText(dataSetDTOResponse.getDataFile());
+							if(dataSetDTOResponse.getDataTable() != null)
+								txtDataTable.setText(dataSetDTOResponse.getDataTable());
+							for(TableItem item : tbAnalysis.getItems()){
+								String name = item.getText();
+								Integer id = Integer.parseInt((String) item.getData(name));
+								if(dataSetDTOResponse.getAnalysesIds().contains(id)){
+									item.setChecked(true);
+									continue;
+								}
+							}
 						}
+					} catch (Exception err) {
+						Utils.log(shell, memInfo, log, "Error retrieving Dataset details", err);
 					}
-					for(int i=0; i<cbType.getItemCount(); i++){
-						String name = cbType.getItem(i);
-						Integer id = Integer.parseInt((String)cbType.getData(name));
-						if(id == dataSetDTOResponse.getTypeId()){
-							cbType.select(i);
-							break;
-						}
-					}
-					for(int i=0; i<cbAnalysis.getItemCount(); i++){
-						String name = cbAnalysis.getItem(i);
-						Integer id = Integer.parseInt((String)cbAnalysis.getData(name));
-						if(id == dataSetDTOResponse.getCallingAnalysisId()){
-							cbAnalysis.select(i);
-							break;
-						}
-					}
-					if(dataSetDTOResponse.getDataFile() != null)
-						txtDataFile.setText(dataSetDTOResponse.getDataFile());
-					if(dataSetDTOResponse.getDataTable() != null)
-						txtDataTable.setText(dataSetDTOResponse.getDataTable());
-					for(TableItem item : tbAnalysis.getItems()){
-						String name = item.getText();
-						Integer id = Integer.parseInt((String) item.getData(name));
-						if(dataSetDTOResponse.getAnalysesIds().contains(id)){
-							item.setChecked(true);
-							continue;
-						}
-					}
-				} catch (Exception err) {
+				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving Dataset details", err);
 				}
-			}catch(Exception err){
-				Utils.log(shell, memInfo, log, "Error retrieving Dataset details", err);
 			}
-		}
-	});
+		});
 	}
-	
-//	private void populateDatasetTable(Table tbList) {
-//		// TODO Auto-generated method stub
-//		FormUtils.entrySetToTable(Controller.getDataSetNames(), tbList);
-//	}
-//
-//	private void populateExperimentList(Combo cbList) {
-//		// TODO Auto-generated method stub
-//		FormUtils.entrySetToCombo(Controller.getExperimentNames(), cbList);
-//	}
 
 	public void populateDatasetListFromSelectedExperiment(Integer selectedId) {
 		try{
@@ -339,10 +356,6 @@ public class FrmDatasets extends AbstractFrm {
 			Utils.log(shell, memInfo, log, "Error clearing fields", err);
 		}
 	}
-//	private void populateExperimentListByProjectId(Combo cbList) {
-//		// TODO Auto-generated method stub
-//		FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(IDs.projectId), cbList);
-//	}
 
 	private boolean validate(boolean isNew){
 		boolean successful = true;
@@ -359,13 +372,20 @@ public class FrmDatasets extends AbstractFrm {
 		}else if(cbAnalysis.getSelectionIndex() < 0){
 			message = "Calling analysis is a required field!";
 			successful = false;
-		}else if(isNew){
-			for(TableItem item : tbList.getItems())
-				if(item.getText().equals(txtName.getText())){
-					message = "Name of this Dataset already exists for this Experiment!";
-					successful = false;
-					break;
-				}
+		}else if(!isNew && selectedName==null){
+			message = "You have not selected an existing dataset to update. Use \"Add New\" to add a new dataset.";
+			successful = false;
+		}
+		else{
+			if(isNew || !txtName.getText().equalsIgnoreCase(selectedName)){
+
+				for(TableItem item : tbList.getItems())
+					if(item.getText().equalsIgnoreCase(txtName.getText())){
+						message = "Name of this Dataset already exists for this Experiment!";
+						successful = false;
+						break;
+					}
+			}
 		}
 		if(!successful){
 			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
@@ -374,24 +394,32 @@ public class FrmDatasets extends AbstractFrm {
 		}
 		return successful;
 	}
-	
+
 	protected void saveDataset(boolean isNew){
 		try{
-			DataSetDTO datasetDTO = null;
+			RestUri projectsCollUri = null;
+			GobiiEnvelopeRestResource<DataSetDTO> restResource = null;
+			DataSetDTO dataSetDTORequest =  new DataSetDTO();
+			PayloadEnvelope<DataSetDTO> resultEnvelope = null;
+
 			if(isNew){
-				datasetDTO = new DataSetDTO(DtoMetaData.ProcessType.CREATE);
-				setDatasetDetails(datasetDTO);
+				projectsCollUri = App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_DATASETS);
+				restResource = new GobiiEnvelopeRestResource<>(projectsCollUri);
+				setDatasetDetails(dataSetDTORequest);
+				resultEnvelope = restResource.post(DataSetDTO.class, new PayloadEnvelope<>(dataSetDTORequest, GobiiProcessType.CREATE));
+
 			}else{
-				datasetDTO = new DataSetDTO(DtoMetaData.ProcessType.UPDATE);
-				datasetDTO.setDataSetId(IDs.datasetId);
-				setDatasetDetails(datasetDTO);
+				projectsCollUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DATASETS);
+				restResource = new GobiiEnvelopeRestResource<>(projectsCollUri);
+				dataSetDTORequest.setDataSetId(IDs.datasetId);
+				setDatasetDetails(dataSetDTORequest);
+				restResource.setParamValue("id", dataSetDTORequest.getDataSetId().toString());
+				resultEnvelope = restResource.put(DataSetDTO.class, new PayloadEnvelope<>(dataSetDTORequest, GobiiProcessType.UPDATE));
 			}
 			try{
-				DtoRequestDataSet dtoRequestDataset = new DtoRequestDataSet();
-				DataSetDTO datasetDTOResponse = dtoRequestDataset.process(datasetDTO);
-				if(Controller.getDTOResponse(shell, datasetDTOResponse, memInfo)){
+				if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
+//					DataSetDTO dtoRequestDataset = resultEnvelope.getPayload().getData().get(0);
 					populateDatasetListFromSelectedExperiment(IDs.experimentId);
-					cleanDetails();
 				};
 			}catch(Exception err){
 				Utils.log(shell, memInfo, log, "Error saving Dataset", err);
@@ -400,13 +428,15 @@ public class FrmDatasets extends AbstractFrm {
 			Utils.log(shell, memInfo, log, "Error saving Dataset", err);
 		}
 	}
-	
+
 	protected void setDatasetDetails(DataSetDTO datasetDTO){
 		try{
 			String expName = cbList.getItem(cbList.getSelectionIndex());
 			Integer expId = Integer.parseInt((String) cbList.getData(expName));
 			datasetDTO.setExperimentId(expId);
 			String typeName = cbType.getItem(cbType.getSelectionIndex());
+			datasetDTO.setDataFile(txtDataFile.getText());
+			datasetDTO.setDataTable(txtDataTable.getText());
 			Integer typeId = Integer.parseInt((String) cbType.getData(typeName));
 			datasetDTO.setTypeId(typeId);
 			datasetDTO.setName(txtName.getText());
@@ -423,7 +453,7 @@ public class FrmDatasets extends AbstractFrm {
 			datasetDTO.setCreatedDate(new Date());
 			datasetDTO.setModifiedBy(1);
 			datasetDTO.setModifiedDate(new Date());
-			datasetDTO.setStatus(1);
+			datasetDTO.setStatusId(1);
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error saving Dataset", err);
 		}

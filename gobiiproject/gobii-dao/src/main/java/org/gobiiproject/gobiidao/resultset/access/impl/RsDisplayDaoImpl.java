@@ -8,6 +8,7 @@ import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsDisplay;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdDisplay;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetTableDisplayDetailByDisplayId;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetTableDisplayNames;
+import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -60,20 +62,13 @@ public class RsDisplayDaoImpl implements RsDisplayDao {
 
         try {
 
-            if (spRunnerCallable.run(new SpInsDisplay(), parameters)) {
+            spRunnerCallable.run(new SpInsDisplay(), parameters);
+            returnVal = spRunnerCallable.getResult();
 
-                returnVal = spRunnerCallable.getResult();
+        } catch (SQLGrammarException e) {
 
-            } else {
-
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-
-            }
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error creating display", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating display with SQL ", e.getSQL());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -86,33 +81,33 @@ public class RsDisplayDaoImpl implements RsDisplayDao {
 
         try {
 
-            if (!spRunnerCallable.run(new SpUpdDisplay(), parameters)) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-            }
+            spRunnerCallable.run(new SpUpdDisplay(), parameters);
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error creating display", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating display with SQL ", e.getSQL());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ResultSet getTableDisplayDetailByDisplayId(Integer displayId) throws GobiiDaoException {
-        ResultSet returnVal = null;
+
+        ResultSet returnVal;
 
         try {
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("displayId", displayId);
 
-            SpGetTableDisplayDetailByDisplayId spGetTableDisplayDetailByDisplayId = new SpGetTableDisplayDetailByDisplayId();
+
+            SpGetTableDisplayDetailByDisplayId spGetTableDisplayDetailByDisplayId = new SpGetTableDisplayDetailByDisplayId(parameters);
             storedProcExec.doWithConnection(spGetTableDisplayDetailByDisplayId);
             returnVal = spGetTableDisplayDetailByDisplayId.getResultSet();
 
-        } catch (Exception e) {
-
-            LOGGER.error("Error retrieving display names", e);
-            throw (new GobiiDaoException(e));
-
+        } catch (SQLGrammarException e) {
+            LOGGER.error("Error retreiving table display details with SQL " + e.getSQL(), e.getSQLException());
+            throw new GobiiDaoException(e.getSQLException());
         }
 
         return returnVal;

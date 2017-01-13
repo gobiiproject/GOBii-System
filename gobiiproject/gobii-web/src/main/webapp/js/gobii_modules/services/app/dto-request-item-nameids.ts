@@ -2,35 +2,42 @@ import {Injectable} from "@angular/core";
 import {NameId} from "../../model/name-id";
 import {DtoRequestItem} from "./../core/dto-request-item";
 import {EntityType} from "../../model/type-entity";
+import {EntityFilter} from "../../model/type-entity-filter";
 import {ProcessType} from "../../model/type-process";
 
 @Injectable()
 export class DtoRequestItemNameIds implements DtoRequestItem<NameId[]> {
 
-    public constructor(processType:ProcessType,
-                       entityType:EntityType,
-                       entityFilter:string = null) {
-        this.processType = processType;
+    public constructor(entityType:EntityType,
+                       entityFilter:EntityFilter = null,
+                       entityFilterValue:string = null) {
         this.entityType = entityType;
         this.entityFilter = entityFilter;
+        this.entityFilterValue = entityFilterValue;
+    }
+
+    public getRequestBody():string {
+        return null;
     }
 
 
     public getUrl():string {
-        return "load/nameidlist";
-    } // getUrl()
 
-    // public getRequestBody(): string {
-    //     return JSON.stringify({
-    //         "processType": "READ",
-    //         "dtoHeaderAuth": {"userName": null, "password": null, "token": null},
-    //         "dtoHeaderResponse": {"succeeded": true, "statusMessages": []},
-    //         "entityType": "DBTABLE",
-    //         "entityName": "datasetnames",
-    //         "namesById": {},
-    //         "filter": null
-    //     })
-    // }
+        let baseUrl:string = "gobii/v1/names";
+
+        let returnVal:string = baseUrl + "/" + EntityType[this.entityType].toLowerCase();
+
+        if (this.entityFilter && (EntityFilter.NONE != this.entityFilter)) {
+            returnVal += "?"
+                + "filterType=" + EntityFilter[this.entityFilter].toLowerCase()
+                + "&"
+                + "filterValue="
+                + this.entityFilterValue;
+        }
+
+        return returnVal;
+
+    } // getUrl()
 
     private entityType:EntityType;
 
@@ -38,32 +45,20 @@ export class DtoRequestItemNameIds implements DtoRequestItem<NameId[]> {
         this.entityType = entityType;
     }
 
-    private processType:ProcessType = ProcessType.READ;
+    private entityFilter:EntityFilter;
 
-
-    private entityFilter:string;
-    
-    public getRequestBody():string {
-
-        return JSON.stringify({
-            "processType": ProcessType[this.processType],
-            "entityType": "DBTABLE",
-            "entityName": EntityType[this.entityType].toLowerCase(),
-            "filter": this.entityFilter
-        })
-    }
+    private entityFilterValue:string;
 
     public resultFromJson(json):NameId[] {
 
         let returnVal:NameId[] = [];
-        console.log("*************ENTITY NAME: " + json.entityName);
-        console.log( json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages)
-        console.log(json.namesById);
 
-        let arrayOfIds = Object.keys(json.namesById);
-        arrayOfIds.forEach(id => {
-            let currentVal:string = json.namesById[id];
-            returnVal.push(new NameId(id, currentVal));
+        //let nameListItems:Object[] = json.payload.data;
+
+        json.payload.data.forEach(item => {
+            let currentId:number = item.id;
+            let currentName:string = item.name;
+            returnVal.push(new NameId(currentId, currentName));
         });
 
         return returnVal;

@@ -11,8 +11,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiclient.dtorequests.DtoRequestReference;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
 import org.gobiiproject.gobiimodel.dto.container.ReferenceDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
@@ -50,7 +50,7 @@ public class FrmReferences extends AbstractFrm {
 		
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Name:");
 		
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -85,7 +85,7 @@ public class FrmReferences extends AbstractFrm {
 					if(!validate(true)) return;
 
 					DtoRequestReference dtoRequestReference = new DtoRequestReference();
-					ReferenceDTO referenceDTORequest = new ReferenceDTO(DtoMetaData.ProcessType.CREATE);
+					ReferenceDTO referenceDTORequest = new ReferenceDTO(GobiiProcessType.CREATE);
 					referenceDTORequest.setName(txtName.getText());
 					referenceDTORequest.setVersion(txtVersion.getText());
 					referenceDTORequest.setLink(txtLink.getText());
@@ -93,8 +93,7 @@ public class FrmReferences extends AbstractFrm {
 
 					try {
 						ReferenceDTO referenceDTOResponse = dtoRequestReference.process(referenceDTORequest);
-						if(Controller.getDTOResponse(shell, referenceDTOResponse, memInfo)){
-							clearDetails();
+						if(Controller.getDTOResponse(shell, referenceDTOResponse, memInfo, true)){
 							populateReferenceTable();
 						};
 					} catch (Exception err) {
@@ -105,7 +104,7 @@ public class FrmReferences extends AbstractFrm {
 				}
 			}
 		});
-		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -117,7 +116,7 @@ public class FrmReferences extends AbstractFrm {
 					if(!validate(false)) return;
 					if(!FormUtils.updateForm(getShell(), "Reference", IDs.referenceName)) return;
 					DtoRequestReference dtoRequestReference = new DtoRequestReference();
-					ReferenceDTO referenceDTORequest = new ReferenceDTO(DtoMetaData.ProcessType.UPDATE);
+					ReferenceDTO referenceDTORequest = new ReferenceDTO(GobiiProcessType.UPDATE);
 					referenceDTORequest.setReferenceId(IDs.referenceId);
 					referenceDTORequest.setName(txtName.getText());
 					referenceDTORequest.setVersion(txtVersion.getText());
@@ -126,8 +125,7 @@ public class FrmReferences extends AbstractFrm {
 
 					try {
 						ReferenceDTO referenceDTOResponse = dtoRequestReference.process(referenceDTORequest);
-						if(Controller.getDTOResponse(shell, referenceDTOResponse, memInfo)){
-							clearDetails();
+						if(Controller.getDTOResponse(shell, referenceDTOResponse, memInfo, true)){
 							populateReferenceTable();
 						};
 					} catch (Exception err) {
@@ -138,7 +136,7 @@ public class FrmReferences extends AbstractFrm {
 				}
 			}
 		});
-		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnUpdate.setText("Update");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -149,7 +147,7 @@ public class FrmReferences extends AbstractFrm {
 				clearDetails();
 			}
 		});
-		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnClearFields.setText("Clear Fields");
 
 	}
@@ -162,6 +160,15 @@ public class FrmReferences extends AbstractFrm {
 	@Override
 	protected void createContent() {
 		populateReferenceTable();
+		
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				populateReferenceTable();
+				clearDetails();
+			}
+		});
+		
 		tbList.addListener (SWT.Selection, new Listener() {
 
 			public void handleEvent(Event e) {
@@ -175,20 +182,23 @@ public class FrmReferences extends AbstractFrm {
 			protected void populateReferenceDetails(int referenceId) {
 				try{
 					DtoRequestReference dtoRequestReference = new DtoRequestReference();
-					ReferenceDTO referenceDTO = new ReferenceDTO();
+					ReferenceDTO referenceDTO = new ReferenceDTO(GobiiProcessType.READ);
 					referenceDTO.setReferenceId(referenceId);
 					try {
 						referenceDTO = dtoRequestReference.process(referenceDTO);
+
+						selectedName = referenceDTO.getName();
+						txtName.setText(referenceDTO.getName());
+						txtVersion.setText(referenceDTO.getVersion());
+						txtLink.setText(referenceDTO.getLink());
+						txtFilePath.setText(referenceDTO.getFilePath()==null ? "" : referenceDTO.getFilePath());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
 					//displayDetails
-					txtName.setText(referenceDTO.getName());
-					txtVersion.setText(referenceDTO.getVersion());
-					txtLink.setText(referenceDTO.getLink());
-					txtFilePath.setText(referenceDTO.getFilePath()==null ? "" : referenceDTO.getFilePath());
+
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving References", err);
 				}
@@ -224,9 +234,12 @@ public class FrmReferences extends AbstractFrm {
 		}else if(txtVersion.getText().isEmpty()){
 			successful = false;
 			message = "Version is required field!";
-		}else if(isNew){
+		}else if(!isNew && IDs.referenceId==0){
+			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
+			successful = false;
+		}else if(isNew|| !txtName.getText().equalsIgnoreCase(selectedName)){
 			for(TableItem item : tbList.getItems()){
-				if(item.getText().equals(txtName.getText())){
+				if(item.getText().equalsIgnoreCase(txtName.getText())){
 					successful = false;
 					message = "Reference name already exists!";
 					break;

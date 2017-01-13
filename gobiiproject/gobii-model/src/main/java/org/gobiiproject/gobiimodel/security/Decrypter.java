@@ -75,5 +75,4 @@ private static final String secretKey="wenc4+PN393s3+7l3/Ptmw==";
 	private static byte[] decode(String value){
 		return Base64.getDecoder().decode(value);
 	}
-
 }

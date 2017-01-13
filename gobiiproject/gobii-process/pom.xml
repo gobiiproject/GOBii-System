@@ -5,7 +5,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>org.gobiiproject</groupId>
-        <version>1.0.6-SNAPSHOT</version>
+        <version>1.0.15-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,19 +19,19 @@
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-model</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>1.0.15-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-client</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>1.0.15-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-domain</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>1.0.15-SNAPSHOT</version>
         </dependency>
 
 
@@ -126,28 +126,74 @@
                 <version>2.4.1</version>
                 <configuration>
                     <!-- get all project dependencies -->
-                    <finalName>gobii-config-check</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <!-- MainClass in mainfest make a executable jar -->
-                    <archive>
-                        <manifest>
-                            <mainClass>org.gobiiproject.gobiiprocess.ConfigCheck</mainClass>
-                        </manifest>
-                    </archive>
 
                 </configuration>
                 <executions>
+
+
+                    <!--gobii config check Execution-->
                     <execution>
+                        <configuration>
+                            <finalName>gobiiconfig</finalName>
+                            <!-- MainClass in mainfest make a executable jar -->
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.gobiiproject.gobiiprocess.GobiiConfig</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
                         <id>make-assembly</id>
                         <!-- bind to the packaging phase -->
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+
                     </execution>
+
+                    <!--Digester Execution-->
+                    <execution>
+                        <configuration>
+                            <finalName>Digester</finalName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.gobiiproject.gobiiprocess.digester.GobiiFileReader</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <id>make-digester</id>
+                        <!-- bind to the packaging phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+
+                    </execution>
+
+
+                    <!--Extractor Execution-->
+                    <execution>
+                        <configuration>
+                            <finalName>Extractor</finalName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.gobiiproject.gobiiprocess.extractor.GobiiExtractor</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <id>make-extractor</id>
+                        <!-- bind to the packaging phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+
+                    </execution>
+
                 </executions>
             </plugin>
         </plugins>

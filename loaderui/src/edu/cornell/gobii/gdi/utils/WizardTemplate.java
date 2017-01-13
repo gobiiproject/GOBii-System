@@ -7,7 +7,7 @@ import java.io.ObjectOutputStream;
 
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
-import org.gobiiproject.gobiimodel.dto.container.LoaderInstructionFilesDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
 
 import edu.cornell.gobii.gdi.forms.DlgWizTemplate;
 import edu.cornell.gobii.gdi.main.App;

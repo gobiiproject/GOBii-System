@@ -1,7 +1,8 @@
 package org.gobiiproject.gobiidtomapping;
 
 
-import org.gobiiproject.gobiimodel.dto.container.ExtractorInstructionFilesDTO;
+import org.gobiiproject.gobiimodel.config.GobiiException;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ExtractorInstructionFilesDTO;
 
 /**
  * Created by Phil on 4/12/2016.
@@ -10,6 +11,6 @@ import org.gobiiproject.gobiimodel.dto.container.ExtractorInstructionFilesDTO;
 
 public interface DtoMapExtractorInstructions {
 
-    ExtractorInstructionFilesDTO writeInstructions(ExtractorInstructionFilesDTO extractorInstructionFilesDTO);
-    ExtractorInstructionFilesDTO readInstructions(ExtractorInstructionFilesDTO extractorInstructionFilesDTO);
+    ExtractorInstructionFilesDTO writeInstructions(String cropType, ExtractorInstructionFilesDTO extractorInstructionFilesDTO)  throws GobiiException;
+    ExtractorInstructionFilesDTO getStatus(String cropType, String instructionFileName)  throws GobiiException;
 }

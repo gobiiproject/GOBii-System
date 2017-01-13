@@ -28,11 +28,11 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiclient.dtorequests.DtoRequestAnalysis;
 import org.gobiiproject.gobiiclient.dtorequests.DtoRequestDisplay;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
 import org.gobiiproject.gobiimodel.dto.container.AnalysisDTO;
 import org.gobiiproject.gobiimodel.dto.container.DisplayDTO;
 import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.main.Main2;
 import edu.cornell.gobii.gdi.services.Controller;
@@ -157,7 +157,7 @@ public class FrmTableDisplay extends AbstractFrm{
 			public void widgetSelected(SelectionEvent e) {
 				if(!validate()) return;
 				for(TableItem item : table.getSelection()){
-					DisplayDTO displayDTO = new DisplayDTO(DtoMetaData.ProcessType.UPDATE);
+					DisplayDTO displayDTO = new DisplayDTO(GobiiProcessType.UPDATE);
 					displayDTO.setDisplayId((Integer) item.getData());
 					displayDTO.setColumnName(item.getText(0));
 					displayDTO.setCreatedBy(1);
@@ -170,10 +170,9 @@ public class FrmTableDisplay extends AbstractFrm{
 					try{
 						DtoRequestDisplay dtoRequestDisplay = new DtoRequestDisplay();
 						DisplayDTO DisplayDTOResponse = dtoRequestDisplay.process(displayDTO);
-						if(!Controller.getDTOResponse(shell, DisplayDTOResponse, memInfo)){
-							break;
+						if(Controller.getDTOResponse(shell, DisplayDTOResponse, memInfo, true)){
+							populateDisplayDetails();
 						};
-						populateDisplayDetails();
 					}catch(Exception err){
 						Utils.log(shell, memInfo, log, "Error updating display name", err);
 					}
@@ -208,7 +207,7 @@ public class FrmTableDisplay extends AbstractFrm{
 				return successful;
 			}
 		});
-		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnUpdate.setText("Update");
 	}
 

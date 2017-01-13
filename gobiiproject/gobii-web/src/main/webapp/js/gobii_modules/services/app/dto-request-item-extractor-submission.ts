@@ -4,6 +4,7 @@ import {ProcessType} from "../../model/type-process";
 import {GobiiDataSetExtract} from  "../../model/extractor-instructions/data-set-extract"
 import {GobiiExtractorInstruction} from  "../../model/extractor-instructions/gobii-extractor-instruction"
 import {ExtractorInstructionFilesDTO} from  "../../model/extractor-instructions/dto-extractor-instruction-files"
+import {PayloadEnvelope} from "../../model/payload/payload-envelope";
 
 
 @Injectable()
@@ -14,7 +15,7 @@ export class DtoRequestItemExtractorSubmission implements DtoRequestItem<Extract
     }
 
     public getUrl():string {
-        return "extract/extractorInstructions";
+        return "gobii/v1/instructions/extractor";
     } // getUrl()
 
     private processType:ProcessType = ProcessType.CREATE;
@@ -22,19 +23,18 @@ export class DtoRequestItemExtractorSubmission implements DtoRequestItem<Extract
     public getRequestBody():string {
 
 
-        let rawJson:any = this.extractorInstructionFilesDTO.getJson();
+        let rawJsonExtractorInstructionFileDTO:any = this.extractorInstructionFilesDTO.getJson();
 
-        let returnVal:string = JSON.stringify(rawJson);
+        let payloadEnvelope = PayloadEnvelope.wrapSingleDTOInJSON(rawJsonExtractorInstructionFileDTO);
+
+        let returnVal:string = JSON.stringify(payloadEnvelope);
 
         return returnVal;
-        }
+    }
 
     public resultFromJson(json):ExtractorInstructionFilesDTO {
 
-        let returnVal:ExtractorInstructionFilesDTO = ExtractorInstructionFilesDTO.fromJson(json);
-        console.log("*************ENTITY NAME: " + json.entityName);
-        console.log(json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages)
-        console.log(json.namesById);
+        let returnVal:ExtractorInstructionFilesDTO = ExtractorInstructionFilesDTO.fromJson(json.payload.data[0]);
 
         return returnVal;
     }

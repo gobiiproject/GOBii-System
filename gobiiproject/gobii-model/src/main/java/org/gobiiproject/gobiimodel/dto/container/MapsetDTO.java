@@ -1,9 +1,9 @@
-
 package org.gobiiproject.gobiimodel.dto.container;
 
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityColumn;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityParam;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,13 +11,15 @@ import java.util.List;
 
 /**
  * Created by Angel on 4/13/2016.
+ * Modified by AVB on 9/30/2016.
  */
-public class MapsetDTO extends DtoMetaData {
+public class MapsetDTO extends Header {
 
-	public MapsetDTO() {}
+	public MapsetDTO() {
+	}
 
-	public MapsetDTO(ProcessType processType) {
-		super(processType);
+	public MapsetDTO(GobiiProcessType gobiiProcessType) {
+		super(gobiiProcessType);
 	}
 
 	private Integer mapsetId;
@@ -30,8 +32,8 @@ public class MapsetDTO extends DtoMetaData {
 	private Date createdDate;
 	private Integer modifiedBy;
 	private Date modifiedDate;
-	private Integer status;
-	private List<EntityPropertyDTO> properties = new ArrayList<>();
+	private Integer statusId;
+    private List<EntityPropertyDTO> properties = new ArrayList<>();
 
 	@GobiiEntityParam(paramName = "mapsetId")
 	public Integer getMapsetId() {
@@ -42,7 +44,6 @@ public class MapsetDTO extends DtoMetaData {
 	public void setMapsetId(Integer mapsetId) {
 		this.mapsetId = mapsetId;
 	}
-
 
 	@GobiiEntityParam(paramName = "name")
 	public String getName() {
@@ -135,15 +136,14 @@ public class MapsetDTO extends DtoMetaData {
 	}
 
 	@GobiiEntityParam(paramName = "status")
-	public Integer getStatus() {
-		return status;
+	public Integer getStatusId() {
+		return statusId;
 	}
 
 	@GobiiEntityColumn(columnName ="status")
-	public void setStatus(Integer status) {
-		this.status = status;
+	public void setStatusId(Integer statusId) {
+		this.statusId = statusId;
 	}
-
 
 	public List<EntityPropertyDTO> getProperties() {
 		return properties;
@@ -152,4 +152,5 @@ public class MapsetDTO extends DtoMetaData {
 	public void setProperties(List<EntityPropertyDTO> properties) {
 		this.properties = properties;
 	}
+
 }

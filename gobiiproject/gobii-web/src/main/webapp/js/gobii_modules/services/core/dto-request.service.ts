@@ -1,10 +1,10 @@
 import {Injectable} from "@angular/core";
 import {HttpValues} from "../../model/http-values";
-import {GobiiCropType} from "../../model/type-crop"
 import {Http} from "@angular/http";
 import {AuthenticationService} from "./authentication.service";
 import {DtoRequestItem} from "./dto-request-item";
 import {DtoHeaderResponse} from "../../model/dto-header-response";
+import {PayloadEnvelope } from "../../model/payload/payload-envelope";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/map";
 
@@ -21,7 +21,7 @@ export class DtoRequestService<T> {
         return 'a string';
     }
 
-    getGobiiCropType():GobiiCropType {
+    getGobiiCropType():string {
         return this._authenticationService.getGobiiCropType();
     }
     
@@ -59,6 +59,78 @@ export class DtoRequestService<T> {
 
         }); // observable
 
-    } // getPiNameIds()
+    }
+
+
+    public post(dtoRequestItem:DtoRequestItem<T>):Observable < T > {
+
+        return Observable.create(observer => {
+
+            this._authenticationService
+                .getToken()
+                .subscribe(token => {
+
+                    let headers = HttpValues.makeTokenHeaders(token);
+
+                    this._http
+                        .post(dtoRequestItem.getUrl(),
+                            dtoRequestItem.getRequestBody(),
+                            {headers: headers})
+                        .map(response => response.json())
+                        .subscribe(json => {
+
+                            let payloadResponse:PayloadEnvelope = PayloadEnvelope.fromJSON(json);
+
+                            if (payloadResponse.header.status.succeeded) {
+                                let result = dtoRequestItem.resultFromJson(json);
+                                observer.next(result);
+                                observer.complete();
+                            } else {
+                                observer.error(payloadResponse);
+                            }
+
+                        }) // subscribe http
+
+                }); // subscribe get authentication token
+
+        }); // observable
+
+    }
+
+
+    public get(dtoRequestItem:DtoRequestItem<T>):Observable < T > {
+
+        return Observable.create(observer => {
+
+            this._authenticationService
+                .getToken()
+                .subscribe(token => {
+
+                    let headers = HttpValues.makeTokenHeaders(token);
+
+                    this._http
+                        .get(dtoRequestItem.getUrl(),
+                            {headers: headers})
+                        .map(response => response.json())
+                        .subscribe(json => {
+
+                            let payloadResponse:PayloadEnvelope = PayloadEnvelope.fromJSON(json);
+
+                            if (payloadResponse.header.status.succeeded) {
+                                let result = dtoRequestItem.resultFromJson(json);
+                                observer.next(result);
+                                observer.complete();
+                            } else {
+                                observer.error(payloadResponse);
+                            }
+
+                        }) // subscribe http
+
+                }); // subscribe get authentication token
+
+        }); // observable
+
+    }
+    
 
 }

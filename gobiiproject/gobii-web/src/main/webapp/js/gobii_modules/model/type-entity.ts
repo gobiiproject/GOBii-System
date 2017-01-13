@@ -1,8 +1,8 @@
 export enum EntityType {DataSetNames,
-Contact,
-AllContacts,
-Project,
-Experiment,
-DataSetNamesByExperimentId,
-CvGroupTerms};
+Contacts,
+Projects,
+Experiments,
+DataSets,
+CvTerms}
+;
 

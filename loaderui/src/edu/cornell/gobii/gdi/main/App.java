@@ -21,9 +21,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.io.FileUtils;
+import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
 
 
 /**
@@ -74,8 +77,11 @@ import org.apache.commons.io.FileUtils;
 })
 @XmlRootElement(name = "App")
 public class App {
-	
+
 	public static App INSTANCE = new App();
+
+	@XmlTransient
+    private UriFactory uriFactory;
 
     @XmlElement(required = true)
     @XmlSchemaType(name = "anyURI")
@@ -148,7 +154,15 @@ public class App {
      *     
      */
     public String getCrop() {
-        return crop;
+    	
+    	String returnVal = null;
+    	
+    	if( crop != null )
+    	{
+         returnVal =  crop.toLowerCase();
+    	}
+    	
+    	return returnVal; 
     }
 
     /**
@@ -161,8 +175,35 @@ public class App {
      */
     public void setCrop(String value) {
         this.crop = value;
+		String currentCropContextRoot = null;
+		try {
+			if(crop != null){
+				ClientContext.getInstance(null, false).setCurrentClientCrop(crop);
+				currentCropContextRoot = ClientContext.getInstance(null, false).getCurrentCropContextRoot();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        uriFactory = new UriFactory(currentCropContextRoot);
     }
 
+    public UriFactory getUriFactory() throws Exception {
+    	
+    	if( this.uriFactory == null ) {
+    		
+    		if( ( this.crop != null ) && (this.crop.length() > 0 )  ) {
+    			
+    			this.setCrop(this.getCrop());
+    			
+    		} else {
+    			throw new Exception("Unable to create UriFactory: there is no crop selected");
+    		}
+    		
+    	}
+    	
+    	return this.uriFactory;
+    }
+    
     /**
      * Gets the value of the user property.
      * 
@@ -375,7 +416,9 @@ public class App {
         }
     }
 
-    public App(){}
+    public App(){
+
+    }
     
     public boolean isValid(){
     	if(user == null) return false;

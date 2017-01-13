@@ -1,7 +1,10 @@
 package org.gobiiproject.gobiidtomapping;
 
 
-import org.gobiiproject.gobiimodel.dto.container.LoaderInstructionFilesDTO;
+import org.gobiiproject.gobiidao.GobiiDaoException;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
+
+import java.util.List;
 
 /**
  * Created by Phil on 4/12/2016.
@@ -10,6 +13,6 @@ import org.gobiiproject.gobiimodel.dto.container.LoaderInstructionFilesDTO;
 
 public interface DtoMapLoaderInstructions {
 
-    LoaderInstructionFilesDTO writeInstructions(LoaderInstructionFilesDTO loaderInstructionFilesDTO);
-    LoaderInstructionFilesDTO readInstructions(LoaderInstructionFilesDTO loaderInstructionFilesDTO);
+    LoaderInstructionFilesDTO createInstruction(String cropType, LoaderInstructionFilesDTO loaderInstructionFilesDTO) throws GobiiDtoMappingException, GobiiDaoException;
+    LoaderInstructionFilesDTO getInstruction(String cropType, String getInstructions);
 }

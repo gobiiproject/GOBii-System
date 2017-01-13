@@ -1,16 +1,9 @@
 package org.gobiiproject.gobidomain.services.impl;
 
-import org.gobiiproject.gobidomain.GobiiDomainException;
 import org.gobiiproject.gobidomain.services.DisplayService;
-import org.gobiiproject.gobidomain.services.NameIdListService;
 import org.gobiiproject.gobiidtomapping.DtoMapDisplay;
-import org.gobiiproject.gobiidtomapping.DtoMapNameIdList;
-import org.gobiiproject.gobiidtomapping.DtoMapDisplay;
-import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
 import org.gobiiproject.gobiimodel.dto.container.DisplayDTO;
-import org.gobiiproject.gobiimodel.dto.container.NameIdListDTO;
-import org.gobiiproject.gobiimodel.dto.container.DisplayDTO;
-import org.gobiiproject.gobiimodel.dto.header.DtoHeaderResponse;
+import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +26,7 @@ public class DisplayServiceImpl implements DisplayService {
         DisplayDTO returnVal = displayDTO;
 
         try {
-            switch (displayDTO.getProcessType()) {
+            switch (displayDTO.getGobiiProcessType()) {
                 case READ:
                     returnVal = dtoMapDisplay.getDisplayDetails(returnVal);
                     break;
@@ -51,16 +44,16 @@ public class DisplayServiceImpl implements DisplayService {
                     break;
 
                 default:
-                    returnVal.getDtoHeaderResponse().addStatusMessage(DtoHeaderResponse.StatusLevel.ERROR,
-                            DtoHeaderResponse.ValidationStatusType.BAD_REQUEST,
-                            "Unsupported proces type " + returnVal.getProcessType().toString());
+                    returnVal.getStatus().addStatusMessage(GobiiStatusLevel.ERROR,
+                            GobiiValidationStatusType.BAD_REQUEST,
+                            "Unsupported proces type " + returnVal.getGobiiProcessType().toString());
                     break;
 
             }
 
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii service error", e);
         }
 

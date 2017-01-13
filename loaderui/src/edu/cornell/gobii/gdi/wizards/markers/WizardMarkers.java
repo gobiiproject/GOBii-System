@@ -1,19 +1,26 @@
 package edu.cornell.gobii.gdi.wizards.markers;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 import org.eclipse.jface.wizard.Wizard;
-import org.gobiiproject.gobiiclient.core.ClientContext;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestFileLoadInstructions;
-import org.gobiiproject.gobiimodel.dto.container.LoaderInstructionFilesDTO;
-import org.gobiiproject.gobiimodel.types.GobiiFileLocationType;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
+import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
+import edu.cornell.gobii.gdi.main.Main2;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.utils.Utils;
 import edu.cornell.gobii.gdi.utils.WizardUtils;
 import edu.cornell.gobii.gdi.utils.WizardUtils.TemplateCode;
 
 public class WizardMarkers extends Wizard {
-	
+
 	private static Logger log = Logger.getLogger(WizardMarkers.class.getName());
 	private String config;
 	private DTOmarkers dto = new DTOmarkers();
@@ -22,7 +29,7 @@ public class WizardMarkers extends Wizard {
 		setWindowTitle("Marker Data Loading Wizard");
 		this.config = config;
 	}
-	
+
 	public WizardMarkers(String config, Integer projectID, Integer platformID, Integer experiemtnID) {
 		setWindowTitle("Marker Data Loading Wizard");
 		this.config = config;
@@ -38,27 +45,36 @@ public class WizardMarkers extends Wizard {
 	@Override
 	public boolean performFinish() {
 		try{
-			String folder = WizardUtils.generateSourceFolder();
-			if(!dto.isRemote()){
-//			if((dto.getFile().getSource() == null || dto.getFile().getSource().isEmpty()) && dto.getFiles().size() > 0){
-				String digesterInputDirectory = ClientContext
-		                .getInstance(null, false)
-		                .getFileLocationOfCurrenCrop(GobiiFileLocationType.RAWUSER_FILES);
-				dto.getFile().setSource(digesterInputDirectory+folder);
-				dto.getFile().setCreateSource(true);
-			}else if(dto.getFile().getSource() != null && !dto.getFile().getSource().isEmpty()){
-				dto.getFile().setCreateSource(false);
-				dto.getFile().setRequireDirectoriesToExist(true);
+////			String folder = WizardUtils.generateSourceFolder();
+//			String folder = new File(dto.getPreviewDTO().getDirectoryName()).getName();
+//			if(folder != null || !folder.isEmpty()){
+//				//			if((dto.getFile().getSource() == null || dto.getFile().getSource().isEmpty()) && dto.getFiles().size() > 0){
+//				String digesterInputDirectory = ClientContext
+//						.getInstance(null, false)
+//						.getFileLocationOfCurrenCrop(GobiiFileProcessDir.RAW_USER_FILES);
+//				dto.getFile().setSource(digesterInputDirectory+folder);
+//				dto.getFile().setCreateSource(false);
+//				dto.getFile().setRequireDirectoriesToExist(true);
+////			}else if(dto.getFile().getSource() != null && !dto.getFile().getSource().isEmpty()){
+////				dto.getFile().setCreateSource(false);
+////				dto.getFile().setRequireDirectoriesToExist(true);
+//			}else{
+//				Utils.log(getShell(), null, log, "Error submitting instruction file", new Exception("No source file(s) specified!"));
+//				return false;
+//			}
+//			String digesterOutputDirectory = ClientContext
+//					.getInstance(null, false)
+//					.getFileLocationOfCurrenCrop(GobiiFileProcessDir.LOADER_INTERMEDIATE_FILES);
+//			dto.getFile().setDestination(digesterOutputDirectory+folder);
+
+			String folder = new File(dto.getPreviewDTO().getDirectoryName()).getName();
+			if(folder != null || !folder.isEmpty()){
+				WizardUtils.createInstructionsForWizard(folder, dto);
 			}else{
 				Utils.log(getShell(), null, log, "Error submitting instruction file", new Exception("No source file(s) specified!"));
 				return false;
 			}
-			String digesterOutputDirectory = ClientContext
-	                .getInstance(null, false)
-	                .getFileLocationOfCurrenCrop(GobiiFileLocationType.INTERMEDIATE_FILES);
-			dto.getFile().setDestination(digesterOutputDirectory+folder);
-			
-			
+
 			LoaderInstructionFilesDTO instructions = null;
 			if(dto.getTemplate() != null){
 				instructions = WizardUtils.loadTemplate(dto.getTemplate());
@@ -72,26 +88,28 @@ public class WizardMarkers extends Wizard {
 				instructions = new LoaderInstructionFilesDTO();
 				WizardUtils.createMarkerInstructionsFromDTO(getShell(), instructions, dto, folder, false);
 			}
-			
+
 			instructions.setInstructionFileName(folder);
 
 			if(WizardUtils.confirm("Do you want to submit data?")){
-				DtoRequestFileLoadInstructions dtoRequestFileLoadInstructions = new DtoRequestFileLoadInstructions();
 				try {
-					LoaderInstructionFilesDTO loaderInstructionFilesDTOResponse = dtoRequestFileLoadInstructions.process(instructions);
-					boolean successful = Controller.getDTOResponse(this.getShell(), loaderInstructionFilesDTOResponse, null);
-					if(!successful){
+					PayloadEnvelope<LoaderInstructionFilesDTO> payloadEnvelope = new PayloadEnvelope<>(instructions, GobiiProcessType.CREATE);
+					GobiiEnvelopeRestResource<LoaderInstructionFilesDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_FILE_LOAD_INSTRUCTIONS));
+					PayloadEnvelope<LoaderInstructionFilesDTO> loaderInstructionFileDTOResponseEnvelope = restResource.post(LoaderInstructionFilesDTO.class,
+							payloadEnvelope);
+					if(!Controller.getDTOResponse(this.getShell(), loaderInstructionFileDTOResponseEnvelope.getHeader(), null, true)){
 						return false;
-					}else{
-						if(!dto.isRemote() && dto.getFiles().size() > 0)
-							WizardUtils.sendFilesToServer(getShell(), dto.getFile().getSource(), dto.getFiles(), dto.getFileExtention());
-					};
+					}
+//					else{
+//						if(!dto.isRemote() && dto.getFiles().size() > 0)
+//							WizardUtils.sendFilesToServer(getShell(), dto.getFile().getSource(), dto.getFiles(), dto.getFileExtention());
+//					};
 				} catch (Exception err) {
 					Utils.log(getShell(), null, log, "Error submitting instruction file", err);
 					return false;
 				}
 			}
-				
+
 			WizardUtils.saveTemplate(getShell(), TemplateCode.MKR, instructions);
 		}catch(Exception err){
 			Utils.log(getShell(), null, log, "Error submitting instruction file", err);
@@ -99,7 +117,7 @@ public class WizardMarkers extends Wizard {
 		}
 		return true;
 	}
-	
+
 	private boolean validate(){
 		if(dto.getMarkerFields().size() > 0 && dto.getPlatformID() == null){
 			Utils.log(getShell(), null, log, "Platform is required for Marker information", new Exception("No Platform specified!"));

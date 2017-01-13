@@ -5,10 +5,9 @@
 // ************************************************************************
 package org.gobiiproject.gobiimodel.dto.container;
 
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
-import org.gobiiproject.gobiimodel.dto.header.*;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 
-public class ContentTypeDTO extends DtoMetaData {
+public class ContentTypeDTO extends Header {
 
     private Integer contentTypeId;
     private String name;
@@ -33,7 +32,7 @@ public class ContentTypeDTO extends DtoMetaData {
 //    public void mapFromeEntity(ContentType contentType) {
 //
 //        this.setContentTypeId(contentType.getContentTypeId());
-//        this.setName(contentType.getName());
+//        this.setMarkerName(contentType.getMarkerName());
 //        this.setScope(contentType.getScope());
 //    }
 

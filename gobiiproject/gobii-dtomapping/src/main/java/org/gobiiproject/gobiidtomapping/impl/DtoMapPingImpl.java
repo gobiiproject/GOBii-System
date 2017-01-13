@@ -5,7 +5,6 @@ import org.gobiiproject.gobiidao.resultset.core.DbMetaData;
 import org.gobiiproject.gobiidtomapping.DtoMapPing;
 import org.gobiiproject.gobiimodel.dto.container.PingDTO;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
-import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +72,7 @@ public class DtoMapPingImpl implements DtoMapPing {
 
             } catch (SQLException sqlException) {
 
-                returnVal.getDtoHeaderResponse().addException(sqlException);
+                returnVal.getStatus().addException(sqlException);
             }
 
             // in case we did succeed in getting the url the normal way
@@ -84,7 +83,7 @@ public class DtoMapPingImpl implements DtoMapPing {
                 exception = e;
             }
 
-            returnVal.getDtoHeaderResponse().addException(exception);
+            returnVal.getStatus().addException(exception);
 
             LOGGER.error("Gobii Maping Error", exception);
         }

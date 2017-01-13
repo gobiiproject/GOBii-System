@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<columns>
+    <column>
+		<name>marker_name</name>
+		<required>true</required>    
+    </column>
+    <column>
+        <name>call_rate</name>
+    	<required>false</required>    
+    </column>
+   	<column>
+        <name>maf</name>
+    	<required>false</required>    
+    </column>
+	<column>
+        <name>reproducibility</name>
+    	<required>false</required>    
+    </column>
+	<column>
+        <name>scores</name>
+    	<required>false</required>    
+    </column>
+    <column>
+		<name>marker_idx</name>
+		<required>false</required>
+	</column>
+</columns>

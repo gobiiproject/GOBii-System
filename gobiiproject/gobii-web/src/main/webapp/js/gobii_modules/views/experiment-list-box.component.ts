@@ -58,9 +58,9 @@ export class ExperimentListBoxComponent implements OnInit,OnChanges {
     private setExperimentDetail(experimentId:string):void {
 
         let scope$ = this;
-        scope$._dtoRequestServiceExperiment.getResult(new DtoRequestItemExperiment(Number(experimentId))).subscribe(experiment => {
-                if (experiment) {
-                    scope$.experiment = experiment
+        scope$._dtoRequestServiceExperiment.get(new DtoRequestItemExperiment(Number(experimentId))).subscribe(experiment => {
+                if (experiment[0]) {
+                    scope$.experiment = experiment[0]
                 }
             },
             dtoHeaderResponse => {

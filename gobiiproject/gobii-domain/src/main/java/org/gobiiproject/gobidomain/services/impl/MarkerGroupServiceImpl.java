@@ -2,9 +2,8 @@ package org.gobiiproject.gobidomain.services.impl;
 
 import org.gobiiproject.gobidomain.services.MarkerGroupService;
 import org.gobiiproject.gobiidtomapping.DtoMapMarkerGroup;
-import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
 import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
-import org.gobiiproject.gobiimodel.dto.header.DtoHeaderResponse;
+import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class MarkerGroupServiceImpl implements MarkerGroupService {
 
         try {
 
-            switch (markerGroupDTO.getProcessType()) {
+            switch (markerGroupDTO.getGobiiProcessType()) {
 
                 case READ:
                     returnVal = dtoMapMarkerGroup.getMarkerGroupDetails(markerGroupDTO);
@@ -50,15 +49,15 @@ public class MarkerGroupServiceImpl implements MarkerGroupService {
                     break;
 
                 default:
-                    returnVal.getDtoHeaderResponse().addStatusMessage(DtoHeaderResponse.StatusLevel.ERROR,
-                            DtoHeaderResponse.ValidationStatusType.BAD_REQUEST,
-                            "Unsupported proces type " + markerGroupDTO.getProcessType().toString());
+                    returnVal.getStatus().addStatusMessage(GobiiStatusLevel.ERROR,
+                            GobiiValidationStatusType.BAD_REQUEST,
+                            "Unsupported proces type " + markerGroupDTO.getGobiiProcessType().toString());
 
             }
 
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii service error", e);
         }
 

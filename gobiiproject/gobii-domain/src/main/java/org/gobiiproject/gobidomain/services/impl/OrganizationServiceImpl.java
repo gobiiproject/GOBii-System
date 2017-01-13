@@ -1,60 +1,154 @@
 package org.gobiiproject.gobidomain.services.impl;
 
+import org.gobiiproject.gobidomain.GobiiDomainException;
 import org.gobiiproject.gobidomain.services.OrganizationService;
 import org.gobiiproject.gobiidtomapping.DtoMapOrganization;
-import org.gobiiproject.gobiimodel.dto.container.OrganizationDTO;
-import org.gobiiproject.gobiimodel.dto.header.DtoHeaderResponse;
+import org.gobiiproject.gobiimodel.headerlesscontainer.OrganizationDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
+import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
- * Created by Angel on 5/4/2016.
+ * Created by Phil on 4/27/2016.
  */
 public class OrganizationServiceImpl implements OrganizationService {
 
     Logger LOGGER = LoggerFactory.getLogger(OrganizationServiceImpl.class);
 
     @Autowired
-    DtoMapOrganization dtoMapOrganization = null;
+    DtoMapOrganization dtoMapOrganization;
+
+
 
     @Override
-    public OrganizationDTO process(OrganizationDTO organizationDTO) {
+    public List<OrganizationDTO> getOrganizations() throws GobiiDomainException {
 
-        OrganizationDTO returnVal = new OrganizationDTO();
+        List<OrganizationDTO> returnVal;
 
         try {
-            switch (organizationDTO.getProcessType()) {
-                case READ:
-                    returnVal = dtoMapOrganization.getOrganizationDetails(organizationDTO);
-                    break;
+            returnVal = dtoMapOrganization.getOrganizations();
+            for(OrganizationDTO currentOrganizationDTO : returnVal ) {
+                currentOrganizationDTO.getAllowedProcessTypes().add(GobiiProcessType.READ);
+                currentOrganizationDTO.getAllowedProcessTypes().add(GobiiProcessType.UPDATE);
+            }
 
-                case CREATE:
-                    returnVal = dtoMapOrganization.createOrganization(organizationDTO);
-                    returnVal.setCreatedDate(new Date());
-                    returnVal.setModifiedDate(new Date());
-                    break;
 
-                case UPDATE:
-                    returnVal = dtoMapOrganization.updateOrganization(organizationDTO);
-                    returnVal.setCreatedDate(new Date());
-                    returnVal.setModifiedDate(new Date());
-                    break;
-
-                default:
-                    returnVal.getDtoHeaderResponse().addStatusMessage(DtoHeaderResponse.StatusLevel.ERROR,
-                            DtoHeaderResponse.ValidationStatusType.BAD_REQUEST,
-                            "Unsupported proces Organization type " + organizationDTO.getProcessType().toString());
-
+            if (null == returnVal) {
+                returnVal = new ArrayList<>();
             }
 
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
             LOGGER.error("Gobii service error", e);
+            throw new GobiiDomainException(e);
+
         }
+
+        return returnVal;
+    }
+
+    @Override
+    public OrganizationDTO getOrganizationById(Integer organizationId) {
+
+        OrganizationDTO returnVal;
+
+        try {
+            returnVal = dtoMapOrganization.getOrganizationDetails(organizationId);
+            returnVal.getAllowedProcessTypes().add(GobiiProcessType.READ);
+            returnVal.getAllowedProcessTypes().add(GobiiProcessType.UPDATE);
+
+
+            if (null == returnVal) {
+                throw new GobiiDomainException(GobiiStatusLevel.VALIDATION,
+                        GobiiValidationStatusType.ENTITY_DOES_NOT_EXIST,
+                        "The specified organizationId ("
+                                + organizationId
+                                + ") does not match an existing organization ");
+            }
+
+        } catch (Exception e) {
+
+            LOGGER.error("Gobii service error", e);
+            throw new GobiiDomainException(e);
+
+        }
+
+        return returnVal;
+    }
+
+    @Override
+    public OrganizationDTO createOrganization(OrganizationDTO organizationDTO) throws GobiiDomainException {
+        OrganizationDTO returnVal;
+
+        try {
+
+            returnVal = dtoMapOrganization.createOrganization(organizationDTO);
+
+            // When we have roles and permissions, this will be set programmatically
+            returnVal.getAllowedProcessTypes().add(GobiiProcessType.READ);
+            returnVal.getAllowedProcessTypes().add(GobiiProcessType.UPDATE);
+
+        } catch (Exception e) {
+
+            LOGGER.error("Gobii service error", e);
+            throw new GobiiDomainException(e);
+        }
+        return returnVal;
+    }
+
+    @Override
+    public OrganizationDTO replaceOrganization(Integer organizationId, OrganizationDTO organizationDTO) throws GobiiDomainException {
+        OrganizationDTO returnVal;
+
+        try {
+
+            if (null == organizationDTO.getOrganizationId() ||
+                    organizationDTO.getOrganizationId().equals(organizationId)) {
+
+
+                OrganizationDTO existingOrganizationDTO = dtoMapOrganization.getOrganizationDetails(organizationId);
+                if (null != existingOrganizationDTO.getOrganizationId() && existingOrganizationDTO.getOrganizationId().equals(organizationId)) {
+
+
+                    returnVal = dtoMapOrganization.replaceOrganization(organizationId, organizationDTO);
+                    returnVal.getAllowedProcessTypes().add(GobiiProcessType.READ);
+                    returnVal.getAllowedProcessTypes().add(GobiiProcessType.UPDATE);
+
+                } else {
+
+                    throw new GobiiDomainException(GobiiStatusLevel.VALIDATION,
+                            GobiiValidationStatusType.ENTITY_DOES_NOT_EXIST,
+                            "The specified organizationId ("
+                                    + organizationId
+                                    + ") does not match an existing organization ");
+                }
+
+            } else {
+
+                throw new GobiiDomainException(GobiiStatusLevel.VALIDATION,
+                        GobiiValidationStatusType.BAD_REQUEST,
+                        "The organizationId specified in the dto ("
+                                + organizationDTO.getOrganizationId()
+                                + ") does not match the organizationId passed as a parameter "
+                                + "("
+                                + organizationId
+                                + ")");
+
+            }
+
+
+        } catch (Exception e) {
+
+            LOGGER.error("Gobii service error", e);
+            throw new GobiiDomainException(e);
+        }
+
 
         return returnVal;
     }

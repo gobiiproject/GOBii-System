@@ -5,7 +5,6 @@ import "rxjs/add/operator/map";
 
 import {DtoHeaderAuth} from "../../model/dto-header-auth";
 import {HttpValues} from "../../model/http-values";
-import {GobiiCropType} from "../../model/type-crop";
 
 @Injectable()
 export class AuthenticationService {
@@ -17,7 +16,7 @@ export class AuthenticationService {
     private defaultUser:string = 'USER_READER';
     private defaultPassword:string = 'reader';
     private token:string = '';
-    private _gobiiCropType:GobiiCropType;
+    private _gobiiCropType:string;
 
     public getToken():Observable<string> {
 
@@ -30,7 +29,7 @@ export class AuthenticationService {
                 scope$.authenticateDefault()
                     .subscribe(dtoHeaderAuth => {
                             scope$.token = dtoHeaderAuth.getToken();
-                            scope$._gobiiCropType = GobiiCropType[dtoHeaderAuth.getGobiiCropType()];
+                            scope$._gobiiCropType = dtoHeaderAuth.getGobiiCropType();
                             observer.next(scope$.token);
                             observer.complete();
                         },
@@ -51,7 +50,7 @@ export class AuthenticationService {
     }
 
 
-    getGobiiCropType():GobiiCropType {
+    getGobiiCropType():string {
         return this._gobiiCropType;
     }
 
@@ -94,7 +93,7 @@ export class AuthenticationService {
 
 }
 /*
- // doing a plain xhr request also does not allow access to token header
+ // doing a plain xhr request also does not allow access to token response
  var xhr = new XMLHttpRequest();
  var url = "load/auth";
  xhr.open("POST", url, true);

@@ -1,8 +1,10 @@
 package org.gobiiproject.gobiimodel.dto.container;
 
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
+
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityColumn;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityParam;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,13 +13,13 @@ import java.util.List;
 /**
  * Created by Phil on 4/21/2016.
  */
-public class AnalysisDTO extends DtoMetaData {
+public class AnalysisDTO extends Header {
 
     public AnalysisDTO() {
     }
 
-    public AnalysisDTO(ProcessType processType) {
-        super(processType);
+    public AnalysisDTO(GobiiProcessType gobiiProcessType) {
+        super(gobiiProcessType);
     }
 
     private Integer analysisId;
@@ -32,7 +34,12 @@ public class AnalysisDTO extends DtoMetaData {
     private String sourceUri;
     private Integer referenceId;
     private Date timeExecuted;
-    private Integer status;
+    private Integer statusId;
+    private Integer createdBy;
+    private Date createdDate;
+    private Integer modifiedBy;
+    private Date modifiedDate;
+
     private List<EntityPropertyDTO> parameters = new ArrayList<>();
 
     @GobiiEntityParam(paramName = "analysisId")
@@ -156,13 +163,53 @@ public class AnalysisDTO extends DtoMetaData {
     }
 
     @GobiiEntityParam(paramName = "status")
-    public Integer getStatus() {
-        return status;
+    public Integer getStatusId() {
+        return statusId;
     }
 
     @GobiiEntityColumn(columnName = "status")
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setStatusId(Integer statusId) {
+        this.statusId = statusId;
+    }
+
+    @GobiiEntityParam(paramName = "createdBy")
+    public Integer getCreatedBy() {
+        return createdBy;
+    }
+
+    @GobiiEntityColumn(columnName = "created_by")
+    public void setCreatedBy(Integer createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    @GobiiEntityParam(paramName = "createdDate")
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    @GobiiEntityColumn(columnName = "created_date")
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @GobiiEntityParam(paramName = "modifiedBy")
+    public Integer getModifiedBy() {
+        return modifiedBy;
+    }
+
+    @GobiiEntityColumn(columnName = "modified_by")
+    public void setModifiedBy(Integer modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
+
+    @GobiiEntityParam(paramName = "modifiedDate")
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    @GobiiEntityColumn(columnName = "modified_date")
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
     }
 
     public List<EntityPropertyDTO> getParameters() {

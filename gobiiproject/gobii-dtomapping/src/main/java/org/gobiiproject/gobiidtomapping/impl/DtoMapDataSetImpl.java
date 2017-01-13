@@ -1,16 +1,16 @@
 package org.gobiiproject.gobiidtomapping.impl;
 
-import org.gobiiproject.gobiidao.GobiiDaoException;
 import org.gobiiproject.gobiidao.resultset.access.RsAnalysisDao;
 import org.gobiiproject.gobiidao.resultset.access.RsDataSetDao;
 import org.gobiiproject.gobiidao.resultset.core.ParamExtractor;
 import org.gobiiproject.gobiidao.resultset.core.ResultColumnApplicator;
+import org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQueryColl;
+import org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId;
 import org.gobiiproject.gobiidtomapping.DtoMapAnalysis;
 import org.gobiiproject.gobiidtomapping.DtoMapDataSet;
 import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
-import org.gobiiproject.gobiimodel.dto.container.AnalysisDTO;
-import org.gobiiproject.gobiimodel.dto.container.DataSetDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ProjectDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,53 +34,42 @@ public class DtoMapDataSetImpl implements DtoMapDataSet {
     private RsDataSetDao rsDataSetDao;
 
     @Autowired
-    private RsAnalysisDao rsAnalysisDao;
+    private DtoListQueryColl dtoListQueryColl;
 
-    @Autowired
-    private DtoMapAnalysis dtoMapAnalysis;
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<DataSetDTO> getDataSets() throws GobiiDtoMappingException {
+
+        List<DataSetDTO> returnVal = new ArrayList<>();
+
+        try {
+
+            returnVal = (List<DataSetDTO>) dtoListQueryColl.getList(ListSqlId.QUERY_ID_DATASET_ALL,null);
+
+        } catch (Exception e) {
+            LOGGER.error("Gobii Maping Error", e);
+            throw new GobiiDtoMappingException(e);
+        }
+
+        return returnVal;
+    }    
 
     @Transactional
     @Override
-    public DataSetDTO getDataSetDetails(DataSetDTO dataSetDTO) throws GobiiDtoMappingException {
+    public DataSetDTO getDataSetDetails(Integer dataSetId) throws GobiiDtoMappingException {
 
-        DataSetDTO returnVal = dataSetDTO;
+        DataSetDTO returnVal = new DataSetDTO();
+
 
         try {
-
-            ResultSet resultSet = rsDataSetDao.getDataSetDetailsByDataSetId(dataSetDTO.getDataSetId());
+            ResultSet resultSet = rsDataSetDao.getDataSetDetailsByDataSetId(dataSetId);
 
             if (resultSet.next()) {
 
-                // apply dataset values
                 ResultColumnApplicator.applyColumnValues(resultSet, returnVal);
-
-
-//                // create calling analysis from annotations
-//                if (null != returnVal.getCallingAnalysisId()) {
-//
-//                    ResultSet callingAnalysisResultSet =
-//                            rsAnalysisDao.getAnalysisDetailsByAnalysisId(returnVal.getCallingAnalysisId());
-//                    if (callingAnalysisResultSet.next()) {
-//                        AnalysisDTO callingAnalysisDTO = new AnalysisDTO();
-//                        ResultColumnApplicator.applyColumnValues(callingAnalysisResultSet, callingAnalysisDTO);
-//                    }
-//                }
-//
-//                // create analyses
-//                for (Integer currentAnalysisId : returnVal.getAnalysesIds()) {
-//                    ResultSet currentAnalysisResultSet = rsAnalysisDao.getAnalysisDetailsByAnalysisId(currentAnalysisId);
-//                    if (currentAnalysisResultSet.next()) {
-//                        AnalysisDTO currentAnalysisDTO = new AnalysisDTO();
-//                        ResultColumnApplicator.applyColumnValues(currentAnalysisResultSet, currentAnalysisDTO);
-//                        returnVal.getAnalyses().add(currentAnalysisDTO);
-//                    }
-//                }
-
             }
-
-        } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error("Gobii Maping Error", e);
+        } catch(SQLException e) {
+            throw new GobiiDtoMappingException(e);
         }
 
         return returnVal;
@@ -86,49 +77,28 @@ public class DtoMapDataSetImpl implements DtoMapDataSet {
     }
 
     @Override
-    public DataSetDTO createDataset(DataSetDTO dataSetDTO) throws GobiiDtoMappingException {
+    public DataSetDTO createDataSet(DataSetDTO dataSetDTO) throws GobiiDtoMappingException {
+
         DataSetDTO returnVal = dataSetDTO;
 
-        try {
 
-            Map<String, Object> parameters = ParamExtractor.makeParamVals(dataSetDTO);
-            Integer datasetId = rsDataSetDao.createDataset(parameters);
-            returnVal.setDataSetId(datasetId);
-
-        } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error("Gobii Maping Error", e);
-        }
+        Map<String, Object> parameters = ParamExtractor.makeParamVals(dataSetDTO);
+        Integer datasetId = rsDataSetDao.createDataset(parameters);
+        returnVal.setDataSetId(datasetId);
 
         return returnVal;
     }
 
     @Override
-    public DataSetDTO updateDataset(DataSetDTO dataSetDTO) throws GobiiDtoMappingException {
+    public DataSetDTO replaceDataSet(Integer dataSetId, DataSetDTO dataSetDTO) throws GobiiDtoMappingException {
 
         DataSetDTO returnVal = dataSetDTO;
 
-        try {
 
+        Map<String, Object> parameters = ParamExtractor.makeParamVals(returnVal);
+        parameters.put("projectId", dataSetId);
+        rsDataSetDao.updateDataSet(parameters);
 
-//            for (AnalysisDTO currentAnalysisDTO : returnVal.getAnalyses()) {
-//
-//                if(DtoMetaData.ProcessType.CREATE == currentAnalysisDTO.getProcessType() ) {
-//                    dtoMapAnalysis.createAnalysis(currentAnalysisDTO);
-//                    returnVal.getAnalysesIds().add(currentAnalysisDTO.getAnalysisId());
-//
-//                }
-//            }
-
-
-            Map<String, Object> parameters = ParamExtractor.makeParamVals(returnVal);
-            rsDataSetDao.updateDataSet(parameters);
-
-
-        } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error("Gobii Maping Error", e);
-        }
 
         return returnVal;
     }

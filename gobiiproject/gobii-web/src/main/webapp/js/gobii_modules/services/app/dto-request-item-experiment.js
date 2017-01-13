@@ -1,4 +1,4 @@
-System.register(["@angular/core", "../../model/type-process", "../../model/experiment"], function(exports_1, context_1) {
+System.register(["@angular/core", "../../model/type-process"], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(["@angular/core", "../../model/type-process", "../../model/exper
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, type_process_1, experiment_1;
+    var core_1, type_process_1;
     var DtoRequestItemExperiment;
     return {
         setters:[
@@ -19,9 +19,6 @@ System.register(["@angular/core", "../../model/type-process", "../../model/exper
             },
             function (type_process_1_1) {
                 type_process_1 = type_process_1_1;
-            },
-            function (experiment_1_1) {
-                experiment_1 = experiment_1_1;
             }],
         execute: function() {
             DtoRequestItemExperiment = (function () {
@@ -31,7 +28,12 @@ System.register(["@angular/core", "../../model/type-process", "../../model/exper
                     this.experimentId = experimentId;
                 }
                 DtoRequestItemExperiment.prototype.getUrl = function () {
-                    return "load/experiment";
+                    var baseUrl = "gobii/v1/experiments";
+                    var returnVal = baseUrl;
+                    if (this.experimentId) {
+                        returnVal = baseUrl + "/" + this.experimentId;
+                    }
+                    return returnVal;
                 }; // getUrl()
                 DtoRequestItemExperiment.prototype.getRequestBody = function () {
                     return JSON.stringify({
@@ -40,22 +42,27 @@ System.register(["@angular/core", "../../model/type-process", "../../model/exper
                     });
                 };
                 DtoRequestItemExperiment.prototype.resultFromJson = function (json) {
-                    var returnVal;
-                    console.log("*************ENTITY NAME: " + json.entityName);
-                    console.log(json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages);
-                    console.log(json.namesById);
-                    // let arrayOfIds = Object.keys(json.serverConfigs);
-                    // arrayOfIds.forEach(crop => {
-                    //     let currentCrop = crop;
-                    //     let currentDomain:string = json.serverConfigs[crop].domain;
-                    //     let currentContextRoot:string = json.serverConfigs[crop].contextRoot;
-                    //     let currentPort:number = Number(json.serverConfigs[crop].port);
-                    //     returnVal.push(new ServerConfig(currentCrop,
-                    //         currentDomain,
-                    //         currentContextRoot,
-                    //         currentPort));
+                    var returnVal = undefined;
+                    if (json.payload.data[0]) {
+                        returnVal = json.payload.data[0];
+                    }
+                    // json.payload.data.forEach(item => {
+                    //
+                    //     returnVal.push(new Experiment(item.experimentId,
+                    //         item.experimentName,
+                    //         item.experimentCode,
+                    //         item.experimentDataFile,
+                    //         item.projectId,
+                    //         item.platformId,
+                    //         item.manifestId,
+                    //         item.createdBy,
+                    //         item.createdstring,
+                    //         item.modifiedBy,
+                    //         item.modifiedstring,
+                    //         item.status,
+                    //         item.platformName
+                    //     ));
                     // });
-                    returnVal = new experiment_1.Experiment(json.experimentId, json.experimentName, json.experimentCode, json.experimentDataFile, json.projectId, json.platformId, json.manifestId, json.createdBy, json.createdstring, json.modifiedBy, json.modifiedstring, json.status, json.platformName);
                     return returnVal;
                     //return [new NameId(1, 'foo'), new NameId(2, 'bar')];
                 };

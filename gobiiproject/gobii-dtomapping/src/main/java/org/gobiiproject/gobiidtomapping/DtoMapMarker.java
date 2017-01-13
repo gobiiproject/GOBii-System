@@ -1,6 +1,8 @@
 package org.gobiiproject.gobiidtomapping;
 
 import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.MarkerDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,14 @@ import java.util.Map;
  */
 public interface DtoMapMarker {
 
-    MarkerGroupDTO getMarkers(List<Integer> chromosomes );
+    List<MarkerDTO> getMarkers() throws GobiiDtoMappingException;
+
+    MarkerDTO getMarkerDetails(Integer projectId) throws GobiiDtoMappingException;
+
+    MarkerDTO createMarker(MarkerDTO markerDTO) throws GobiiDtoMappingException;
+
+    MarkerDTO replaceMarker(Integer markerId, MarkerDTO markerDTO) throws GobiiDtoMappingException;
+
+    List<MarkerDTO> getMarkersByName(String markerName) throws GobiiDtoMappingException;
 
 }

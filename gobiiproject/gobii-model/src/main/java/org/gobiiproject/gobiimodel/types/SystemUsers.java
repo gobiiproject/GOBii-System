@@ -19,10 +19,10 @@ public class SystemUsers {
     public SystemUsers() {
 
         userDetails.put(SystemUserNames.USER_READER.toString(),
-                new SystemUserDetail(SystemUserNames.USER_READER.toString(), "reader", "READER"));
+                new SystemUserDetail(SystemUserNames.USER_READER.toString(), "password", "READER"));
 
         userDetails.put(SystemUserNames.USER_IMPORTER.toString(),
-                new SystemUserDetail(SystemUserNames.USER_IMPORTER.toString(), "password2", "ADMIN"));
+                new SystemUserDetail(SystemUserNames.USER_IMPORTER.toString(), "password", "ADMIN"));
 
     } // ctor
 

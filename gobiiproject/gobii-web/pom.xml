@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.gobiiproject</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.6-SNAPSHOT</version>
+        <version>1.0.15-SNAPSHOT</version>
     </parent>
 
     <groupId>org.gobiiproject</groupId>
@@ -49,14 +49,27 @@
         <!-- gobii dependencies -->
         <dependency>
             <groupId>org.gobiiproject</groupId>
-            <artifactId>gobii-model</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <artifactId>gobii-api-model</artifactId>
+            <version>1.0.15-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-brapi</artifactId>
+            <version>1.0.15-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-model</artifactId>
+            <version>1.0.15-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-domain</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>1.0.15-SNAPSHOT</version>
 
             <!--
             **** Ideally we would want to prevent the transitive dependency of gobii-domain on gobii-dao from bringing
@@ -397,7 +410,7 @@
                                         <include>core-js/client/shim.min.js</include>
                                         <include>reflect-metadata/Reflect.js</include>
                                         <include>rxjs/bundles/Rx.js</include>
-                                        <include>rxjs/add/**</include>
+                                        <include>rxjs/**</include>
 
 
                                         <!-- ***** GROUP 2: angular files from beta 2 that we probably don't want-->

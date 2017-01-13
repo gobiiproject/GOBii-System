@@ -43,7 +43,7 @@ public class DtoMapManifestImpl implements DtoMapManifest {
             } // iterate resultSet
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii Maping Error", e);
         }
 
@@ -62,7 +62,7 @@ public class DtoMapManifestImpl implements DtoMapManifest {
             returnVal.setManifestId(manifestId);
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii Maping Error", e);
         }
 
@@ -80,7 +80,7 @@ public class DtoMapManifestImpl implements DtoMapManifest {
             rsManifestDao.updateManifest(parameters);
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii Maping Error", e);
         }
 

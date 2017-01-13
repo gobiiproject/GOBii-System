@@ -1,0 +1,5 @@
+<configValues>
+   <cropConfigsToSerialize class="java.util.ArrayList"/>
+   <emailServerPort>0</emailServerPort>
+   <iflIntegrityCheck>false</iflIntegrityCheck>
+</configValues>

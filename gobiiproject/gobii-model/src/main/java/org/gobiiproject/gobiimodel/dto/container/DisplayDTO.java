@@ -1,9 +1,10 @@
 package org.gobiiproject.gobiimodel.dto.container;
 
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityColumn;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityParam;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -13,12 +14,12 @@ import java.util.Map;
 /**
  * Created by Phil on 4/6/2016.
  */
-public class DisplayDTO extends DtoMetaData {
+public class DisplayDTO extends Header {
 
 	public DisplayDTO() {}
 
-	public DisplayDTO(ProcessType processType) {
-		super(processType);
+	public DisplayDTO(GobiiProcessType gobiiProcessType) {
+		super(gobiiProcessType);
 	}
 
 	boolean includeDetailsList = false;

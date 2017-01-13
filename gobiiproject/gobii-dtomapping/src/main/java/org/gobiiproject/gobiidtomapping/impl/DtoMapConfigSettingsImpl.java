@@ -1,10 +1,13 @@
 package org.gobiiproject.gobiidtomapping.impl;
 
 import org.gobiiproject.gobiidtomapping.DtoMapConfigSettings;
+import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 import org.gobiiproject.gobiimodel.config.CropConfig;
+import org.gobiiproject.gobiimodel.config.GobiiException;
 import org.gobiiproject.gobiimodel.config.ServerConfig;
-import org.gobiiproject.gobiimodel.dto.container.ConfigSettingsDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ConfigSettingsDTO;
+import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,23 +20,33 @@ public class DtoMapConfigSettingsImpl implements DtoMapConfigSettings {
 
 
     @Override
-    public ConfigSettingsDTO readSettings(ConfigSettingsDTO configSettingsDTO) {
-        ConfigSettingsDTO returnVal = configSettingsDTO;
+    public ConfigSettingsDTO readSettings() throws GobiiException{
+
+        ConfigSettingsDTO returnVal = new ConfigSettingsDTO();
 
         try {
             ConfigSettings configSettings = new ConfigSettings();
             returnVal.setDefaultCrop(configSettings.getDefaultGobiiCropType());
             for (CropConfig currentCropConfig : configSettings.getActiveCropConfigs()) {
 
-                ServerConfig currentServerConfig = new ServerConfig(currentCropConfig);
+                ServerConfig currentServerConfig = new ServerConfig(currentCropConfig,
+                        configSettings.getProcessingPath(currentCropConfig.getGobiiCropType(),
+                                GobiiFileProcessDir.EXTRACTOR_INSTRUCTIONS),
+                        configSettings.getProcessingPath(currentCropConfig.getGobiiCropType(),
+                                GobiiFileProcessDir.LOADER_INSTRUCTIONS),
+                        configSettings.getProcessingPath(currentCropConfig.getGobiiCropType(),
+                                GobiiFileProcessDir.LOADER_INTERMEDIATE_FILES),
+                        configSettings.getProcessingPath(currentCropConfig.getGobiiCropType(),
+                                GobiiFileProcessDir.RAW_USER_FILES)
+                        );
 
                 returnVal.getServerConfigs().put(currentCropConfig.getGobiiCropType(),
                         currentServerConfig);
             }
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
             LOGGER.error("Gobii Maping Error", e);
+            throw new GobiiDtoMappingException(e);
         }
 
 

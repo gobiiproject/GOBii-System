@@ -1,20 +1,27 @@
 package org.gobiiproject.gobiidtomapping.impl;
 
 import org.gobiiproject.gobiidao.GobiiDaoException;
+import org.gobiiproject.gobiidao.resultset.access.RsPlatformDao;
 import org.gobiiproject.gobiidao.resultset.access.RsProjectDao;
 import org.gobiiproject.gobiidao.resultset.core.ParamExtractor;
+import org.gobiiproject.gobiidao.resultset.core.ResultColumnApplicator;
+import org.gobiiproject.gobiidao.resultset.core.listquery.DtoListQueryColl;
+import org.gobiiproject.gobiidao.resultset.core.listquery.ListSqlId;
 import org.gobiiproject.gobiidtomapping.DtoMapProject;
 import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
 import org.gobiiproject.gobiidtomapping.core.EntityProperties;
-import org.gobiiproject.gobiimodel.dto.container.ProjectDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ProjectDTO;
 import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
-import org.gobiiproject.gobiimodel.dto.header.DtoHeaderResponse;
+import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
+import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -29,90 +36,99 @@ public class DtoMapProjectImpl implements DtoMapProject {
     @Autowired
     private RsProjectDao rsProjectDao;
 
-    public ProjectDTO getProjectDetail(ProjectDTO projectDTO) throws GobiiDtoMappingException {
+    @Autowired
+    private DtoListQueryColl dtoListQueryColl;
+
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ProjectDTO> getProjects() throws GobiiDtoMappingException {
+
+        List<ProjectDTO> returnVal = new ArrayList<>();
+
+        try {
+
+            returnVal = (List<ProjectDTO>) dtoListQueryColl.getList(ListSqlId.QUERY_ID_PROJECT_ALL,null);
+
+
+        } catch (Exception e) {
+            LOGGER.error("Gobii Maping Error", e);
+            throw new GobiiDtoMappingException(e);
+        }
+
+        return returnVal;
+    }
+
+    public ProjectDTO getProjectDetails(Integer projectId) throws GobiiDtoMappingException {
 
 
         ProjectDTO returnVal = new ProjectDTO();
 
         try {
 
-            ResultSet resultSet = rsProjectDao.getProjectDetailsForProjectId(projectDTO.getProjectId());
+            ResultSet resultSet = rsProjectDao.getProjectDetailsForProjectId(projectId);
 
             boolean retrievedOneRecord = false;
             while (resultSet.next()) {
 
                 if (true == retrievedOneRecord) {
-                    throw (new GobiiDtoMappingException(DtoHeaderResponse.StatusLevel.ERROR,
-                            DtoHeaderResponse.ValidationStatusType.VALIDATION_NOT_UNIQUE,
-                            "There are more than one project records for project id: " + projectDTO.getProjectId()));
+                    throw (new GobiiDtoMappingException(GobiiStatusLevel.VALIDATION,
+                            GobiiValidationStatusType.VALIDATION_NOT_UNIQUE,
+                            "There are more than one project records for project id: " + projectId));
                 }
 
 
                 retrievedOneRecord = true;
 
-                int projectId = resultSet.getInt("project_id");
-                String projectName = resultSet.getString("name");
-                String projectCode = resultSet.getString("code");
-                String projectDescription = resultSet.getString("description");
-                int piContact = resultSet.getInt("pi_contact");
-                int modifiedBy = resultSet.getInt("modified_by");
-                Date modifiedDate = resultSet.getDate("modified_date");
-                int createdBy = resultSet.getInt("created_by");
-                int projectStatus = resultSet.getInt("status");
-                Date createdDate = resultSet.getDate("created_date");
+                ResultColumnApplicator.applyColumnValues(resultSet, returnVal);
 
-                returnVal.setProjectId(projectId);
-                returnVal.setProjectName(projectName);
-                returnVal.setProjectCode(projectCode);
-                returnVal.setProjectDescription(projectDescription);
-                returnVal.setPiContact(piContact);
-                returnVal.setModifiedDate(modifiedDate);
-                returnVal.setModifiedBy(modifiedBy);
-                returnVal.setCreatedDate(createdDate);
-                returnVal.setCreatedBy(createdBy);
-                returnVal.setProjectStatus(projectStatus);
             }
 
 
             addPropertiesToProject(returnVal);
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
             LOGGER.error("Gobii Maping Error", e);
+            throw new GobiiDtoMappingException(e);
         }
 
 
         return returnVal;
     }
 
-    private void addPropertiesToProject(ProjectDTO projectDTO) throws GobiiDaoException, SQLException {
+    private void addPropertiesToProject(ProjectDTO projectDTO) throws GobiiDaoException {
 
-        ResultSet propertyResultSet = rsProjectDao.getPropertiesForProject(projectDTO.getProjectId());
-        List<EntityPropertyDTO> projectProperties =
-                EntityProperties.resultSetToProperties(projectDTO.getProjectId(), propertyResultSet);
+        try {
+            ResultSet propertyResultSet = rsProjectDao.getPropertiesForProject(projectDTO.getProjectId());
+            List<EntityPropertyDTO> projectProperties =
+                    EntityProperties.resultSetToProperties(projectDTO.getProjectId(), propertyResultSet);
 
-        projectDTO.setProperties(projectProperties);
+            projectDTO.setProperties(projectProperties);
+        } catch( SQLException e) {
+            throw new GobiiDtoMappingException(e);
+        }
 
     }
 
-    private boolean validateProjectRequest(ProjectDTO projectDTO) throws Exception {
+    private void validateProjectRequest(ProjectDTO projectDTO) throws GobiiDtoMappingException {
 
-        boolean returnVal = true;
 
         String projectName = projectDTO.getProjectName();
         Integer piContactId = projectDTO.getPiContact();
         ResultSet resultSetExistingProject =
                 rsProjectDao.getProjectsByNameAndPiContact(projectName, piContactId);
 
-        if (resultSetExistingProject.next()) {
-            returnVal = false;
-            projectDTO.getDtoHeaderResponse().addStatusMessage(DtoHeaderResponse.StatusLevel.OK,
-                    DtoHeaderResponse.ValidationStatusType.VALIDATION_COMPOUND_UNIQUE,
-                    "A project with name " + projectName + " and contact id " + piContactId + "already exists");
+        try {
+
+            if (resultSetExistingProject.next()) {
+                throw new GobiiDtoMappingException(GobiiStatusLevel.VALIDATION,
+                        GobiiValidationStatusType.VALIDATION_COMPOUND_UNIQUE,
+                        "A project with name " + projectName + " and contact id " + piContactId + "already exists");
+            }
+        } catch (SQLException e) {
+            throw new GobiiDtoMappingException(e);
         }
 
-
-        return returnVal;
     }
 
     @Override
@@ -120,26 +136,31 @@ public class DtoMapProjectImpl implements DtoMapProject {
 
         ProjectDTO returnVal = projectDTO;
 
-        try {
 
-
-            if (validateProjectRequest(returnVal)) {
-
-                Map<String, Object> parameters = ParamExtractor.makeParamVals(projectDTO);
-
-                Integer projectId = rsProjectDao.createProject(parameters);
-                returnVal.setProjectId(projectId);
-
-                List<EntityPropertyDTO> projectProperties = projectDTO.getProperties();
-
-                upsertProjectProperties(projectId, projectProperties);
-
+        // validate that the dto does not specify a project that already exists
+        if (null != returnVal.getProjectId() && returnVal.getProjectId() > 0) {
+            try {
+                ResultSet resultSet = rsProjectDao.getProjectDetailsForProjectId(returnVal.getProjectId());
+                if (resultSet.next()) {
+                    throw (new GobiiDtoMappingException(GobiiStatusLevel.VALIDATION,
+                            GobiiValidationStatusType.ENTITY_ALREADY_EXISTS,
+                            "A record already exists for this project id: " + returnVal.getProjectId()));
+                }
+            } catch (SQLException e) {
+                throw new GobiiDtoMappingException(e);
             }
-
-        } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
-            LOGGER.error("Gobii Maping Error", e);
         }
+
+        validateProjectRequest(returnVal);
+
+        Map<String, Object> parameters = ParamExtractor.makeParamVals(projectDTO);
+
+        Integer projectId = rsProjectDao.createProject(parameters);
+        returnVal.setProjectId(projectId);
+
+        List<EntityPropertyDTO> projectProperties = projectDTO.getProperties();
+
+        upsertProjectProperties(projectId, projectProperties);
 
         return returnVal;
     }
@@ -159,23 +180,24 @@ public class DtoMapProjectImpl implements DtoMapProject {
     }
 
     @Override
-    public ProjectDTO updateProject(ProjectDTO projectDTO) throws GobiiDtoMappingException {
+    public ProjectDTO replaceProject(Integer projectId, ProjectDTO projectDTO) throws GobiiDtoMappingException {
 
         ProjectDTO returnVal = projectDTO;
 
         try {
 
-            Map<String, Object> parameters = ParamExtractor.makeParamVals(projectDTO);
+            Map<String, Object> parameters = ParamExtractor.makeParamVals(returnVal);
+            parameters.put("projectId", projectId);
             rsProjectDao.updateProject(parameters);
 
             List<EntityPropertyDTO> projectProperties = projectDTO.getProperties();
 
-            upsertProjectProperties(returnVal.getProjectId(), projectProperties);
+            upsertProjectProperties(projectId, projectProperties);
 
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
             LOGGER.error("Gobii Maping Error", e);
+            throw new GobiiDtoMappingException(e);
         }
 
         return returnVal;

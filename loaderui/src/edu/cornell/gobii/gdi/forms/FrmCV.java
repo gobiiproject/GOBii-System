@@ -17,9 +17,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiclient.dtorequests.DtoRequestCv;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
 import org.gobiiproject.gobiimodel.dto.container.CvDTO;
 import org.gobiiproject.gobiimodel.entity.CvItem;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.main.Main2;
 import edu.cornell.gobii.gdi.services.Controller;
@@ -55,7 +55,7 @@ public class FrmCV extends AbstractFrm {
 	 */
 	public FrmCV(Shell shell, Composite parent, int style) {
 		super(shell, parent, style);
-		((GridData) cmpForm.getLayoutData()).widthHint = 330;
+//		((GridData) cmpForm.getLayoutData()).widthHint = 330;
 		GridLayout gridLayout = (GridLayout) cmpForm.getLayout();
 		gridLayout.numColumns = 2;
 
@@ -79,17 +79,17 @@ public class FrmCV extends AbstractFrm {
 		TableViewerColumn tableViewerColumn = new TableViewerColumn(viewerParameters, SWT.NONE);
 		TableColumn tblclmnName = tableViewerColumn.getColumn();
 		tblclmnName.setWidth(150);
-		tblclmnName.setText("Term");
+		tblclmnName.setText("*Term");
 
 		TableViewerColumn tableViewerColumn_2 = new TableViewerColumn(viewerParameters, SWT.NONE);
 		TableColumn tblclmnDefinition = tableViewerColumn_2.getColumn();
 		tblclmnDefinition.setWidth(200);
-		tblclmnDefinition.setText("Definition");
+		tblclmnDefinition.setText("*Definition");
 
 		TableViewerColumn tableViewerColumn_1 = new TableViewerColumn(viewerParameters, SWT.NONE);
 		TableColumn tblclmnRank = tableViewerColumn_1.getColumn();
 		tblclmnRank.setWidth(100);
-		tblclmnRank.setText("Rank");
+		tblclmnRank.setText("*Rank");
 
 		tbTerms.addListener(SWT.MouseDown, event -> {
 			TableEditor editor = new TableEditor(tbTerms);
@@ -150,7 +150,7 @@ public class FrmCV extends AbstractFrm {
 		new Label(cmpForm, SWT.NONE);
 
 		btnInsert = new Button(cmpForm, SWT.NONE);
-		btnInsert.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnInsert.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnInsert.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -174,9 +174,9 @@ public class FrmCV extends AbstractFrm {
 					for(TableItem item : tbTerms.getItems()){
 						if(!item.getChecked()) continue;
 						boolean isNew = item.getData() == null ? true : false;
-						cvDTO = new CvDTO(isNew ? DtoMetaData.ProcessType.CREATE : DtoMetaData.ProcessType.UPDATE);
+						cvDTO = new CvDTO(isNew ? GobiiProcessType.CREATE : GobiiProcessType.UPDATE);
 						if(!isNew) cvDTO.setCvId((Integer) item.getData());
-						cvDTO.setGroup(txtGroup.getText());
+						cvDTO.setGroup(IDs.cvGroupId);
 						cvDTO.setTerm(item.getText(0));
 						cvDTO.setDefinition(item.getText(1));
 						cvDTO.setRank(Integer.parseInt(item.getText(2)));
@@ -190,8 +190,8 @@ public class FrmCV extends AbstractFrm {
 						}
 					}
 					if(successful){
-						if(Controller.getDTOResponse(shell, cvDTOResponse, memInfo)){
-							populateCVDetails(IDs.cvGroupId); 
+						if(Controller.getDTOResponse(shell, cvDTOResponse, memInfo, true)){
+							populateCVDetails(IDs.cvGroupId, txtGroup.getText()); 
 						}
 					}
 				}catch(Exception err){
@@ -211,7 +211,7 @@ public class FrmCV extends AbstractFrm {
 //					CvDTO cvDTO = null;
 //					for(TableItem item : tbTerms.getItems()){
 //						if(item.getChecked()){
-//							cvDTO = new CvDTO(DtoMetaData.ProcessType.CREATE);
+//							cvDTO = new CvDTO(Header.ProcessType.CREATE);
 //							cvDTO.setGroup(txtGroup.getText());
 //							cvDTO.setTerm(item.getText(0));
 //							cvDTO.setDefinition(item.getText(1));
@@ -259,7 +259,7 @@ public class FrmCV extends AbstractFrm {
 //					if(!validate()) return;
 //					for(TableItem item : tbTerms.getItems()){
 //						if(item.getChecked()){
-//							cvDTO = new CvDTO(DtoMetaData.ProcessType.UPDATE);
+//							cvDTO = new CvDTO(Header.ProcessType.UPDATE);
 //							cvDTO.setGroup(txtGroup.getText());
 //							cvDTO.setTerm(item.getText(0));
 //							cvDTO.setDefinition(item.getText(1));
@@ -297,7 +297,7 @@ public class FrmCV extends AbstractFrm {
 
 		Button btnDelete = new Button(cmpForm, SWT.NONE);
 		btnDelete.setEnabled(false);
-		btnDelete.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnDelete.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnDelete.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -310,9 +310,9 @@ public class FrmCV extends AbstractFrm {
 					if(!validate()) return;
 					for(TableItem item : tbTerms.getItems()){
 						if(item.getChecked()){
-							cvDTO = new CvDTO(DtoMetaData.ProcessType.DELETE);
+							cvDTO = new CvDTO(GobiiProcessType.DELETE);
 							cvDTO.setCvId((Integer) item.getData());
-							cvDTO.setGroup(txtGroup.getText());
+							cvDTO.setGroup(IDs.cvGroupId);
 							cvDTO.setTerm(item.getText(0));
 							cvDTO.setDefinition(item.getText(1));
 							cvDTO.setRank(Integer.parseInt(item.getText(2)));
@@ -334,8 +334,8 @@ public class FrmCV extends AbstractFrm {
 							}
 						}
 					}
-					if(Controller.getDTOResponse(shell, cvDTOResponse, memInfo)){
-						populateCVDetails(IDs.cvGroupId); 
+					if(Controller.getDTOResponse(shell, cvDTOResponse, memInfo, true)){
+						populateCVDetails(IDs.cvGroupId, txtGroup.getText()); 
 					}
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error saving Terms", err);
@@ -374,6 +374,15 @@ public class FrmCV extends AbstractFrm {
 		// TODO Auto-generated method stub
 		populateCvGroupTable(tbList);
 		
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				populateCvGroupTable(tbList);
+				tbTerms.removeAll();
+				txtGroup.setText("");
+			}
+		});
+		
 		TableColumn tblclmnCvGroups = new TableColumn(tbList, SWT.NONE);
 		tblclmnCvGroups.setWidth(300);
 		tblclmnCvGroups.setText("CV Groups:");
@@ -383,7 +392,7 @@ public class FrmCV extends AbstractFrm {
 				try{
 					String selected = tbList.getSelection()[0].getText(); //single selection
 					IDs.cvGroupId= Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-					populateCVDetails(IDs.cvGroupId); //retrieve and display projects by contact Id
+					populateCVDetails(IDs.cvGroupId, selected); //retrieve and display projects by contact Id
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving CVs", err);
 				}
@@ -391,17 +400,17 @@ public class FrmCV extends AbstractFrm {
 		});
 	}
 
-	protected void populateCVDetails(int cvGroupId) {
+	protected void populateCVDetails(int cvGroupId, String selected) {
 		try{
 			DtoRequestCv dtoRequestCv = new DtoRequestCv();
-			CvDTO cvDTORequest = new CvDTO();
+			CvDTO cvDTORequest = new CvDTO(GobiiProcessType.READ);
 			cvDTORequest.setIncludeDetailsList(true);
 			cvDTORequest.setCvId(cvGroupId);
 
 			CvDTO cvDTOResponse = null;
 			try {
 				cvDTOResponse = dtoRequestCv.process(cvDTORequest);
-				txtGroup.setText(cvDTOResponse.getGroup());
+				txtGroup.setText(selected);
 
 				populateCvTableByGroup(cvDTOResponse.getGroupCvItems().get(txtGroup.getText()), tbTerms);
 			} catch(Exception err){

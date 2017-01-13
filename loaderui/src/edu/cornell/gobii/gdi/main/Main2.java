@@ -6,18 +6,24 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
-import java.util.Set;
-import java.util.Map.Entry;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.gobiiproject.gobiiclient.core.ClientContext;
-import org.gobiiproject.gobiimodel.types.GobiiCropType;
+import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 
 import edu.cornell.gobii.gdi.forms.FrmAnalyses;
 import edu.cornell.gobii.gdi.forms.FrmCV;
@@ -27,8 +33,10 @@ import edu.cornell.gobii.gdi.forms.FrmExperiments;
 import edu.cornell.gobii.gdi.forms.FrmManifest;
 import edu.cornell.gobii.gdi.forms.FrmMapset;
 import edu.cornell.gobii.gdi.forms.FrmMarkerGroups;
+import edu.cornell.gobii.gdi.forms.FrmOrganization;
 import edu.cornell.gobii.gdi.forms.FrmPlatforms;
 import edu.cornell.gobii.gdi.forms.FrmProjects;
+import edu.cornell.gobii.gdi.forms.FrmProtocol;
 import edu.cornell.gobii.gdi.forms.FrmReferences;
 import edu.cornell.gobii.gdi.forms.FrmTableDisplay;
 import edu.cornell.gobii.gdi.forms.FrmBrowser;
@@ -52,13 +60,12 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Combo;
 
 public class Main2 {
 
 //	private static String config;
-	private static Logger log = Logger.getLogger(Main2.class.getName());
+	private static Logger log;
 	protected Shell shell;
 	private CTabFolder tabContent;
 	private Display display;
@@ -66,7 +73,7 @@ public class Main2 {
 	private Tree tree;
 	private Combo cbCrop;
 	private Button btnCrop;
-
+    
 	/**
 	 * Launch the application.
 	 * @param args
@@ -77,9 +84,15 @@ public class Main2 {
 			App.INSTANCE.load(config+"/App.xml");
 			App.INSTANCE.setConfigDir(config);
 			App.INSTANCE.setLogFile(config+"/log.txt");
-			System.setProperty("log.dir",App.INSTANCE.getConfigDir());
-			BasicConfigurator.configure();
-			Controller.authenticate(log, true);
+			System.setProperty("log.dir", App.INSTANCE.getConfigDir());
+			Properties logProperties = new Properties();
+			System.out.println(App.INSTANCE.getConfigDir()+"/log.properties");
+			logProperties.load(new FileInputStream(App.INSTANCE.getConfigDir()+"/log.properties"));
+			PropertyConfigurator.configure(logProperties);
+			log = Logger.getLogger(Main2.class.getName());
+			//repeat with all other desired appenders
+//			BasicConfigurator.configure();
+			Controller.authenticate(log, true, false, !App.INSTANCE.isValid());
 			Main2 window = new Main2();
 			window.open();
 		} catch (Exception e) {
@@ -102,9 +115,11 @@ public class Main2 {
 				for(String item : cbCrop.getItems()){
 					if(item.equals(App.INSTANCE.crop)){
 						cbCrop.select(cbCrop.indexOf(item));
+						App.INSTANCE.setCrop(App.INSTANCE.crop);
+//						displayCropTree();
 					}
 				}
-				resetCrop();
+				displayCropTree();
 			}else{
 				System.exit(1);
 			}
@@ -112,9 +127,11 @@ public class Main2 {
 			for(String item : cbCrop.getItems()){
 				if(item.equals(App.INSTANCE.crop)){
 					cbCrop.select(cbCrop.indexOf(item));
+					App.INSTANCE.setCrop(App.INSTANCE.crop);
+//					displayCropTree();
 				}
 			}
-			resetCrop();
+			displayCropTree();
 		}
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -128,7 +145,7 @@ public class Main2 {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(1280, 1024);
+		shell.setSize(1280, 800);
 		shell.setText("GOBII :: Genomic Data Integration");
 		shell.setLayout(new GridLayout(2, false));
 		
@@ -164,7 +181,8 @@ public class Main2 {
 				UserDialog userDialog = new UserDialog(shell);
 				if(userDialog.open() == Window.OK){
 					btnCrop.setText(App.INSTANCE.crop);
-					resetCrop();
+					App.INSTANCE.setCrop(App.INSTANCE.crop);
+					displayCropTree();
 				}
 			}
 		});
@@ -176,14 +194,20 @@ public class Main2 {
 		cbCrop.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-//				if(cbCrop.getSelectionIndex() == -1) return;
-//				if(cbCrop.getItem(cbCrop.getSelectionIndex()).equals(App.INSTANCE.getCrop())) return;
-//				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
-//				messageBox.setMessage("Changing CROP will close all form tabs, do you want to continue?");
-//				int msg = messageBox.open();
-//				if(msg == SWT.YES){
-//					resetCrop();
-//				}
+				if(cbCrop.getSelectionIndex() == -1) return;
+				if(cbCrop.getItem(cbCrop.getSelectionIndex()).equals(App.INSTANCE.getCrop())) return;
+				MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+				messageBox.setMessage("Changing CROP will close all form tabs, do you want to continue?");
+				int msg = messageBox.open();
+				if(msg == SWT.YES){
+					String cropName = cbCrop.getItem(cbCrop.getSelectionIndex());
+//					GobiiCropType crop = (GobiiCropType) cbCrop.getData(cropName);
+					App.INSTANCE.setCrop(cropName);
+					if(App.INSTANCE.isValid()){
+						App.INSTANCE.save();
+					}
+					displayCropTree();
+				}
 			}
 		});
 		cbCrop.setText("Select a Crop");
@@ -202,7 +226,7 @@ public class Main2 {
 		tbtmMenu.setImage(SWTResourceManager.getImage(Main2.class, "/javax/swing/plaf/metal/icons/ocean/homeFolder.gif"));
 		tbtmMenu.setText("Menu");
 		
-		ExpandBar expandBar = new ExpandBar(tabFolder, SWT.NONE);
+		ExpandBar expandBar = new ExpandBar(tabFolder, SWT.V_SCROLL);
 		tbtmMenu.setControl(expandBar);
 		
 		ExpandItem xpndtmProjects = new ExpandItem(expandBar, SWT.NONE);
@@ -220,10 +244,9 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmProjects frm = new FrmProjects(shell, tabContent, SWT.NONE, App.INSTANCE.getConfigDir());
 				FormUtils.createContentTab(shell, frm, tabContent, "Projects");
-//				Utils.createContentTab(frm, "Projects");
 			}
 		});
-		GridData gd_btnProjects = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		GridData gd_btnProjects = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_btnProjects.widthHint = 200;
 		btnProjects.setLayoutData(gd_btnProjects);
 		btnProjects.setText("Projects");
@@ -233,12 +256,11 @@ public class Main2 {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FrmExperiments frm = new FrmExperiments(shell, tabContent, SWT.NONE, App.INSTANCE.getConfigDir());
-				FormUtils.createContentTab(shell, frm, tabContent, "Platform Experiments");
-//				createContentTab(frm, "Platform Experiments");
+				FormUtils.createContentTab(shell, frm, tabContent, "Experiments");
 			}
 		});
-		btnPlatformExperiments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		btnPlatformExperiments.setText("Platform Experiments");
+		btnPlatformExperiments.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		btnPlatformExperiments.setText("Experiments");
 		
 		Button btnAnalyses = new Button(composite, SWT.NONE);
 		btnAnalyses.addSelectionListener(new SelectionAdapter() {
@@ -246,10 +268,9 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmDatasets frm = new FrmDatasets(shell, tabContent, SWT.NONE, App.INSTANCE.getConfigDir());
 				FormUtils.createContentTab(shell, frm, tabContent, "Analysis Datasets");
-//				createContentTab(frm, "Analysis Datasets");
 			}
 		});
-		btnAnalyses.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnAnalyses.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnAnalyses.setText("Analysis Datasets");
 		
 		Button btnMapsets = new Button(composite, SWT.NONE);
@@ -258,10 +279,9 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmMapset frm = new FrmMapset(shell, tabContent, SWT.NONE, App.INSTANCE.getConfigDir());
 				FormUtils.createContentTab(shell, frm, tabContent, "Mapsets");
-//				createContentTab(frm, "Mapsets");
 			}
 		});
-		btnMapsets.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnMapsets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnMapsets.setText("Mapsets");
 		
 		Button btnMarkerGroups = new Button(composite, SWT.NONE);
@@ -271,14 +291,10 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmMarkerGroups frm = new FrmMarkerGroups(shell, tabContent, SWT.NONE);
 				FormUtils.createContentTab(shell, frm, tabContent, "Marker Groups");
-//				createContentTab(frm, "Marker Groups");
 			}
 		});
-		btnMarkerGroups.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnMarkerGroups.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnMarkerGroups.setText("Marker Groups");
-		
-		Label label = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		
 		ExpandItem xpndtmManage = new ExpandItem(expandBar, SWT.NONE);
 		xpndtmManage.setText("Define");
@@ -293,10 +309,9 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmAnalyses frm = new FrmAnalyses(shell, tabContent, SWT.NONE, App.INSTANCE.getConfigDir());
 				FormUtils.createContentTab(shell, frm, tabContent, "Analyses");
-//				createContentTab(frm, "Analyses");
 			}
 		});
-		GridData gd_btnManageAnalyses = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		GridData gd_btnManageAnalyses = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_btnManageAnalyses.widthHint = 200;
 		btnManageAnalyses.setLayoutData(gd_btnManageAnalyses);
 		btnManageAnalyses.setText("Analyses");
@@ -307,11 +322,21 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmPlatforms frm = new FrmPlatforms(shell, tabContent, SWT.NONE, App.INSTANCE.getConfigDir());
 				FormUtils.createContentTab(shell, frm, tabContent, "Platforms");
-//				createContentTab(frm, "Platforms");
 			}
 		});
-		btnManagePlatforms.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnManagePlatforms.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 		btnManagePlatforms.setText("Platforms");
+		
+		Button btnProtocols = new Button(composite_1, SWT.NONE);
+		btnProtocols.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FrmProtocol frm = new FrmProtocol(shell, tabContent, SWT.NONE);
+				FormUtils.createContentTab(shell, frm, tabContent, "Protocols");
+			}
+		});
+		btnProtocols.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnProtocols.setText("Protocols");
 		
 		Button btnManageCvs = new Button(composite_1, SWT.NONE);
 		btnManageCvs.addSelectionListener(new SelectionAdapter() {
@@ -319,10 +344,9 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmCV frm = new FrmCV(shell, tabContent, SWT.NONE);
 				FormUtils.createContentTab(shell, frm, tabContent, "Controlled Vocabulary");
-//				createContentTab(frm, "Controlled Vocabulary");
 			}
 		});
-		btnManageCvs.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnManageCvs.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 		btnManageCvs.setText("Controlled Vocabulary");
 		
 		Button btnManageTableDisplays = new Button(composite_1, SWT.NONE);
@@ -333,11 +357,21 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmTableDisplay frm = new FrmTableDisplay(shell, tabContent, SWT.NONE);
 				FormUtils.createContentTab(shell, frm, tabContent, "Table Display");
-//				createContentTab(frm, "Table Display");
 			}
 		});
-		btnManageTableDisplays.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnManageTableDisplays.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 		btnManageTableDisplays.setText("Table Displays");
+		
+		Button btnManageOrganization = new Button(composite_1, SWT.NONE);
+		btnManageOrganization.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+		btnManageOrganization.setText("Organization");
+		btnManageOrganization.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FrmOrganization frm = new FrmOrganization(shell, tabContent, SWT.NONE);
+				FormUtils.createContentTab(shell, frm, tabContent, "Organization");
+			}
+		});
 		
 		Button btnManageContacts = new Button(composite_1, SWT.NONE);
 		btnManageContacts.addSelectionListener(new SelectionAdapter() {
@@ -345,10 +379,9 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmContacts frm = new FrmContacts(shell, tabContent, SWT.NONE);
 				FormUtils.createContentTab(shell, frm, tabContent, "Contacts");
-//				createContentTab(frm, "Contacts");
 			}
 		});
-		btnManageContacts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnManageContacts.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 		btnManageContacts.setText("Contacts");
 		
 		Button btnManageReferences = new Button(composite_1, SWT.NONE);
@@ -357,10 +390,9 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmReferences frm = new FrmReferences(shell, tabContent, SWT.NONE);
 				FormUtils.createContentTab(shell, frm, tabContent, "Reference Genomes");
-//				createContentTab(frm, "Reference Genomes");
 			}
 		});
-		btnManageReferences.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnManageReferences.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 		btnManageReferences.setText("References");
 		
 		Button btnManageManifest = new Button(composite_1, SWT.NONE);
@@ -369,15 +401,11 @@ public class Main2 {
 			public void widgetSelected(SelectionEvent e) {
 				FrmManifest frm = new FrmManifest(shell, tabContent, SWT.NONE);
 				FormUtils.createContentTab(shell, frm, tabContent, "Manifest");
-//				createContentTab(frm, "Manifest");
 			}
 		});
 
-		btnManageManifest.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnManageManifest.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
 		btnManageManifest.setText("Manifest");
-		
-		Label label_1 = new Label(composite_1, SWT.SEPARATOR | SWT.HORIZONTAL);
-		label_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		xpndtmManage.setHeight(275);
 		
 		ExpandItem xpndtmWizards = new ExpandItem(expandBar, SWT.NONE);
@@ -394,7 +422,7 @@ public class Main2 {
 				WizardUtils.CreateMarkerWizard(shell, App.INSTANCE.getConfigDir());
 			}
 		});
-		GridData gd_btnMarkerWizard = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		GridData gd_btnMarkerWizard = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_btnMarkerWizard.widthHint = 200;
 		btnMarkerWizard.setLayoutData(gd_btnMarkerWizard);
 		btnMarkerWizard.setText("Marker Wizard");
@@ -406,7 +434,7 @@ public class Main2 {
 				WizardUtils.createDNASampleWizard(shell, App.INSTANCE.getConfigDir());
 			}
 		});
-		btnDnaSampleWizard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnDnaSampleWizard.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnDnaSampleWizard.setText("DNA Sample Wizard");
 		
 		Button btnDatasetWizard = new Button(composite_2, SWT.FLAT);
@@ -416,17 +444,37 @@ public class Main2 {
 				WizardUtils.CreateDatasetWizard(shell, App.INSTANCE.getConfigDir());
 			}
 		});
-		btnDatasetWizard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnDatasetWizard.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnDatasetWizard.setText("Dataset Wizard");
 		xpndtmWizards.setHeight(150);
 		
-		CTabItem tbtmProject = new CTabItem(tabFolder, SWT.NONE);
-		tbtmProject.setImage(SWTResourceManager.getImage(Main2.class, "/com/sun/java/swing/plaf/windows/icons/DetailsView.gif"));
-		tbtmProject.setText("Explorer");
+		CTabItem tbtmEplorer = new CTabItem(tabFolder, SWT.NONE);
+		tbtmEplorer.setImage(SWTResourceManager.getImage(Main2.class, "/com/sun/javafx/scene/web/skin/UnorderedListBullets_16x16_JFX.png"));
+		tbtmEplorer.setText("Explorer");
 		
-		tree = new Tree(tabFolder, SWT.BORDER);
+		Composite composite_5 = new Composite(tabFolder, SWT.NONE);
+		tbtmEplorer.setControl(composite_5);
+		composite_5.setLayout(new GridLayout(1, false));
+		
+		tree = new Tree(composite_5, SWT.BORDER);
+		GridData gd_tree = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_tree.heightHint = 346;
+		gd_tree.widthHint = 232;
+		tree.setLayoutData(gd_tree);
+		tree.setSize(250, 813);
 		tree.setLinesVisible(true);
 		tree.setHeaderVisible(true);
+		
+		Button btnExplorerRefresh = new Button(composite_5, SWT.NONE);
+		btnExplorerRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				displayCropTree();
+			}
+		});
+		btnExplorerRefresh.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnExplorerRefresh.setBounds(0, 0, 75, 25);
+		btnExplorerRefresh.setText("Refresh");
 		tree.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
@@ -463,24 +511,24 @@ public class Main2 {
 				if(dsId != null && dsId > 0){
 					// Do nothing
 				}else if(expId != null && expId > 0){
-					Set<Entry<String, String>> itemDS = Controller.getDataSetNamesByExperimentId(expId);
-					for(Entry<String, String> entryDS : itemDS){
+					List<NameIdDTO> itemDS = Controller.getDataSetNamesByExperimentId(expId);
+					for(NameIdDTO entryDS : itemDS){
 						TreeItem ds = new TreeItem(item, 0);
-						ds.setText(entryDS.getValue());
+						ds.setText(entryDS.getName());
 						ds.setData("project", projId);
 						ds.setData("experiment", expId);
-						ds.setData("dataset", entryDS.getKey());
+						ds.setData("dataset", entryDS.getId().toString());
 						ds.setData("clicked", true);
 						ds.setBackground(0, display.getSystemColor(SWT.COLOR_GRAY));
 					}
 					item.setData("clicked", true);
 				}else if(projId != null && projId > 0){
-					Set<Entry<String, String>> itemExps = Controller.getExperimentNamesByProjectId(projId);
-					for(Entry<String, String> entryExp : itemExps){
+					List<NameIdDTO> itemExps = Controller.getExperimentNamesByProjectId(projId);
+					for(NameIdDTO entryExp : itemExps){
 						TreeItem exp = new TreeItem(item, 0);
-						exp.setText(entryExp.getValue());
+						exp.setText(entryExp.getName());
 						exp.setData("project", projId);
-						exp.setData("experiment", entryExp.getKey());
+						exp.setData("experiment", entryExp.getId().toString());
 						exp.setData("clicked", false);
 						exp.setBackground(0, display.getSystemColor(SWT.COLOR_CYAN));
 					}
@@ -488,7 +536,6 @@ public class Main2 {
 				}
 			}
 		});
-		tbtmProject.setControl(tree);
 		
 		CTabItem tbtmHelp = new CTabItem(tabFolder, SWT.NONE);
 		tbtmHelp.setImage(SWTResourceManager.getImage(Main2.class, "/javax/swing/plaf/metal/icons/ocean/info.png"));
@@ -499,27 +546,29 @@ public class Main2 {
 		composite_4.setLayout(new GridLayout(1, false));
 		
 		Button btnServiceDesk = new Button(composite_4, SWT.NONE);
+		btnServiceDesk.setImage(SWTResourceManager.getImage(".\\config\\img\\customer_support.png"));
 		btnServiceDesk.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-//				Program.launch("http://cbsugobii05.tc.cornell.edu:6081/servicedesk/customer/portal/3");
-				FrmBrowser browser = new FrmBrowser(tabContent, SWT.None, "http://cbsugobii05.tc.cornell.edu:6081/servicedesk/customer/portal/4");
+				FrmBrowser browser = new FrmBrowser(tabContent, SWT.None, "http://cbsugobii05.tc.cornell.edu:6081/servicedesk/customer/portal/35");
 				FormUtils.createContentTab(shell, browser, tabContent, "Service Desk");
-//				createContentTab(browser, "Service Desk");
 			}
 		});
-		btnServiceDesk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnServiceDesk.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnServiceDesk.setText("Service Desk");
 		
 		Button btnFaq = new Button(composite_4, SWT.NONE);
-		btnFaq.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnFaq.setImage(SWTResourceManager.getImage(Main2.class, "/javax/swing/plaf/metal/icons/Question.gif"));
+		btnFaq.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnFaq.setText("FAQ");
 		
 		Button btnTutorials = new Button(composite_4, SWT.NONE);
-		btnTutorials.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnTutorials.setImage(SWTResourceManager.getImage(".\\config\\img\\manual.png"));
+		btnTutorials.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnTutorials.setText("Tutorials");
 		
 		Button btnManuals = new Button(composite_4, SWT.NONE);
+		btnManuals.setImage(SWTResourceManager.getImage(".\\config\\img\\documentation.png"));
 		btnManuals.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -527,10 +576,11 @@ public class Main2 {
 				FormUtils.createContentTab(shell, browser, tabContent, "User Manual");
 			}
 		});
-		btnManuals.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnManuals.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnManuals.setText("Manuals");
 		
 		Button btnTechnicalDocumentation = new Button(composite_4, SWT.NONE);
+		btnTechnicalDocumentation.setImage(SWTResourceManager.getImage(".\\config\\img\\documentation.png"));
 		btnTechnicalDocumentation.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -540,11 +590,12 @@ public class Main2 {
 //				createContentTab(browser, "Tech Documentation");
 			}
 		});
-		btnTechnicalDocumentation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnTechnicalDocumentation.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnTechnicalDocumentation.setText("Technical Documentation");
 		
 		Button btnAbout = new Button(composite_4, SWT.NONE);
-		btnAbout.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnAbout.setImage(SWTResourceManager.getImage(Main2.class, "/javax/swing/plaf/metal/icons/Inform.gif"));
+		btnAbout.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnAbout.setText("About");
 		
 		tabContent = new CTabFolder(shell, SWT.BORDER);
@@ -554,26 +605,14 @@ public class Main2 {
 		tabFolder.setSelection(0);
 	}
 	
-	private void resetCrop(){
-		try{
+	private void displayCropTree(){
 			for(CTabItem item : tabContent.getItems()){
 				item.dispose();
 			}
-//			String cropName = cbCrop.getItem(cbCrop.getSelectionIndex());
-//			GobiiCropType crop = (GobiiCropType) cbCrop.getData(cropName);
-//			App.INSTANCE.setCrop(cropName);
-//			if(App.INSTANCE.isValid()){
-//				App.INSTANCE.save();
-//			}
-			GobiiCropType crop = GobiiCropType.valueOf(App.INSTANCE.crop);
-			ClientContext.getInstance(null, false).setCurrentClientCrop(crop);
-			System.out.println(ClientContext.getInstance(null, false).getCurrentCropContextRoot());
-			if(Controller.authenticate(log, false)){
+
+			if(Controller.authenticate(log, false, false)){
 				getTreeItems();
 			}
-		}catch (Exception err) {
-			Utils.log(shell, null, log, "Error selecting crop", err);
-		}
 	}
 	
 //	private void createContentTab(Composite frm, String title){
@@ -603,11 +642,11 @@ public class Main2 {
 
 	private void getTreeItems(){
 		tree.removeAll();
-		Set<Entry<String, String>> itemProjs = Controller.getProjectNames();
-		for(Entry<String, String> entryProj : itemProjs){
+		List<NameIdDTO> itemProjs = Controller.getProjectNames();
+		for(NameIdDTO entryProj : itemProjs){
 			TreeItem proj = new TreeItem(tree, 0);
-			proj.setText(entryProj.getValue());
-			proj.setData("project", entryProj.getKey());
+			proj.setText(entryProj.getName());
+			proj.setData("project", entryProj.getId().toString());
 			proj.setData("clicked", false);
 		}
 		

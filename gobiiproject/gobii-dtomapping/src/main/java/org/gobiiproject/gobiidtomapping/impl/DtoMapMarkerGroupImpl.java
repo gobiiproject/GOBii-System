@@ -7,17 +7,18 @@ import org.gobiiproject.gobiidao.resultset.core.ParamExtractor;
 import org.gobiiproject.gobiidao.resultset.core.ResultColumnApplicator;
 import org.gobiiproject.gobiidtomapping.DtoMapMarkerGroup;
 import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
 import org.gobiiproject.gobiimodel.dto.container.MarkerGroupMarkerDTO;
-import org.gobiiproject.gobiimodel.dto.header.DtoHeaderResponse;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
+import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UncheckedIOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -66,8 +67,8 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
                 } else {
                     currentMarkerGroupMarkerDTO.setMarkerId(currentMarkerId);
                     currentMarkerGroupMarkerDTO.setMarkerExists(false);
-                    returnVal.getDtoHeaderResponse().addStatusMessage(DtoHeaderResponse.StatusLevel.OK,
-                            DtoHeaderResponse.ValidationStatusType.NONEXISTENT_FK_ENTITY,
+                    returnVal.getStatus().addStatusMessage(GobiiStatusLevel.OK,
+                            GobiiValidationStatusType.NONEXISTENT_FK_ENTITY,
                             "A marker id in the marker_group table does not exist " + currentMarkerId);
                 }
 
@@ -75,7 +76,7 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
             }
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii Maping Error", e);
         }
 
@@ -147,8 +148,8 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
             if (null == currentMarkerGroupMarkerDTO.getFavorableAllele() ||
                     currentMarkerGroupMarkerDTO.getFavorableAllele().isEmpty()) {
-                throw new GobiiDtoMappingException(DtoHeaderResponse.StatusLevel.ERROR,
-                        DtoHeaderResponse.ValidationStatusType.MISSING_REQUIRED_VALUE,
+                throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
+                        GobiiValidationStatusType.MISSING_REQUIRED_VALUE,
                         "The no allele value was specified for marker nane " + currentMarkerGroupMarkerDTO.getMarkerName());
             }
 
@@ -194,8 +195,8 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
                 } else {
 
-                    returnVal.getDtoHeaderResponse().addStatusMessage(DtoHeaderResponse.StatusLevel.ERROR,
-                            DtoHeaderResponse.ValidationStatusType.NONEXISTENT_FK_ENTITY,
+                    returnVal.getStatus().addStatusMessage(GobiiStatusLevel.ERROR,
+                            GobiiValidationStatusType.NONEXISTENT_FK_ENTITY,
                             "None of the specified markers exists");
 
                 } // if else at least one marker is valid
@@ -204,7 +205,7 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii Maping Error", e);
         }
 
@@ -226,7 +227,7 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
             List<MarkerGroupMarkerDTO> markerGroupMarkersToCreate =
                     returnVal.getMarkers()
                             .stream()
-                            .filter(m -> m.getProcessType() == DtoMetaData.ProcessType.CREATE)
+                            .filter(m -> m.getGobiiProcessType() == GobiiProcessType.CREATE)
                             .collect(Collectors.toList());
 
             populateMarkers(markerGroupMarkersToCreate);
@@ -247,17 +248,17 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
             } else if (nonExistingMarkers.size() > 0) {
 
-                throw new GobiiDtoMappingException(DtoHeaderResponse.StatusLevel.ERROR,
-                        DtoHeaderResponse.ValidationStatusType.NONEXISTENT_FK_ENTITY,
+                throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
+                        GobiiValidationStatusType.NONEXISTENT_FK_ENTITY,
                         "None of the specified markers exists");
 
             } // if else at least one marker is valid
 
             if (nonExistingMarkers.size() > 0) {
                 markerGroupDTO
-                        .getDtoHeaderResponse()
-                        .addStatusMessage(DtoHeaderResponse.StatusLevel.VALIDATION,
-                                DtoHeaderResponse.ValidationStatusType.NONEXISTENT_FK_ENTITY,
+                        .getStatus()
+                        .addStatusMessage(GobiiStatusLevel.VALIDATION,
+                                GobiiValidationStatusType.NONEXISTENT_FK_ENTITY,
                                 "Some or all of the specified markers to be created do not exist");
             }
 
@@ -266,7 +267,7 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
             List<MarkerGroupMarkerDTO> markerGroupMarkersToUpdate =
                     returnVal.getMarkers()
                             .stream()
-                            .filter(m -> m.getProcessType() == DtoMetaData.ProcessType.UPDATE)
+                            .filter(m -> m.getGobiiProcessType() == GobiiProcessType.UPDATE)
                             .collect(Collectors.toList());
 
             upsertMarkers(markerGroupDTO.getMarkerGroupId(),
@@ -277,7 +278,7 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
             // DELETE MARKERS TO BE DELETED
             List<MarkerGroupMarkerDTO> markerGroupMarkersToDelete = returnVal.getMarkers()
                     .stream()
-                    .filter(m -> m.getProcessType() == DtoMetaData.ProcessType.DELETE)
+                    .filter(m -> m.getGobiiProcessType() == GobiiProcessType.DELETE)
                     .collect(Collectors.toList());
 
             for (MarkerGroupMarkerDTO currentMarkerGroupMarkerDTO : markerGroupMarkersToDelete) {
@@ -293,7 +294,7 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
 
         } catch (Exception e) {
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii Maping Error", e);
         }
 

@@ -78,12 +78,14 @@ public class Pg3DNAsamples extends WizardPage {
 //		});
 		Utils.setDndColumnSource(tbFieldHeaders);
 		
-		tbDNAsample = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
+		Composite composite = new Composite(container, SWT.NONE);
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		composite.setLayout(new GridLayout(1, false));
+		
+		tbDNAsample = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION);
+		tbDNAsample.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		tbDNAsample.setLinesVisible(true);
 		tbDNAsample.setHeaderVisible(true);
-		GridData gd_tbDNAsample = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_tbDNAsample.heightHint = 396;
-		tbDNAsample.setLayoutData(gd_tbDNAsample);
 		
 		TableColumn tblclmnIndex = new TableColumn(tbDNAsample, SWT.NONE);
 		tblclmnIndex.setWidth(60);
@@ -104,45 +106,15 @@ public class Pg3DNAsamples extends WizardPage {
 		tableColumn_4.setWidth(50);
 		tableColumn_4.setText("To");
 		
-		Utils.unmarshalColumns(tbDNAsample, config+"/xml/Sample.xml", dto.getSampleFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbDNAsample, dto.getSampleFields());
+		Utils.unmarshalColumns(tbDNAsample, config+"/xml/Sample.xml", dto.getSampleFields(), dto.getSubSampleFields() );
+		Utils.setDndColumnTarget(tbFieldHeaders, tbDNAsample, dto.getSampleFields(), dto.getSubSampleFields());
 		Utils.setTableMouseLister(tbDNAsample, dto.getSampleFields());
 		
-		tbDNArun = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
-		tbDNArun.setLinesVisible(true);
-		tbDNArun.setHeaderVisible(true);
-		tbDNArun.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		TableColumn tblclmnIndex_2 = new TableColumn(tbDNArun, SWT.NONE);
-		tblclmnIndex_2.setWidth(60);
-		
-		TableColumn tblclmnDnarunInformation = new TableColumn(tbDNArun, SWT.NONE);
-		tblclmnDnarunInformation.setWidth(150);
-		tblclmnDnarunInformation.setText("DNArun Information");
-		
-		TableColumn tableColumn_6 = new TableColumn(tbDNArun, SWT.NONE);
-		tableColumn_6.setWidth(150);
-		tableColumn_6.setText("Header");
-		
-		TableColumn tableColumn_7 = new TableColumn(tbDNArun, SWT.NONE);
-		tableColumn_7.setWidth(50);
-		tableColumn_7.setText("From");
-		
-		TableColumn tableColumn_8 = new TableColumn(tbDNArun, SWT.NONE);
-		tableColumn_8.setWidth(50);
-		tableColumn_8.setText("To");
-		new Label(container, SWT.NONE);
-		
-		Utils.unmarshalColumns(tbDNArun, config+"/xml/Run.xml", dto.getRunFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbDNArun, dto.getRunFields());
-		Utils.setTableMouseLister(tbDNArun, dto.getRunFields());
-		
-		tbDNAsampleProp = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
+		tbDNAsampleProp = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION);
+		tbDNAsampleProp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tbDNAsampleProp.setSize(15, 170);
 		tbDNAsampleProp.setLinesVisible(true);
 		tbDNAsampleProp.setHeaderVisible(true);
-		GridData gd_tbDNAsampleProp = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_tbDNAsampleProp.heightHint = 161;
-		tbDNAsampleProp.setLayoutData(gd_tbDNAsampleProp);
 		
 		TableColumn tblclmnIndex_1 = new TableColumn(tbDNAsampleProp, SWT.NONE);
 		tblclmnIndex_1.setWidth(60);
@@ -155,13 +127,45 @@ public class Pg3DNAsamples extends WizardPage {
 		tableColumn_10.setWidth(150);
 		tableColumn_10.setText("Value");
 		Utils.loadTableProps(tbDNAsampleProp, "dnasample_prop", dto.getSamplePropFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbDNAsampleProp, dto.getSamplePropFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbDNAsampleProp, dto.getSamplePropFields(), null);
 		Utils.setTableMouseLister(tbDNAsampleProp, dto.getSamplePropFields());
 		
-		tbDNArunProp = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
+		Composite composite_1 = new Composite(container, SWT.NONE);
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		composite_1.setLayout(new GridLayout(1, false));
+		
+		tbDNArun = new Table(composite_1, SWT.BORDER | SWT.FULL_SELECTION);
+		tbDNArun.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tbDNArun.setLinesVisible(true);
+		tbDNArun.setHeaderVisible(true);
+		
+		TableColumn tblclmnIndex_2 = new TableColumn(tbDNArun, SWT.NONE);
+		tblclmnIndex_2.setWidth(60);
+		
+		TableColumn tblclmnDnarunInformation = new TableColumn(tbDNArun, SWT.NONE);
+		tblclmnDnarunInformation.setWidth(150);
+		tblclmnDnarunInformation.setText("DNArun / DS_DNArun Information");
+		
+		TableColumn tableColumn_6 = new TableColumn(tbDNArun, SWT.NONE);
+		tableColumn_6.setWidth(150);
+		tableColumn_6.setText("Header");
+		
+		TableColumn tableColumn_7 = new TableColumn(tbDNArun, SWT.NONE);
+		tableColumn_7.setWidth(50);
+		tableColumn_7.setText("From");
+		
+		TableColumn tableColumn_8 = new TableColumn(tbDNArun, SWT.NONE);
+		tableColumn_8.setWidth(50);
+		tableColumn_8.setText("To");
+		
+		Utils.unmarshalColumns(tbDNArun, config+"/xml/Run.xml", dto.getRunFields(), dto.getSubRunFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbDNArun, dto.getRunFields(), dto.getSubRunFields());
+		Utils.setTableMouseLister(tbDNArun, dto.getRunFields());
+		
+		tbDNArunProp = new Table(composite_1, SWT.BORDER | SWT.FULL_SELECTION);
+		tbDNArunProp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		tbDNArunProp.setLinesVisible(true);
 		tbDNArunProp.setHeaderVisible(true);
-		tbDNArunProp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		TableColumn tblclmnIndex_3 = new TableColumn(tbDNArunProp, SWT.NONE);
 		tblclmnIndex_3.setWidth(60);
@@ -174,12 +178,12 @@ public class Pg3DNAsamples extends WizardPage {
 		tableColumn_12.setWidth(150);
 		tableColumn_12.setText("Value");
 		Utils.loadTableProps(tbDNArunProp, "dnarun_prop", dto.getRunPropFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbDNArunProp, dto.getRunPropFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbDNArunProp, dto.getRunPropFields(), null);
+		Utils.setTableMouseLister(tbDNArunProp, dto.getRunPropFields());
 		
 		TableColumn tblclmnPreview = new TableColumn(tbFieldHeaders, SWT.NONE);
 		tblclmnPreview.setWidth(100);
 		tblclmnPreview.setText("Preview");
-		Utils.setTableMouseLister(tbDNArunProp, dto.getRunPropFields());
 		
 		container.addListener(SWT.Show, new Listener(){
 

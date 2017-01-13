@@ -48,6 +48,7 @@
                     format: 'register',
                     defaultExtension: 'js'
                 },
+                'rxjs': {defaultExtension: 'js'},
             },
             map: {
                 '@angular/core': 'js/node_modules/@angular/core',
@@ -58,6 +59,7 @@
                 '@angular/http': 'js/node_modules/@angular/http',
                 '@angular/platform-browser': 'js/node_modules/@angular/platform-browser',
                 '@angular/platform-browser-dynamic': 'js/node_modules/@angular/platform-browser-dynamic',
+                'rxjs': 'js/node_modules/rxjs/',
             }
         });
         System.import('js/gobii_modules/root/main').then(null, console.error.bind(console));

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Combo;
@@ -18,23 +19,22 @@ import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.gobiiproject.gobiiclient.core.ClientContext;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestNameIdList;
-import org.gobiiproject.gobiimodel.dto.container.NameIdListDTO;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
+import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 import org.gobiiproject.gobiimodel.types.GobiiCropType;
 
 public class FormUtils {
 	public static String newLine = System.getProperty("line.separator");
-	
-	public static void entrySetToCombo(Set<Entry<String, String>> entrySet, Combo combo) {
+
+	public static void entrySetToCombo(List<NameIdDTO> list, Combo combo) {
 		// TODO Auto-generated method stub
 		if(combo.getItemCount()>0) combo.removeAll();
-		for (Entry entry : entrySet){ //add contact on list
-			String input = (String) entry.getValue();
+		for (NameIdDTO entry : list){ //add contact on list
+			String input = entry.getName();
 			String output = input.substring(0, 1).toUpperCase() + input.substring(1);
 			combo.add(output); //contact name
-			combo.setData(output, entry.getKey()); // pair name with id
+			combo.setData(output, entry.getId().toString()); // pair name with id
 		}
 	}
 
@@ -42,54 +42,54 @@ public class FormUtils {
 		// TODO Auto-generated method stub
 		TableItem[] items = tbList.getItems();
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-	    dialog
-	        .setFilterNames(new String[] { "Txt Files" });
-	    dialog.setFilterExtensions(new String[] { "*.txt" }); // Windows
-	    dialog.setFilterPath(System.getProperty("user.dir")); // Windows path
-	    dialog.setFileName("exportList.txt");
-	    dialog.setOverwrite(true);
-	    dialog.open();
-	    File fl = new File(dialog.getFilterPath() + System.getProperty("file.separator") + dialog.getFileName());
-	    FileWriter flwr;
-	    
-	    int cls = tbList.getColumnCount();
-	            try {
-	                flwr = new FileWriter(fl);
-	                for (int i = 0; i < items.length; i++) {
-	                    for (int j = 0; j <= cls; j++) {
-	                        flwr.write(items[i].getText(j) + "\t");
-	                    }
-	                    flwr.write(newLine);
-	                }
-	                flwr.flush();
-	                flwr.close();
-	            } catch (IOException e1) {
-	                // TODO Auto-generated catch block
-	                e1.printStackTrace();
-	            }
+		dialog
+		.setFilterNames(new String[] { "Txt Files" });
+		dialog.setFilterExtensions(new String[] { "*.txt" }); // Windows
+		dialog.setFilterPath(System.getProperty("user.dir")); // Windows path
+		dialog.setFileName("exportList.txt");
+		dialog.setOverwrite(true);
+		dialog.open();
+		File fl = new File(dialog.getFilterPath() + System.getProperty("file.separator") + dialog.getFileName());
+		FileWriter flwr;
+
+		int cls = tbList.getColumnCount();
+		try {
+			flwr = new FileWriter(fl);
+			for (int i = 0; i < items.length; i++) {
+				for (int j = 0; j <= cls; j++) {
+					flwr.write(items[i].getText(j) + "\t");
+				}
+				flwr.write(newLine);
+			}
+			flwr.flush();
+			flwr.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
-	public static void entrySetToComboSelectId(Set<Entry<String, String>> entrySet, Combo combo, int id) {
+	public static void entrySetToComboSelectId(List<NameIdDTO> list, Combo combo, int id) {
 		// TODO Auto-generated method stub
 		int count=0;
 		int selectIndex = 0;
 		if(combo.getItemCount()>0) combo.removeAll();
-		for (Entry entry : entrySet){ //add contact on list
-			combo.add((String) entry.getValue()); //contact name
-			combo.setData((String) entry.getValue(), entry.getKey()); // pair name with id
-			if (id==Integer.parseInt((String) entry.getKey())) selectIndex=count;
+		for (NameIdDTO entry : list){ //add contact on list
+			combo.add( entry.getName()); //contact name
+			combo.setData(entry.getName(), entry.getId().toString()); // pair name with id
+			if (id==entry.getId()) selectIndex=count;
 			count++;
 		}
 		combo.select(selectIndex);
 	}
 
-	public static void entrySetToTable(Set<Entry<String, String>> allAnalysis, Table tbList) {
+	public static void entrySetToTable(List<NameIdDTO> list, Table tbList) {
 		// TODO Auto-generated method stub
 		TableItem item = null;
-		for (Entry entry : allAnalysis){ //add project on list
+		for (NameIdDTO entry : list){ //add project on list
 			item = new TableItem(tbList, SWT.NONE); // single column = index zero
-			item.setText((String) entry.getValue());//project name
-			item.setData((String) entry.getValue(), entry.getKey()); // pair name with id
+			item.setText( entry.getName());//project name
+			item.setData(entry.getName(), entry.getId().toString()); // pair name with id
 		}
 	}
 
@@ -102,21 +102,21 @@ public class FormUtils {
 			item.setData(entry.getValue()); // pair name with columns and displays list
 		}
 	}
-	
+
 	public static void cropSetToCombo(Combo combo){
 		combo.removeAll();
 		try {
-			List<GobiiCropType> crops = ClientContext.getInstance(null, false).getCropTypeTypes();
-			for(GobiiCropType crop : crops){
-				combo.add(crop.name());
-				combo.setData(crop.name(), crop);
+			List<String> crops = ClientContext.getInstance(null, false).getCropTypeTypes();
+			for(String crop : crops){
+				combo.add(crop);
+				combo.setData(crop, crop);
 			}
 		} catch (Exception err) {
 			// TODO Auto-generated catch block
 			err.printStackTrace();
 		}
 	}
-	
+
 	public static void createContentTab(Shell shell, Composite frm, CTabFolder tabContent, String title){
 		boolean createNew = true;
 		int index = -1;
@@ -141,14 +141,25 @@ public class FormUtils {
 		}else if(index > -1)
 			tabContent.setSelection(index);
 	}
-	
+
 	public static void resetCombo(Combo cb){
 		cb.removeAll();
 		cb.deselectAll();
 		cb.setText("");
 	}
-	
+
 	public static boolean updateForm(Shell shell, String entity, String name){
 		return MessageDialog.openQuestion(shell, "Confirmation", "Do you want to update "+name+" "+entity+"?");
+	}
+
+	public static Integer getIdFromFormList(Combo cbList) {
+		// TODO Auto-generated method stub
+		Integer id;
+		try{
+			id = Integer.parseInt((String) cbList.getData(cbList.getText()));
+		}catch(NumberFormatException nfe){
+			id = 0;
+		}
+		return id;
 	}
 }

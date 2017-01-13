@@ -11,7 +11,7 @@ public class SpUpdAnalysis extends SpDef {
 
     public SpUpdAnalysis() {
 
-        super("{call updateanalysis(?,?,?,?,?,?,?,?,?,?,?,?,?)}",false);
+        super("{call updateanalysis(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}",false);
 
         this.addParamDef("analysisId",Integer.class).setNullable(true);
         this.addParamDef("analysisName",String.class).setNullable(true);
@@ -26,6 +26,10 @@ public class SpUpdAnalysis extends SpDef {
         this.addParamDef("referenceId",Integer.class).setNullable(true);
         this.addParamDef("timeExecuted",Date.class).setNullable(true);
         this.addParamDef("status",Integer.class).setNullable(true);
+        this.addParamDef("createdBy", Integer.class).setNullable(true);
+        this.addParamDef("createdDate", java.util.Date.class).setNullable(true);
+        this.addParamDef("modifiedBy", Integer.class).setNullable(true);
+        this.addParamDef("modifiedDate", java.util.Date.class).setNullable(true);
 
     } // ctor
 }

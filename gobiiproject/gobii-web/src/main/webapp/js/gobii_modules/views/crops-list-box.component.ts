@@ -8,7 +8,7 @@ import {ServerConfig} from "../model/server-config";
     selector: 'crops-list-box',
     inputs: ['serverConfigList', 'selectedServerConfig'],
     outputs: ['onServerSelected'],
-    template: `<select name="serverConfigs" (change)="handleServerSelected($event)" disabled="true">
+    template: `<select name="serverConfigs" (change)="handleServerSelected($event)">
 			<option *ngFor="let serverConfig of serverConfigList" 
                     value={{serverConfig.domain}}
                     [attr.selected]="selectedServerConfig.crop

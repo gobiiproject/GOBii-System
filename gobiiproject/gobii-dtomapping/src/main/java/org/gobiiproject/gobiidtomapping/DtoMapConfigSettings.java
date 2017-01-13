@@ -1,8 +1,8 @@
 package org.gobiiproject.gobiidtomapping;
 
 
-import org.gobiiproject.gobiimodel.dto.container.ConfigSettingsDTO;
-import org.gobiiproject.gobiimodel.dto.container.LoaderInstructionFilesDTO;
+import org.gobiiproject.gobiimodel.config.GobiiException;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ConfigSettingsDTO;
 
 /**
  * Created by Phil on 4/12/2016.
@@ -11,5 +11,5 @@ import org.gobiiproject.gobiimodel.dto.container.LoaderInstructionFilesDTO;
 
 public interface DtoMapConfigSettings {
 
-   ConfigSettingsDTO readSettings(ConfigSettingsDTO configSettingsDTO);
+   ConfigSettingsDTO readSettings() throws GobiiException;
 }

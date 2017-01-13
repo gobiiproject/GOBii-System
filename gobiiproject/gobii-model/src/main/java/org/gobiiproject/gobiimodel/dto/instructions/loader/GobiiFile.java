@@ -3,19 +3,24 @@ package org.gobiiproject.gobiimodel.dto.instructions.loader;
 import org.gobiiproject.gobiimodel.types.GobiiFileType;
 
 /**
+ * Container for file-system specific information used in conversation with the server.
  * Created by Phil on 4/12/2016.
  */
 public class GobiiFile {
-
-
-
+    //Directory specifying the source (input) files
     String source = null;
+    //Directory specifying the destination (output) files
     String destination = null;
+    //File system supported delimiter (Not widely respected)
     String delimiter = null;
+    //Source file type
     GobiiFileType gobiiFileType = null;
+    //Only creates the source directory if this is set to true (always creates the destination directory)
     private boolean isCreateSource = true;
+    //If true, fail with an error if the source and destination directories do not exist
     boolean requireDirectoriesToExist = false;
 
+    //Protip from Josh: Leave isCreateSource and requireDirectoriesToExist alone unless you know what you're doing.
 
     public String getSource() {
         return source;

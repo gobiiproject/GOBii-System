@@ -63,12 +63,12 @@ public class Pg3Markers extends WizardPage {
 		Utils.setDndColumnSource(tbFieldHeaders);
 		
 		Group group_1 = new Group(container, SWT.NONE);
-		group_1.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
+		group_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		group_1.setText("Map Information");
 		group_1.setLayout(new GridLayout(1, false));
 		
 		Group group_2 = new Group(group_1, SWT.NONE);
-		GridData gd_group_2 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		GridData gd_group_2 = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_group_2.heightHint = 159;
 		group_2.setLayoutData(gd_group_2);
 		group_2.setText("Linkage Group");
@@ -97,12 +97,12 @@ public class Pg3Markers extends WizardPage {
 		tableColumn_4.setWidth(50);
 		tableColumn_4.setText("To");
 		
-		Utils.unmarshalColumns(tbLG, config+"/xml/LG.xml", dto.getLgFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbLG, dto.getLgFields());
+		Utils.unmarshalColumns(tbLG, config+"/xml/LG.xml", dto.getLgFields(), dto.getSubLgFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbLG, dto.getLgFields(), dto.getLgFields());
 		Utils.setTableMouseLister(tbLG, dto.getLgFields());
 		
 		Group group_3 = new Group(group_1, SWT.NONE);
-		GridData gd_group_3 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
+		GridData gd_group_3 = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_group_3.heightHint = 193;
 		group_3.setLayoutData(gd_group_3);
 		group_3.setText("Marker - Linkage Group");
@@ -131,8 +131,8 @@ public class Pg3Markers extends WizardPage {
 		tableColumn_8.setWidth(50);
 		tableColumn_8.setText("To");
 
-		Utils.unmarshalColumns(tbLGmarker, config+"/xml/Marker_LG.xml", dto.getLgMarkerFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbLGmarker, dto.getLgMarkerFields());
+		Utils.unmarshalColumns(tbLGmarker, config+"/xml/Marker_LG.xml", dto.getLgMarkerFields(), dto.getSubLgMarkerFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbLGmarker, dto.getLgMarkerFields(), dto.getLgMarkerFields());
 		Utils.setTableMouseLister(tbLGmarker, dto.getLgMarkerFields());
 		
 		TableColumn tblclmnPreview = new TableColumn(tbFieldHeaders, SWT.NONE);

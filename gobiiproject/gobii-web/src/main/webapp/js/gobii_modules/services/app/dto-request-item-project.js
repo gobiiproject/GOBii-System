@@ -31,7 +31,12 @@ System.register(["@angular/core", "../../model/type-process", "../../model/proje
                     this.projectId = projectId;
                 }
                 DtoRequestItemProject.prototype.getUrl = function () {
-                    return "load/project";
+                    var baseUrl = "gobii/v1/projects";
+                    var returnVal = baseUrl;
+                    if (this.projectId) {
+                        returnVal = baseUrl + "/" + this.projectId;
+                    }
+                    return returnVal;
                 }; // getUrl()
                 DtoRequestItemProject.prototype.getRequestBody = function () {
                     return JSON.stringify({
@@ -40,13 +45,26 @@ System.register(["@angular/core", "../../model/type-process", "../../model/proje
                     });
                 };
                 DtoRequestItemProject.prototype.resultFromJson = function (json) {
-                    var returnVal;
-                    console.log("*************ENTITY NAME: " + json.entityName);
-                    console.log(json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages);
-                    console.log(json.namesById);
-                    returnVal = new project_1.Project(json.projectId, json.projectName, json.projectCode, json.projectDescription, json.piContact, json.createdBy, json.createdstring, json.modifiedBy, json.modifiedstring, json.projectStatus);
+                    var returnVal = undefined;
+                    if (json.payload.data[0]) {
+                        returnVal = new project_1.Project(json.payload.data[0].projectId, json.payload.data[0].projectName, json.payload.data[0].projectCode, json.payload.data[0].projectDescription, json.payload.data[0].piContact, json.payload.data[0].createdBy, json.payload.data[0].createdstring, json.payload.data[0].modifiedBy, json.payload.data[0].modifiedstring, json.payload.data[0].projectStatus);
+                    }
+                    // json.payload.data.forEach(item => {
+                    //
+                    //
+                    //     returnVal.push(new Project(item.projectId,
+                    //         item.projectName,
+                    //         item.projectCode,
+                    //         item.projectDescription,
+                    //         item.piContact,
+                    //         item.createdBy,
+                    //         item.createdstring,
+                    //         item.modifiedBy,
+                    //         item.modifiedstring,
+                    //         item.projectStatus
+                    //     ));
+                    // });
                     return returnVal;
-                    //return [new NameId(1, 'foo'), new NameId(2, 'bar')];
                 };
                 DtoRequestItemProject = __decorate([
                     core_1.Injectable(), 

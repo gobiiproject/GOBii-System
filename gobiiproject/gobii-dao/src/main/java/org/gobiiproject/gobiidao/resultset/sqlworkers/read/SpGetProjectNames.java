@@ -28,7 +28,7 @@ public class SpGetProjectNames implements Work {
     @Override
     public void execute(Connection dbConnection) throws SQLException {
 
-        String sql = "select project_id, name from project";
+        String sql = "select project_id, name from project order by lower(name)";
 
         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
 

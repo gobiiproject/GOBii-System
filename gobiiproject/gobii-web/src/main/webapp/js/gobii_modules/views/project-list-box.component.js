@@ -40,11 +40,11 @@ System.register(["@angular/core", "../services/core/dto-request.service", "../se
                 };
                 ProjectListBoxComponent.prototype.setProjectDetails = function (projectId) {
                     var scope$ = this;
-                    this._dtoRequestServiceProject.getResult(new dto_request_item_project_1.DtoRequestItemProject(Number(projectId)))
-                        .subscribe(function (project) {
-                        if (project) {
-                            scope$.project = project;
-                            scope$.primaryInvestigatorId = String(project.piContact);
+                    this._dtoRequestServiceProject.get(new dto_request_item_project_1.DtoRequestItemProject(Number(projectId)))
+                        .subscribe(function (projects) {
+                        if (projects[0]) {
+                            scope$.project = projects[0];
+                            scope$.primaryInvestigatorId = String(projects[0].piContact);
                             scope$.setPiName();
                         }
                     }, function (dtoHeaderResponse) {

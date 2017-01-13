@@ -1,6 +1,5 @@
 import {Http, Response, Headers} from "@angular/http";
 import {HeaderNames} from "./header-names";
-import {GobiiCropType} from "./type-crop";
 
 export class HttpValues {
 

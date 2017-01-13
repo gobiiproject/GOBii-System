@@ -1,4 +1,4 @@
-System.register(["@angular/core", "../model/name-id", "../services/core/dto-request.service", "../services/app/dto-request-item-nameids", "../model/type-process", "../model/type-entity", "../model/event-checkbox", "../services/app/dto-request-item-dataset", "../services/app/dto-request-item-analysis"], function(exports_1, context_1) {
+System.register(["@angular/core", "../model/name-id", "../services/core/dto-request.service", "../services/app/dto-request-item-nameids", "../model/type-process", "../model/type-entity", "../model/event-checkbox", "../services/app/dto-request-item-dataset", "../services/app/dto-request-item-analysis", "../model/type-entity-filter"], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(["@angular/core", "../model/name-id", "../services/core/dto-requ
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, name_id_1, dto_request_service_1, dto_request_item_nameids_1, type_process_1, type_entity_1, event_checkbox_1, dto_request_item_dataset_1, dto_request_item_analysis_1;
+    var core_1, name_id_1, dto_request_service_1, dto_request_item_nameids_1, type_process_1, type_entity_1, event_checkbox_1, dto_request_item_dataset_1, dto_request_item_analysis_1, type_entity_filter_1;
     var DataSetCheckListBoxComponent;
     return {
         setters:[
@@ -40,6 +40,9 @@ System.register(["@angular/core", "../model/name-id", "../services/core/dto-requ
             },
             function (dto_request_item_analysis_1_1) {
                 dto_request_item_analysis_1 = dto_request_item_analysis_1_1;
+            },
+            function (type_entity_filter_1_1) {
+                type_entity_filter_1 = type_entity_filter_1_1;
             }],
         execute: function() {
             DataSetCheckListBoxComponent = (function () {
@@ -81,7 +84,7 @@ System.register(["@angular/core", "../model/name-id", "../services/core/dto-requ
                     scope$.checkBoxEvents = [];
                     scope$.setDatasetDetails(undefined);
                     if (scope$.experimentId) {
-                        this._dtoRequestServiceNameId.getResult(new dto_request_item_nameids_1.DtoRequestItemNameIds(type_process_1.ProcessType.READ, type_entity_1.EntityType.DataSetNamesByExperimentId, this.experimentId)).subscribe(function (nameIds) {
+                        this._dtoRequestServiceNameId.get(new dto_request_item_nameids_1.DtoRequestItemNameIds(type_entity_1.EntityType.DataSets, type_entity_filter_1.EntityFilter.BYTYPEID, this.experimentId)).subscribe(function (nameIds) {
                             if (nameIds && (nameIds.length > 0)) {
                                 scope$.nameIdList = nameIds;
                                 scope$.checkBoxEvents = [];
@@ -104,7 +107,7 @@ System.register(["@angular/core", "../model/name-id", "../services/core/dto-requ
                 DataSetCheckListBoxComponent.prototype.setDatasetDetails = function (dataSetId) {
                     if (dataSetId) {
                         var scope$_1 = this;
-                        scope$_1._dtoRequestServiceDataSetDetail.getResult(new dto_request_item_dataset_1.DtoRequestItemDataSet(dataSetId))
+                        scope$_1._dtoRequestServiceDataSetDetail.get(new dto_request_item_dataset_1.DtoRequestItemDataSet(dataSetId))
                             .subscribe(function (dataSet) {
                             if (dataSet) {
                                 scope$_1.dataSet = dataSet;
@@ -146,7 +149,7 @@ System.register(["@angular/core", "../model/name-id", "../services/core/dto-requ
                     var _this = this;
                     var scope$ = this;
                     scope$._dtoRequestServiceNameId
-                        .getResult(new dto_request_item_nameids_1.DtoRequestItemNameIds(type_process_1.ProcessType.READ, type_entity_1.EntityType.CvGroupTerms, "analysis_type"))
+                        .get(new dto_request_item_nameids_1.DtoRequestItemNameIds(type_entity_1.EntityType.CvTerms, type_entity_filter_1.EntityFilter.BYTYPENAME, "analysis_type"))
                         .subscribe(function (nameIdList) {
                         scope$.nameIdListAnalysisTypes = nameIdList;
                         if (_this.experimentId) {

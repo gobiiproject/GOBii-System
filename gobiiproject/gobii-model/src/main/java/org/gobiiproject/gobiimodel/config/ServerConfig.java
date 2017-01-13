@@ -1,20 +1,29 @@
 package org.gobiiproject.gobiimodel.config;
 
-import org.gobiiproject.gobiimodel.types.GobiiCropType;
-import org.gobiiproject.gobiimodel.types.GobiiFileLocationType;
+
+import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
+import org.simpleframework.xml.Element;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Phil on 6/10/2016.
+ This class encapsualtes the configuration properties that are returned to web clients via
+ web services. For most intents and purposes, it is superfluous. However, for security purposes
+ we use it to prevent sensitive configuration data from being sent through web services: it forces
+ careful decisions to be made by the author of the web service that returns this data to the web
+ client.
  */
 public class ServerConfig {
 
     public ServerConfig() {
     }
 
-    public ServerConfig(CropConfig cropConfig) {
+    public ServerConfig(CropConfig cropConfig,
+                        String extractorInstructionsDir,
+                        String loaderInstructionsDir,
+                        String intermediateFilesDir,
+                        String rawUserFilesDir) {
 
         this.port = cropConfig.getServicePort();
         this.domain = cropConfig.getServiceDomain();
@@ -22,24 +31,33 @@ public class ServerConfig {
         this.gobiiCropType = cropConfig.getGobiiCropType();
 
         fileLocations
-                .put(GobiiFileLocationType.EXTRACTORINSTRUCTION_FILES, cropConfig.getExtractorInstructionFilesDirectory());
+                .put(GobiiFileProcessDir.EXTRACTOR_INSTRUCTIONS, extractorInstructionsDir);
 
         fileLocations
-                .put(GobiiFileLocationType.LOADERINSTRUCTION_FILES, cropConfig.getLoaderInstructionFilesDirectory());
+                .put(GobiiFileProcessDir.LOADER_INSTRUCTIONS, loaderInstructionsDir);
 
         fileLocations
-                .put(GobiiFileLocationType.INTERMEDIATE_FILES, cropConfig.getIntermediateFilesDirectory());
+                .put(GobiiFileProcessDir.LOADER_INTERMEDIATE_FILES, intermediateFilesDir);
 
         fileLocations
-                .put(GobiiFileLocationType.RAWUSER_FILES, cropConfig.getRawUserFilesDirectory());
+                .put(GobiiFileProcessDir.RAW_USER_FILES, rawUserFilesDir);
 
     }
 
+    @Element(required = false)
     private Integer port;
+
+    @Element(required = false)
     private String domain;
+
+    @Element(required = false)
     private String contextRoot;
-    private GobiiCropType gobiiCropType;
-    private Map<GobiiFileLocationType, String> fileLocations = new HashMap<>();
+
+    @Element(required = false)
+    private String gobiiCropType;
+
+    @Element
+    private Map<GobiiFileProcessDir, String> fileLocations = new HashMap<>();
 
     public Integer getPort() {
         return port;
@@ -65,19 +83,19 @@ public class ServerConfig {
         this.contextRoot = contextRoot;
     }
 
-    public GobiiCropType getGobiiCropType() {
+    public String getGobiiCropType() {
         return gobiiCropType;
     }
 
-    public void setGobiiCropType(GobiiCropType gobiiCropType) {
+    public void setGobiiCropType(String gobiiCropType) {
         this.gobiiCropType = gobiiCropType;
     }
 
-    public Map<GobiiFileLocationType, String> getFileLocations() {
+    public Map<GobiiFileProcessDir, String> getFileLocations() {
         return fileLocations;
     }
 
-    public void setFileLocations(Map<GobiiFileLocationType, String> fileLocations) {
+    public void setFileLocations(Map<GobiiFileProcessDir, String> fileLocations) {
         this.fileLocations = fileLocations;
     }
 }

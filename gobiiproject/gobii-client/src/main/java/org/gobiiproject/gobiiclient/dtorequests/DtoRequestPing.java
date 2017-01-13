@@ -5,9 +5,10 @@
 // ************************************************************************
 package org.gobiiproject.gobiiclient.dtorequests;
 
-import org.gobiiproject.gobiiclient.core.DtoRequestProcessor;
+import org.gobiiproject.gobiiclient.core.gobii.dtopost.DtoRequestProcessor;
 import org.gobiiproject.gobiimodel.dto.container.PingDTO;
-import org.gobiiproject.gobiimodel.dto.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.types.ControllerType;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 
 public class DtoRequestPing {
 
@@ -15,7 +16,7 @@ public class DtoRequestPing {
 
         return new DtoRequestProcessor<PingDTO>().process(pingDTO,
                 PingDTO.class,
-                pingDTO.getControllerType(),
+                ControllerType.LOADER,
                 ServiceRequestId.URL_PING);
 
     } // getPingFromExtractController()

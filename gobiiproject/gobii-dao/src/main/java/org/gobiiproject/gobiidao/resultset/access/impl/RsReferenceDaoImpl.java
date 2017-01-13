@@ -10,6 +10,7 @@ import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdReference;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetReferenceDetailsByReferenceId;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPlatformNames;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetReferenceNames;
+import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,20 +83,13 @@ public class RsReferenceDaoImpl implements RsReferenceDao {
 
         try {
 
-            if (spRunnerCallable.run(new SpInsReference(), parameters)) {
+            spRunnerCallable.run(new SpInsReference(), parameters);
+            returnVal = spRunnerCallable.getResult();
 
-                returnVal = spRunnerCallable.getResult();
+        } catch (SQLGrammarException e) {
 
-            } else {
-
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-
-            }
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error creating reference", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating reference with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -108,14 +102,12 @@ public class RsReferenceDaoImpl implements RsReferenceDao {
 
         try {
 
-            if (!spRunnerCallable.run(new SpUpdReference(), parameters)) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-            }
+            spRunnerCallable.run(new SpUpdReference(), parameters);
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error creating reference", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating reference with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
     }
 }

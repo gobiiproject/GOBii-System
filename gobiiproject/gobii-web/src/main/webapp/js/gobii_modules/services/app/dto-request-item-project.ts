@@ -11,7 +11,14 @@ export class DtoRequestItemProject implements DtoRequestItem<Project> {
     }
 
     public getUrl():string {
-        return "load/project";
+        let baseUrl:string = "gobii/v1/projects";
+
+        let returnVal:string  = baseUrl;
+        if( this.projectId ) {
+            returnVal = baseUrl + "/" + this.projectId;
+        }
+
+        return returnVal;
     } // getUrl()
 
     private processType:ProcessType = ProcessType.READ;
@@ -26,25 +33,39 @@ export class DtoRequestItemProject implements DtoRequestItem<Project> {
 
     public resultFromJson(json):Project {
 
-        let returnVal:Project;
-        console.log("*************ENTITY NAME: " + json.entityName);
-        console.log(json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages)
-        console.log(json.namesById);
+        let returnVal:Project = undefined;
 
-        returnVal = new Project(json.projectId,
-            json.projectName,
-            json.projectCode,
-            json.projectDescription,
-            json.piContact,
-            json.createdBy,
-            json.createdstring,
-            json.modifiedBy,
-            json.modifiedstring,
-            json.projectStatus
-        );
+        if( json.payload.data[0]) {
+            returnVal = new Project(json.payload.data[0].projectId,
+                    json.payload.data[0].projectName,
+                    json.payload.data[0].projectCode,
+                    json.payload.data[0].projectDescription,
+                    json.payload.data[0].piContact,
+                    json.payload.data[0].createdBy,
+                    json.payload.data[0].createdstring,
+                    json.payload.data[0].modifiedBy,
+                    json.payload.data[0].modifiedstring,
+                    json.payload.data[0].projectStatus
+                )
+        }
+
+        // json.payload.data.forEach(item => {
+        //
+        //
+        //     returnVal.push(new Project(item.projectId,
+        //         item.projectName,
+        //         item.projectCode,
+        //         item.projectDescription,
+        //         item.piContact,
+        //         item.createdBy,
+        //         item.createdstring,
+        //         item.modifiedBy,
+        //         item.modifiedstring,
+        //         item.projectStatus
+        //     ));
+        // });
 
         return returnVal;
-        //return [new NameId(1, 'foo'), new NameId(2, 'bar')];
     }
 
 

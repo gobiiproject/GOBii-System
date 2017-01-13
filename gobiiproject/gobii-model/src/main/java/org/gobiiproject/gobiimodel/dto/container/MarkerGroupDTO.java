@@ -7,20 +7,21 @@ package org.gobiiproject.gobiimodel.dto.container;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityColumn;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityParam;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import java.util.*;
 
-public class MarkerGroupDTO extends DtoMetaData {
+public class MarkerGroupDTO extends Header {
 
 
     public MarkerGroupDTO() {
     }
 
-    public MarkerGroupDTO(ProcessType processType) {
-        super(processType);
+    public MarkerGroupDTO(GobiiProcessType gobiiProcessType) {
+        super(gobiiProcessType);
     }
 
 
@@ -33,7 +34,7 @@ public class MarkerGroupDTO extends DtoMetaData {
     private Date createdDate;
     private Integer modifiedBy;
     private Date modifiedDate;
-    private Integer status;
+    private Integer statusId;
 
 
     @GobiiEntityParam(paramName = "markerGroupId")
@@ -48,13 +49,13 @@ public class MarkerGroupDTO extends DtoMetaData {
 
 
     @GobiiEntityParam(paramName = "status")
-    public Integer getStatus() {
-        return status;
+    public Integer getStatusId() {
+        return statusId;
     }
 
     @GobiiEntityColumn(columnName = "status")
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setStatusId(Integer statusId) {
+        this.statusId = statusId;
     }
 
     @GobiiEntityParam(paramName = "modifiedDate")

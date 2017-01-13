@@ -1,19 +1,12 @@
 package org.gobiiproject.gobidomain.services.impl;
 
 import org.gobiiproject.gobidomain.services.AnalysisService;
-import org.gobiiproject.gobidomain.services.DataSetService;
 import org.gobiiproject.gobiidtomapping.DtoMapAnalysis;
-import org.gobiiproject.gobiidtomapping.DtoMapDataSet;
-import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
 import org.gobiiproject.gobiimodel.dto.container.AnalysisDTO;
-import org.gobiiproject.gobiimodel.dto.container.DataSetDTO;
-import org.gobiiproject.gobiimodel.dto.header.DtoHeaderResponse;
+import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.sql.Date;
-import java.time.LocalDate;
 
 /**
  * Created by Phil on 4/21/2016.
@@ -31,7 +24,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
         try {
 
-            switch (analysisDTO.getProcessType()) {
+            switch (analysisDTO.getGobiiProcessType()) {
 
                 case READ:
                     returnVal = dtoMapAnalysis.getAnalysisDetails(analysisDTO);
@@ -47,15 +40,15 @@ public class AnalysisServiceImpl implements AnalysisService {
 
                 default:
 
-                    returnVal.getDtoHeaderResponse().addStatusMessage(DtoHeaderResponse.StatusLevel.ERROR,
-                            DtoHeaderResponse.ValidationStatusType.BAD_REQUEST,
-                            "Unsupported proces type " + analysisDTO.getProcessType().toString());
+                    returnVal.getStatus().addStatusMessage(GobiiStatusLevel.ERROR,
+                            GobiiValidationStatusType.BAD_REQUEST,
+                            "Unsupported proces type " + analysisDTO.getGobiiProcessType().toString());
 
             }
 
         } catch (Exception e) {
 
-            returnVal.getDtoHeaderResponse().addException(e);
+            returnVal.getStatus().addException(e);
             LOGGER.error("Gobii service error", e);
         }
 
