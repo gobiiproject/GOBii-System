@@ -1,5 +1,5 @@
-import {RouteParams} from '@angular/router-deprecated';
 import {Component, OnInit,EventEmitter} from '@angular/core';
+import {GobiiExtractFormat} from "../model/type-extract-format";
 
 
 @Component({
@@ -9,17 +9,10 @@ import {Component, OnInit,EventEmitter} from '@angular/core';
     //directives: [RADIO_GROUP_DIRECTIVES]
 //  directives: [Alert]
     template: `
-		<form>
-			<fieldset class="well the-fieldset">
-			<legend class="the-legend">Export Format</legend>
-              <input type="radio" (change)="handleContactSelected($event)" name="format" value="Hapmap" checked="checked">Hapmap<br>
-              <input type="radio" (change)="handleContactSelected($event)" name="format" value="FlapJack">FlapJack<br>
-              <input type="radio" (change)="handleContactSelected($event)" name="format" value="VCF" disabled="true">VCF<br>
-              <input type="radio" (change)="handleContactSelected($event)" name="format" value="HDF5" disabled="true">HDF5<br>
-              <input type="radio" (change)="handleContactSelected($event)" name="format" value="PLINK CSV" disabled="true">PLINK CSV<br>
-			</fieldset>
-			
-		</form>
+    		  <label class="the-label">Select Format:</label><BR>
+              &nbsp;&nbsp;&nbsp;<input type="radio" (change)="handleContactSelected($event)" name="format" value="HAPMAP" checked="checked">Hapmap<br>
+              &nbsp;&nbsp;&nbsp;<input type="radio" (change)="handleContactSelected($event)" name="format" value="FLAPJACK">FlapJack<br>
+              &nbsp;&nbsp;&nbsp;<input type="radio" (change)="handleContactSelected($event)" name="format" value="META_DATA_ONLY">Dataset Metadata Only<br>
 	` // end template
 })
 
@@ -30,11 +23,15 @@ export class ExportFormatComponent implements OnInit {
     ) {
     } // ctor
 
-    private onFormatSelected:EventEmitter<string> = new EventEmitter();
+    private onFormatSelected:EventEmitter<GobiiExtractFormat> = new EventEmitter();
     private handleContactSelected(arg) {
         if( arg.srcElement.checked ) {
-        
-            this.onFormatSelected.emit(arg.srcElement.value)
+
+            let radioValue:string = arg.srcElement.value;
+
+            let gobiiExportFormat:GobiiExtractFormat = GobiiExtractFormat[radioValue];
+
+            this.onFormatSelected.emit(gobiiExportFormat)
         }
         let foo = arg;
         //this.onContactSelected.emit(this.nameIdList[arg.srcElement.selectedIndex].id);

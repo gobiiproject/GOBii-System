@@ -5,14 +5,18 @@
 // ************************************************************************
 package org.gobiiproject.gobiiclient.dtorequests.infrastructure;
 
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestPing;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestDtoFactory;
-import org.gobiiproject.gobiimodel.dto.container.PingDTO;
+import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestUtils;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DtoRequestPingTest {
@@ -33,8 +37,20 @@ public class DtoRequestPingTest {
 
         PingDTO pingDTORequest = TestDtoFactory.makePingDTO();
 
-        DtoRequestPing dtoRequestPing = new DtoRequestPing();
-        PingDTO pingDTOResponse = dtoRequestPing.process(pingDTORequest);
+        //DtoRequestPing dtoRequestPing = new DtoRequestPing();
+        GobiiEnvelopeRestResource<PingDTO> gobiiEnvelopeRestResourcePingDTO = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_PING));
+
+        PayloadEnvelope<PingDTO> resultEnvelopePing = gobiiEnvelopeRestResourcePingDTO.post(PingDTO.class,
+                new PayloadEnvelope<>(pingDTORequest, GobiiProcessType.CREATE));
+        //PayloadEnvelope<ContactDTO> resultEnvelopeNewContact = dtoRequestContact.process(new PayloadEnvelope<>(newContactDto, GobiiProcessType.CREATE));
+
+        Assert.assertNotNull(resultEnvelopePing);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopePing.getHeader()));
+        Assert.assertTrue(resultEnvelopePing.getPayload().getData().size() > 0);
+        PingDTO pingDTOResponse = resultEnvelopePing.getPayload().getData().get(0);
+
 
         Assert.assertNotEquals(null, pingDTOResponse);
         Assert.assertNotEquals(null, pingDTOResponse.getDbMetaData());

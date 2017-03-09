@@ -25,7 +25,7 @@ public class SpGetCvItems implements Work {
     @Override
     public void execute(Connection dbConnection) throws SQLException {
 
-        String sql = "select c.cv_id, g.name \"group\", c.term, c.definition, c.rank from cv c join cvgroup g on (c.cvgroup_id=g.cvgroup_id) order by lower(g.name), lower(c.term)";
+        String sql = "select c.cv_id, g.name \"group\", c.term, c.definition, c.rank, g.type as group_type from cv c join cvgroup g on (c.cvgroup_id=g.cvgroup_id) order by lower(g.name), lower(c.term)";
 
         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
 //        String tableName = parameters.get("tableName").toString().toLowerCase();

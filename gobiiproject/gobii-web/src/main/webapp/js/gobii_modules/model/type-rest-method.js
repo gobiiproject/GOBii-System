@@ -1,10 +1,10 @@
-System.register([], function(exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var RestMethod;
     return {
-        setters:[],
-        execute: function() {
+        setters: [],
+        execute: function () {
             (function (RestMethod) {
                 RestMethod[RestMethod["POST"] = 0] = "POST";
                 RestMethod[RestMethod["GET"] = 1] = "GET";
@@ -13,6 +13,6 @@ System.register([], function(exports_1, context_1) {
             })(RestMethod || (RestMethod = {}));
             exports_1("RestMethod", RestMethod);
         }
-    }
+    };
 });
 //# sourceMappingURL=type-rest-method.js.map

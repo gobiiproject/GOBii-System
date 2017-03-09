@@ -54,7 +54,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public OrganizationDTO getOrganizationById(Integer organizationId) {
+    public OrganizationDTO getOrganizationById(Integer organizationId) throws GobiiDomainException{
 
         OrganizationDTO returnVal;
 

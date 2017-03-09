@@ -31,7 +31,6 @@ public class MailInterface {
 	private MailMessage message = new MailMessage();
 	
 	
-	
 	public MailInterface(ConfigSettings config){
 		host = config.getEmailSvrDomain();
 		port = config.getEmailServerPort().toString();

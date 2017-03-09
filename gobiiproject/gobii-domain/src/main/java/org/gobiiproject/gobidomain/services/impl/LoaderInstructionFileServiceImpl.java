@@ -47,7 +47,7 @@ public class LoaderInstructionFileServiceImpl implements LoaderInstructionFilesS
 
     @Override
     public LoaderInstructionFilesDTO createInstruction(String cropType, LoaderInstructionFilesDTO LoaderInstructionFilesDTO)
-            throws GobiiException {
+            throws GobiiDomainException {
         LoaderInstructionFilesDTO returnVal;
 
         returnVal = dtoMapLoaderInstructions.createInstruction(cropType, LoaderInstructionFilesDTO);

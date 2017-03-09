@@ -24,6 +24,7 @@ public class DTOmarkers implements WizardDTO{
 	private HashMap<String, GobiiFileColumn> subLgMarkerFields = new HashMap<>();
 	private List<String[]> header = new ArrayList<>();
 	private String fileExtention;
+	private boolean qcCheck = false;
 	private GobiiFile file = new GobiiFile();
 	private List<String> files = new ArrayList<String>();
 	private GobiiColumnType columnType;
@@ -276,5 +277,13 @@ public class DTOmarkers implements WizardDTO{
 
 	public void setMapsetName(String mapsetName) {
 		this.mapsetName = mapsetName;
+	}
+
+	public boolean isQcCheck() {
+		return qcCheck;
+	}
+
+	public void setQcCheck(boolean qcCheck) {
+		this.qcCheck = qcCheck;
 	}
 }

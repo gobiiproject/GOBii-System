@@ -213,6 +213,15 @@
     <bean id="ExtractorInstructionFilesService"
           class="org.gobiiproject.gobidomain.services.impl.ExtractorInstructionFileServiceImpl"/>
 
+
+    <!-- **** QC Check Beans *************************************** -->
+    <bean id="qcInstructionsDAO"
+          class="org.gobiiproject.gobiidao.filesystem.impl.QCInstructionsDAOImpl"/>
+    <bean id="dtoMapQCInstructions"
+          class="org.gobiiproject.gobiidtomapping.impl.DtoMapQCInstructionsImpl"/>
+    <bean id="QCInstuctionFilesService"
+          class="org.gobiiproject.gobidomain.services.impl.QCInstructionFilesServiceImpl"/>
+
     <!-- **** Contact Beans *************************************** -->
     <bean id="dtoMapContact" class="org.gobiiproject.gobiidtomapping.impl.DtoMapContactImpl"/>
     <bean id="contactService" class="org.gobiiproject.gobidomain.services.impl.ContactServiceImpl"/>
@@ -290,6 +299,11 @@
     <bean id="rsCvDao" class="org.gobiiproject.gobiidao.resultset.access.impl.RsCvDaoImpl"/>
     <bean id="dtoMapCv" class="org.gobiiproject.gobiidtomapping.impl.DtoMapCvImpl"/>
     <bean id="CvService" class="org.gobiiproject.gobidomain.services.impl.CvServiceImpl"/>
+
+    <!-- *** CvGroup Beans ******************************************* -->
+    <bean id="rsCvGroupDao" class="org.gobiiproject.gobiidao.resultset.access.impl.RsCvGroupDaoImpl"/>
+    <bean id="dtoMapCvGroup" class="org.gobiiproject.gobiidtomapping.impl.DtoMapCvGroupImpl"/>
+    <bean id="CvGroupService" class="org.gobiiproject.gobidomain.services.impl.CvGroupServiceImpl"/>
 
     <!-- **** MarkerGroup Beans *************************************** -->
     <bean id="rsMarkerGroupDao"
@@ -652,7 +666,14 @@
             secured-annotations="enabled" pre-post-annotations="enabled"/>
 
 
-    <!--<bean id="userContextLoader" class="org.advocacydb.web.sec.UserContextLoader"> -->
-    <!--</bean> -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- setting maximum upload size -->
+        <property name="maxUploadSize" value="52428800"/>
+        <property name="maxInMemorySize" value="52428800"/>
+        <property name="resolveLazily" value="false" />
+        <property name="defaultEncoding" value="utf-8" />
+    </bean>
+
 
 </beans>

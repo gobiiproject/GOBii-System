@@ -1,14 +1,14 @@
-System.register(["./gobii-extractor-instruction"], function(exports_1, context_1) {
+System.register(["./gobii-extractor-instruction"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var gobii_extractor_instruction_1;
-    var ExtractorInstructionFilesDTO;
+    var gobii_extractor_instruction_1, ExtractorInstructionFilesDTO;
     return {
-        setters:[
+        setters: [
             function (gobii_extractor_instruction_1_1) {
                 gobii_extractor_instruction_1 = gobii_extractor_instruction_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             ExtractorInstructionFilesDTO = (function () {
                 function ExtractorInstructionFilesDTO(gobiiExtractorInstructions, instructionFileName) {
                     this.gobiiExtractorInstructions = gobiiExtractorInstructions;
@@ -49,6 +49,6 @@ System.register(["./gobii-extractor-instruction"], function(exports_1, context_1
             }());
             exports_1("ExtractorInstructionFilesDTO", ExtractorInstructionFilesDTO);
         }
-    }
+    };
 });
 //# sourceMappingURL=dto-extractor-instruction-files.js.map

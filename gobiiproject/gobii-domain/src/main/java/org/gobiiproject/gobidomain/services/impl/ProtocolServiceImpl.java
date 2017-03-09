@@ -6,6 +6,7 @@ import org.gobiiproject.gobiidao.GobiiDaoException;
 import org.gobiiproject.gobiidtomapping.DtoMapProtocol;
 import org.gobiiproject.gobiimodel.headerlesscontainer.OrganizationDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ProtocolDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.VendorProtocolDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
 import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
@@ -174,6 +175,16 @@ public class ProtocolServiceImpl implements ProtocolService {
         List<OrganizationDTO> returnVal;
 
         returnVal = dtoMapProtocol.getVendorsForProtocolByProtocolId(protocolId);
+
+        return returnVal;
+    }
+
+    @Override
+    public ProtocolDTO getProtocolsByExperimentId(Integer experimentId) throws GobiiDaoException {
+
+        ProtocolDTO returnVal;
+
+        returnVal = dtoMapProtocol.getProtocolsByExperimentId(experimentId);
 
         return returnVal;
     }

@@ -1,6 +1,5 @@
-System.register(["@angular/core", "../services/core/dto-request.service", "../services/app/dto-request-item-experiment"], function(exports_1, context_1) {
+System.register(["@angular/core", "../services/core/dto-request.service", "../services/app/dto-request-item-experiment"], function (exports_1, context_1) {
     "use strict";
-    var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,10 +9,10 @@ System.register(["@angular/core", "../services/core/dto-request.service", "../se
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, dto_request_service_1, dto_request_item_experiment_1;
-    var ExperimentListBoxComponent;
+    var __moduleName = context_1 && context_1.id;
+    var core_1, dto_request_service_1, dto_request_item_experiment_1, ExperimentListBoxComponent;
     return {
-        setters:[
+        setters: [
             function (core_1_1) {
                 core_1 = core_1_1;
             },
@@ -22,8 +21,9 @@ System.register(["@angular/core", "../services/core/dto-request.service", "../se
             },
             function (dto_request_item_experiment_1_1) {
                 dto_request_item_experiment_1 = dto_request_item_experiment_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             ExperimentListBoxComponent = (function () {
                 function ExperimentListBoxComponent(_dtoRequestServiceNameIds, _dtoRequestServiceExperiment) {
                     this._dtoRequestServiceNameIds = _dtoRequestServiceNameIds;
@@ -63,19 +63,20 @@ System.register(["@angular/core", "../services/core/dto-request.service", "../se
                     }
                     //this.setList();
                 };
-                ExperimentListBoxComponent = __decorate([
-                    core_1.Component({
-                        selector: 'experiment-list-box',
-                        inputs: ['projectId', 'nameIdList'],
-                        outputs: ['onExperimentSelected', 'onAddMessage'],
-                        template: "<select name=\"experiment\" \n                    (change)=\"handleExperimentSelected($event)\">\n                    <option *ngFor=\"let nameId of nameIdList \" \n                    value={{nameId.id}}>{{nameId.name}}</option>\n\t\t        </select>\n                <div *ngIf=\"experiment\">\n    \t\t        <BR>\n                     <fieldset>\n                        <b>Name:</b> {{experiment.experimentName}}<BR>\n                        <b>Platform:</b> {{experiment.platformName}}<BR>\n                        <b>Code:</b> {{experiment.experimentCode}}<BR>\n                      </fieldset> \n                </div>\t\t        \n" // end template
-                    }), 
-                    __metadata('design:paramtypes', [dto_request_service_1.DtoRequestService, dto_request_service_1.DtoRequestService])
-                ], ExperimentListBoxComponent);
                 return ExperimentListBoxComponent;
             }());
+            ExperimentListBoxComponent = __decorate([
+                core_1.Component({
+                    selector: 'experiment-list-box',
+                    inputs: ['projectId', 'nameIdList'],
+                    outputs: ['onExperimentSelected', 'onAddMessage'],
+                    template: "<select name=\"experiment\" \n                    (change)=\"handleExperimentSelected($event)\">\n                    <option *ngFor=\"let nameId of nameIdList \" \n                    value={{nameId.id}}>{{nameId.name}}</option>\n\t\t        </select>\n                <div *ngIf=\"experiment\">\n    \t\t        <BR>\n                     <fieldset>\n                        <b>Name:</b> {{experiment.experimentName}}<BR>\n                        <b>Platform:</b> {{experiment.platformName}}<BR>\n                        <b>Code:</b> {{experiment.experimentCode}}<BR>\n                      </fieldset> \n                </div>\t\t        \n" // end template
+                }),
+                __metadata("design:paramtypes", [dto_request_service_1.DtoRequestService,
+                    dto_request_service_1.DtoRequestService])
+            ], ExperimentListBoxComponent);
             exports_1("ExperimentListBoxComponent", ExperimentListBoxComponent);
         }
-    }
+    };
 });
 //# sourceMappingURL=experiment-list-box.component.js.map

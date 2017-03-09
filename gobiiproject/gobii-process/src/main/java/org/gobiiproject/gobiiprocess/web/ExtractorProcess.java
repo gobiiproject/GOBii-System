@@ -6,7 +6,7 @@
 package org.gobiiproject.gobiiprocess.web;
 
 import org.gobiiproject.gobidomain.services.PingService;
-import org.gobiiproject.gobiimodel.dto.container.PingDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

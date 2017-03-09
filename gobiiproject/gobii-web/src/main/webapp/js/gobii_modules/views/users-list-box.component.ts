@@ -1,7 +1,7 @@
-//import {RouteParams} from '@angular/router-deprecated';
 import {Component, OnInit, EventEmitter} from "@angular/core";
 import {NameId} from "../model/name-id";
 import {DtoRequestService} from "../services/core/dto-request.service";
+import {EntityType} from "../model/type-entity";
 
 
 @Component({
@@ -20,19 +20,24 @@ export class UsersListBoxComponent implements OnInit {
 
 
     // useg
-    private nameIdList:NameId[];
+    private nameIdList: NameId[];
 
-    private onUserSelected:EventEmitter<string> = new EventEmitter();
+    private onUserSelected: EventEmitter<NameId> = new EventEmitter();
+
     private handleUserSelected(arg) {
-        this.onUserSelected.emit(this.nameIdList[arg.srcElement.selectedIndex].id);
+
+        let nameId: NameId = new NameId(this.nameIdList[arg.srcElement.selectedIndex].id,
+            this.nameIdList[arg.srcElement.selectedIndex].name,
+            EntityType.Contacts);
+        this.onUserSelected.emit(nameId);
     }
 
-    constructor(private _dtoRequestService:DtoRequestService<NameId[]>) {
+    constructor(private _dtoRequestService: DtoRequestService<NameId[]>) {
 
     } // ctor
 
 
-    ngOnInit():any {
+    ngOnInit(): any {
         return null;
     }
 }

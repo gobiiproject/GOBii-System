@@ -44,9 +44,9 @@ public class RsDisplayDaoImpl implements RsDisplayDao {
             storedProcExec.doWithConnection(spGetTableDisplayNames);
             returnVal = spGetTableDisplayNames.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving display names", e);
+            LOGGER.error("Error retrieving display names", e.getSQL(), e.getSQLException());
             throw (new GobiiDaoException(e));
 
         }
@@ -67,7 +67,7 @@ public class RsDisplayDaoImpl implements RsDisplayDao {
 
         } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error creating display with SQL ", e.getSQL());
+            LOGGER.error("Error creating display with SQL ", e.getSQL(), e.getSQLException());
             throw (new GobiiDaoException(e.getSQLException()));
 
         }
@@ -85,7 +85,7 @@ public class RsDisplayDaoImpl implements RsDisplayDao {
 
         } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error creating display with SQL ", e.getSQL());
+            LOGGER.error("Error creating display with SQL ", e.getSQL(), e.getSQLException());
             throw (new GobiiDaoException(e.getSQLException()));
         }
     }

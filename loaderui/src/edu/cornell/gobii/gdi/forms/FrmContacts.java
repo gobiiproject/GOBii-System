@@ -148,6 +148,8 @@ public class FrmContacts extends AbstractFrm {
 						PayloadEnvelope<ContactDTO> contactDTOResponseEnvelope = restResource.post(ContactDTO.class,
 								payloadEnvelope);
 						if (Controller.getDTOResponse(shell, contactDTOResponseEnvelope.getHeader(), memInfo, true)) {
+							IDs.contactId = contactDTOResponseEnvelope.getPayload().getData().get(0).getContactId();
+							selectedContactEmail = txtEmail.getText();
 							if (cbList.getSelectionIndex() < 0)
 								displayAllContacts();
 							else
@@ -237,7 +239,7 @@ public class FrmContacts extends AbstractFrm {
 
 		TableColumn tblclmnContacts = new TableColumn(tbList, SWT.NONE);
 		tblclmnContacts.setWidth(300);
-		tblclmnContacts.setText("Contacts");
+		tblclmnContacts.setText("Contacts:");
 
 	}
 

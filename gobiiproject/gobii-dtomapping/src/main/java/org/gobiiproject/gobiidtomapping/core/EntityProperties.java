@@ -1,7 +1,7 @@
 package org.gobiiproject.gobiidtomapping.core;
 
 import org.gobiiproject.gobiidao.resultset.core.EntityPropertyParamNames;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.gobiiproject.gobiidao.resultset.core.EntityPropertyParamNames.PROPPCOLARAMNAME_PROP_ID;
 
 /**
  * Created by Phil on 5/4/2016.

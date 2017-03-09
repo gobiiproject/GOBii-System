@@ -44,10 +44,10 @@ public class RsContactDaoImpl implements RsContactDao {
             storedProcExec.doWithConnection(spGetContactNames);
 
             returnVal = spGetContactNames.getResultSet();
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving contact names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving contact names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -69,10 +69,10 @@ public class RsContactDaoImpl implements RsContactDao {
             storedProcExec.doWithConnection(spGetContactNamesByRoleName);
 
             returnVal = spGetContactNamesByRoleName.getResultSet();
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving contact names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving contact names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -97,10 +97,10 @@ public class RsContactDaoImpl implements RsContactDao {
 
             returnVal = spGetContactDetailsByContactId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving contact details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving contact details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -123,10 +123,10 @@ public class RsContactDaoImpl implements RsContactDao {
 
             returnVal = spGetContactDetailsByEmail.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving contact details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving contact details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 

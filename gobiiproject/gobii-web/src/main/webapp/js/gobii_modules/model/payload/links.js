@@ -1,14 +1,14 @@
-System.register(["./link"], function(exports_1, context_1) {
+System.register(["./link"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var link_1;
-    var Links;
+    var link_1, Links;
     return {
-        setters:[
+        setters: [
             function (link_1_1) {
                 link_1 = link_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             Links = (function () {
                 function Links(exploreLinksPerDataItem, linksPerDataItem) {
                     this.exploreLinksPerDataItem = exploreLinksPerDataItem;
@@ -29,6 +29,6 @@ System.register(["./link"], function(exports_1, context_1) {
             }());
             exports_1("Links", Links);
         }
-    }
+    };
 });
 //# sourceMappingURL=links.js.map

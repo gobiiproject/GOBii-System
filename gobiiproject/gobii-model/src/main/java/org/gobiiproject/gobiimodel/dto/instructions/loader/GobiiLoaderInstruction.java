@@ -26,9 +26,11 @@ public class GobiiLoaderInstruction {
     //Name of the crop being loaded
     private String gobiiCropType;
     //ID of the primary contact for this action
-    Integer contactId;
+    private Integer contactId;
     //Email of the primary contact for this action
-    String contactEmail;
+    private String contactEmail;
+
+    private boolean qcCheck;
 
     private GobiiFilePropNameId project = new GobiiFilePropNameId();
     private GobiiFilePropNameId platform = new GobiiFilePropNameId();
@@ -108,6 +110,14 @@ public class GobiiLoaderInstruction {
     public GobiiLoaderInstruction setContactEmail(String contactEmail) {
         this.contactEmail = contactEmail;
         return this;
+    }
+
+    public boolean isQcCheck() {
+        return qcCheck;
+    }
+
+    public void setQcCheck(boolean qcCheck) {
+        this.qcCheck = qcCheck;
     }
 
     public GobiiFilePropNameId getProject() {

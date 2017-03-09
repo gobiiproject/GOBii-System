@@ -1,6 +1,5 @@
-System.register(["@angular/core"], function(exports_1, context_1) {
+System.register(["@angular/core"], function (exports_1, context_1) {
     "use strict";
-    var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,14 +9,15 @@ System.register(["@angular/core"], function(exports_1, context_1) {
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1;
-    var ContactsListBoxComponent;
+    var __moduleName = context_1 && context_1.id;
+    var core_1, ContactsListBoxComponent;
     return {
-        setters:[
+        setters: [
             function (core_1_1) {
                 core_1 = core_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             ContactsListBoxComponent = (function () {
                 function ContactsListBoxComponent() {
                     this.onContactSelected = new core_1.EventEmitter();
@@ -28,19 +28,19 @@ System.register(["@angular/core"], function(exports_1, context_1) {
                 ContactsListBoxComponent.prototype.ngOnInit = function () {
                     return null;
                 };
-                ContactsListBoxComponent = __decorate([
-                    core_1.Component({
-                        selector: 'contacts-list-box',
-                        outputs: ['onContactSelected'],
-                        inputs: ['nameIdList'],
-                        template: "<select name=\"principleInvestigators\" (change)=\"handleContactSelected($event)\" >\n\t\t\t<option *ngFor=\"let nameId of nameIdList \" \n\t\t\t\tvalue={{nameId.id}}>{{nameId.name}}</option>\n\t\t</select>\n" // end template
-                    }), 
-                    __metadata('design:paramtypes', [])
-                ], ContactsListBoxComponent);
                 return ContactsListBoxComponent;
             }());
+            ContactsListBoxComponent = __decorate([
+                core_1.Component({
+                    selector: 'contacts-list-box',
+                    outputs: ['onContactSelected'],
+                    inputs: ['nameIdList'],
+                    template: "<select name=\"principleInvestigators\" (change)=\"handleContactSelected($event)\" >\n\t\t\t<option *ngFor=\"let nameId of nameIdList \" \n\t\t\t\tvalue={{nameId.id}}>{{nameId.name}}</option>\n\t\t</select>\n" // end template
+                }),
+                __metadata("design:paramtypes", [])
+            ], ContactsListBoxComponent);
             exports_1("ContactsListBoxComponent", ContactsListBoxComponent);
         }
-    }
+    };
 });
 //# sourceMappingURL=contacts-list-box.component.js.map

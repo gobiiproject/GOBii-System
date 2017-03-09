@@ -1,4 +1,3 @@
-//import {RouteParams} from '@angular/router-deprecated';
 import {Component, OnInit, SimpleChange} from "@angular/core";
 import {GobiiDataSetExtract} from "../model/extractor-instructions/data-set-extract";
 

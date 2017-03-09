@@ -27,7 +27,7 @@ export class DtoRequestItemNameIds implements DtoRequestItem<NameId[]> {
 
         let returnVal:string = baseUrl + "/" + EntityType[this.entityType].toLowerCase();
 
-        if (this.entityFilter && (EntityFilter.NONE != this.entityFilter)) {
+        if (this.entityFilter && (EntityFilter.NONE.valueOf() !== this.entityFilter)) {
             returnVal += "?"
                 + "filterType=" + EntityFilter[this.entityFilter].toLowerCase()
                 + "&"
@@ -56,9 +56,9 @@ export class DtoRequestItemNameIds implements DtoRequestItem<NameId[]> {
         //let nameListItems:Object[] = json.payload.data;
 
         json.payload.data.forEach(item => {
-            let currentId:number = item.id;
+            let currentId:string = String(item.id);
             let currentName:string = item.name;
-            returnVal.push(new NameId(currentId, currentName));
+            returnVal.push(new NameId(currentId, currentName, this.entityType));
         });
 
         return returnVal;

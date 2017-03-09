@@ -3,7 +3,7 @@ package org.gobiiproject.gobidomain.services;
 import java.util.List;
 
 import org.gobiiproject.gobidomain.GobiiDomainException;
-import org.gobiiproject.gobiimodel.dto.container.MapsetDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.MapsetDTO;
 
 /**
  * Created by Phil on 4/28/2016.
@@ -11,8 +11,9 @@ import org.gobiiproject.gobiimodel.dto.container.MapsetDTO;
  */
 public interface MapsetService {
 
-    MapsetDTO processMapset(MapsetDTO MapsetDTO);
-
     List<MapsetDTO> getAllMapsetNames() throws GobiiDomainException;
-
+    MapsetDTO createMapset(MapsetDTO mapsetDTO) throws GobiiDomainException;
+    MapsetDTO replaceMapset(Integer mapsetId, MapsetDTO mapsetDTO) throws GobiiDomainException;
+    List<MapsetDTO> getMapsets() throws GobiiDomainException;
+    MapsetDTO getMapsetById(Integer mapsetId) throws GobiiDomainException;
 }

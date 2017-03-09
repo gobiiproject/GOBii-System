@@ -49,7 +49,6 @@ public class Pg1Markers extends WizardPage {
 	private Combo cbFileFormat;
 	private Button btnPreview;
 	private Combo cbProject;
-	private Combo cbPlatform;
 	private Combo cbExperiment;
 
 	private String config;
@@ -64,6 +63,7 @@ public class Pg1Markers extends WizardPage {
 	private Button btnBrowse;
 	private ScrolledComposite scrolledComposite;
 	private SashForm sashForm;
+	private Text textPlatform;
 
 	/**
 	 * Create the wizard.
@@ -165,9 +165,13 @@ public class Pg1Markers extends WizardPage {
 						dto.setExperimentID(Integer.parseInt(key));
 						dto.setExperimentName(cbExperiment.getText());
 						FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(dto.getExperimentID()), cbDataset);
+						
+						Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
+						dto.setPlatformID(platformId);
+						WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
 					}
 				}catch(Exception err){
-					Utils.log(getShell(), null, log, "Error retrieving Datasets", err);
+					Utils.log(getShell(), null, log, "Error retrieving experiments", err);
 				}
 			}
 		});
@@ -176,26 +180,10 @@ public class Pg1Markers extends WizardPage {
 		Label lblPlatform = new Label(grpInformation, SWT.NONE);
 		lblPlatform.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblPlatform.setText("Platform:");
-
-		cbPlatform = new Combo(grpInformation, SWT.NONE);
-		cbPlatform.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try{
-					if(cbPlatform.getSelectionIndex() == -1){
-						dto.setPlatformID(null);
-						dto.setPlatformName(null);
-					}else{
-						String key = (String) cbPlatform.getData(cbPlatform.getItem(cbPlatform.getSelectionIndex()));
-						dto.setPlatformID(Integer.parseInt(key));
-						dto.setPlatformName(cbPlatform.getText());
-					}
-				}catch(Exception err){
-					Utils.log(getShell(), null, log, "Error retrieving Platform", err);
-				}
-			}
-		});
-		cbPlatform.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		textPlatform = new Text(grpInformation, SWT.BORDER);
+		textPlatform.setEditable(false);
+		textPlatform.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label lblDataset = new Label(grpInformation, SWT.NONE);
 		lblDataset.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -469,7 +457,7 @@ public class Pg1Markers extends WizardPage {
 		});
 		tbData.setLinesVisible(true);
 		tbData.setHeaderVisible(true);
-		sashForm.setWeights(new int[] {350, 860});
+		sashForm.setWeights(new int[] {370, 357});
 
 		createContent();
 	}
@@ -485,6 +473,10 @@ public class Pg1Markers extends WizardPage {
 					FormUtils.entrySetToComboSelectId(Controller.getExperimentNamesByProjectId(IDs.projectId), cbExperiment, IDs.experimentId);
 					dto.setExperimentName(cbExperiment.getText());
 					dto.setExperimentID(IDs.experimentId);
+					Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
+					WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
+					dto.setPlatformID(platformId);
+					dto.setPlatformName(textPlatform.getText());
 					if(IDs.datasetId!=0){
 						FormUtils.entrySetToComboSelectId(Controller.getDataSetNamesByExperimentId(IDs.experimentId), cbDataset, IDs.datasetId);
 						dto.setDatasetName(cbDataset.getText());
@@ -494,7 +486,6 @@ public class Pg1Markers extends WizardPage {
 			}else FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(IDs.PIid), cbProject);
 		}
 		else FormUtils.entrySetToCombo(Controller.getPIContactNames(), cbPi);
-		FormUtils.entrySetToCombo(Controller.getPlatformNames(), cbPlatform);
 		FormUtils.entrySetToCombo(Controller.getMapNames(), cbMapset);
 
 

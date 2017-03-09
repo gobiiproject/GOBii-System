@@ -1,2 +1,4 @@
+#file_column_names(comma-delimited)	column_alias	table_name	table_columns(comma-delimited)	id_column	table_alias
+#Note that the main column that will be replaced should come first in the comma-delimited fields, ie. order is important
 marker_name,platform_id	marker_id	marker	name,platform_id	marker_id	
 dataset_name	dataset_id	dataset	name	dataset_id	

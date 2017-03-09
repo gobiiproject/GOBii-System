@@ -1,14 +1,14 @@
-System.register(["./../dto-header-status-message"], function(exports_1, context_1) {
+System.register(["./../dto-header-status-message"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var dto_header_status_message_1;
-    var Status;
+    var dto_header_status_message_1, Status;
     return {
-        setters:[
+        setters: [
             function (dto_header_status_message_1_1) {
                 dto_header_status_message_1 = dto_header_status_message_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             Status = (function () {
                 function Status(succeeded, statusMessages) {
                     this.succeeded = succeeded;
@@ -26,6 +26,6 @@ System.register(["./../dto-header-status-message"], function(exports_1, context_
             }());
             exports_1("Status", Status);
         }
-    }
+    };
 });
 //# sourceMappingURL=status.js.map

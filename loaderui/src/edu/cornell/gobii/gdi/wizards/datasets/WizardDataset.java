@@ -14,7 +14,6 @@ import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiLoaderInstructio
 import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
 import org.gobiiproject.gobiimodel.types.DataSetType;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
-import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.main.App;
@@ -217,6 +216,7 @@ public class WizardDataset extends Wizard {
 
 				if(dto.getcCoord() > -1 && dto.getrCoord() > -1){
 					GobiiLoaderInstruction instDataset = new GobiiLoaderInstruction();
+					instDataset.setQcCheck(dto.isQcCheck());
 					Utils.setDSInstructionFileDetails(instDataset, dto);
 					instDataset.setTable("matrix");
 					instDataset.setGobiiFile(dto.getFile());

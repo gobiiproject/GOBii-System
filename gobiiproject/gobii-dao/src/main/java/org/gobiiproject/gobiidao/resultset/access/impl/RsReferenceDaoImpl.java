@@ -40,9 +40,18 @@ public class RsReferenceDaoImpl implements RsReferenceDao {
 
         ResultSet returnVal = null;
 
-        SpGetReferenceNames spGetReferenceNames = new SpGetReferenceNames();
-        storedProcExec.doWithConnection(spGetReferenceNames);
-        returnVal = spGetReferenceNames.getResultSet();
+        try {
+
+            SpGetReferenceNames spGetReferenceNames = new SpGetReferenceNames();
+            storedProcExec.doWithConnection(spGetReferenceNames);
+            returnVal = spGetReferenceNames.getResultSet();
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving Reference names ", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+
+        }
 
         return returnVal;
 
@@ -65,10 +74,10 @@ public class RsReferenceDaoImpl implements RsReferenceDao {
 
             returnVal = spGetReferenceDetailsByReferenceId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving reference details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving reference details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 

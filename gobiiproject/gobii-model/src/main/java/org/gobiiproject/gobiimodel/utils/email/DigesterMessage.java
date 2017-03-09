@@ -33,7 +33,7 @@ public class DigesterMessage extends MailMessage {
         this.setSubject("Job "+jobName+(success?" Success":" Error"));
         this.errorLine=shortError;
         if(!entries.isEmpty()) {
-            tableLine = HTMLTableEntity.getHTMLTable(entries,"Table","Total in File", "Total Loaded","Total Existing");
+            tableLine = HTMLTableEntity.getHTMLTable(entries,"Table","Total in File", "Total Loaded","Total Existing","Total Invalid");
         }
         if(!identifiers.isEmpty()) {
             identifierLine = HTMLTableEntity.getHTMLTable(identifiers,"Identifier Type","Name","ID");
@@ -63,8 +63,8 @@ public class DigesterMessage extends MailMessage {
      * @param existCount Count of duplicate entries
      * @return this object
      */
-    public DigesterMessage addEntry(String tableName,String fileCount, String loadCount, String existCount){
-        entries.add(new HTMLTableEntity(tableName,fileCount,loadCount,existCount));
+    public DigesterMessage addEntry(String tableName,String fileCount, String loadCount, String existCount, String invalidCount){
+        entries.add(new HTMLTableEntity(tableName,fileCount,loadCount,existCount, invalidCount));
         return this;
     }
 

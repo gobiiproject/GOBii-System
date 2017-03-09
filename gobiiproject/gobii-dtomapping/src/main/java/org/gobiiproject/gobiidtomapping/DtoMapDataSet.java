@@ -11,6 +11,8 @@ public interface DtoMapDataSet {
 
     List<DataSetDTO> getDataSets() throws GobiiDtoMappingException;
 
+    List<DataSetDTO> getDataSetsByTypeId(Integer typeId) throws GobiiDtoMappingException;
+
     DataSetDTO getDataSetDetails(Integer projectId) throws GobiiDtoMappingException;
 
     DataSetDTO createDataSet(DataSetDTO dataSetDTO) throws GobiiDtoMappingException;

@@ -1,17 +1,17 @@
-System.register(["./header", "./payload"], function(exports_1, context_1) {
+System.register(["./header", "./payload"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var header_1, payload_1;
-    var PayloadEnvelope;
+    var header_1, payload_1, PayloadEnvelope;
     return {
-        setters:[
+        setters: [
             function (header_1_1) {
                 header_1 = header_1_1;
             },
             function (payload_1_1) {
                 payload_1 = payload_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             PayloadEnvelope = (function () {
                 function PayloadEnvelope(header, payload) {
                     this.header = header;
@@ -40,6 +40,6 @@ System.register(["./header", "./payload"], function(exports_1, context_1) {
             }());
             exports_1("PayloadEnvelope", PayloadEnvelope);
         }
-    }
+    };
 });
 //# sourceMappingURL=payload-envelope.js.map

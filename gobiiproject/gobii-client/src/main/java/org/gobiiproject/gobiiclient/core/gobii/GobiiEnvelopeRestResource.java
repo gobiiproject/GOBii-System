@@ -133,16 +133,21 @@ public class GobiiEnvelopeRestResource<T> {
 
     }
 
-    public PayloadEnvelope<T> delete(Class<T> dtoType,
-                                     PayloadEnvelope<T> requestPayload) throws Exception {
+    public PayloadEnvelope<T> delete(Class<T> dtoType) throws Exception {
 
-        PayloadEnvelope<T> returnVal = new PayloadEnvelope<>();
+        PayloadEnvelope<T> returnVal;
 
-        returnVal.getHeader().getStatus().addStatusMessage(GobiiStatusLevel.ERROR, "Method not implemented");
+        HttpMethodResult httpMethodResult =
+                getHttp()
+                        .delete(this.restUri,
+                                this.getClientContext().getUserToken());
 
+        returnVal = this.gobiiPayloadResponse.getPayloadFromResponse(dtoType,
+                RestMethodTypes.DELETE,
+                HttpStatus.SC_OK,
+                httpMethodResult);
 
         return returnVal;
-
     }
 
     public PayloadEnvelope<T> options(Class<T> dtoType,

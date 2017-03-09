@@ -46,7 +46,7 @@ public class PlatformServiceImpl implements PlatformService {
     }
 
     @Override
-    public PlatformDTO getPlatformById(Integer platformId) {
+    public PlatformDTO getPlatformById(Integer platformId) throws GobiiDomainException{
 
         PlatformDTO returnVal;
 

@@ -1,14 +1,14 @@
-System.register(["./links"], function(exports_1, context_1) {
+System.register(["./links"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var links_1;
-    var Payload;
+    var links_1, Payload;
     return {
-        setters:[
+        setters: [
             function (links_1_1) {
                 links_1 = links_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             Payload = (function () {
                 function Payload(data, links) {
                     this.data = data;
@@ -26,6 +26,6 @@ System.register(["./links"], function(exports_1, context_1) {
             }());
             exports_1("Payload", Payload);
         }
-    }
+    };
 });
 //# sourceMappingURL=payload.js.map

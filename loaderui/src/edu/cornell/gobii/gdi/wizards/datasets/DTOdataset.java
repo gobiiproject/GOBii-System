@@ -20,6 +20,7 @@ public class DTOdataset implements WizardDTO{
 	private List<String> headerMarkers = new ArrayList<>();
 	private GobiiFile file = new GobiiFile();
 	private GobiiColumnType columnType = GobiiColumnType.CSV_BOTH;
+	private boolean qcCheck = false;
 //	private GobiiColumnType markerColumnType;
 //	private GobiiColumnType sampleColumnType;
 	private List<String> files = new ArrayList<String>();
@@ -235,5 +236,11 @@ public class DTOdataset implements WizardDTO{
 	public void setHeader(List<String[]> header) {
 		// TODO Auto-generated method stub
 		
+	}
+	public boolean isQcCheck() {
+		return qcCheck;
+	}
+	public void setQcCheck(boolean qcCheck) {
+		this.qcCheck = qcCheck;
 	}
 }

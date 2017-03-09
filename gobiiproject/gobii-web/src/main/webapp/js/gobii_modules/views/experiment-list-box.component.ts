@@ -1,4 +1,3 @@
-//import {RouteParams} from '@angular/router-deprecated';
 import {Component, OnInit, OnChanges, SimpleChange, EventEmitter} from "@angular/core";
 import {NameId} from "../model/name-id";
 import {DtoRequestService} from "../services/core/dto-request.service";

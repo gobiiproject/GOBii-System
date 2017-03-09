@@ -13,7 +13,7 @@ public interface PlatformService {
     PlatformDTO createPlatform(PlatformDTO platformDTO) throws GobiiDomainException;
     PlatformDTO replacePlatform(Integer platformId, PlatformDTO platformDTO) throws GobiiDomainException;
     List<PlatformDTO> getPlatforms() throws GobiiDomainException;
-    PlatformDTO getPlatformById(Integer platformId);
+    PlatformDTO getPlatformById(Integer platformId) throws GobiiDomainException;
 
 
 }

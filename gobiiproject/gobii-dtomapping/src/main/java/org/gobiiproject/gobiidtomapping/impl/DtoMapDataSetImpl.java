@@ -52,7 +52,40 @@ public class DtoMapDataSetImpl implements DtoMapDataSet {
         }
 
         return returnVal;
-    }    
+    }
+
+    @Override
+    public List<DataSetDTO> getDataSetsByTypeId(Integer typeId) throws GobiiDtoMappingException {
+
+        List<DataSetDTO> returnVal = new ArrayList<>();
+
+        try {
+
+            ResultSet resultSet = rsDataSetDao.getDataSetsByTypeId(typeId);
+
+            while(resultSet.next()) {
+
+                DataSetDTO currentDataSetDTO = new DataSetDTO();
+
+                currentDataSetDTO.setName(resultSet.getString("name"));
+                currentDataSetDTO.setDataSetId(resultSet.getInt("dataset_id"));
+                currentDataSetDTO.setTypeId(resultSet.getInt("type_id"));
+
+                returnVal.add(currentDataSetDTO);
+
+            }
+
+
+        } catch (SQLException e) {
+
+            throw new GobiiDtoMappingException(e);
+
+        }
+
+        return returnVal;
+
+
+    }
 
     @Transactional
     @Override

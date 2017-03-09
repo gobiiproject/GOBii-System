@@ -13,4 +13,5 @@ public enum GobiiValidationStatusType {
     MISSING_REQUIRED_VALUE,
     ENTITY_DOES_NOT_EXIST,
     ENTITY_ALREADY_EXISTS,
+    UNKNOWN_ENUM_VALUE
 }

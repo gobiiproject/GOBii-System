@@ -65,12 +65,13 @@ public class Page1Datasets extends WizardPage {
 	private Combo cbProject;
 	private Combo cbExperiment;
 	private Combo cbDataset;
-	private Combo cbDatasetType;
-	private Combo cbPlatform;
 	private Combo cbMapset;
 	private Combo cbTemplates;
 	private Combo cbPi;
 	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
+	private Button btnQcCheckButton;
+	private Text textDatasetType;
+	private Text textPlatform;
 
 	/**
 	 * Create the wizard.
@@ -174,6 +175,10 @@ public class Page1Datasets extends WizardPage {
 						dto.setExperimentID(Integer.parseInt(key));
 						dto.setExperimentName(cbExperiment.getText());
 						FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(dto.getExperimentID()), cbDataset);
+						Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
+						dto.setPlatformID(platformId);
+						WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
+						dto.setPlatformName(textPlatform.getText());
 					}
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error retrieving Datasets", err);
@@ -198,7 +203,7 @@ public class Page1Datasets extends WizardPage {
 						dto.setDatasetName(cbDataset.getText());
 						Integer datasetId = Integer.parseInt(key);
 						dto.setDatasetID(datasetId);
-						WizardUtils.populateDatasetInformation(getShell(), datasetId, cbDatasetType, dto);
+						WizardUtils.populateDatasetInformation(getShell(), datasetId, textDatasetType, dto);
 					}
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error selecting Datasets", err);
@@ -211,41 +216,19 @@ public class Page1Datasets extends WizardPage {
 		lblDatasetType.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblDatasetType.setText("Dataset Type:");
 		
-		cbDatasetType = new Combo(grpInformation, SWT.NONE);
-		cbDatasetType.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(cbDatasetType.getSelectionIndex() == -1){
-					dto.setDatasetType(null);
-					dto.setDatasetTypeID(null);
-				}else{
-					String key = cbDatasetType.getItem(cbDatasetType.getSelectionIndex());
-					dto.setDatasetType(key.toUpperCase());
-					dto.setDatasetTypeID(Integer.parseInt((String) cbDatasetType.getData(key))); 
-				}
-			}
-		});
-		cbDatasetType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		textDatasetType = new Text(grpInformation, SWT.BORDER);
+		textDatasetType.setEditable(false);
+		textDatasetType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		formToolkit.adapt(textDatasetType, true, true);
 		
 		Label lblPlatform = new Label(grpInformation, SWT.NONE);
 		lblPlatform.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblPlatform.setText("Platform:");
 		
-		cbPlatform = new Combo(grpInformation, SWT.NONE);
-		cbPlatform.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(cbPlatform.getSelectionIndex() == -1){
-					dto.setPlatformID(null);
-					dto.setPlatformName(null);
-				}else{
-					String key = (String) cbPlatform.getData(cbPlatform.getItem(cbPlatform.getSelectionIndex()));
-					dto.setPlatformID(Integer.parseInt(key));
-					dto.setPlatformName(cbPlatform.getText());
-				}
-			}
-		});
-		cbPlatform.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		textPlatform = new Text(grpInformation, SWT.BORDER);
+		textPlatform.setEditable(false);
+		textPlatform.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		formToolkit.adapt(textPlatform, true, true);
 		
 		Label lblMapset = new Label(grpInformation, SWT.NONE);
 		lblMapset.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -321,7 +304,7 @@ public class Page1Datasets extends WizardPage {
 		
 		tbLocalfiles = new Table(grpInformation, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
 		GridData gd_tbLocalfiles = new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1);
-		gd_tbLocalfiles.heightHint = 185;
+		gd_tbLocalfiles.heightHint = 150;
 		gd_tbLocalfiles.minimumWidth = 120;
 		gd_tbLocalfiles.minimumHeight = 100;
 		tbLocalfiles.setLayoutData(gd_tbLocalfiles);
@@ -485,6 +468,18 @@ public class Page1Datasets extends WizardPage {
 		});
 		cbDNAsampleOrientation.setItems(new String[] {"LEFT", "TOP"});
 		cbDNAsampleOrientation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(grpInformation, SWT.NONE);
+		
+		btnQcCheckButton = new Button(grpInformation, SWT.CHECK);
+		btnQcCheckButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				dto.setQcCheck(btnQcCheckButton.getSelection());
+			}
+		});
+		btnQcCheckButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		formToolkit.adapt(btnQcCheckButton, true, true);
+		btnQcCheckButton.setText("QC Check");
 		
 		Label lblFirstSnpCoordinate = new Label(grpInformation, SWT.NONE);
 		lblFirstSnpCoordinate.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -602,19 +597,21 @@ public class Page1Datasets extends WizardPage {
 					FormUtils.entrySetToComboSelectId(Controller.getExperimentNamesByProjectId(IDs.projectId), cbExperiment, IDs.experimentId);
 					dto.setExperimentName(cbExperiment.getText());
 					dto.setExperimentID(IDs.experimentId);
+					Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
+					dto.setPlatformID(platformId);
+					WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
+					dto.setPlatformName(textPlatform.getText());
 					if(IDs.datasetId!=0){
 					 FormUtils.entrySetToComboSelectId(Controller.getDataSetNamesByExperimentId(IDs.experimentId), cbDataset, IDs.datasetId);
 						dto.setDatasetName(cbDataset.getText());
 						dto.setDatasetID(IDs.datasetId);
-						WizardUtils.populateDatasetInformation(getShell(), IDs.datasetId, cbDatasetType, dto);
+						WizardUtils.populateDatasetInformation(getShell(), IDs.datasetId, textDatasetType, dto);
 					}else FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(IDs.experimentId), cbDataset);
 				}else FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(IDs.projectId), cbExperiment);
 			}else FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(IDs.PIid), cbProject);
 		}
 		else FormUtils.entrySetToCombo(Controller.getPIContactNames(), cbPi);
-		FormUtils.entrySetToCombo(Controller.getPlatformNames(), cbPlatform);
 		FormUtils.entrySetToCombo(Controller.getMapNames(), cbMapset);
-		FormUtils.entrySetToCombo(Controller.getCVByGroup("dataset_type"), cbDatasetType);
 	}
 	
 	public void validateDataCoordinate(){

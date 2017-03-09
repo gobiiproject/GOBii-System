@@ -9,6 +9,7 @@ import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.*;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ProtocolDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.VendorProtocolDTO;
 import org.gobiiproject.gobiimodel.types.GobiiEntityNameType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.junit.AfterClass;
@@ -161,6 +162,8 @@ public class DtoCrudRequestProtocolTest implements DtoCrudRequestTest{
         ProtocolDTO protocolDTO = resultEnvelopeForGetByID.getPayload().getData().get(0);
         Assert.assertTrue(protocolDTO.getProtocolId() > 0);
         Assert.assertNotNull(protocolDTO.getName());
+
+
     }
 
 
@@ -232,6 +235,41 @@ public class DtoCrudRequestProtocolTest implements DtoCrudRequestTest{
             Assert.assertTrue(currentProtocolDto.getProtocolId().equals(protocolDTOFromLink.getProtocolId()));
         }
 
+
+        //get ProtocolDetails By ExperimentId
+        RestUri restUriProtocolsForGetDetailsByExperimentId = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_EXPERIMENTS)
+                .setParamValue("id", "1")
+                .appendSegment(ServiceRequestId.URL_PROTOCOL);
+
+        GobiiEnvelopeRestResource<ProtocolDTO> restResourceProtocolForGetDetailsByExperimentId = new GobiiEnvelopeRestResource<>(restUriProtocolsForGetDetailsByExperimentId);
+        PayloadEnvelope<ProtocolDTO> resultEnvelopeForGetDetailsByExperimentId = restResourceProtocolForGetDetailsByExperimentId
+                .get(ProtocolDTO.class);
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetDetailsByExperimentId.getHeader()));
+        List<ProtocolDTO> protocolDTOByExperimentId = resultEnvelopeForGetDetailsByExperimentId.getPayload().getData();
+        Assert.assertNotNull(protocolDTOByExperimentId);
+        Assert.assertTrue(protocolDTOByExperimentId.size() > 0);
+        Assert.assertNotNull(protocolDTOByExperimentId.get(0).getName());
+
+        LinkCollection linkCollectionForProtocol = resultEnvelopeForGetDetailsByExperimentId.getPayload().getLinkCollection();
+        Assert.assertTrue(linkCollectionForProtocol.getLinksPerDataItem().size() == 1);
+
+
+        Link currentLink = linkCollectionForProtocol.getLinksPerDataItem().get(0);
+
+        RestUri restUriProtocolForGetById = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .RestUriFromUri(currentLink.getHref());
+        GobiiEnvelopeRestResource<ProtocolDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriProtocolForGetById);
+        PayloadEnvelope<ProtocolDTO> resultEnvelopeForGetByID = gobiiEnvelopeRestResourceForGetById
+                .get(ProtocolDTO.class);
+        Assert.assertNotNull(resultEnvelopeForGetByID);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetByID.getHeader()));
+        ProtocolDTO protocolDTOFromLink = resultEnvelopeForGetByID.getPayload().getData().get(0);
+        Assert.assertTrue(protocolDTOFromLink.getName().equals(protocolDTOByExperimentId.get(0).getName()));
+        Assert.assertTrue(protocolDTOFromLink.getProtocolId().equals(protocolDTOByExperimentId.get(0).getProtocolId()));
     }
 
 }

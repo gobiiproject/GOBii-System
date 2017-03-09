@@ -5,15 +5,19 @@
 // ************************************************************************
 package org.gobiiproject.gobiiclient.dtorequests.dbops.crud;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestDisplay;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.GlobalPkColl;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.GlobalPkValues;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestDtoFactory;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestUtils;
-import org.gobiiproject.gobiimodel.dto.container.DisplayDTO;
+import org.gobiiproject.gobiiapimodel.hateos.Link;
+import org.gobiiproject.gobiiapimodel.hateos.LinkCollection;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiiclient.dtorequests.Helpers.*;
+import org.gobiiproject.gobiimodel.headerlesscontainer.DisplayDTO;
 import org.gobiiproject.gobiimodel.types.GobiiEntityNameType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.junit.AfterClass;
@@ -38,29 +42,52 @@ public class DtoCrudRequestDisplayTest implements DtoCrudRequestTest {
     @Override
     public void get() throws Exception {
 
-        DtoRequestDisplay dtoRequestDisplay = new DtoRequestDisplay();
+        RestUri restUriDisplay = ClientContext.getInstance(null,false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_DISPLAY);
+        GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriDisplay);
+        PayloadEnvelope<DisplayDTO> resultEnvelope = gobiiEnvelopeRestResource.get(DisplayDTO.class);
 
-        DisplayDTO displayDTORequest = new DisplayDTO();
-        Integer displayId = (new GlobalPkColl<DtoCrudRequestDisplayTest>()).getAPkVal(DtoCrudRequestDisplayTest.class,
-                GobiiEntityNameType.DISPLAYNAMES);
-        displayDTORequest.setDisplayId(displayId);
-        displayDTORequest.setIncludeDetailsList(true);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        List<DisplayDTO> displayDTOList = resultEnvelope.getPayload().getData();
+        Assert.assertNotNull(displayDTOList);
+        Assert.assertTrue(displayDTOList.size() > 0);
+        Assert.assertNotNull(displayDTOList.get(0).getTableName());
 
-        DisplayDTO displayDTOResponse = dtoRequestDisplay.process(displayDTORequest);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(displayDTOResponse));
+        // use an arbitrary display id
+        Integer displayId = displayDTOList.get(0).getDisplayId();
+        RestUri restUriDisplayForGetById = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_DISPLAY);
+        restUriDisplayForGetById.setParamValue("id", displayId.toString());
+        GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriDisplayForGetById);
+        PayloadEnvelope<DisplayDTO> resultEnvelopeForGetById = gobiiEnvelopeRestResourceForGetById
+                .get(DisplayDTO.class);
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        DisplayDTO displayDTO = resultEnvelopeForGetById.getPayload().getData().get(0);
+        Assert.assertTrue(displayDTO.getDisplayId() > 0);
+        Assert.assertNotNull(displayDTO.getTableName());
 
 
-        Assert.assertNotEquals(displayDTOResponse, null);
-        Assert.assertTrue(displayDTOResponse.getTableNamesWithColDisplay().size() > 0);
-//        Assert.assertNotNull(displayDTOResponse.getDisplayRank());
-        Assert.assertNotNull(displayDTOResponse.getColumnName());
-
-
-    } // testGetMarkers()
+    } // testGetDisplays()
 
     @Test
     @Override
     public void testEmptyResult() throws Exception {
+
+        DtoRestRequestUtils<DisplayDTO> dtoDtoRestRequestUtils = new DtoRestRequestUtils<>(DisplayDTO.class,
+                ServiceRequestId.URL_DISPLAY);
+        Integer maxId = dtoDtoRestRequestUtils.getMaxPkVal();
+        Integer nonExistentID = maxId + 1;
+
+        PayloadEnvelope<DisplayDTO> resultEnvelope = dtoDtoRestRequestUtils.getResponseEnvelopeForEntityId(nonExistentID.toString());
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        Assert.assertNotNull(resultEnvelope.getPayload());
+        Assert.assertNotNull(resultEnvelope.getPayload().getData());
+        Assert.assertTrue(resultEnvelope.getPayload().getData().size() == 0);
+
     }
 
 
@@ -68,33 +95,36 @@ public class DtoCrudRequestDisplayTest implements DtoCrudRequestTest {
     @Override
     public void create() throws Exception {
 
-        DtoRequestDisplay dtoRequestDisplay = new DtoRequestDisplay();
-
-        DisplayDTO createDisplayDTO = TestDtoFactory
+        DisplayDTO newDisplayDto = TestDtoFactory
                 .makePopulatedDisplayDTO(GobiiProcessType.CREATE, 1);
 
-        // set the plain properties
+        PayloadEnvelope<DisplayDTO> payloadEnvelope = new PayloadEnvelope<>(newDisplayDto, GobiiProcessType.CREATE);
+        GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_DISPLAY));
+        PayloadEnvelope<DisplayDTO> displayDTOResponseEnvelope = gobiiEnvelopeRestResource.post(DisplayDTO.class,
+                payloadEnvelope);
+        DisplayDTO displayDTOResponse = displayDTOResponseEnvelope.getPayload().getData().get(0);
 
-        String testTableName = createDisplayDTO.getTableName();
+        Assert.assertNotEquals(null, displayDTOResponse);
+        Assert.assertTrue(displayDTOResponse.getDisplayId() > 0);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(displayDTOResponseEnvelope.getHeader()));
 
-        DisplayDTO createDisplayDTOResponse = dtoRequestDisplay.process(createDisplayDTO);
+        GlobalPkValues.getInstance().addPkVal(GobiiEntityNameType.DISPLAYNAMES, displayDTOResponse.getDisplayId());
 
-        Assert.assertNotEquals(null, createDisplayDTOResponse);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(createDisplayDTOResponse));
-        Assert.assertTrue(createDisplayDTOResponse.getDisplayId() > 0);
-        GlobalPkValues.getInstance().addPkVal(GobiiEntityNameType.DISPLAYNAMES,createDisplayDTOResponse.getDisplayId());
-        Assert.assertNotNull(createDisplayDTOResponse.getDisplayRank());
+        RestUri restUriDisplayForGetById = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_DISPLAY);
+        restUriDisplayForGetById.setParamValue("id", displayDTOResponse.getDisplayId().toString());
+        GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResouceForGetById = new GobiiEnvelopeRestResource<>(restUriDisplayForGetById);
+        PayloadEnvelope<DisplayDTO> resultEnvelopeForGetById = gobiiEnvelopeRestResouceForGetById
+                .get(DisplayDTO.class);
 
-        DisplayDTO reRequestDto = new DisplayDTO();
-        reRequestDto.setDisplayId(createDisplayDTOResponse.getDisplayId());
-        DisplayDTO reResponseDto = dtoRequestDisplay.process(reRequestDto);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetById.getHeader()));
+        DisplayDTO displaytDTOResponseForParams = resultEnvelopeForGetById.getPayload().getData().get(0);
 
-        Assert.assertNotEquals(null, reResponseDto);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(reResponseDto));
-        Assert.assertTrue(reResponseDto.getDisplayId() > 0);
-        Assert.assertNotNull(reResponseDto.getDisplayRank());
-        Assert.assertNotNull(reResponseDto.getColumnName());
-        Assert.assertTrue(testTableName.equals(reResponseDto.getTableName()));
+        GlobalPkValues.getInstance().addPkVal(GobiiEntityNameType.DISPLAYNAMES, displayDTOResponse.getDisplayId());
+
     }
 
 
@@ -102,65 +132,101 @@ public class DtoCrudRequestDisplayTest implements DtoCrudRequestTest {
     @Override
     public void update() throws Exception {
 
-        DtoRequestDisplay dtoRequestDisplay = new DtoRequestDisplay();
-
-        // create a new reference for our test
-
+        // create a new display for our test
         DisplayDTO newDisplayDto = TestDtoFactory
                 .makePopulatedDisplayDTO(GobiiProcessType.CREATE, 1);
-        DisplayDTO newDisplayDTOResponse = dtoRequestDisplay.process(newDisplayDto);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(newDisplayDTOResponse));
 
-        Integer newDisplayId = newDisplayDTOResponse.getDisplayId();
-        Assert.assertTrue(newDisplayId > 0);
+        PayloadEnvelope<DisplayDTO> payloadEnvelope = new PayloadEnvelope<>(newDisplayDto, GobiiProcessType.CREATE);
+        GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_DISPLAY));
+        PayloadEnvelope<DisplayDTO> displayDTOResponseEnvelope = gobiiEnvelopeRestResource.post(DisplayDTO.class,
+                payloadEnvelope);
+        DisplayDTO newDisplayDTOResponse = displayDTOResponseEnvelope.getPayload().getData().get(0);
 
-        // re-retrieve the reference we just created so we start with a fresh READ mode dto
-        DisplayDTO displayDTORequest = new DisplayDTO();
-        displayDTORequest.setDisplayId(newDisplayId);
-        DisplayDTO displayDTOReceived = dtoRequestDisplay.process(displayDTORequest);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(displayDTOReceived));
+        // re-retrieve the display we just created so we start with a fresh READ mode dto
+
+        RestUri restUriDisplayForGetById = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_DISPLAY);
+        restUriDisplayForGetById.setParamValue("id", newDisplayDTOResponse.getDisplayId().toString());
+        GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriDisplayForGetById);
+        PayloadEnvelope<DisplayDTO> resultEnvelopeForGetByID = gobiiEnvelopeRestResourceForGetById
+                .get(DisplayDTO.class);
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetByID.getHeader()));
+        DisplayDTO displayDTOReceived = resultEnvelopeForGetByID.getPayload().getData().get(0);
+
+        String newName = UUID.randomUUID().toString();
+        displayDTOReceived.setTableName(newName);
+        gobiiEnvelopeRestResourceForGetById.setParamValue("id", displayDTOReceived.getDisplayId().toString());
+        PayloadEnvelope<DisplayDTO> displayDTOResponseEnvelopeUpdate = gobiiEnvelopeRestResourceForGetById.put(DisplayDTO.class,
+                new PayloadEnvelope<>(displayDTOReceived, GobiiProcessType.UPDATE));
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(displayDTOResponseEnvelopeUpdate.getHeader()));
+
+        DisplayDTO displayDTORequest = displayDTOResponseEnvelopeUpdate.getPayload().getData().get(0);
 
 
-        // so this would be the typical workflow for the client app
-        displayDTOReceived.setGobiiProcessType(GobiiProcessType.UPDATE);
-        String oldDisplayName = displayDTOReceived.getDisplayName();
-        String newDisplayName = UUID.randomUUID().toString();
-        displayDTOReceived.setDisplayName(newDisplayName);
+        restUriDisplayForGetById.setParamValue("id", displayDTORequest.getDisplayId().toString());
+        resultEnvelopeForGetByID = gobiiEnvelopeRestResourceForGetById
+                .get(DisplayDTO.class);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetByID.getHeader()));
 
-        DisplayDTO displayDTOResponse = dtoRequestDisplay.process(displayDTOReceived);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(displayDTOResponse));
 
-        DisplayDTO displayDTOReRequest = new DisplayDTO();
-        displayDTOReRequest.setGobiiProcessType(GobiiProcessType.READ);
-        displayDTOReRequest.setDisplayId(newDisplayId);
-        DisplayDTO dtoRequestDisplayReRetrieved =
-                dtoRequestDisplay.process(displayDTORequest);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(dtoRequestDisplayReRetrieved));
+        DisplayDTO dtoRequestDisplayReRetrieved = resultEnvelopeForGetByID.getPayload().getData().get(0);
 
-        Assert.assertFalse(
-                "The retrieved display name ("
-                        + dtoRequestDisplayReRetrieved.getDisplayName()
-                        + ") matches the previous value("
-                        + oldDisplayName
-                        + "); it is not set to the new value("
-                        + newDisplayName
-                        + ")"
-                ,
-                dtoRequestDisplayReRetrieved.getDisplayName().equals(oldDisplayName));
 
-        Assert.assertTrue(
-                "The retrieved display name ("
-                        + dtoRequestDisplayReRetrieved.getDisplayName()
-                        + ") does not match the updated value("
-                        + newDisplayName
-                        + "); the display id is "
-                        + newDisplayId
-                ,
-                dtoRequestDisplayReRetrieved.getDisplayName().equals(newDisplayName));
+        Assert.assertTrue(dtoRequestDisplayReRetrieved.getTableName().equals(newName));
     }
 
+    @Test
     @Override
     public void getList() throws Exception {
+
+        RestUri restUriDisplay = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_DISPLAY);
+        GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriDisplay);
+        PayloadEnvelope<DisplayDTO> resultEnvelope = gobiiEnvelopeRestResource
+                .get(DisplayDTO.class);
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        List<DisplayDTO> displayDTOList = resultEnvelope.getPayload().getData();
+        Assert.assertNotNull(displayDTOList);
+        Assert.assertTrue(displayDTOList.size() > 0);
+        Assert.assertNotNull(displayDTOList.get(0).getTableName());
+
+        LinkCollection linkCollection = resultEnvelope.getPayload().getLinkCollection();
+        Assert.assertTrue(linkCollection.getLinksPerDataItem().size() == displayDTOList.size());
+
+        List<Integer> itemsToTest = new ArrayList<>();
+        if (displayDTOList.size() > 50) {
+            itemsToTest = TestUtils.makeListOfIntegersInRange(10, displayDTOList.size());
+        } else {
+            for (int idx = 0; idx < displayDTOList.size(); idx++) {
+                itemsToTest.add(idx);
+            }
+        }
+
+        for (Integer currentIdx : itemsToTest) {
+            DisplayDTO currentDisplayDto = displayDTOList.get(currentIdx);
+
+            Link currentLink = linkCollection.getLinksPerDataItem().get(currentIdx);
+
+            RestUri restUriDisplayForGetById = ClientContext.getInstance(null, false)
+                    .getUriFactory()
+                    .RestUriFromUri(currentLink.getHref());
+            GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriDisplayForGetById);
+            PayloadEnvelope<DisplayDTO> resultEnvelopeForGetById = gobiiEnvelopeRestResourceForGetById
+                    .get(DisplayDTO.class);
+            Assert.assertNotNull(resultEnvelopeForGetById);
+            Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetById.getHeader()));
+            DisplayDTO displayDTOFromLink = resultEnvelopeForGetById.getPayload().getData().get(0);
+            Assert.assertTrue(currentDisplayDto.getTableName().equals(displayDTOFromLink.getTableName()));
+            Assert.assertTrue(currentDisplayDto.getDisplayId().equals(displayDTOFromLink.getDisplayId()));
+        }
+
 
     }
 

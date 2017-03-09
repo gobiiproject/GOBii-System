@@ -13,6 +13,7 @@ public interface DataSetService {
     DataSetDTO createDataSet(DataSetDTO dataSetDTO) throws GobiiDomainException;
     DataSetDTO replaceDataSet(Integer dataSetId, DataSetDTO dataSetDTO) throws GobiiDomainException;
     List<DataSetDTO> getDataSets() throws GobiiDomainException;
-    DataSetDTO getDataSetById(Integer dataSetId);
+    List<DataSetDTO> getDataSetsByTypeId(Integer typeId) throws GobiiDomainException;
+    DataSetDTO getDataSetById(Integer dataSetId) throws GobiiDomainException;
 
 }

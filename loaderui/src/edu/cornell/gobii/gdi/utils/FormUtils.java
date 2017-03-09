@@ -90,6 +90,7 @@ public class FormUtils {
 			item = new TableItem(tbList, SWT.NONE); // single column = index zero
 			item.setText( entry.getName());//project name
 			item.setData(entry.getName(), entry.getId().toString()); // pair name with id
+			item.setData("checked", false);
 		}
 	}
 
@@ -161,5 +162,19 @@ public class FormUtils {
 			id = 0;
 		}
 		return id;
+	}
+
+	public static String getNameById(List<NameIdDTO> nameIdList, Integer typeId) {
+		// TODO Auto-generated method stub
+		String name = null;
+		for(NameIdDTO names: nameIdList){
+			
+			if(names.getId().equals(typeId)){
+				name=names.getName();
+				break;
+			}
+			
+		}
+		return name;
 	}
 }

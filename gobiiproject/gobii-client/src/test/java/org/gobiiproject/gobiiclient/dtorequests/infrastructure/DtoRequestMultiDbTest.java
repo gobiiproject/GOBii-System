@@ -10,19 +10,15 @@ import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestCv;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestPing;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestConfiguration;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestDtoFactory;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestUtils;
+import org.gobiiproject.gobiiclient.dtorequests.Helpers.*;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 import org.gobiiproject.gobiimodel.config.CropConfig;
 import org.gobiiproject.gobiimodel.config.ServerConfig;
-import org.gobiiproject.gobiimodel.dto.container.CvDTO;
-import org.gobiiproject.gobiimodel.dto.container.PingDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.CvDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
 
 import org.gobiiproject.gobiimodel.headerlesscontainer.ConfigSettingsDTO;
+import org.gobiiproject.gobiimodel.types.GobiiEntityNameType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
 import org.junit.AfterClass;
@@ -80,11 +76,21 @@ public class DtoRequestMultiDbTest {
             String currentCropType = currentServerConfig.getGobiiCropType();
             Assert.assertTrue(Authenticator.authenticate(currentCropType));
 
-            DtoRequestPing currentDtoRequestPing = new DtoRequestPing();
-            PingDTO currentPingDTOResponse = currentDtoRequestPing.process(pingDTORequest);
-            Assert.assertFalse("Ping failed for crop " + currentCropType.toString(),
-                    TestUtils.checkAndPrintHeaderMessages(currentPingDTOResponse)
-            );
+
+            //DtoRequestPing dtoRequestPing = new DtoRequestPing();
+            GobiiEnvelopeRestResource<PingDTO> gobiiEnvelopeRestResourcePingDTO = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                    .getUriFactory()
+                    .resourceColl(ServiceRequestId.URL_PING));
+
+            PayloadEnvelope<PingDTO> resultEnvelopePing = gobiiEnvelopeRestResourcePingDTO.post(PingDTO.class,
+                    new PayloadEnvelope<>(pingDTORequest, GobiiProcessType.CREATE));
+            //PayloadEnvelope<ContactDTO> resultEnvelopeNewContact = dtoRequestContact.process(new PayloadEnvelope<>(newContactDto, GobiiProcessType.CREATE));
+
+            Assert.assertNotNull(resultEnvelopePing);
+            Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopePing.getHeader()));
+            Assert.assertTrue(resultEnvelopePing.getPayload().getData().size() > 0);
+            PingDTO currentPingDTOResponse = resultEnvelopePing.getPayload().getData().get(0);
+
 
             Assert.assertNotNull("The ping response does not contain the db url for crop "
                     + currentPingDTOResponse.getDbMetaData());
@@ -123,16 +129,33 @@ public class DtoRequestMultiDbTest {
                     .makePopulatedCvDTO(GobiiProcessType.CREATE, 1);
             currentCvDtoRequest.setDefinition("Destination DB should be: " + currentCropType.toString());
 
-            DtoRequestCv dtoRequestCv = new DtoRequestCv();
-            // set the plain properties
-
-
-            CvDTO cvDTOResponse = dtoRequestCv.process(currentCvDtoRequest);
+            PayloadEnvelope<CvDTO> payloadEnvelope = new PayloadEnvelope<>(currentCvDtoRequest, GobiiProcessType.CREATE);
+            GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                    .getUriFactory()
+                    .resourceColl(ServiceRequestId.URL_CV));
+            PayloadEnvelope<CvDTO> cvDTOResponseEnvelope = gobiiEnvelopeRestResource.post(CvDTO.class,
+                    payloadEnvelope);
+            CvDTO cvDTOResponse = cvDTOResponseEnvelope.getPayload().getData().get(0);
 
             Assert.assertNotEquals(null, cvDTOResponse);
-            Assert.assertFalse("CVTERMS Create failed for crop " + currentCropType.toString(),
-                    TestUtils.checkAndPrintHeaderMessages(cvDTOResponse));
+            Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(cvDTOResponseEnvelope.getHeader()));
             Assert.assertTrue(cvDTOResponse.getCvId() > 0);
+
+            GlobalPkValues.getInstance().addPkVal(GobiiEntityNameType.CVTERMS,
+                    cvDTOResponse.getCvId());
+
+
+            RestUri restUriCvForGetById = ClientContext.getInstance(null, false)
+                    .getUriFactory()
+                    .resourceByUriIdParam(ServiceRequestId.URL_CV);
+            restUriCvForGetById.setParamValue("id", cvDTOResponse.getCvId().toString());
+            GobiiEnvelopeRestResource<CvDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriCvForGetById);
+            PayloadEnvelope<CvDTO> resultEnvelopeForGetByID = restResourceForGetById
+                    .get(CvDTO.class);
+            Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetByID.getHeader()));
+            CvDTO cvDTOResponseForParams = resultEnvelopeForGetByID.getPayload().getData().get(0);
+
+            GlobalPkValues.getInstance().addPkVal(GobiiEntityNameType.CVTERMS, cvDTOResponse.getCvId());
 
         }
     }

@@ -7,5 +7,6 @@ public enum GobiiProcessType {
     CREATE,
     READ,
     UPDATE,
-    DELETE
+    DELETE,
+    NONE
 }

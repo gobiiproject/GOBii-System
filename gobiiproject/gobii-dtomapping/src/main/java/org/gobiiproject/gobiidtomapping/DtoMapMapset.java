@@ -2,7 +2,7 @@ package org.gobiiproject.gobiidtomapping;
 
 import java.util.List;
 
-import org.gobiiproject.gobiimodel.dto.container.MapsetDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.MapsetDTO;
 
 /**
  * Created by Phil on 4/28/2016.
@@ -11,8 +11,8 @@ import org.gobiiproject.gobiimodel.dto.container.MapsetDTO;
 public interface DtoMapMapset {
 
     List<MapsetDTO> getAllMapsetNames() throws GobiiDtoMappingException;
-    MapsetDTO getMapsetDetails(MapsetDTO mapsetDTO) throws GobiiDtoMappingException;
+    MapsetDTO getMapsetDetails(Integer mapsetId) throws GobiiDtoMappingException;
     MapsetDTO createMapset(MapsetDTO mapsetDTO) throws GobiiDtoMappingException;
-    MapsetDTO updateMapset(MapsetDTO mapsetDTO) throws GobiiDtoMappingException;
-
+    MapsetDTO replaceMapset(Integer mapsetId, MapsetDTO mapsetDTO) throws GobiiDtoMappingException;
+    List<MapsetDTO> getMapsets() throws GobiiDtoMappingException;
 }

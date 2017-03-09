@@ -5,6 +5,7 @@ import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderStatusMessage;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
+import org.gobiiproject.gobiimodel.utils.LineUtils;
 //import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;;
 
 import java.text.Collator;
@@ -23,13 +24,19 @@ public class TestUtils {
 
         boolean returnVal = false;
 
+        if (LineUtils.isNullOrEmpty(header.getGobiiVersion())) {
+            returnVal = true;
+            System.out.println("Response does not indicate the gobii web services version");
+        }
+
+
         if (!header.getStatus().isSucceeded() ||
-              header
-                      .getStatus()
-                      .getStatusMessages()
-                      .stream()
-                .filter(headerStatusMessage -> headerStatusMessage.getGobiiStatusLevel().equals(GobiiStatusLevel.VALIDATION))
-                .count() > 0) {
+                header
+                        .getStatus()
+                        .getStatusMessages()
+                        .stream()
+                        .filter(headerStatusMessage -> headerStatusMessage.getGobiiStatusLevel().equals(GobiiStatusLevel.VALIDATION))
+                        .count() > 0) {
             returnVal = true;
             System.out.println();
             System.out.println("*** Header errors: ");
@@ -86,7 +93,7 @@ public class TestUtils {
 
             Integer currentVal = random.nextInt(maxOfRange);
 
-            if( ! returnVal.contains(currentVal)) {
+            if (!returnVal.contains(currentVal)) {
                 returnVal.add(currentVal);
             }
         }

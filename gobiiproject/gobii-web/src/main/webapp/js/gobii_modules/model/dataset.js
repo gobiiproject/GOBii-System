@@ -1,10 +1,10 @@
-System.register([], function(exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var DataSet;
     return {
-        setters:[],
-        execute: function() {
+        setters: [],
+        execute: function () {
             DataSet = (function () {
                 function DataSet(dataSetId, name, experimentId, callingAnalysisId, dataTable, dataFile, qualityTable, qualityFile, status, typeId, analysesIds) {
                     this.dataSetId = dataSetId;
@@ -23,6 +23,6 @@ System.register([], function(exports_1, context_1) {
             }());
             exports_1("DataSet", DataSet);
         }
-    }
+    };
 });
 //# sourceMappingURL=dataset.js.map

@@ -11,7 +11,6 @@ import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestPing;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestConfiguration;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestDtoFactory;
@@ -19,7 +18,8 @@ import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestUtils;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 import org.gobiiproject.gobiimodel.config.ServerConfig;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ConfigSettingsDTO;
-import org.gobiiproject.gobiimodel.dto.container.PingDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.types.SystemUserDetail;
 import org.gobiiproject.gobiimodel.types.SystemUserNames;
 import org.gobiiproject.gobiimodel.types.SystemUsers;
@@ -191,9 +191,19 @@ public class DtoRequestConfigSettingsPropsTest {
                         .login(userDetail.getUserName(), userDetail.getPassword()));
 
         PingDTO pingDTORequest = TestDtoFactory.makePingDTO();
+        //DtoRequestPing dtoRequestPing = new DtoRequestPing();
+        GobiiEnvelopeRestResource<PingDTO> gobiiEnvelopeRestResourcePingDTO = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_PING));
 
-        DtoRequestPing dtoRequestPing = new DtoRequestPing();
-        PingDTO pingDTOResponse = dtoRequestPing.process(pingDTORequest);
+        PayloadEnvelope<PingDTO> resultEnvelopePing = gobiiEnvelopeRestResourcePingDTO.post(PingDTO.class,
+                new PayloadEnvelope<>(pingDTORequest, GobiiProcessType.CREATE));
+        //PayloadEnvelope<ContactDTO> resultEnvelopeNewContact = dtoRequestContact.process(new PayloadEnvelope<>(newContactDto, GobiiProcessType.CREATE));
+
+        Assert.assertNotNull(resultEnvelopePing);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopePing.getHeader()));
+        Assert.assertTrue(resultEnvelopePing.getPayload().getData().size() > 0);
+        PingDTO pingDTOResponse = resultEnvelopePing.getPayload().getData().get(0);
 
         Assert.assertNotEquals(null, pingDTOResponse);
         Assert.assertNotEquals(null, pingDTOResponse.getDbMetaData());

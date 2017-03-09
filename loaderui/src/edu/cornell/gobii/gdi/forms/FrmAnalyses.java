@@ -10,11 +10,16 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestAnalysis;
-import org.gobiiproject.gobiimodel.dto.container.AnalysisDTO;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.utils.FormUtils;
@@ -71,17 +76,23 @@ public class FrmAnalyses extends AbstractFrm{
 
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("*Name:");
+		lblName.setText("*Analysis Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblNewLabel = new Label(cmpForm, SWT.NONE);
+		
+				memoDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
+				memoDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3));
+		
+		Label lblAnalysis = new Label(cmpForm, SWT.NONE);
+		lblAnalysis.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, false, false, 1, 1));
+		lblAnalysis.setText("Analysis");
 
 		Label lblDescription = new Label(cmpForm, SWT.NONE);
-		lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		lblDescription.setText("Description:");
-
-		memoDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
-		memoDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		Label lblType = new Label(cmpForm, SWT.NONE);
 		lblType.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -264,7 +275,7 @@ public class FrmAnalyses extends AbstractFrm{
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(true)) return;
-					AnalysisDTO analysisDTO = new AnalysisDTO(GobiiProcessType.CREATE);
+					AnalysisDTO analysisDTO = new AnalysisDTO();
 					analysisDTO.setAnalysisName(txtName.getText());
 					analysisDTO.setAnlaysisTypeId(IDs.analysisTypeId);
 					analysisDTO.setAnalysisDescription(memoDescription.getText());
@@ -287,9 +298,13 @@ public class FrmAnalyses extends AbstractFrm{
 						analysisDTO.getParameters().add(prop);
 					}
 					try{
-						DtoRequestAnalysis dtoRequestAnalysis = new DtoRequestAnalysis();
-						AnalysisDTO analysisDTOResponse = dtoRequestAnalysis.process(analysisDTO);
-						if(Controller.getDTOResponse(shell, analysisDTOResponse, memInfo, true)){
+						PayloadEnvelope<AnalysisDTO> payloadEnvelope = new PayloadEnvelope<>(analysisDTO,
+								GobiiProcessType.CREATE);
+						GobiiEnvelopeRestResource<AnalysisDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_ANALYSIS));
+						PayloadEnvelope<AnalysisDTO> analysisDTOResponse = restResource.post(AnalysisDTO.class,
+								payloadEnvelope);
+
+						if(Controller.getDTOResponse(shell, analysisDTOResponse.getHeader(), memInfo, true)){
 							populateAnalysisFromSelectedType(IDs.analysisTypeId);
 						};
 					}catch(Exception err){
@@ -311,7 +326,7 @@ public class FrmAnalyses extends AbstractFrm{
 				try{
 					if(!validate(false)) return;
 					if(!FormUtils.updateForm(getShell(), "Analysis", IDs.analysisName)) return;
-					AnalysisDTO analysisDTO = new AnalysisDTO(GobiiProcessType.UPDATE);
+					AnalysisDTO analysisDTO = new AnalysisDTO();
 					analysisDTO.setAnalysisId(IDs.analysisId);
 					analysisDTO.setAnalysisName(txtName.getText());
 					analysisDTO.setAnlaysisTypeId(IDs.analysisTypeId);
@@ -335,9 +350,14 @@ public class FrmAnalyses extends AbstractFrm{
 						analysisDTO.getParameters().add(prop);
 					}
 					try{
-						DtoRequestAnalysis dtoRequestAnalysis = new DtoRequestAnalysis();
-						AnalysisDTO analysisDTOResponse = dtoRequestAnalysis.process(analysisDTO);
-						if(Controller.getDTOResponse(shell, analysisDTOResponse, memInfo, true)){
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_ANALYSIS);
+						restUri.setParamValue("id", Integer.toString(IDs.analysisId));
+						GobiiEnvelopeRestResource<AnalysisDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
+						restResourceById.setParamValue("id", analysisDTO.getAnalysisId().toString());
+						PayloadEnvelope<AnalysisDTO> analysisDTOResponse = restResourceById.put(
+								AnalysisDTO.class, new PayloadEnvelope<>(analysisDTO, GobiiProcessType.UPDATE));
+
+						if(Controller.getDTOResponse(shell, analysisDTOResponse.getHeader(), memInfo, true)){
 							populateAnalysisFromSelectedType(IDs.analysisTypeId);
 						};
 					}catch(Exception err){
@@ -403,7 +423,7 @@ public class FrmAnalyses extends AbstractFrm{
 				cleanAnalysisDetails();
 			}
 		});
-		
+
 		tbList.addListener (SWT.Selection, new Listener() {
 
 			public void handleEvent(Event e) {
@@ -417,12 +437,14 @@ public class FrmAnalyses extends AbstractFrm{
 
 			protected void populateAnalysisDetails(int analysisId) {
 				//				cleanAnalysisDetails();
-				DtoRequestAnalysis dtoRequestAnalysis = new DtoRequestAnalysis();
-				AnalysisDTO analysisDTORequest = new AnalysisDTO(GobiiProcessType.READ);
-				analysisDTORequest.setAnalysisId(analysisId);
-				AnalysisDTO analysisDTOResponse;
+				//				cleanAnalysisDetails();
 				try {
-					analysisDTOResponse = dtoRequestAnalysis.process(analysisDTORequest);
+					RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_ANALYSIS);
+					restUri.setParamValue("id", Integer.toString(analysisId));
+					GobiiEnvelopeRestResource<AnalysisDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
+					PayloadEnvelope<AnalysisDTO> dtoRequestAnalysis = restResource.get(AnalysisDTO.class);
+					AnalysisDTO analysisDTOResponse = dtoRequestAnalysis.getPayload().getData().get(0);
+					
 					//displayDetails
 					selectedName = analysisDTOResponse.getAnalysisName();
 					txtName.setText(analysisDTOResponse.getAnalysisName());
@@ -529,7 +551,7 @@ public class FrmAnalyses extends AbstractFrm{
 	private void populateAnalysisTable() {
 		try{
 			FormUtils.entrySetToTable(Controller.getAnalysisNames(), tbList);
-			
+
 			TableColumn tblclmnAnalyses = new TableColumn(tbList, SWT.NONE);
 			tblclmnAnalyses.setWidth(300);
 			tblclmnAnalyses.setText("Analyses:");

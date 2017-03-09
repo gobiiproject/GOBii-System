@@ -2,11 +2,11 @@ package org.gobiiproject.gobiidtomapping.impl;
 
 import org.gobiiproject.gobiidao.GobiiDaoException;
 import org.gobiiproject.gobiidao.filesystem.LoaderInstructionsDAO;
-import org.gobiiproject.gobiidtomapping.DtoMapLoaderInstructions;
-import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
+import org.gobiiproject.gobiidtomapping.*;
+import org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchVendorProtocols;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 import org.gobiiproject.gobiimodel.config.GobiiException;
-import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.*;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
 import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
@@ -33,6 +33,22 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
 
     @Autowired
     private LoaderInstructionsDAO loaderInstructionsDAO;
+
+    @Autowired
+    DtoMapExperiment dtoMapExperiment;
+
+    @Autowired
+    DtoMapProject dtoMapProject;
+
+    @Autowired
+    DtoMapPlatform dtoMapPlatform;
+
+    @Autowired
+    DtoMapDataSet dtoMapDataSet;
+
+    @Autowired
+    DtoMapProtocol dtoMapProtocol;
+
 
     private void createDirectories(String instructionFileDirectory,
                                    GobiiFile gobiiFile) throws GobiiDaoException {
@@ -148,6 +164,76 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
 
                 // if so, proceed with processing
 
+                //validate loader instruction
+
+                // check if the dataset is referenced by the specified experiment
+                if(currentLoaderInstruction.getDataSet().getId() != null) {
+
+                    DataSetDTO dataSetDTO = dtoMapDataSet.getDataSetDetails(currentLoaderInstruction.getDataSet().getId());
+
+                    // check if the experiment is referenced by the specified project
+                    if(currentLoaderInstruction.getExperiment().getId() != null) {
+
+                        if(!dataSetDTO.getExperimentId().equals(currentLoaderInstruction.getExperiment().getId())){
+
+                            throw new GobiiDtoMappingException("The specified experiment in the dataset is incorrect");
+                        }
+
+                        ExperimentDTO experimentDTO = dtoMapExperiment.getExperimentDetails(currentLoaderInstruction.getExperiment().getId());
+
+                        if(!experimentDTO.getProjectId().equals(currentLoaderInstruction.getProject().getId())){
+
+                            throw new GobiiDtoMappingException("The specified project in the experiment is incorrect");
+
+                        }
+
+                    }
+
+                    // check if the datatype is referenced by the dataset
+                    if(currentLoaderInstruction.getDatasetType().getId() != null) {
+
+                        if(!dataSetDTO.getTypeId().equals(currentLoaderInstruction.getDatasetType().getId())){
+
+                            throw new GobiiDtoMappingException("The specified data type in the dataset is incorrect");
+
+                        }
+
+                    }
+
+                }
+
+
+                if(currentLoaderInstruction.getPlatform().getId() != null) {
+
+                    ExperimentDTO experimentDTO = dtoMapExperiment.getExperimentDetails(currentLoaderInstruction.getExperiment().getId());
+
+                    if(experimentDTO.getVendorProtocolId() != null) {
+
+                        VendorProtocolDTO vendorProtocolDTO = dtoMapProtocol.getVendorProtocolByVendorProtocolId(experimentDTO.getVendorProtocolId());
+
+                        if(vendorProtocolDTO.getProtocolId() != null) {
+
+                            ProtocolDTO protocolDTO = dtoMapProtocol.getProtocolDetails(vendorProtocolDTO.getProtocolId());
+
+                            if(protocolDTO.getPlatformId() != null) {
+
+                                 Integer loaderPlatformId = currentLoaderInstruction.getPlatform().getId();
+
+                                 if(!loaderPlatformId.equals(protocolDTO.getPlatformId())){
+
+                                     throw new GobiiDtoMappingException("The specified platform in the experiment is incorrect");
+
+                                 }
+
+                            }
+
+                        }
+
+                    }
+
+
+                }
+
 
                 // "source file" is the data file the user may have already uploaded
                 if (currentGobiiFile.isCreateSource()) {
@@ -191,7 +277,7 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
     } // writeInstructions
 
     @Override
-    public LoaderInstructionFilesDTO getInstruction(String cropType, String instructionFileName) {
+    public LoaderInstructionFilesDTO getInstruction(String cropType, String instructionFileName) throws GobiiDtoMappingException{
 
         LoaderInstructionFilesDTO returnVal = new LoaderInstructionFilesDTO();
 

@@ -3,25 +3,13 @@ package org.gobiiproject.gobiidao.resultset.access.impl;
 import org.gobiiproject.gobiidao.GobiiDaoException;
 import org.gobiiproject.gobiidao.resultset.access.RsProtocolDao;
 
-import org.gobiiproject.gobiidao.resultset.core.ParamExtractor;
 import org.gobiiproject.gobiidao.resultset.core.SpRunnerCallable;
 import org.gobiiproject.gobiidao.resultset.core.StoredProcExec;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsProtocol;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsVendorProtocol;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdProtocol;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdVendorProtocol;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetProtocolDetailsByProtocolId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetProtocolNames;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetProtocolNamesByPlatformId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetProtocolVendorByCompoundIds;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetProtocolVendorByName;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetProtocolVendorsByProtocolId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetProtocolVendorByProtocolId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetVendorProtocolNames;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetVendorProtocolsForProtocol;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetVendorProtocolsForVendor;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpVendorProtocolForVendorProtoclId;
-import org.gobiiproject.gobiimodel.headerlesscontainer.ProtocolDTO;
+import org.gobiiproject.gobiidao.resultset.sqlworkers.read.*;
 import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -107,10 +95,37 @@ public class RsProtocolDaoImpl implements RsProtocolDao {
 
             returnVal = spGetProtocolDetailsByProtocolId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving protocol details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving protocol details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+
+        }
+
+        return returnVal;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public ResultSet getProtocolDetailsByExperimentId(Integer experimentId) throws GobiiDaoException {
+
+        ResultSet returnVal = null;
+
+        try {
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("experimentId", experimentId);
+
+            SpGetProtocolDetailsByExperimentId spGetProtocolDetailsByExperimentId = new SpGetProtocolDetailsByExperimentId(parameters);
+
+            storedProcExec.doWithConnection(spGetProtocolDetailsByExperimentId);
+
+            returnVal = spGetProtocolDetailsByExperimentId.getResultSet();
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving protocol details by experiment Id", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -378,7 +393,7 @@ public class RsProtocolDaoImpl implements RsProtocolDao {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public ResultSet getVendorProtocolForVendorProtoclId(Integer vendorProtocolId) throws GobiiDaoException {
+    public ResultSet getVendorProtocolForVendorProtocolId(Integer vendorProtocolId) throws GobiiDaoException {
 
         ResultSet returnVal;
 
@@ -403,6 +418,5 @@ public class RsProtocolDaoImpl implements RsProtocolDao {
         return returnVal;
 
     }
-
 
 }

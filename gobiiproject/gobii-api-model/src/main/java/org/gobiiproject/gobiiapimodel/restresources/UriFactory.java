@@ -64,6 +64,14 @@ public class UriFactory {
                 .addUriParam(paramName);
     } //
 
+    public RestUri resourceByUriIdParamName(String paramName, ServiceRequestId serviceRequestId) throws Exception {
+
+        return new RestUri(this.cropContextRoot,
+                this.controllerType,
+                serviceRequestId)
+                .addUriParam(paramName);
+    } //
+
     public static RestUri resourceByUriIdParam(String contextRoot, ServiceRequestId serviceRequestId) throws Exception {
 
         String paramName = "id";

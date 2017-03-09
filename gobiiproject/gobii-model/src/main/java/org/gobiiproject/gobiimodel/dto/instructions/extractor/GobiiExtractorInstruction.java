@@ -11,6 +11,7 @@ import java.util.List;
 public class GobiiExtractorInstruction {
 
     List<GobiiDataSetExtract> dataSetExtracts = new ArrayList<>();
+    List<Integer> mapsetIds = new ArrayList<>();
 
     //Contact for this instruction
     Integer contactId;
@@ -51,5 +52,13 @@ public class GobiiExtractorInstruction {
 
     public void setGobiiCropType(String gobiiCropType) {
         this.gobiiCropType = gobiiCropType;
+    }
+
+    public List<Integer> getMapsetIds() {
+        return mapsetIds;
+    }
+
+    public void setMapsetIds(List<Integer> mapsetIds) {
+        this.mapsetIds = mapsetIds;
     }
 }

@@ -182,7 +182,21 @@ public class HelperFunctions {
 				ErrorLogger.logDebug(executedProcName,"Unable to rm "+ exec[1]);
 				return false;
 			}
-			ErrorLogger.logError(executedProcName,"Exit code " + p.exitValue(),errorFile);
+			if(executedProcName.contains("gobii_ifl.py")){
+				String textToReturn="";
+				try {
+					BufferedReader br = new BufferedReader(new FileReader(errorFile));
+					while(br.ready()){
+						textToReturn+=br.readLine()+"\n";
+					}
+				}catch(Exception e){
+					//meh
+				}
+				ErrorLogger.logError(executedProcName,textToReturn,errorFile);
+			}
+			else{
+				ErrorLogger.logError(executedProcName,"Exit code " + p.exitValue(),errorFile);
+			}
 			return false;
 		}
 		return true;
@@ -263,6 +277,7 @@ public class HelperFunctions {
 	 * @param jobName
 	 * @param fileLocation
 	 * @param success
+	 * @param host smtp.cornell.edu
 	 * @param port 587
 	 * @param emailAddress
 	 * @param fromUser

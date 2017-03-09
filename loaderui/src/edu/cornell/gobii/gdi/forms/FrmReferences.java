@@ -10,10 +10,15 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestReference;
-import org.gobiiproject.gobiimodel.dto.container.ReferenceDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ReferenceDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.utils.FormUtils;
@@ -50,7 +55,7 @@ public class FrmReferences extends AbstractFrm {
 		
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("*Name:");
+		lblName.setText("*Reference Name:");
 		
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -84,16 +89,20 @@ public class FrmReferences extends AbstractFrm {
 				try{
 					if(!validate(true)) return;
 
-					DtoRequestReference dtoRequestReference = new DtoRequestReference();
-					ReferenceDTO referenceDTORequest = new ReferenceDTO(GobiiProcessType.CREATE);
+					ReferenceDTO referenceDTORequest = new ReferenceDTO();
 					referenceDTORequest.setName(txtName.getText());
 					referenceDTORequest.setVersion(txtVersion.getText());
 					referenceDTORequest.setLink(txtLink.getText());
 					referenceDTORequest.setFilePath(txtFilePath.getText());
 
 					try {
-						ReferenceDTO referenceDTOResponse = dtoRequestReference.process(referenceDTORequest);
-						if(Controller.getDTOResponse(shell, referenceDTOResponse, memInfo, true)){
+						PayloadEnvelope<ReferenceDTO> payloadEnvelope = new PayloadEnvelope<>(referenceDTORequest,
+								GobiiProcessType.CREATE);
+						GobiiEnvelopeRestResource<ReferenceDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_REFERENCE));
+						PayloadEnvelope<ReferenceDTO> referenceDTOResponse = restResource.post(ReferenceDTO.class,
+								payloadEnvelope);
+
+						if(Controller.getDTOResponse(shell, referenceDTOResponse.getHeader(), memInfo, true)){
 							populateReferenceTable();
 						};
 					} catch (Exception err) {
@@ -115,8 +124,7 @@ public class FrmReferences extends AbstractFrm {
 				try{
 					if(!validate(false)) return;
 					if(!FormUtils.updateForm(getShell(), "Reference", IDs.referenceName)) return;
-					DtoRequestReference dtoRequestReference = new DtoRequestReference();
-					ReferenceDTO referenceDTORequest = new ReferenceDTO(GobiiProcessType.UPDATE);
+					ReferenceDTO referenceDTORequest = new ReferenceDTO();
 					referenceDTORequest.setReferenceId(IDs.referenceId);
 					referenceDTORequest.setName(txtName.getText());
 					referenceDTORequest.setVersion(txtVersion.getText());
@@ -124,8 +132,15 @@ public class FrmReferences extends AbstractFrm {
 					referenceDTORequest.setFilePath(txtFilePath.getText());
 
 					try {
-						ReferenceDTO referenceDTOResponse = dtoRequestReference.process(referenceDTORequest);
-						if(Controller.getDTOResponse(shell, referenceDTOResponse, memInfo, true)){
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_REFERENCE);
+						restUri.setParamValue("id", Integer.toString(IDs.referenceId));
+						GobiiEnvelopeRestResource<ReferenceDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
+						restResourceById.setParamValue("id", referenceDTORequest.getReferenceId().toString());
+						PayloadEnvelope<ReferenceDTO> referenceDTOResponse = restResourceById.put(
+								ReferenceDTO.class, new PayloadEnvelope<>(referenceDTORequest, GobiiProcessType.UPDATE));
+						
+						
+						if(Controller.getDTOResponse(shell, referenceDTOResponse.getHeader(), memInfo, true)){
 							populateReferenceTable();
 						};
 					} catch (Exception err) {
@@ -181,17 +196,23 @@ public class FrmReferences extends AbstractFrm {
 
 			protected void populateReferenceDetails(int referenceId) {
 				try{
-					DtoRequestReference dtoRequestReference = new DtoRequestReference();
-					ReferenceDTO referenceDTO = new ReferenceDTO(GobiiProcessType.READ);
+					ReferenceDTO referenceDTO = new ReferenceDTO();
 					referenceDTO.setReferenceId(referenceId);
 					try {
-						referenceDTO = dtoRequestReference.process(referenceDTO);
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_REFERENCE);
+						restUri.setParamValue("id", Integer.toString(referenceId));
+						GobiiEnvelopeRestResource<ReferenceDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
+						PayloadEnvelope<ReferenceDTO> dtoRequestReferenceEnvelope = restResource.get(ReferenceDTO.class);
+						ReferenceDTO dtoRequestReference = dtoRequestReferenceEnvelope.getPayload().getData().get(0);
+						
+						
+						
 
-						selectedName = referenceDTO.getName();
-						txtName.setText(referenceDTO.getName());
-						txtVersion.setText(referenceDTO.getVersion());
-						txtLink.setText(referenceDTO.getLink());
-						txtFilePath.setText(referenceDTO.getFilePath()==null ? "" : referenceDTO.getFilePath());
+						selectedName = dtoRequestReference.getName();
+						txtName.setText(dtoRequestReference.getName());
+						txtVersion.setText(dtoRequestReference.getVersion());
+						txtLink.setText(dtoRequestReference.getLink());
+						txtFilePath.setText(dtoRequestReference.getFilePath()==null ? "" : dtoRequestReference.getFilePath());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

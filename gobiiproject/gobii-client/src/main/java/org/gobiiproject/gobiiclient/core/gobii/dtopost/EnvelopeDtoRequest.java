@@ -2,7 +2,6 @@ package org.gobiiproject.gobiiclient.core.gobii.dtopost;
 
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
-import org.gobiiproject.gobiiapimodel.restresources.ResourceBuilder;
 
 import org.gobiiproject.gobiiapimodel.types.ControllerType;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
@@ -39,9 +38,7 @@ public class EnvelopeDtoRequest<T> {
             throw (new Exception("there is no user token; user must log in"));
         }
 
-        String url = ResourceBuilder.getRequestUrl(controllerType,
-                cropContextRoot,
-                requestId);
+        String url = requestId.getRequestUrl(cropContextRoot,controllerType);
 
 
 

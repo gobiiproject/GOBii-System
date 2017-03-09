@@ -1,23 +1,20 @@
-//import {RouteParams} from '@angular/router-deprecated';
 import {Component, OnInit, EventEmitter, SimpleChange} from "@angular/core";
 import {ServerConfig} from "../model/server-config";
-
 
 
 @Component({
     selector: 'crops-list-box',
     inputs: ['serverConfigList', 'selectedServerConfig'],
     outputs: ['onServerSelected'],
-    template: `<select name="serverConfigs" (change)="handleServerSelected($event)">
-			<option *ngFor="let serverConfig of serverConfigList" 
-                    value={{serverConfig.domain}}
-                    [attr.selected]="selectedServerConfig.crop
-                    === serverConfig.crop ? true : null">
-                    {{serverConfig.crop}}
-			</option>
-		</select>
-` // end template
-
+    template: `<label class="the-label">Crop:&nbsp;</label>
+                        <select name="serverConfigs" (change)="handleServerSelected($event)">
+                                    <option *ngFor="let serverConfig of serverConfigList" 
+                                            value={{serverConfig.domain}}
+                                            [attr.selected]="selectedServerConfig.crop
+                                            === serverConfig.crop ? true : null">
+                                            {{serverConfig.crop}}
+                                    </option>
+                                </select>` // end template
 })
 
 export class CropsListBoxComponent implements OnInit {
@@ -33,7 +30,8 @@ export class CropsListBoxComponent implements OnInit {
         this.onServerSelected.emit(this.serverConfigList[arg.srcElement.selectedIndex]);
     }
 
-    constructor(){}
+    constructor() {
+    }
 
     ngOnInit():any {
         return null;

@@ -1,10 +1,10 @@
-System.register([], function(exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var ServerConfig;
     return {
-        setters:[],
-        execute: function() {
+        setters: [],
+        execute: function () {
             ServerConfig = (function () {
                 function ServerConfig(crop, domain, contextRoot, port) {
                     this.crop = crop;
@@ -19,6 +19,6 @@ System.register([], function(exports_1, context_1) {
             }());
             exports_1("ServerConfig", ServerConfig);
         }
-    }
+    };
 });
 //# sourceMappingURL=server-config.js.map

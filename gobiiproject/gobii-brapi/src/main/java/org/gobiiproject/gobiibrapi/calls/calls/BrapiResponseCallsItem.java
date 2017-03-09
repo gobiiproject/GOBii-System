@@ -1,5 +1,6 @@
 package org.gobiiproject.gobiibrapi.calls.calls;
 
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiibrapi.types.BrapiDataTypes;
 import org.gobiiproject.gobiimodel.types.RestMethodTypes;
 
@@ -14,8 +15,8 @@ public class BrapiResponseCallsItem {
 
     public BrapiResponseCallsItem() {}
 
-    public BrapiResponseCallsItem(String call, List<RestMethodTypes> methods, List<BrapiDataTypes> dataTypes) {
-        this.call = call;
+    public BrapiResponseCallsItem(RestUri restUri, List<RestMethodTypes> methods, List<BrapiDataTypes> dataTypes) {
+        this.call = restUri.getResourcePath();
         this.methods = methods;
         this.datatypes = dataTypes;
     }

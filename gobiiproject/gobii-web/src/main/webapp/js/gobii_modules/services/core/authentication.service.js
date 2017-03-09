@@ -1,6 +1,5 @@
-System.register(["@angular/core", "@angular/http", "rxjs/Observable", "rxjs/add/operator/map", "../../model/dto-header-auth", "../../model/http-values"], function(exports_1, context_1) {
+System.register(["@angular/core", "@angular/http", "rxjs/Observable", "rxjs/add/operator/map", "../../model/dto-header-auth", "../../model/http-values"], function (exports_1, context_1) {
     "use strict";
-    var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,10 +9,10 @@ System.register(["@angular/core", "@angular/http", "rxjs/Observable", "rxjs/add/
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, http_1, Observable_1, dto_header_auth_1, http_values_1;
-    var AuthenticationService;
+    var __moduleName = context_1 && context_1.id;
+    var core_1, http_1, Observable_1, dto_header_auth_1, http_values_1, AuthenticationService;
     return {
-        setters:[
+        setters: [
             function (core_1_1) {
                 core_1 = core_1_1;
             },
@@ -23,14 +22,16 @@ System.register(["@angular/core", "@angular/http", "rxjs/Observable", "rxjs/add/
             function (Observable_1_1) {
                 Observable_1 = Observable_1_1;
             },
-            function (_1) {},
+            function (_1) {
+            },
             function (dto_header_auth_1_1) {
                 dto_header_auth_1 = dto_header_auth_1_1;
             },
             function (http_values_1_1) {
                 http_values_1 = http_values_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             AuthenticationService = (function () {
                 function AuthenticationService(_http) {
                     this._http = _http;
@@ -90,34 +91,33 @@ System.register(["@angular/core", "@angular/http", "rxjs/Observable", "rxjs/add/
                             }
                         }); // subscribe
                     } // observer callback
-                     // observer callback
                     ); // Observer.create() 
                 }; // authenticate() 
-                AuthenticationService = __decorate([
-                    core_1.Injectable(), 
-                    __metadata('design:paramtypes', [http_1.Http])
-                ], AuthenticationService);
                 return AuthenticationService;
             }());
+            AuthenticationService = __decorate([
+                core_1.Injectable(),
+                __metadata("design:paramtypes", [http_1.Http])
+            ], AuthenticationService);
             exports_1("AuthenticationService", AuthenticationService);
+            /*
+             // doing a plain xhr request also does not allow access to token response
+             var xhr = new XMLHttpRequest();
+             var url = "load/auth";
+             xhr.open("POST", url, true);
+             xhr.setRequestHeader('Content-Type', 'application/json');
+             xhr.setRequestHeader('Accept', 'application/json');
+             xhr.setRequestHeader(HeaderNames.headerUserName, loginUser);
+             xhr.setRequestHeader(HeaderNames.headerPassword, loginPassword);
+            
+             xhr.onreadystatechange = function() {//Call a function when the state changes.
+             if(xhr.readyState == 4 && xhr.status == 200) {
+             console.log(xhr.responseText);
+             }
+             }
+             xhr.send(null);
+             */ 
         }
-    }
+    };
 });
-/*
- // doing a plain xhr request also does not allow access to token response
- var xhr = new XMLHttpRequest();
- var url = "load/auth";
- xhr.open("POST", url, true);
- xhr.setRequestHeader('Content-Type', 'application/json');
- xhr.setRequestHeader('Accept', 'application/json');
- xhr.setRequestHeader(HeaderNames.headerUserName, loginUser);
- xhr.setRequestHeader(HeaderNames.headerPassword, loginPassword);
-
- xhr.onreadystatechange = function() {//Call a function when the state changes.
- if(xhr.readyState == 4 && xhr.status == 200) {
- console.log(xhr.responseText);
- }
- }
- xhr.send(null);
- */ 
 //# sourceMappingURL=authentication.service.js.map

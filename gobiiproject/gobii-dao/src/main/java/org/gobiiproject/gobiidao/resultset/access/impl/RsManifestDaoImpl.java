@@ -44,10 +44,10 @@ public class RsManifestDaoImpl implements RsManifestDao {
             storedProcExec.doWithConnection(spGetManifestNames);
             returnVal = spGetManifestNames.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving manifest names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving manifest names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -72,10 +72,10 @@ public class RsManifestDaoImpl implements RsManifestDao {
 
             returnVal = spGetManifestDetailsByManifestId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving manifest details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving manifest details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 

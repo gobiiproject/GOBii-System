@@ -78,3 +78,10 @@ button:disabled {
             box-shadow:  0px 0px 0px 0px #000;
 }
 
+.criteria-tree {
+    height: 40%;
+    margin: 0;
+    overflow: auto;
+    padding: .25em;
+    white-space: nowrap;
+}

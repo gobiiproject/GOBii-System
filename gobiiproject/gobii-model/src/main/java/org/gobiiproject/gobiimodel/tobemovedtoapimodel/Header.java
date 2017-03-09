@@ -27,6 +27,7 @@ public class Header implements Serializable {
     private Pagination pagination = null;
 
 
+    private String gobiiVersion;
 
     // we also have String in HeaderAuth; we need it in both cases,
     // because HeaderAuth is returned in the body of an authentication response,
@@ -78,5 +79,9 @@ public class Header implements Serializable {
                 currentPage);
 
     } // setPagination()
+
+    public String getGobiiVersion() { return gobiiVersion; }
+
+    public void setGobiiVersion(String gobiiVersion) { this.gobiiVersion = gobiiVersion; }
 
 } // Header

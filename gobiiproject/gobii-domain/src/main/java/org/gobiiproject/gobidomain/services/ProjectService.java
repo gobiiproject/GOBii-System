@@ -18,6 +18,6 @@ public interface ProjectService {
     ProjectDTO createProject(ProjectDTO projectDTO) throws GobiiDomainException;
     ProjectDTO replaceProject(Integer projectId, ProjectDTO projectDTO) throws GobiiDomainException;
     List<ProjectDTO> getProjects() throws GobiiDomainException;
-    ProjectDTO getProjectById(Integer projectId);
+    ProjectDTO getProjectById(Integer projectId) throws GobiiDomainException;
     
 }

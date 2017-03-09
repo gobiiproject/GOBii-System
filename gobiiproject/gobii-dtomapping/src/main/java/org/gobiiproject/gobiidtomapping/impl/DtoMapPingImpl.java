@@ -3,7 +3,8 @@ package org.gobiiproject.gobiidtomapping.impl;
 import org.gobiiproject.gobiidao.resultset.access.RsPingDao;
 import org.gobiiproject.gobiidao.resultset.core.DbMetaData;
 import org.gobiiproject.gobiidtomapping.DtoMapPing;
-import org.gobiiproject.gobiimodel.dto.container.PingDTO;
+import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class DtoMapPingImpl implements DtoMapPing {
     RsPingDao rsPingDao;
 
     @Override
-    public PingDTO getPings(PingDTO pingDTO) {
+    public PingDTO getPings(PingDTO pingDTO) throws GobiiDtoMappingException {
 
         PingDTO returnVal = pingDTO;
 
@@ -72,7 +73,7 @@ public class DtoMapPingImpl implements DtoMapPing {
 
             } catch (SQLException sqlException) {
 
-                returnVal.getStatus().addException(sqlException);
+                throw new GobiiDtoMappingException(sqlException);
             }
 
             // in case we did succeed in getting the url the normal way
@@ -83,9 +84,10 @@ public class DtoMapPingImpl implements DtoMapPing {
                 exception = e;
             }
 
-            returnVal.getStatus().addException(exception);
 
             LOGGER.error("Gobii Maping Error", exception);
+
+            throw new GobiiDtoMappingException(exception);
         }
 
 

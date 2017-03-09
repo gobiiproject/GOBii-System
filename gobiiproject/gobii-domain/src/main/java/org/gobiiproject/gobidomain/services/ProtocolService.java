@@ -4,6 +4,7 @@ import org.gobiiproject.gobidomain.GobiiDomainException;
 import org.gobiiproject.gobiidao.GobiiDaoException;
 import org.gobiiproject.gobiimodel.headerlesscontainer.OrganizationDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ProtocolDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.VendorProtocolDTO;
 
 import java.util.List;
 
@@ -27,5 +28,5 @@ public interface ProtocolService {
 
     List<OrganizationDTO> getVendorsForProtocolByProtocolId(Integer protocolId) throws GobiiDaoException;
 
-
+    ProtocolDTO getProtocolsByExperimentId(Integer experimentId) throws GobiiDomainException;
 }

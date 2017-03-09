@@ -7,7 +7,8 @@ package org.gobiiproject.gobidomain.services.impl;
 
 import org.gobiiproject.gobidomain.services.PingService;
 import org.gobiiproject.gobiidtomapping.DtoMapPing;
-import org.gobiiproject.gobiimodel.dto.container.PingDTO;
+import org.gobiiproject.gobiimodel.config.GobiiException;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,19 +26,14 @@ public class PingServiceImpl implements PingService {
     private DtoMapPing dtoMapPing;
 
     @Override
-    public PingDTO getPings(PingDTO pingDTO) {
+    public PingDTO getPings(PingDTO pingDTO) throws GobiiException {
 
         PingDTO returnVal = pingDTO;
 
-        try {
-            returnVal = dtoMapPing.getPings(pingDTO);
-            String newPingMessage = LineUtils.wrapLine("Service layer responded");
-            returnVal.getPingResponses().add(newPingMessage);
-        } catch (Exception e) {
 
-            returnVal.getStatus().addException(e);
-            LOGGER.error("Gobii service error", e);
-        }
+        returnVal = dtoMapPing.getPings(pingDTO);
+        String newPingMessage = LineUtils.wrapLine("Service layer responded");
+        returnVal.getPingResponses().add(newPingMessage);
 
 
         return returnVal;

@@ -6,21 +6,19 @@
 package org.gobiiproject.gobiiclient.dtorequests.dbops.crud;
 
 
+import org.gobiiproject.gobiiapimodel.hateos.Link;
+import org.gobiiproject.gobiiapimodel.hateos.LinkCollection;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestMarkerGroup;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestDtoFactory;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestUtils;
-import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
-import org.gobiiproject.gobiimodel.dto.container.MarkerGroupMarkerDTO;
+import org.gobiiproject.gobiiclient.dtorequests.Helpers.*;
+import org.gobiiproject.gobiimodel.headerlesscontainer.MarkerGroupDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.MarkerGroupMarkerDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.MarkerDTO;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderStatusMessage;
+import org.gobiiproject.gobiimodel.types.GobiiEntityNameType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
-import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -30,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 public class DtoCrudRequestMarkerGroupTest implements DtoCrudRequestTest {
@@ -103,168 +100,95 @@ public class DtoCrudRequestMarkerGroupTest implements DtoCrudRequestTest {
     @Override
     public void create() throws Exception {
 
-        DtoRequestMarkerGroup dtoRequestMarkerGroup = new DtoRequestMarkerGroup();
+        // make pre-requisite marker
+        String testMarkerName = "40539";
+        makeMarker(testMarkerName);
+        MarkerGroupMarkerDTO markerGroupMarkerDTOToAdd = new MarkerGroupMarkerDTO(GobiiProcessType.CREATE);
+        markerGroupMarkerDTOToAdd.setMarkerName(testMarkerName);
+        markerGroupMarkerDTOToAdd.setFavorableAllele("N");
 
+        List<MarkerGroupMarkerDTO> markerGroupMarkerDTOS = new ArrayList<>();
 
-        List<MarkerGroupMarkerDTO> markerGroupMarkers = TestDtoFactory.makeMarkerGroupMarkers(validMarkerNames,
-                GobiiProcessType.CREATE);
+        markerGroupMarkerDTOS.add(markerGroupMarkerDTOToAdd);
 
-        MarkerGroupDTO markerGroupDTORequest = TestDtoFactory
-                .makePopulatedMarkerGroupDTO(GobiiProcessType.CREATE, 1, markerGroupMarkers);
+        MarkerGroupDTO newMarkerGroupDto = TestDtoFactory
+                .makePopulatedMarkerGroupDTO(GobiiProcessType.CREATE, 1, markerGroupMarkerDTOS);
 
-        MarkerGroupDTO markerGroupDTOResponse = dtoRequestMarkerGroup.process(markerGroupDTORequest);
+        PayloadEnvelope<MarkerGroupDTO> payloadEnvelope = new PayloadEnvelope<>(newMarkerGroupDto, GobiiProcessType.CREATE);
+        GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_MARKERGROUP));
+        PayloadEnvelope<MarkerGroupDTO> markerGroupDTOResponseEnvelope = gobiiEnvelopeRestResource.post(MarkerGroupDTO.class,
+                payloadEnvelope);
+        MarkerGroupDTO markerGroupDTOResponse = markerGroupDTOResponseEnvelope.getPayload().getData().get(0);
 
         Assert.assertNotEquals(null, markerGroupDTOResponse);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(markerGroupDTOResponse));
         Assert.assertTrue(markerGroupDTOResponse.getMarkerGroupId() > 0);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(markerGroupDTOResponseEnvelope.getHeader()));
 
-        Assert.assertNotNull(markerGroupDTOResponse.getMarkers());
+        GlobalPkValues.getInstance().addPkVal(GobiiEntityNameType.MARKERGROUPS, markerGroupDTOResponse.getMarkerGroupId());
 
-        Integer totalMarkersWithMarkerAndPlatformIds = markerGroupDTOResponse
-                .getMarkers()
-                .stream()
-                .filter(m -> (m.getMarkerId() > 0) && (m.getPlatformId() > 0))
-                .collect(Collectors.toList())
-                .size();
+        RestUri restUriMapsetForGetById = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_MARKERGROUP);
+        restUriMapsetForGetById.setParamValue("id", markerGroupDTOResponse.getMarkerGroupId().toString());
+        GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResouceForGetById = new GobiiEnvelopeRestResource<>(restUriMapsetForGetById);
+        PayloadEnvelope<MarkerGroupDTO> resultEnvelopeForGetById = gobiiEnvelopeRestResouceForGetById
+                .get(MarkerGroupDTO.class);
 
-        Assert.assertTrue(totalMarkersWithMarkerAndPlatformIds == markerGroupDTORequest.getMarkers().size());
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetById.getHeader()));
+        MarkerGroupDTO markerGroupDTOResponseForParams = resultEnvelopeForGetById.getPayload().getData().get(0);
 
-        Assert.assertTrue(markerGroupDTOResponse
-                .getMarkers()
-                .stream()
-                .filter(m -> null == m.getFavorableAllele() || m.getFavorableAllele().isEmpty())
-                .collect(Collectors.toList())
-                .size() == 0);
-
+        GlobalPkValues.getInstance().addPkVal(GobiiEntityNameType.MARKERGROUPS, markerGroupDTOResponse.getMarkerGroupId());
 
     }
-
-    @Test
-    public void testMarkerGroupCreateFailSomeMarkers() throws Exception {
-
-        DtoRequestMarkerGroup dtoRequestMarkerGroup = new DtoRequestMarkerGroup();
-
-        List<String> someInvalidNames = new ArrayList<>(validMarkerNames);
-        someInvalidNames.add("i-do-not-exist!");
-
-
-        List<MarkerGroupMarkerDTO> markerGroupMarkers = TestDtoFactory.makeMarkerGroupMarkers(someInvalidNames,
-                GobiiProcessType.CREATE);
-
-        MarkerGroupDTO markerGroupDTORequest = TestDtoFactory
-                .makePopulatedMarkerGroupDTO(GobiiProcessType.CREATE, 1, markerGroupMarkers);
-
-        MarkerGroupDTO markerGroupDTOResponse = dtoRequestMarkerGroup.process(markerGroupDTORequest);
-
-        Assert.assertNotEquals(null, markerGroupDTOResponse);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(markerGroupDTOResponse));
-
-        Assert.assertTrue(markerGroupDTOResponse.getMarkerGroupId() > 0);
-
-        Assert.assertNotNull(markerGroupDTOResponse.getMarkers());
-
-        Integer totalInvalidMarkers = markerGroupDTOResponse
-                .getMarkers()
-                .stream()
-                .filter(m -> !m.isMarkerExists()
-                        && (m.getMarkerId() == null)
-                        && (m.getPlatformName() == null)
-                        && (m.getPlatformId() == null))
-
-                .collect(Collectors.toList())
-                .size();
-
-        Assert.assertTrue(totalInvalidMarkers == 1);
-
-
-    }
-
-    @Test
-    public void testMarkerGroupCreateFailAllMarkers() throws Exception {
-
-        DtoRequestMarkerGroup dtoRequestMarkerGroup = new DtoRequestMarkerGroup();
-
-        List<String> allInvalidNames = new ArrayList<>();
-        allInvalidNames.add("i-do-not-exist 1");
-        allInvalidNames.add("i-do-not-exist 2");
-        allInvalidNames.add("i-do-not-exist 3");
-        allInvalidNames.add("i-do-not-exist 4");
-        allInvalidNames.add("i-do-not-exist 5");
-
-
-        List<MarkerGroupMarkerDTO> markerGroupMarkers = TestDtoFactory.makeMarkerGroupMarkers(allInvalidNames,
-                GobiiProcessType.CREATE);
-
-        MarkerGroupDTO markerGroupDTORequest = TestDtoFactory
-                .makePopulatedMarkerGroupDTO(GobiiProcessType.CREATE, 1, markerGroupMarkers);
-
-        MarkerGroupDTO markerGroupDTOResponse = dtoRequestMarkerGroup.process(markerGroupDTORequest);
-
-        Assert.assertNotEquals(null, markerGroupDTOResponse);
-        Assert.assertFalse(markerGroupDTOResponse.getStatus().isSucceeded());
-
-        Assert.assertTrue(null == markerGroupDTOResponse.getMarkerGroupId() || markerGroupDTOResponse.getMarkerGroupId() > 0);
-
-        List<HeaderStatusMessage> invalidResponses = markerGroupDTOResponse
-                .getStatus()
-                .getStatusMessages()
-                .stream()
-                .filter(m -> m.getGobiiValidationStatusType() == GobiiValidationStatusType.NONEXISTENT_FK_ENTITY)
-                .collect(Collectors.toList());
-
-        Assert.assertTrue(invalidResponses.size() == 1);
-
-    }
-
 
     @Test
     @Override
     public void get() throws Exception {
 
-        // CREATE A MARKER GROUP
-        DtoRequestMarkerGroup dtoRequestMarkerGroup = new DtoRequestMarkerGroup();
-        List<MarkerGroupMarkerDTO> markerGroupMarkers = TestDtoFactory.makeMarkerGroupMarkers(validMarkerNames,
-                GobiiProcessType.CREATE);
-        MarkerGroupDTO markerGroupDTORequest = TestDtoFactory
-                .makePopulatedMarkerGroupDTO(GobiiProcessType.CREATE, 1, markerGroupMarkers);
-        MarkerGroupDTO markerGroupDTOResponse = dtoRequestMarkerGroup.process(markerGroupDTORequest);
-        Integer newMarkerGroupId = markerGroupDTOResponse.getMarkerGroupId();
+        RestUri restUriMarkerGroup = ClientContext.getInstance(null,false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_MARKERGROUP);
+        GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriMarkerGroup);
+        PayloadEnvelope<MarkerGroupDTO> resultEnvelope = gobiiEnvelopeRestResource.get(MarkerGroupDTO.class);
 
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        List<MarkerGroupDTO> markerGroupDTOList = resultEnvelope.getPayload().getData();
+        Assert.assertNotNull(markerGroupDTOList);
+        Assert.assertTrue(markerGroupDTOList.size() > 0);
+        Assert.assertNotNull(markerGroupDTOList.get(0).getName());
 
-        // RE-RETREIVE
-        MarkerGroupDTO markerGroupDTORequestRefresh = new MarkerGroupDTO();
-        markerGroupDTORequestRefresh.setMarkerGroupId(newMarkerGroupId);
-        MarkerGroupDTO markerGroupDTOResponseRefresh = dtoRequestMarkerGroup.process(markerGroupDTORequestRefresh);
+        // use an arbitrary marker group id
+        Integer markerGroupId = markerGroupDTOList.get(0).getMarkerGroupId();
+        RestUri restUriMapsetForGetById = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_MARKERGROUP);
+        restUriMapsetForGetById.setParamValue("id", markerGroupId.toString());
+        GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriMapsetForGetById);
+        PayloadEnvelope<MarkerGroupDTO> resultEnvelopeForGetById = gobiiEnvelopeRestResourceForGetById
+                .get(MarkerGroupDTO.class);
 
-        Assert.assertNotNull(markerGroupDTOResponseRefresh);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(markerGroupDTOResponseRefresh));
-        Assert.assertNotNull(markerGroupDTOResponseRefresh.getName());
-
-        List<String> succededMarkerNames = markerGroupDTOResponseRefresh
-                .getMarkers()
-                .stream()
-                .filter(m -> m.isMarkerExists()
-                        && (null != m.getMarkerId())
-                        && (m.getMarkerId() > 0)
-                )
-                .map(m -> m.getMarkerName())
-                .collect(Collectors.toList());
-
-        Assert.assertTrue(validMarkerNames.equals(succededMarkerNames));
-
-        Assert.assertTrue(markerGroupDTOResponseRefresh
-                .getMarkers()
-                .stream()
-                .filter(m -> null == m.getFavorableAllele() || m.getFavorableAllele().isEmpty())
-                .collect(Collectors.toList())
-                .size() == 0);
-
-
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        MarkerGroupDTO markerGroupDTO = resultEnvelopeForGetById.getPayload().getData().get(0);
+        Assert.assertTrue(markerGroupDTO.getMarkerGroupId() > 0);
+        Assert.assertNotNull(markerGroupDTO.getName());
     }
 
-    @Test
     @Override
     public void testEmptyResult() throws Exception {
+
+        DtoRestRequestUtils<MarkerGroupDTO> dtoDtoRestRequestUtils = new DtoRestRequestUtils<>(MarkerGroupDTO.class, ServiceRequestId.URL_MARKERGROUP);
+        Integer maxId = dtoDtoRestRequestUtils.getMaxPkVal();
+        Integer nonExistentID = maxId + 1;
+
+        PayloadEnvelope<MarkerGroupDTO> resultEnvelope = dtoDtoRestRequestUtils.getResponseEnvelopeForEntityId(nonExistentID.toString());
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        Assert.assertNotNull(resultEnvelope.getPayload());
+        Assert.assertNotNull(resultEnvelope.getPayload().getData());
+        Assert.assertTrue(resultEnvelope.getPayload().getData().size() == 0);
+
     }
 
 
@@ -272,98 +196,112 @@ public class DtoCrudRequestMarkerGroupTest implements DtoCrudRequestTest {
     @Override
     public void update() throws Exception {
 
-        // CREATE A MARKER GROUP
-        DtoRequestMarkerGroup dtoRequestMarkerGroup = new DtoRequestMarkerGroup();
-        List<MarkerGroupMarkerDTO> markerGroupMarkers = TestDtoFactory.makeMarkerGroupMarkers(validMarkerNames,
-                GobiiProcessType.CREATE);
-        MarkerGroupDTO markerGroupDTORequest = TestDtoFactory
-                .makePopulatedMarkerGroupDTO(GobiiProcessType.CREATE, 1, markerGroupMarkers);
-        MarkerGroupDTO markerGroupDTOResponse = dtoRequestMarkerGroup.process(markerGroupDTORequest);
-        Integer newMarkerGroupId = markerGroupDTOResponse.getMarkerGroupId();
-
-
-        // RE-RETREIVE
-        MarkerGroupDTO markerGroupDTORequestRefreshRequest = new MarkerGroupDTO();
-        markerGroupDTORequestRefreshRequest.setMarkerGroupId(newMarkerGroupId);
-        MarkerGroupDTO markerGroupDTOResponseToUpdate = dtoRequestMarkerGroup.process(markerGroupDTORequestRefreshRequest);
-        markerGroupDTOResponseToUpdate.setGobiiProcessType(GobiiProcessType.UPDATE);
-
-        String previousName = markerGroupDTOResponseToUpdate.getName();
-        String newName = UUID.randomUUID().toString();
-        markerGroupDTOResponseToUpdate.setName(newName);
-
-
         // make pre-requisite marker
         String testMarkerName = "40539";
         makeMarker(testMarkerName);
-
         MarkerGroupMarkerDTO markerGroupMarkerDTOToAdd = new MarkerGroupMarkerDTO(GobiiProcessType.CREATE);
         markerGroupMarkerDTOToAdd.setMarkerName(testMarkerName);
         markerGroupMarkerDTOToAdd.setFavorableAllele("N");
-        String newMarkerName = markerGroupMarkerDTOToAdd.getMarkerName();
-        markerGroupDTOResponseToUpdate.getMarkers().add(markerGroupMarkerDTOToAdd);
 
-        MarkerGroupMarkerDTO markerGroupMarkerDTOToRemove = markerGroupDTOResponseToUpdate
-                .getMarkers()
-                .get(0);
-        String removedMarkerName = markerGroupMarkerDTOToRemove.getMarkerName();
-        markerGroupMarkerDTOToRemove.setGobiiProcessType(GobiiProcessType.DELETE);
+        List<MarkerGroupMarkerDTO> markerGroupMarkerDTOS = new ArrayList<>();
 
-        MarkerGroupMarkerDTO markerGroupMarkerDTOToModify = markerGroupDTOResponseToUpdate
-                .getMarkers()
-                .get(1);
-        Integer modifiedAlleleMarkerId = markerGroupMarkerDTOToModify.getMarkerId();
-        String modifiedAlelleOldValue = markerGroupMarkerDTOToModify.getFavorableAllele();
-        String modifiedAlleleNewValue = "X"; // not a legit value, but will work for our test
-        markerGroupMarkerDTOToModify.setFavorableAllele(modifiedAlleleNewValue);
-        markerGroupMarkerDTOToModify.setGobiiProcessType(GobiiProcessType.UPDATE);
+        markerGroupMarkerDTOS.add(markerGroupMarkerDTOToAdd);
 
-        MarkerGroupDTO markerGroupDTOUpdated = dtoRequestMarkerGroup.process(markerGroupDTOResponseToUpdate);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(markerGroupDTOUpdated));
+        // create a new marker group for our test
+        MarkerGroupDTO newMarkerGroupDto = TestDtoFactory
+                .makePopulatedMarkerGroupDTO(GobiiProcessType.CREATE, 1, markerGroupMarkerDTOS);
 
+        PayloadEnvelope<MarkerGroupDTO> payloadEnvelope = new PayloadEnvelope<>(newMarkerGroupDto, GobiiProcessType.CREATE);
+        GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_MARKERGROUP));
+        PayloadEnvelope<MarkerGroupDTO> markerGroupDTOResponseEnvelope = gobiiEnvelopeRestResource.post(MarkerGroupDTO.class,
+                payloadEnvelope);
+        MarkerGroupDTO newMarkerGroupDTOResponse = markerGroupDTOResponseEnvelope.getPayload().getData().get(0);
 
-        // RE-RETREIVE again
-        MarkerGroupDTO markerGroupDTOResponseRefreshFinal = dtoRequestMarkerGroup.process(markerGroupDTORequestRefreshRequest);
-        Assert.assertNotNull(markerGroupDTOResponseRefreshFinal);
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(markerGroupDTOResponseRefreshFinal));
-        Assert.assertTrue(markerGroupDTOResponseRefreshFinal.getName().equals(newName));
-        Assert.assertTrue(!markerGroupDTOResponseRefreshFinal.getName().equals(previousName));
+        // re-retrieve the marker group we just created so we start with a fresh READ mode dto
 
-        Assert.assertTrue(
-                markerGroupDTOResponseRefreshFinal
-                        .getMarkers()
-                        .stream()
-                        .filter(m -> m.getMarkerName().equals(newMarkerName))
-                        .collect(Collectors.toList())
-                        .size() == 1
-        );
+        RestUri restUriMapsetForGetById = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_MARKERGROUP);
+        restUriMapsetForGetById.setParamValue("id", newMarkerGroupDTOResponse.getMarkerGroupId().toString());
+        GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriMapsetForGetById);
+        PayloadEnvelope<MarkerGroupDTO> resultEnvelopeForGetByID = gobiiEnvelopeRestResourceForGetById
+                .get(MarkerGroupDTO.class);
 
-        Assert.assertTrue(
-                markerGroupDTOResponseRefreshFinal
-                        .getMarkers()
-                        .stream()
-                        .filter(m -> m.getMarkerName().equals(removedMarkerName))
-                        .collect(Collectors.toList())
-                        .size() == 0
-        );
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetByID.getHeader()));
+        MarkerGroupDTO markerGroupDTOReceived = resultEnvelopeForGetByID.getPayload().getData().get(0);
+
+        String newName = UUID.randomUUID().toString();
+        markerGroupDTOReceived.setName(newName);
+        gobiiEnvelopeRestResourceForGetById.setParamValue("id", markerGroupDTOReceived.getMarkerGroupId().toString());
+        PayloadEnvelope<MarkerGroupDTO> markerGroupDTOResponseEnvelopeUpdate = gobiiEnvelopeRestResourceForGetById.put(MarkerGroupDTO.class,
+                new PayloadEnvelope<>(markerGroupDTOReceived, GobiiProcessType.UPDATE));
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(markerGroupDTOResponseEnvelopeUpdate.getHeader()));
+
+        MarkerGroupDTO markerGroupDTORequest = markerGroupDTOResponseEnvelopeUpdate.getPayload().getData().get(0);
 
 
-        Assert.assertFalse(modifiedAlleleNewValue.equals(modifiedAlelleOldValue));
-        Assert.assertTrue(
-                markerGroupDTOResponseRefreshFinal
-                        .getMarkers()
-                        .stream()
-                        .filter(m ->
-                                m.getMarkerId().equals(modifiedAlleleMarkerId)
-                                        && m.getFavorableAllele().equals(modifiedAlleleNewValue))
-                        .collect(Collectors.toList())
-                        .size() == 1
-        );
+        restUriMapsetForGetById.setParamValue("id", markerGroupDTORequest.getMarkerGroupId().toString());
+        resultEnvelopeForGetByID = gobiiEnvelopeRestResourceForGetById
+                .get(MarkerGroupDTO.class);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetByID.getHeader()));
+
+
+        MarkerGroupDTO dtoRequestMarkerGroupReRetrieved = resultEnvelopeForGetByID.getPayload().getData().get(0);
+
+
+        Assert.assertTrue(dtoRequestMarkerGroupReRetrieved.getName().equals(newName));
 
     }
 
+    @Test
     @Override
     public void getList() throws Exception {
+
+        RestUri restUriMarkerGroup = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_MARKERGROUP);
+        GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriMarkerGroup);
+        PayloadEnvelope<MarkerGroupDTO> resultEnvelope = gobiiEnvelopeRestResource
+                .get(MarkerGroupDTO.class);
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        List<MarkerGroupDTO> markerGroupDTOList = resultEnvelope.getPayload().getData();
+        Assert.assertNotNull(markerGroupDTOList);
+        Assert.assertTrue(markerGroupDTOList.size() > 0);
+        Assert.assertNotNull(markerGroupDTOList.get(0).getName());
+
+        LinkCollection linkCollection = resultEnvelope.getPayload().getLinkCollection();
+        Assert.assertTrue(linkCollection.getLinksPerDataItem().size() == markerGroupDTOList.size());
+
+        List<Integer> itemsToTest = new ArrayList<>();
+        if (markerGroupDTOList.size() > 50) {
+            itemsToTest = TestUtils.makeListOfIntegersInRange(10, markerGroupDTOList.size());
+        } else {
+            for (int idx = 0; idx < markerGroupDTOList.size(); idx++) {
+                itemsToTest.add(idx);
+            }
+        }
+
+        for (Integer currentIdx : itemsToTest) {
+            MarkerGroupDTO currentMarkerGroupDto = markerGroupDTOList.get(currentIdx);
+
+            Link currentLink = linkCollection.getLinksPerDataItem().get(currentIdx);
+
+            RestUri restUriMarkerGroupForGetById = ClientContext.getInstance(null, false)
+                    .getUriFactory()
+                    .RestUriFromUri(currentLink.getHref());
+            GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriMarkerGroupForGetById);
+            PayloadEnvelope<MarkerGroupDTO> resultEnvelopeForGetById = gobiiEnvelopeRestResourceForGetById
+                    .get(MarkerGroupDTO.class);
+            Assert.assertNotNull(resultEnvelopeForGetById);
+            Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetById.getHeader()));
+            MarkerGroupDTO markerGroupDTOFromLink = resultEnvelopeForGetById.getPayload().getData().get(0);
+            Assert.assertTrue(currentMarkerGroupDto.getName().equals(markerGroupDTOFromLink.getName()));
+            Assert.assertTrue(currentMarkerGroupDto.getMarkerGroupId().equals(markerGroupDTOFromLink.getMarkerGroupId()));
+        }
 
     }
 

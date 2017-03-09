@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.gobiiproject</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.15-SNAPSHOT</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.gobiiproject</groupId>
@@ -16,7 +16,6 @@
     <packaging>war</packaging>
 
     <properties>
-
 
         <!-- Generic properties -->
         <java.version>1.8</java.version>
@@ -50,26 +49,26 @@
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-api-model</artifactId>
-            <version>1.0.15-SNAPSHOT</version>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-brapi</artifactId>
-            <version>1.0.15-SNAPSHOT</version>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-model</artifactId>
-            <version>1.0.15-SNAPSHOT</version>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
 
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-domain</artifactId>
-            <version>1.0.15-SNAPSHOT</version>
+            <version>0.1.0-SNAPSHOT</version>
 
             <!--
             **** Ideally we would want to prevent the transitive dependency of gobii-domain on gobii-dao from bringing
@@ -330,9 +329,33 @@
             <version>${postgres.version}</version>
         </dependency>
 
+        <!-- UPLOADS -->
+        <!-- Apache Commons FileUpload -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
+        <finalName>gobii-web</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
         <plugins>
 
             <plugin>
@@ -411,42 +434,24 @@
                                         <include>reflect-metadata/Reflect.js</include>
                                         <include>rxjs/bundles/Rx.js</include>
                                         <include>rxjs/**</include>
+                                        <include>ng2-uploader/**</include>
+                                        <include>ng2-file-upload/**</include>
+                                        <include>primeng/**</include>
+                                        <include>font-awesome/css/font-awesome.min.css</include>
+                                        <include>font-awesome/fonts/**</include>
 
 
-                                        <!-- ***** GROUP 2: angular files from beta 2 that we probably don't want-->
-                                        <!--<include>angular2/bundles/angular2.dev.js</include>-->
-                                        <!--<include>angular2/bundles/router.dev.js</include>-->
-                                        <!--<include>angular2/es6/dev/src/testing/shims_for_IE.js</include>-->
-                                        <!--<include>angular2/bundles/angular2-polyfills.js</include>-->
-                                        <!--<include>angular2/bundles/http.dev.js</include>-->
 
+                                        <!-- ***** GROUP 2: angular bundle files-->
+                                        <include>@angular/core/bundles/core.umd.js</include>
+                                        <include>@angular/common/bundles/common.umd.js</include>
+                                        <include>@angular/compiler/bundles/compiler.umd.js</include>
+                                        <include>@angular/router/bundles/router.umd.js</include>
+                                        <include>@angular/http/bundles/http.umd.js</include>
+                                        <include>@angular/platform-browser/bundles/platform-browser.umd.js</include>
+                                        <include>@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js</include>
+                                        <include>@angular/forms/bundles/forms.umd.js</include>
 
-                                        <!-- ***** GROUP 3: angular index.js files-->
-                                        <include>@angular/core/index.js</include>
-                                        <include>@angular/common/index.js</include>
-                                        <include>@angular/compiler/index.js</include>
-                                        <include>@angular/router/index.js</include>
-                                        <include>@angular/router-deprecated/index.js</include>
-                                        <include>@angular/http/index.js</include>
-                                        <include>@angular/platform-browser/index.js</include>
-                                        <include>@angular/platform-browser-dynamic/index.js</include>
-
-                                        <!-- ***** GROUP 4: angular source files -->
-                                        <include>@angular/core/private_export.js</include>
-                                        <include>@angular/core/src/**</include>
-                                        <include>@angular/platform-browser-dynamic/platform_browser_dynamic.js</include>
-                                        <include>@angular/platform-browser-dynamic/core_private.js</include>
-                                        <include>@angular/platform-browser-dynamic/src/**</include>
-                                        <include>@angular/http/http.js</include>
-                                        <include>@angular/http/src/**</include>
-                                        <include>@angular/platform-browser/src/**</include>
-                                        <include>@angular/platform-browser/private_export.js</include>
-                                        <include>@angular/platform-browser/core_private.js</include>
-                                        <include>@angular/compiler/compiler.js</include>
-                                        <include>@angular/compiler/private_export.js</include>
-                                        <include>@angular/compiler/core_private.js</include>
-                                        <include>@angular/compiler/src/**</include>
-                                        <include>@angular/common/src/**</include>
                                     </includes>
                                     <filtering>false</filtering>
                                 </resource>

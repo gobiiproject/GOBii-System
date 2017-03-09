@@ -46,10 +46,10 @@ public class RsOrganizationDaoImpl implements RsOrganizationDao {
             storedProcExec.doWithConnection(spGetOrganizationNames);
             returnVal = spGetOrganizationNames.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving organization names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving organization names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -74,10 +74,10 @@ public class RsOrganizationDaoImpl implements RsOrganizationDao {
 
             returnVal = spGetOrganizationDetailsByOrganizationId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving organization details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving organization details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 

@@ -1,10 +1,10 @@
-System.register([], function(exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var ProcessType;
     return {
-        setters:[],
-        execute: function() {
+        setters: [],
+        execute: function () {
             (function (ProcessType) {
                 ProcessType[ProcessType["CREATE"] = 0] = "CREATE";
                 ProcessType[ProcessType["READ"] = 1] = "READ";
@@ -14,6 +14,6 @@ System.register([], function(exports_1, context_1) {
             exports_1("ProcessType", ProcessType);
             ;
         }
-    }
+    };
 });
 //# sourceMappingURL=type-process.js.map

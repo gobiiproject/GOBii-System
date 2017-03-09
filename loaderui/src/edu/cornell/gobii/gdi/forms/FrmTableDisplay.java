@@ -26,14 +26,16 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Text;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestAnalysis;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestDisplay;
-import org.gobiiproject.gobiimodel.dto.container.AnalysisDTO;
-import org.gobiiproject.gobiimodel.dto.container.DisplayDTO;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
+import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.DisplayDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.main.Main2;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
@@ -157,7 +159,7 @@ public class FrmTableDisplay extends AbstractFrm{
 			public void widgetSelected(SelectionEvent e) {
 				if(!validate()) return;
 				for(TableItem item : table.getSelection()){
-					DisplayDTO displayDTO = new DisplayDTO(GobiiProcessType.UPDATE);
+					DisplayDTO displayDTO = new DisplayDTO();
 					displayDTO.setDisplayId((Integer) item.getData());
 					displayDTO.setColumnName(item.getText(0));
 					displayDTO.setCreatedBy(1);
@@ -168,9 +170,14 @@ public class FrmTableDisplay extends AbstractFrm{
 					displayDTO.setTableName(textName.getText());
 					displayDTO.setDisplayRank(0);
 					try{
-						DtoRequestDisplay dtoRequestDisplay = new DtoRequestDisplay();
-						DisplayDTO DisplayDTOResponse = dtoRequestDisplay.process(displayDTO);
-						if(Controller.getDTOResponse(shell, DisplayDTOResponse, memInfo, true)){
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DISPLAY);
+						restUri.setParamValue("id", displayDTO.getDisplayId().toString());
+						GobiiEnvelopeRestResource<DisplayDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
+						restResourceById.setParamValue("id", displayDTO.getDisplayId().toString());
+						PayloadEnvelope<DisplayDTO> displayDTOResponse = restResourceById.put(
+								DisplayDTO.class, new PayloadEnvelope<>(displayDTO, GobiiProcessType.UPDATE));
+						
+						if(Controller.getDTOResponse(shell, displayDTOResponse.getHeader(), memInfo, true)){
 							populateDisplayDetails();
 						};
 					}catch(Exception err){

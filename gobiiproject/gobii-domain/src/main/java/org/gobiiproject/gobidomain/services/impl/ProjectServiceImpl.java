@@ -58,7 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDTO getProjectById(Integer projectId) {
+    public ProjectDTO getProjectById(Integer projectId) throws GobiiDomainException {
 
         ProjectDTO returnVal;
 

@@ -21,7 +21,7 @@ import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
@@ -69,7 +69,7 @@ public class FrmPlatforms extends AbstractFrm {
 
 		TableColumn tblclmnPlatforms = new TableColumn(tbList, SWT.NONE);
 		tblclmnPlatforms.setWidth(250);
-		tblclmnPlatforms.setText("Platforms");
+		tblclmnPlatforms.setText("Platforms:");
 		
 		Label lbltype = new Label(cmpForm, SWT.NONE);
 		lbltype.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -82,7 +82,7 @@ public class FrmPlatforms extends AbstractFrm {
 		
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("*Name:");
+		lblName.setText("*Platform Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -100,11 +100,19 @@ public class FrmPlatforms extends AbstractFrm {
 		txtCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		Label lblDescription = new Label(cmpForm, SWT.NONE);
-		lblDescription.setText("Description:");
+		
+		Label label = new Label(cmpForm, SWT.NONE);
+		label.setText(" ");
 		
 				memDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
-				memDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+				memDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3));
+		
+		Label lblPlatform = new Label(cmpForm, SWT.NONE);
+		lblPlatform.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, false, false, 1, 1));
+		lblPlatform.setText("Platform");
+		Label lblDescription = new Label(cmpForm, SWT.NONE);
+		lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
+		lblDescription.setText("Description:");
 		
 				Label lblProperties = new Label(cmpForm, SWT.NONE);
 				lblProperties.setText("Properties:");
@@ -322,14 +330,9 @@ public class FrmPlatforms extends AbstractFrm {
 			protected void populatePlatformDetails(int platformId) {
 				try{
 					cleanDetails();
-					RestUri restUriPlatformForGetById = App
-							.INSTANCE.getUriFactory()
-							.resourceByUriIdParam(ServiceRequestId.URL_PLATFORM);
-					restUriPlatformForGetById.setParamValue("id", Integer.toString(platformId));
-					GobiiEnvelopeRestResource<PlatformDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriPlatformForGetById);
+					
 					try {
-						PayloadEnvelope<PlatformDTO> resultEnvelopeForGetByID = restResourceForGetById
-								.get(PlatformDTO.class);
+						PayloadEnvelope<PlatformDTO> resultEnvelopeForGetByID = Controller.getPlatformDetails(platformId);
 
 						if(Controller.getDTOResponse(shell, resultEnvelopeForGetByID.getHeader(), memInfo, false)){
 							PlatformDTO platformDTOResponse = resultEnvelopeForGetByID.getPayload().getData().get(0);

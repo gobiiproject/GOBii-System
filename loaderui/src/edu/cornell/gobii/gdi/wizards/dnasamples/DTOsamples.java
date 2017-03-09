@@ -15,6 +15,7 @@ public class DTOsamples implements WizardDTO{
 
 	private GobiiFile file = new GobiiFile();
 //	private List<String> files = new ArrayList<String>();
+	private boolean qcCheck = false;
 	private List<String[]> header = new ArrayList<>();
 	private GobiiColumnType columnType;
 	private int rCoord = -1;
@@ -199,5 +200,11 @@ public class DTOsamples implements WizardDTO{
 	}
 	public void setDatasetName(String datasetName) {
 		this.datasetName = datasetName;
+	}
+	public boolean isQcCheck() {
+		return qcCheck;
+	}
+	public void setQcCheck(boolean qcCheck) {
+		this.qcCheck = qcCheck;
 	}
 }

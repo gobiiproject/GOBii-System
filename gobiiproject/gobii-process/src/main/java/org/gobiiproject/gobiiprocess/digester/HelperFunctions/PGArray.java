@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.util.Scanner;
 
 import org.apache.commons.lang.StringUtils;
+import org.gobiiproject.gobiimodel.utils.FileSystemInterface;
 import org.gobiiproject.gobiimodel.utils.error.ErrorLogger;
 
 /**
@@ -46,6 +47,8 @@ public class PGArray {
                 }
             }
             if(columnIndex == -1){
+                //Create output file by moving input file.
+                FileSystemInterface.mv(strMarkerFile,strOutput);
                 return;
             }
 

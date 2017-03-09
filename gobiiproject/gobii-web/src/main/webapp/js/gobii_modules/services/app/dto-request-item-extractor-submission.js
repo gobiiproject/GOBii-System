@@ -1,6 +1,5 @@
-System.register(["@angular/core", "../../model/type-process", "../../model/extractor-instructions/dto-extractor-instruction-files", "../../model/payload/payload-envelope"], function(exports_1, context_1) {
+System.register(["@angular/core", "../../model/type-process", "../../model/extractor-instructions/dto-extractor-instruction-files", "../../model/payload/payload-envelope"], function (exports_1, context_1) {
     "use strict";
-    var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,10 +9,10 @@ System.register(["@angular/core", "../../model/type-process", "../../model/extra
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, type_process_1, dto_extractor_instruction_files_1, payload_envelope_1;
-    var DtoRequestItemExtractorSubmission;
+    var __moduleName = context_1 && context_1.id;
+    var core_1, type_process_1, dto_extractor_instruction_files_1, payload_envelope_1, DtoRequestItemExtractorSubmission;
     return {
-        setters:[
+        setters: [
             function (core_1_1) {
                 core_1 = core_1_1;
             },
@@ -25,8 +24,9 @@ System.register(["@angular/core", "../../model/type-process", "../../model/extra
             },
             function (payload_envelope_1_1) {
                 payload_envelope_1 = payload_envelope_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             DtoRequestItemExtractorSubmission = (function () {
                 function DtoRequestItemExtractorSubmission(extractorInstructionFilesDTO) {
                     this.extractorInstructionFilesDTO = extractorInstructionFilesDTO;
@@ -46,14 +46,14 @@ System.register(["@angular/core", "../../model/type-process", "../../model/extra
                     var returnVal = dto_extractor_instruction_files_1.ExtractorInstructionFilesDTO.fromJson(json.payload.data[0]);
                     return returnVal;
                 };
-                DtoRequestItemExtractorSubmission = __decorate([
-                    core_1.Injectable(), 
-                    __metadata('design:paramtypes', [dto_extractor_instruction_files_1.ExtractorInstructionFilesDTO])
-                ], DtoRequestItemExtractorSubmission);
                 return DtoRequestItemExtractorSubmission;
-            }());
-            exports_1("DtoRequestItemExtractorSubmission", DtoRequestItemExtractorSubmission); // DtoRequestItemNameIds()
+            }()); // DtoRequestItemNameIds()
+            DtoRequestItemExtractorSubmission = __decorate([
+                core_1.Injectable(),
+                __metadata("design:paramtypes", [dto_extractor_instruction_files_1.ExtractorInstructionFilesDTO])
+            ], DtoRequestItemExtractorSubmission);
+            exports_1("DtoRequestItemExtractorSubmission", DtoRequestItemExtractorSubmission);
         }
-    }
+    };
 });
 //# sourceMappingURL=dto-request-item-extractor-submission.js.map

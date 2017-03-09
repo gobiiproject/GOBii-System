@@ -1,4 +1,3 @@
-//import {RouteParams} from '@angular/router-deprecated';
 import {Component, OnInit, EventEmitter} from "@angular/core";
 import {NameId} from "../model/name-id";
 

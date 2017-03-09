@@ -1,11 +1,8 @@
 package org.gobiiproject.gobiidtomapping;
 
-import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
-import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.MarkerDTO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Phil on 3/29/2016.

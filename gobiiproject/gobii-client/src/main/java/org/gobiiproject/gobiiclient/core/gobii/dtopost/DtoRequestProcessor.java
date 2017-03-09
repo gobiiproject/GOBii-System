@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.common.HttpCore;
 import org.gobiiproject.gobiiclient.core.common.HttpMethodResult;
-import org.gobiiproject.gobiiapimodel.restresources.ResourceBuilder;
 import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
 import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiiapimodel.types.ControllerType;
@@ -41,9 +40,7 @@ public class DtoRequestProcessor<T extends Header> {
             dtoToProcess.setCropType(cropType);
 
 
-            String url = ResourceBuilder.getRequestUrl(controllerType,
-                    cropContextRoot,
-                    requestId);
+            String url = requestId.getRequestUrl(cropContextRoot,controllerType);
 
             returnVal = this.getTypedHtppResponseForDto(
                     host,

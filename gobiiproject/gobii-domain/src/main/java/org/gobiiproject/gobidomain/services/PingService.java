@@ -5,15 +5,13 @@
 // ************************************************************************
 package org.gobiiproject.gobidomain.services;
 
-import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
-import org.gobiiproject.gobiimodel.dto.container.PingDTO;
-
-import java.util.List;
+import org.gobiiproject.gobiimodel.config.GobiiException;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
 
 /**
  * Created by Phil on 3/24/2016.
  */
 public interface PingService {
 
-    PingDTO getPings(PingDTO pingDTO);
+    PingDTO getPings(PingDTO pingDTO) throws GobiiException;
 }

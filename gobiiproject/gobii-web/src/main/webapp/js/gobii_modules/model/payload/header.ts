@@ -4,20 +4,23 @@ import {Status} from "./status"
 
 export class Header {
 
-    public constructor(public cropType:string,
-                       public dtoHeaderAuth:DtoHeaderAuth,
-                       public status:Status) {
+    public constructor(public cropType: string,
+                       public dtoHeaderAuth: DtoHeaderAuth,
+                       public status: Status,
+                       public gobiiVersion: string) {
     }
 
-    public static fromJSON(json:any):Header {
+    public static fromJSON(json: any): Header {
 
-        let cropType:string = json.cropType;
-        let dtoHeaderAuth:DtoHeaderAuth = DtoHeaderAuth.fromJSON(json.dtoHeaderAuth);
-        let status:Status = Status.fromJSON(json.status);
+        let cropType: string = json.cropType;
+        let dtoHeaderAuth: DtoHeaderAuth = DtoHeaderAuth.fromJSON(json.dtoHeaderAuth);
+        let status: Status = Status.fromJSON(json.status);
+        let gobiiVersion: string = json.gobiiVersion;
 
         return new Header(cropType,
             dtoHeaderAuth,
-            status); // new
+            status,
+            gobiiVersion); // new
 
     } // fromJson()
 }

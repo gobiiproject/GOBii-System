@@ -1,6 +1,5 @@
-System.register(["@angular/core", "../../model/name-id", "../../model/type-entity", "../../model/type-entity-filter"], function(exports_1, context_1) {
+System.register(["@angular/core", "../../model/name-id", "../../model/type-entity", "../../model/type-entity-filter"], function (exports_1, context_1) {
     "use strict";
-    var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,10 +9,10 @@ System.register(["@angular/core", "../../model/name-id", "../../model/type-entit
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, name_id_1, type_entity_1, type_entity_filter_1;
-    var DtoRequestItemNameIds;
+    var __moduleName = context_1 && context_1.id;
+    var core_1, name_id_1, type_entity_1, type_entity_filter_1, DtoRequestItemNameIds;
     return {
-        setters:[
+        setters: [
             function (core_1_1) {
                 core_1 = core_1_1;
             },
@@ -25,8 +24,9 @@ System.register(["@angular/core", "../../model/name-id", "../../model/type-entit
             },
             function (type_entity_filter_1_1) {
                 type_entity_filter_1 = type_entity_filter_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             DtoRequestItemNameIds = (function () {
                 function DtoRequestItemNameIds(entityType, entityFilter, entityFilterValue) {
                     if (entityFilter === void 0) { entityFilter = null; }
@@ -41,7 +41,7 @@ System.register(["@angular/core", "../../model/name-id", "../../model/type-entit
                 DtoRequestItemNameIds.prototype.getUrl = function () {
                     var baseUrl = "gobii/v1/names";
                     var returnVal = baseUrl + "/" + type_entity_1.EntityType[this.entityType].toLowerCase();
-                    if (this.entityFilter && (type_entity_filter_1.EntityFilter.NONE != this.entityFilter)) {
+                    if (this.entityFilter && (type_entity_filter_1.EntityFilter.NONE.valueOf() !== this.entityFilter)) {
                         returnVal += "?"
                             + "filterType=" + type_entity_filter_1.EntityFilter[this.entityFilter].toLowerCase()
                             + "&"
@@ -54,24 +54,25 @@ System.register(["@angular/core", "../../model/name-id", "../../model/type-entit
                     this.entityType = entityType;
                 };
                 DtoRequestItemNameIds.prototype.resultFromJson = function (json) {
+                    var _this = this;
                     var returnVal = [];
                     //let nameListItems:Object[] = json.payload.data;
                     json.payload.data.forEach(function (item) {
-                        var currentId = item.id;
+                        var currentId = String(item.id);
                         var currentName = item.name;
-                        returnVal.push(new name_id_1.NameId(currentId, currentName));
+                        returnVal.push(new name_id_1.NameId(currentId, currentName, _this.entityType));
                     });
                     return returnVal;
                     //return [new NameId(1, 'foo'), new NameId(2, 'bar')];
                 };
-                DtoRequestItemNameIds = __decorate([
-                    core_1.Injectable(), 
-                    __metadata('design:paramtypes', [Number, Number, String])
-                ], DtoRequestItemNameIds);
                 return DtoRequestItemNameIds;
-            }());
-            exports_1("DtoRequestItemNameIds", DtoRequestItemNameIds); // DtoRequestItemNameIds() 
+            }()); // DtoRequestItemNameIds() 
+            DtoRequestItemNameIds = __decorate([
+                core_1.Injectable(),
+                __metadata("design:paramtypes", [Number, Number, String])
+            ], DtoRequestItemNameIds);
+            exports_1("DtoRequestItemNameIds", DtoRequestItemNameIds);
         }
-    }
+    };
 });
 //# sourceMappingURL=dto-request-item-nameids.js.map

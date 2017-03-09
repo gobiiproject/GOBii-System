@@ -29,8 +29,8 @@ import org.gobiiproject.gobidomain.services.ProjectService;
 import org.gobiiproject.gobidomain.services.ReferenceService;
 import org.gobiiproject.gobiibrapi.calls.calls.BrapiResponseCallsItem;
 import org.gobiiproject.gobiibrapi.calls.calls.BrapiResponseMapCalls;
-import org.gobiiproject.gobiibrapi.calls.germplasm.BrapiResponseGermplasmSearch;
-import org.gobiiproject.gobiibrapi.calls.germplasm.BrapiResponseMapGermplasmSearch;
+import org.gobiiproject.gobiibrapi.calls.germplasm.BrapiResponseGermplasmByDbId;
+import org.gobiiproject.gobiibrapi.calls.germplasm.BrapiResponseMapGermplasmByDbId;
 import org.gobiiproject.gobiibrapi.calls.studies.observationvariables.BrapiResponseMapObservationVariables;
 import org.gobiiproject.gobiibrapi.calls.studies.observationvariables.BrapiResponseObservationVariablesMaster;
 import org.gobiiproject.gobiibrapi.calls.studies.search.BrapiRequestStudiesSearch;
@@ -40,7 +40,7 @@ import org.gobiiproject.gobiibrapi.core.common.BrapiRequestReader;
 import org.gobiiproject.gobiibrapi.core.derived.BrapiListResult;
 import org.gobiiproject.gobiibrapi.core.derived.BrapiResponseEnvelopeList;
 import org.gobiiproject.gobiibrapi.core.derived.BrapiResponseEnvelopeMaster;
-import org.gobiiproject.gobiibrapi.core.json.BrapiResponseWriterJson;
+import org.gobiiproject.gobiimodel.config.GobiiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -48,12 +48,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 
 /**
@@ -62,7 +60,7 @@ import java.util.List;
  * BRAPI responses all containa a "metadata" and a "result" key. The "result" key's value can take
  * three forms:
  * 1) A "data" property that is an array of items of the same type (e.g., /studies-search)
- * 2) A set of arbitrary properties (i.e., a specific type in Java) (e.g., /studies/{studyDbId}/germplasm)
+ * 2) A set of arbitrary properties (i.e., a specific type in Java) (e.g., /germplasm/{id})
  * 3) A set of arbitrary properties and a "data" property (e.g., /studies/{studyDbId}/observationVariables)
  *
  * Type 3) is for a master-detail scenario: you have a master record that is related to one or more detail
@@ -189,13 +187,19 @@ public class BRAPIIControllerV1 {
                 new BrapiResponseEnvelopeList<>(ObjectUtils.Null.class, BrapiResponseCallsItem.class);
         try {
 
-            BrapiResponseMapCalls brapiResponseMapCalls = new BrapiResponseMapCalls();
+            BrapiResponseMapCalls brapiResponseMapCalls = new BrapiResponseMapCalls(request);
             BrapiListResult<BrapiResponseCallsItem> brapiResponseCallsItems = brapiResponseMapCalls
                     .getBrapiResponseListCalls();
 
 
             brapiResponseEnvelopeList.setData(brapiResponseCallsItems);
 
+
+        } catch (GobiiException e) {
+
+            String message = e.getMessage() + ": " + e.getCause() + ": " + e.getStackTrace().toString();
+
+            brapiResponseEnvelopeList.getBrapiMetaData().addStatusMessage("exception", message);
 
         } catch (Exception e) {
 
@@ -236,7 +240,13 @@ public class BRAPIIControllerV1 {
 
             brapiResponseEnvelopeList.setData(brapiListResult);
 
-        } catch (Exception e) {
+        } catch (GobiiException e) {
+
+            String message = e.getMessage() + ": " + e.getCause() + ": " + e.getStackTrace().toString();
+
+            brapiResponseEnvelopeList.getBrapiMetaData().addStatusMessage("exception", message);
+
+        }catch (Exception e) {
 
             String message = e.getMessage() + ": " + e.getCause() + ": " + e.getStackTrace().toString();
 
@@ -248,37 +258,43 @@ public class BRAPIIControllerV1 {
     }
 
     // *********************************************
-    // *************************** Germplasm search by germplasmDbId [GET]
+    // *************************** Germplasm details [GET]
     // **************************** MASTER ONLY
     // *********************************************
-    @RequestMapping(value = "/studies/{studyDbId}/germplasm",
+    @RequestMapping(value = "/germplasm/{studyDbId}",
             method = RequestMethod.GET,
 //            params = {"pageSize", "page"},
             produces = "application/json")
     @ResponseBody
-    public String getGermplasm(HttpServletRequest request,
-                               HttpServletResponse response,
-                               @PathVariable Integer studyDbId
+    public String getGermplasmByDbId(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     @PathVariable Integer studyDbId
 //            ,
 //                               @RequestParam(value = "pageSize",required = false) Integer pageSize,
 //                               @RequestParam(value = "page", required = false) Integer page
     ) throws Exception {
 
 
-        BrapiResponseEnvelopeMaster<BrapiResponseGermplasmSearch> responseEnvelope
-                = new BrapiResponseEnvelopeMaster<>(BrapiResponseGermplasmSearch.class);
+        BrapiResponseEnvelopeMaster<BrapiResponseGermplasmByDbId> responseEnvelope
+                = new BrapiResponseEnvelopeMaster<>(BrapiResponseGermplasmByDbId.class);
 
         String returnVal;
 
         try {
 
-            BrapiResponseMapGermplasmSearch brapiResponseMapGermplasmSearch = new BrapiResponseMapGermplasmSearch();
+            BrapiResponseMapGermplasmByDbId brapiResponseMapGermplasmByDbId = new BrapiResponseMapGermplasmByDbId();
 
             // extends BrapiMetaData, no list items
-            BrapiResponseGermplasmSearch brapiResponseGermplasmSearch = brapiResponseMapGermplasmSearch.getGermplasmByDbid(studyDbId);
+            BrapiResponseGermplasmByDbId brapiResponseGermplasmByDbId = brapiResponseMapGermplasmByDbId.getGermplasmByDbid(studyDbId);
 
-            responseEnvelope.setResult(brapiResponseGermplasmSearch);
+            responseEnvelope.setResult(brapiResponseGermplasmByDbId);
 
+
+        } catch (GobiiException e) {
+
+            String message = e.getMessage() + ": " + e.getCause() + ": " + e.getStackTrace().toString();
+
+            responseEnvelope.getBrapiMetaData().addStatusMessage("exception", message);
 
         } catch (Exception e) {
 
@@ -318,7 +334,13 @@ public class BRAPIIControllerV1 {
 
             responseEnvelope.setResult(brapiResponseObservationVariablesMaster);
 
-        } catch (Exception e) {
+        } catch (GobiiException e) {
+
+            String message = e.getMessage() + ": " + e.getCause() + ": " + e.getStackTrace().toString();
+
+            responseEnvelope.getBrapiMetaData().addStatusMessage("exception", message);
+
+        }catch (Exception e) {
 
             String message = e.getMessage() + ": " + e.getCause() + ": " + e.getStackTrace().toString();
 

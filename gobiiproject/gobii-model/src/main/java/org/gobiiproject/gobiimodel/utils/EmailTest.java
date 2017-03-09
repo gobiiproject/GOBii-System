@@ -11,9 +11,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 public class EmailTest {
-	public static void main(String[] args) throws Exception{
-		sendEmail("TestJob",null,true,null,"smtp.gmail.com","587","jdl232@cornell.edu","gobii.jira@gmail.com","g0b11mailS3rv3r","gobii.jira@gmail.com","smtps");
-	}
 	 private static void sendEmail(String jobName, String fileLocation,boolean success,String errorLogLoc, String host,String port, String emailAddress,String fromUser,String password,String username, String protocol) throws Exception{
 		 	if(emailAddress==null || emailAddress.equals(""))return;
 		     Properties props = new Properties();

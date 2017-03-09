@@ -1,7 +1,10 @@
 package edu.cornell.gobii.gdi.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -550,6 +553,12 @@ public class Utils {
 		if(mem != null) mem.setText(e.getMessage());
 	}
 	
+	public static void showLog(Logger logger, String message, Throwable e){
+		Shell shell = Display.getCurrent().getActiveShell();
+		log.error(message, e);
+		MessageDialog.openError(shell, "ERROR in Loader", message);
+	}
+	
 	public static void log(Logger log, String message, Throwable e){
 		log.error(message, e);
 	}
@@ -663,4 +672,39 @@ public class Utils {
 		instruction.setExperiment(experimentPropFile);
 		instruction.setMapset(mapsetPropFile);
 	}
+
+	public static String getAcceptableVersion(String filePath) {
+		// TODO Auto-generated method stub
+		String version = null;
+		try(BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+		    version = br.readLine();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			Utils.log(log, "File not found:"+ filePath, e);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Utils.log(log, "Error reading version.txt", e);
+		}
+		return version;
+	}
+//
+//	public static boolean isVersionAcceptable(String minimumGobiiVersion, String gobiiVersion) {
+//		// TODO Auto-generated method stub
+//		boolean acceptable = true;
+//		System.out.println("minimumGobiiVersion"+ minimumGobiiVersion);
+//		System.out.println("gobiiVersion"+gobiiVersion);
+//		
+//		String[] fromTxt = minimumGobiiVersion.split(".");
+//		String[] fromHeader =  gobiiVersion.split(".");
+//		
+//		if(Integer.parseInt(fromTxt[0]) > Integer.parseInt(fromHeader[0])){ // compare first digit
+//			acceptable = false;
+//		}else if(Integer.parseInt(fromTxt[1]) > Integer.parseInt(fromHeader[1])){ // compare second digit
+//			acceptable = false;
+//		}else if(Integer.parseInt(fromTxt[2]) > Integer.parseInt(fromHeader[2])){// compare last digit
+//			acceptable = false;
+//		}
+//		
+//		return acceptable;
+//	}
 }

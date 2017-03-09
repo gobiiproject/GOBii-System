@@ -125,24 +125,82 @@ public class ExtractorInstructionsDAOImpl implements ExtractorInstructionsDAO {
     }
 
     @Override
-    public List<GobiiExtractorInstruction> setGobiiJobStatus(boolean applyToAll, List<GobiiExtractorInstruction> instructions, GobiiFileProcessDir gobiiFileProcessDir) {
+    public List<GobiiExtractorInstruction> setGobiiJobStatus(boolean applyToAll, List<GobiiExtractorInstruction> instructions, GobiiFileProcessDir gobiiFileProcessDir) throws GobiiDaoException{
         List<GobiiExtractorInstruction> returnVal = instructions;
-        GobiiJobStatus gobiiJobStatus = getJobStatusForDirectory(gobiiFileProcessDir);
+
+        GobiiJobStatus gobiiJobStatus;
+
+        switch (gobiiFileProcessDir) {
+
+            case EXTRACTOR_INPROGRESS:
+                gobiiJobStatus = GobiiJobStatus.IN_PROGRESS;
+                break;
+
+            case EXTRACTOR_INSTRUCTIONS:
+                gobiiJobStatus = GobiiJobStatus.STARTED;
+                break;
+
+            case EXTRACTOR_DONE:
+                gobiiJobStatus = GobiiJobStatus.COMPLETED;
+                break;
+
+            default:
+                gobiiJobStatus = GobiiJobStatus.FAILED;
+        }
+
         if(applyToAll){
+
             for(GobiiExtractorInstruction instruction : returnVal){
+
                 for(GobiiDataSetExtract dataSetExtract: instruction.getDataSetExtracts()){
+
                     dataSetExtract.setGobiiJobStatus(gobiiJobStatus);
                 }
             }
         }else{ //check if the output file(s) exist in the directory specified by the *extractDestinationDirectory* field of the *DataSetExtract* item in the instruction file;
             GobiiJobStatus statusFailed = GobiiJobStatus.FAILED;
+
             for(GobiiExtractorInstruction instruction: returnVal){
+
                 for(GobiiDataSetExtract dataSetExtract: instruction.getDataSetExtracts()){
+
                     String extractDestinationDirectory = dataSetExtract.getExtractDestinationDirectory();
-                    List<String> datasetExtractFiles = getFileNamesFor("DS"+ Integer.toString(dataSetExtract.getDataSetId()), dataSetExtract.getGobiiFileType());
+
+                    List<String> datasetExtractFiles =  new ArrayList<String>();
+
+                    String fileName="DS"+ Integer.toString(dataSetExtract.getDataSetId());
+
+                    switch (dataSetExtract.getGobiiFileType()) {
+                        case GENERIC:
+                            //fileNames.add(fileName+".txt"); to be added
+                            break;
+
+                        case HAPMAP:
+                            datasetExtractFiles.add(fileName+"hmp.txt");
+                            break;
+
+                        case FLAPJACK:
+                            datasetExtractFiles.add(fileName+".map");
+
+                            datasetExtractFiles.add(fileName+".genotype");
+
+                            break;
+
+                        case VCF:
+                            //fileNames.add(fileName+"hmp.txt"); to be added
+                            break;
+
+                        default:
+                            throw new GobiiDaoException("Noe extension assigned for GobiiFileType: " + dataSetExtract.getGobiiFileType().toString());
+                    }
+
+
                         for(String s: datasetExtractFiles){
+
                             String currentExtractFile = extractDestinationDirectory+s;
+
                             if(doesPathExist(currentExtractFile))dataSetExtract.setGobiiJobStatus(gobiiJobStatus);
+
                             else dataSetExtract.setGobiiJobStatus(statusFailed);
                         }
                 }
@@ -151,49 +209,8 @@ public class ExtractorInstructionsDAOImpl implements ExtractorInstructionsDAO {
         return returnVal;
     }
 
-
-    private List<String> getFileNamesFor(String fileName, GobiiFileType gobiiFileType) {
-        List<String> fileNames = new ArrayList<String>();
-        switch (gobiiFileType.toString().toLowerCase()) {
-            case "generic":
-                //fileNames.add(fileName+".txt"); to be added
-                break;
-            case "hapmap":
-                fileNames.add(fileName+"hmp.txt");
-                break;
-            case "flapjack":
-                fileNames.add(fileName+".map");
-                fileNames.add(fileName+".genotype");
-                break;
-            case "vcf":
-                //fileNames.add(fileName+"hmp.txt"); to be added
-                break;
-            default:
-                throw new GobiiDaoException("Noe extension assigned for GobiiFileType: " + gobiiFileType.toString().toLowerCase());
-        }
-        return fileNames;
-    }
-
-    private GobiiJobStatus getJobStatusForDirectory(GobiiFileProcessDir extractorInstructions) {
-        GobiiJobStatus gobiiJobStatus = null;
-        switch (extractorInstructions.toString()) {
-            case "EXTRACTOR_INPROGRESS":
-                gobiiJobStatus = GobiiJobStatus.IN_PROGRESS;
-                break;
-            case "EXTRACTOR_INSTRUCTIONS":
-                gobiiJobStatus = GobiiJobStatus.STARTED;
-                break;
-            case "EXTRACTOR_DONE":
-                gobiiJobStatus = GobiiJobStatus.COMPLETED;
-                break;
-            default:
-                gobiiJobStatus = GobiiJobStatus.FAILED;
-        }
-        return gobiiJobStatus;
-    }
-
     @Override
-    public List<GobiiExtractorInstruction> getInstructions(String instructionFileFqpn) throws GobiiDaoException {
+    public List<GobiiExtractorInstruction> getGobiiExtractorInstructionsFromFile(String instructionFileFqpn) throws GobiiDaoException {
 
         List<GobiiExtractorInstruction> returnVal = null;
 
@@ -202,13 +219,18 @@ public class ExtractorInstructionsDAOImpl implements ExtractorInstructionsDAO {
             GobiiExtractorInstruction[] instructions = null;
 
             File file = new File(instructionFileFqpn);
+
             FileInputStream fileInputStream = new FileInputStream(file);
+
             org.codehaus.jackson.map.ObjectMapper objectMapper = new org.codehaus.jackson.map.ObjectMapper();
+
             instructions = objectMapper.readValue(fileInputStream, GobiiExtractorInstruction[].class);
 
             returnVal = Arrays.asList(instructions);
+
         } catch (Exception e) {
             String message = e.getMessage() + "; fqpn: " + instructionFileFqpn;
+
             throw new GobiiDaoException(message);
         }
 

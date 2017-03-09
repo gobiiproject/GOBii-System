@@ -5,13 +5,16 @@ import org.gobiiproject.gobiidao.resultset.core.ParamExtractor;
 import org.gobiiproject.gobiidao.resultset.core.ResultColumnApplicator;
 import org.gobiiproject.gobiidtomapping.DtoMapReference;
 import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
-import org.gobiiproject.gobiimodel.dto.container.ReferenceDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ReferenceDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,15 +28,38 @@ public class DtoMapReferenceImpl implements DtoMapReference {
     @Autowired
     private RsReferenceDao rsReferenceDao;
 
+    @Override
+    public List<ReferenceDTO> getReferences() throws GobiiDtoMappingException {
+
+        List<ReferenceDTO> returnVal = new ArrayList<>();
+
+        try {
+            ResultSet resultSet = rsReferenceDao.getReferenceNames();
+            while (resultSet.next()) {
+                ReferenceDTO currentReferenceDTO = new ReferenceDTO();
+                currentReferenceDTO.setName(resultSet.getString("name"));
+                currentReferenceDTO.setReferenceId(resultSet.getInt("reference_id"));
+                returnVal.add(currentReferenceDTO);
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error("Gobii Mapping Error", e);
+            throw new GobiiDtoMappingException(e);
+        }
+
+        return returnVal;
+
+    }
+
     @Transactional
     @Override
-    public ReferenceDTO getReferenceDetails(ReferenceDTO referenceDTO) throws GobiiDtoMappingException {
+    public ReferenceDTO getReferenceDetails(Integer referenceId) throws GobiiDtoMappingException {
 
-        ReferenceDTO returnVal = referenceDTO;
+        ReferenceDTO returnVal = new ReferenceDTO();
 
         try {
 
-            ResultSet resultSet = rsReferenceDao.getReferenceDetailsByReferenceId(referenceDTO.getReferenceId());
+            ResultSet resultSet = rsReferenceDao.getReferenceDetailsByReferenceId(referenceId);
 
             if (resultSet.next()) {
 
@@ -42,9 +68,9 @@ public class DtoMapReferenceImpl implements DtoMapReference {
 
             } // iterate resultSet
 
-        } catch (Exception e) {
-            returnVal.getStatus().addException(e);
-            LOGGER.error("Gobii Maping Error", e);
+        } catch (SQLException e) {
+            LOGGER.error("Error retrieving reference details", e);
+            throw new GobiiDtoMappingException(e);
         }
 
         return returnVal;
@@ -62,28 +88,23 @@ public class DtoMapReferenceImpl implements DtoMapReference {
             returnVal.setReferenceId(referenceId);
 
         } catch (Exception e) {
-            returnVal.getStatus().addException(e);
-            LOGGER.error("Gobii Maping Error", e);
+            LOGGER.error("Gobii Mapping Error", e);
+            throw new GobiiDtoMappingException(e);
         }
 
         return returnVal;
     }
 
     @Override
-    public ReferenceDTO updateReference(ReferenceDTO referenceDTO) throws GobiiDtoMappingException {
+    public ReferenceDTO replaceReference(Integer referenceId, ReferenceDTO referenceDTO) throws GobiiDtoMappingException {
 
         ReferenceDTO returnVal = referenceDTO;
 
-        try {
-
-            Map<String, Object> parameters = ParamExtractor.makeParamVals(returnVal);
-            rsReferenceDao.updateReference(parameters);
-
-        } catch (Exception e) {
-            returnVal.getStatus().addException(e);
-            LOGGER.error("Gobii Maping Error", e);
-        }
+        Map<String, Object> parameters = ParamExtractor.makeParamVals(returnVal);
+        parameters.put("referenceId", referenceId);
+        rsReferenceDao.updateReference(parameters);
 
         return returnVal;
     }
+
 }

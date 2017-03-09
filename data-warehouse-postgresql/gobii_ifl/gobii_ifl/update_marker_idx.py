@@ -15,7 +15,6 @@ from db.update_h5i_manager import UpdateH5iManager
 from util.ifl_utility import IFLUtility
 
 def main(isVerbose, connectionStr, iFile, datasetId):
-	IS_VERBOSE = isVerbose
 
 	updateH5iMgr = UpdateH5iManager(connectionStr)
 	idx = 0

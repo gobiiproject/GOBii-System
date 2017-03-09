@@ -1,0 +1,11 @@
+#(old)source_table	source_key_column	source_value_column	target_table	target_id_col	target_jsonb_col
+dataset_marker	dataset_id	marker_idx	marker	marker_id	dataset_marker_idx
+dataset_dnarun	dataset_id	dnarun_idx	dnarun	dnarun_id	dataset_dnarun_idx
+germplasm_prop	property_id	property_value	germplasm	germplasm_id	props
+dnasample_prop	property_id	property_value	dnasample	dnasample_id	props
+marker_prop	property_id	property_value	marker	marker_id	props
+project_prop	property_id	property_value	project	project_id	props
+mapset_prop	property_id	property_value	mapset	mapset_id	props
+dnarun_prop	property_id	property_value	dnarun	dnarun_id	props
+platform_prop	property_id	property_value	platform	platform_id	props
+dataset_vendor_protocol	dataset_id	vendor_protocol_id	marker	marker_id	dataset_vendor_protocol

@@ -50,10 +50,10 @@ public class RsMapSetDaoImpl implements RsMapSetDao {
             storedProcExec.doWithConnection(spGetMapSetNames);
 
             returnVal = spGetMapSetNames.getResultSet();
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving mapset names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving mapset names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -76,10 +76,10 @@ public class RsMapSetDaoImpl implements RsMapSetDao {
 
             returnVal = spGetMapNamesByTypeId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving map names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving map names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -101,10 +101,10 @@ public class RsMapSetDaoImpl implements RsMapSetDao {
 
             returnVal = spGetMapsetDetailsByMapsetId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving mapset details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving mapset details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 

@@ -13,6 +13,6 @@ public interface OrganizationService {
     OrganizationDTO createOrganization(OrganizationDTO organizationDTO) throws GobiiDomainException;
     OrganizationDTO replaceOrganization(Integer organizationId, OrganizationDTO organizationDTO) throws GobiiDomainException;
     List<OrganizationDTO> getOrganizations() throws GobiiDomainException;
-    OrganizationDTO getOrganizationById(Integer organizationId);
+    OrganizationDTO getOrganizationById(Integer organizationId) throws GobiiDomainException;
 
 }

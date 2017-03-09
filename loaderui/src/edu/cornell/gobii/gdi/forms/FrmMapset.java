@@ -14,11 +14,16 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestMapset;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
-import org.gobiiproject.gobiimodel.dto.container.MapsetDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.MapsetDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.utils.FormUtils;
@@ -62,7 +67,7 @@ public class FrmMapset extends AbstractFrm {
 
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("*Name:");
+		lblName.setText("*Mapset Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -75,12 +80,20 @@ public class FrmMapset extends AbstractFrm {
 		txtCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label label = new Label(cmpForm, SWT.NONE);
+		label.setText(" ");
+		
+				memoDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
+				memoDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3));
+		
+		Label lblMapset = new Label(cmpForm, SWT.NONE);
+		lblMapset.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, false, false, 1, 1));
+		lblMapset.setText("Mapset");
 
 		Label lblDescription = new Label(cmpForm, SWT.NONE);
+		lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		lblDescription.setText("Description:");
-
-		memoDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
-		memoDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
 		Label lblReference = new Label(cmpForm, SWT.NONE);
 		lblReference.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -180,8 +193,7 @@ public class FrmMapset extends AbstractFrm {
 				try{
 					if(!validate(true)) return;
 
-					DtoRequestMapset dtoRequestMapset = new DtoRequestMapset();
-					MapsetDTO mapsetDTO = new MapsetDTO(GobiiProcessType.CREATE);
+					MapsetDTO mapsetDTO = new MapsetDTO();
 					mapsetDTO.setName(txtName.getText());
 					mapsetDTO.setCode(cbList.getText()+"_"+txtName.getText().replaceAll(" ", "_"));
 					mapsetDTO.setDescription(memoDescription.getText() == null ? "" : memoDescription.getText());
@@ -204,9 +216,15 @@ public class FrmMapset extends AbstractFrm {
 					mapsetDTO.setCreatedDate(new Date());
 					mapsetDTO.setModifiedDate(new Date());
 					mapsetDTO.setStatusId(1);
+					
 					try{
-						MapsetDTO mapsetDTOResponse = dtoRequestMapset.process(mapsetDTO);
-						if(Controller.getDTOResponse(shell, mapsetDTOResponse, memInfo, true)){
+					PayloadEnvelope<MapsetDTO> payloadEnvelope = new PayloadEnvelope<>(mapsetDTO,
+							GobiiProcessType.CREATE);
+					GobiiEnvelopeRestResource<MapsetDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_MAPSET));
+					PayloadEnvelope<MapsetDTO> mapsetDTOResponse = restResource.post(MapsetDTO.class,
+							payloadEnvelope);
+
+						if(Controller.getDTOResponse(shell, mapsetDTOResponse.getHeader(), memInfo, true)){
 							populateMapsetFromSelectedMapType(cbList.getText());
 						};
 					}catch(Exception err){
@@ -228,8 +246,7 @@ public class FrmMapset extends AbstractFrm {
 				try{
 					if(!validate(false)) return;
 					if(!FormUtils.updateForm(getShell(), "Mapset", IDs.mapsetName)) return;
-					DtoRequestMapset dtoRequestMapset = new DtoRequestMapset();
-					MapsetDTO mapsetDTO = new MapsetDTO(GobiiProcessType.UPDATE);
+					MapsetDTO mapsetDTO = new MapsetDTO();
 					mapsetDTO.setMapsetId(IDs.mapsetId);
 					mapsetDTO.setName(txtName.getText());
 					mapsetDTO.setCode(cbList.getText()+"_"+txtName.getText().replaceAll(" ", "_"));
@@ -254,8 +271,14 @@ public class FrmMapset extends AbstractFrm {
 					mapsetDTO.setModifiedDate(new Date());
 					mapsetDTO.setStatusId(1);
 					try{
-						MapsetDTO mapsetDTOResponse = dtoRequestMapset.process(mapsetDTO);
-						if(Controller.getDTOResponse(shell, mapsetDTOResponse, memInfo, true)){
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MAPSET);
+						restUri.setParamValue("id", Integer.toString(IDs.mapsetId));
+						GobiiEnvelopeRestResource<MapsetDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
+						restResourceById.setParamValue("id", mapsetDTO.getMapsetId().toString());
+						PayloadEnvelope<MapsetDTO> mapsetDTOResponseEnvelope = restResourceById.put(
+								MapsetDTO.class, new PayloadEnvelope<>(mapsetDTO, GobiiProcessType.UPDATE));
+						
+						if(Controller.getDTOResponse(shell, mapsetDTOResponseEnvelope.getHeader(), memInfo, true)){
 							populateMapsetFromSelectedMapType(cbList.getText());
 						};
 					}catch(Exception err){
@@ -386,11 +409,16 @@ public class FrmMapset extends AbstractFrm {
 
 	protected void populateMapsetDetails(int mapsetId) {
 		cleanDetails();
-		DtoRequestMapset dtoRequestMapset = new DtoRequestMapset();
-		MapsetDTO MapsetDTORequest = new MapsetDTO(GobiiProcessType.READ);
+		MapsetDTO MapsetDTORequest = new MapsetDTO();
 		MapsetDTORequest.setMapsetId(IDs.mapsetId);
 		try {
-			MapsetDTO mapsetDTOResponse = dtoRequestMapset.process(MapsetDTORequest);
+			
+			RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MAPSET);
+			restUri.setParamValue("id", Integer.toString(mapsetId));
+			GobiiEnvelopeRestResource<MapsetDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
+			PayloadEnvelope<MapsetDTO> dtoRequestMapset = restResource.get(MapsetDTO.class);
+			
+			MapsetDTO mapsetDTOResponse = dtoRequestMapset.getPayload().getData().get(0);
 			if(mapsetDTOResponse.getReferenceId() != null){
 				FormUtils.entrySetToComboSelectId(Controller.getReferenceNames(), cbReference, mapsetDTOResponse.getReferenceId());
 			}

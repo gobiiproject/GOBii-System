@@ -87,7 +87,7 @@ public class FrmExperiments extends AbstractFrm {
 
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("*Name:");
+		lblName.setText("*Experiment Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
@@ -354,7 +354,7 @@ public class FrmExperiments extends AbstractFrm {
 				else{
 					populateAllProjectsAndExperiments(cbList,tbList);
 				}
-				FormUtils.entrySetToCombo(Controller.getPlatformNames(), cbVendorProtocol);
+				FormUtils.entrySetToCombo(Controller.getVendorProtocolNames(), cbVendorProtocol);
 				FormUtils.entrySetToCombo(Controller.getManifestNames(), comboManifest);
 				cleanExperimentDetails();
 			}
@@ -391,12 +391,8 @@ public class FrmExperiments extends AbstractFrm {
 			cleanExperimentDetails();
 			ExperimentDTO experimentDTO = null;
 			try {
-				RestUri experimentsUri = App.INSTANCE.getUriFactory()
-						.resourceByUriIdParam(ServiceRequestId.URL_EXPERIMENTS);
-				experimentsUri.setParamValue("id", Integer.toString(experimentId));
-				GobiiEnvelopeRestResource<ExperimentDTO> restResourceForExperiments = new GobiiEnvelopeRestResource<>(experimentsUri);
-				PayloadEnvelope<ExperimentDTO> resultEnvelope = restResourceForExperiments
-						.get(ExperimentDTO.class);
+			
+				PayloadEnvelope<ExperimentDTO> resultEnvelope = Controller.getExperimentDetails(experimentId);
 
 				if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, false)){
 					experimentDTO = resultEnvelope.getPayload().getData().get(0);
@@ -438,7 +434,7 @@ public class FrmExperiments extends AbstractFrm {
 		try{
 			FormUtils.entrySetToComboSelectId(Controller.getVendorProtocolNames(), combo, vendorProtocolId);
 		}catch(Exception err){
-			Utils.log(shell, memInfo, log, "Error retrieving Platforms", err);
+			Utils.log(shell, memInfo, log, "Error retrieving Vendot Protocol Names", err);
 		}
 	}
 	private void populateProjectsListByContactId(Combo cbList) {
@@ -495,7 +491,7 @@ public class FrmExperiments extends AbstractFrm {
 			message = "Project is a required filed!";
 			successful = false;
 		}else if(cbList.getSelectionIndex() < 0){
-			message = "Platform is a required field!";
+			message = "Vendor-Protocol is a required field!";
 			successful = false;
 		}else if(!isNew && IDs.experimentId==0){
 			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";

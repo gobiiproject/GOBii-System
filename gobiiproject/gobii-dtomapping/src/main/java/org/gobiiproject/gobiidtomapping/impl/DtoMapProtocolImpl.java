@@ -150,6 +150,31 @@ public class DtoMapProtocolImpl implements DtoMapProtocol {
 
     @Transactional
     @Override
+    public VendorProtocolDTO getVendorProtocolByVendorProtocolId(Integer vendorProtocolId) throws GobiiDtoMappingException {
+
+        VendorProtocolDTO returnVal = new VendorProtocolDTO();
+
+        try {
+
+            ResultSet resultSet = rsProtocolDao.getVendorProtocolForVendorProtocolId(vendorProtocolId);
+
+            if(resultSet.next()) {
+                ResultColumnApplicator.applyColumnValues(resultSet, returnVal);
+            }
+
+        } catch (Exception e) {
+
+            LOGGER.error("Gobii Mapping Error", e);
+            throw new GobiiDtoMappingException(e);
+
+        }
+
+        return returnVal;
+
+    }
+
+    @Transactional
+    @Override
     public OrganizationDTO getVendorForProtocolByName(String vendorProtocolName) throws GobiiDtoMappingException {
 
         OrganizationDTO returnVal = new OrganizationDTO();
@@ -212,6 +237,29 @@ public class DtoMapProtocolImpl implements DtoMapProtocol {
         }
 
     } // addVendorProtocolsToOrganization
+
+    @Transactional
+    @Override
+    public ProtocolDTO getProtocolsByExperimentId(Integer experimentId) throws GobiiException {
+        ProtocolDTO returnVal = new ProtocolDTO();
+        try {
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("experimentId", experimentId);
+
+
+            ResultSet resultSet = this.rsProtocolDao.getProtocolDetailsByExperimentId(experimentId);
+            if (resultSet.next()) {
+                ResultColumnApplicator.applyColumnValues(resultSet, returnVal);
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Gobii Mapping Error", e);
+            throw new GobiiDtoMappingException(e);
+        }
+
+        return returnVal;
+    } // getProtocolDetailsByExperimentId
 
     @Transactional
     @Override
@@ -342,7 +390,7 @@ public class DtoMapProtocolImpl implements DtoMapProtocol {
                 }
 
                 ResultSet resultSet =
-                        this.rsProtocolDao.getVendorProtocolForVendorProtoclId(currentVendorProtocolDTO
+                        this.rsProtocolDao.getVendorProtocolForVendorProtocolId(currentVendorProtocolDTO
                                 .getVendorProtocolId());
                 if (resultSet.next()) {
                     VendorProtocolDTO vendorProtocolDTOFromDb = new VendorProtocolDTO();

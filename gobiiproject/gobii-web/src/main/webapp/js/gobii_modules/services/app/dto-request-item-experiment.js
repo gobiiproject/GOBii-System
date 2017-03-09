@@ -1,6 +1,5 @@
-System.register(["@angular/core", "../../model/type-process"], function(exports_1, context_1) {
+System.register(["@angular/core", "../../model/type-process"], function (exports_1, context_1) {
     "use strict";
-    var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,17 +9,18 @@ System.register(["@angular/core", "../../model/type-process"], function(exports_
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, type_process_1;
-    var DtoRequestItemExperiment;
+    var __moduleName = context_1 && context_1.id;
+    var core_1, type_process_1, DtoRequestItemExperiment;
     return {
-        setters:[
+        setters: [
             function (core_1_1) {
                 core_1 = core_1_1;
             },
             function (type_process_1_1) {
                 type_process_1 = type_process_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             DtoRequestItemExperiment = (function () {
                 function DtoRequestItemExperiment(experimentId) {
                     this.experimentId = experimentId;
@@ -66,14 +66,14 @@ System.register(["@angular/core", "../../model/type-process"], function(exports_
                     return returnVal;
                     //return [new NameId(1, 'foo'), new NameId(2, 'bar')];
                 };
-                DtoRequestItemExperiment = __decorate([
-                    core_1.Injectable(), 
-                    __metadata('design:paramtypes', [Number])
-                ], DtoRequestItemExperiment);
                 return DtoRequestItemExperiment;
-            }());
-            exports_1("DtoRequestItemExperiment", DtoRequestItemExperiment); // DtoRequestItemNameIds() 
+            }()); // DtoRequestItemNameIds() 
+            DtoRequestItemExperiment = __decorate([
+                core_1.Injectable(),
+                __metadata("design:paramtypes", [Number])
+            ], DtoRequestItemExperiment);
+            exports_1("DtoRequestItemExperiment", DtoRequestItemExperiment);
         }
-    }
+    };
 });
 //# sourceMappingURL=dto-request-item-experiment.js.map

@@ -6,15 +6,18 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.math.NumberUtils;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestPing;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 import org.gobiiproject.gobiimodel.config.CropConfig;
 import org.gobiiproject.gobiimodel.config.CropDbConfig;
-import org.gobiiproject.gobiimodel.dto.container.PingDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
 import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderStatusMessage;
 import org.gobiiproject.gobiimodel.types.GobiiDbType;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.types.SystemUserDetail;
 import org.gobiiproject.gobiimodel.types.SystemUserNames;
 import org.gobiiproject.gobiimodel.types.SystemUsers;
@@ -130,7 +133,7 @@ public class GobiiConfig {
      * java -jar gobiiconfig.jar -a -wfqpn /gobii-config-test/gobii-web.xml -gR "/shared_data/gobii/"
      * <p>
      * # Configure email server (global)
-     * java -jar gobiiconfig.jar -a -wfqpn /gobii-config-test/gobii-web.xml -stE  -soH smtp.gmail.com -soN 465 -soU gobii.jira@gmail.com -soP g0b11mailS3rv3r -stT SMTP -stH na
+     * java -jar gobiiconfig.jar -a -wfqpn /gobii-config-test/gobii-web.xml -stE  -soH smtp.gmail.com -soN 465 -soU user@gmail.com -soP password -stT SMTP -stH na
      * <p>
      * # Configure web server for crop DEV
      * java -jar gobiiconfig.jar -a -wfqpn /gobii-config-test/gobii-web.xml -c  DEV  -stW  -soH localhost -soN 8282 -soR /gobii-dev/
@@ -140,7 +143,7 @@ public class GobiiConfig {
      * <p>
      * # Configure PostGRES server for crop DEV
      * java -jar gobiiconfig.jar -a -wfqpn /gobii-config-test/gobii-web.xml -c  DEV  -stP
-     * -soH localhost -soN 5432 -soU appuser -soP g0b11isw3s0m3 -soR gobii_dev
+     * -soH localhost -soN 5432 -soU appuser -soP password -soR gobii_dev
      * <p>
      * # Configure MonetDB server for crop DEV
      * java -jar gobiiconfig.jar -a -wfqpn /gobii-config-test/gobii-web.xml -c  DEV -stM  -soH localhost -soN 5000 -soU appuser -soP appuser -soR gobii_dev
@@ -1076,16 +1079,27 @@ public class GobiiConfig {
 
                 PingDTO pingDTORequest = new PingDTO();
 
-                DtoRequestPing dtoRequestPing = new DtoRequestPing();
-                PingDTO pingDTOResponse = dtoRequestPing.process(pingDTORequest);
+
+                //DtoRequestPing dtoRequestPing = new DtoRequestPing();
+                GobiiEnvelopeRestResource<PingDTO> gobiiEnvelopeRestResourcePingDTO = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                        .getUriFactory()
+                        .resourceColl(ServiceRequestId.URL_PING));
+
+                PayloadEnvelope<PingDTO> resultEnvelopePing = gobiiEnvelopeRestResourcePingDTO.post(PingDTO.class,
+                        new PayloadEnvelope<>(pingDTORequest, GobiiProcessType.CREATE));
+                //PayloadEnvelope<ContactDTO> resultEnvelopeNewContact = dtoRequestContact.process(new PayloadEnvelope<>(newContactDto, GobiiProcessType.CREATE));
+
+
+
 
                 Integer responseNum = 1;
-                if (pingDTOResponse.getStatus().isSucceeded()) {
+                if (resultEnvelopePing.getHeader().getStatus().isSucceeded()) {
+                    PingDTO pingDTOResponse = resultEnvelopePing.getPayload().getData().get(0);
                     for (String currentResponse : pingDTOResponse.getPingResponses()) {
                         GobiiConfig.printField("Ping response " + (responseNum++).toString(), currentResponse);
                     }
                 } else {
-                    for (HeaderStatusMessage currentHeader : pingDTOResponse.getStatus().getStatusMessages()) {
+                    for (HeaderStatusMessage currentHeader : resultEnvelopePing.getHeader().getStatus().getStatusMessages()) {
                         GobiiConfig.printField("Service error " + (responseNum++).toString(), currentHeader.getMessage());
                         returnVal = false;
                     }

@@ -55,7 +55,38 @@ public class DataSetServiceImpl implements DataSetService {
     }
 
     @Override
-    public DataSetDTO getDataSetById(Integer dataSetId) {
+    public List<DataSetDTO> getDataSetsByTypeId(Integer typeId) throws GobiiDomainException {
+
+        List<DataSetDTO> returnVal;
+
+        try {
+
+            returnVal = dtoMapDataSet.getDataSetsByTypeId(typeId);
+
+            for (DataSetDTO currentDataSetDTO: returnVal) {
+
+                currentDataSetDTO.getAllowedProcessTypes().add(GobiiProcessType.READ);
+                currentDataSetDTO.getAllowedProcessTypes().add(GobiiProcessType.UPDATE);
+
+            }
+
+            if(null == returnVal) {
+                returnVal = new ArrayList<>();
+            }
+
+
+        } catch (Exception e) {
+
+            LOGGER.error("Gobii service error", e);
+            throw new GobiiDomainException(e);
+        }
+
+        return  returnVal;
+    }
+
+
+    @Override
+    public DataSetDTO getDataSetById(Integer dataSetId) throws GobiiDomainException{
 
         DataSetDTO returnVal;
 

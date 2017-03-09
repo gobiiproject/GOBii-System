@@ -372,7 +372,7 @@ public class Pg1DNAsamples extends WizardPage {
 		tbData = new Table(sashForm, SWT.BORDER | SWT.FULL_SELECTION);
 		tbData.setHeaderVisible(true);
 		tbData.setLinesVisible(true);
-		sashForm.setWeights(new int[] {350, 860});
+		sashForm.setWeights(new int[] {337, 367});
 		tbData.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

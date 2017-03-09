@@ -3,9 +3,14 @@
     <!--<base href="/">-->
     <title>GOBii Extractor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
     <link rel="stylesheet" href="js/node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/extractor-ui.css">
-
+    <link rel="stylesheet" type="text/css" href="js/node_modules/primeng/resources/themes/bootstrap/theme.css"/>
+    <link rel="stylesheet" type="text/css" href="js/node_modules/primeng/resources/primeng.min.css"/>
+    <link rel="stylesheet" type="text/css" href="js/node_modules/font-awesome/css/font-awesome.min.css" />
 
     <!-- 1. Load libraries -->
     <!-- Polyfill(s) for older browsers -->
@@ -19,15 +24,19 @@
 
     <script>
         System.config({
+
             packages: {
-                '@angular/core': {defaultExtension: 'js', main: 'index.js'},
-                '@angular/common': {defaultExtension: 'js', main: 'index.js'},
-                '@angular/compiler': {defaultExtension: 'js', main: 'index.js'},
-                '@angular/router': {defaultExtension: 'js', main: 'index.js'},
-                '@angular/router-deprecated': {defaultExtension: 'js', main: 'index.js'},
-                '@angular/http': {defaultExtension: 'js', main: 'index.js'},
-                '@angular/platform-browser': {defaultExtension: 'js', main: 'index.js'},
-                '@angular/platform-browser-dynamic': {defaultExtension: 'js', main: 'index.js'},
+                '@angular/core': {defaultExtension: 'js', main: 'bundles/core.umd.js'},
+                '@angular/common': {defaultExtension: 'js', main: 'bundles/common.umd.js'},
+                '@angular/compiler': {defaultExtension: 'js', main: 'bundles/compiler.umd.js'},
+                '@angular/router': {defaultExtension: 'js', main: 'bundles/router.umd.js'},
+                '@angular/http': {defaultExtension: 'js', main: 'bundles/http.umd.js'},
+                '@angular/platform-browser': {defaultExtension: 'js', main: 'bundles/platform-browser.umd.js'},
+                '@angular/platform-browser-dynamic': {
+                    defaultExtension: 'js',
+                    main: 'bundles/platform-browser-dynamic.umd.js'
+                },
+                '@angular/forms': {defaultExtension: 'js', main: 'bundles/forms.umd.js'},
                 'js/gobii_modules/root': {
                     format: 'register',
                     defaultExtension: 'js'
@@ -49,6 +58,14 @@
                     defaultExtension: 'js'
                 },
                 'rxjs': {defaultExtension: 'js'},
+                'ng2-uploader': {main: './ng2-uploader.js', defaultExtension: 'js'},
+                'ng2-file-upload': {
+                    main: './ng2-file-upload.js',
+                    defaultExtension: 'js'
+                },
+                primeng: {
+                    defaultExtension: 'js'
+                }
             },
             map: {
                 '@angular/core': 'js/node_modules/@angular/core',
@@ -59,7 +76,11 @@
                 '@angular/http': 'js/node_modules/@angular/http',
                 '@angular/platform-browser': 'js/node_modules/@angular/platform-browser',
                 '@angular/platform-browser-dynamic': 'js/node_modules/@angular/platform-browser-dynamic',
+                '@angular/forms': 'js/node_modules/@angular/forms',
                 'rxjs': 'js/node_modules/rxjs/',
+                'ng2-uploader': 'js/node_modules/ng2-uploader',
+                'ng2-file-upload': 'js/node_modules/ng2-file-upload',
+                'primeng': 'js/node_modules/primeng',
             }
         });
         System.import('js/gobii_modules/root/main').then(null, console.error.bind(console));

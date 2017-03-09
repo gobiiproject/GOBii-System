@@ -47,10 +47,10 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
 
             returnVal = spGetDatasetNamesByExperimentId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving dataset file names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving dataset names by experiment", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -74,10 +74,10 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
 
             returnVal = spGetDatasetDetailsByExperimentId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving dataset details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving dataset details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -144,5 +144,32 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
         return returnVal;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public ResultSet getDataSetsByTypeId(Integer typeId) throws GobiiDaoException {
+
+        ResultSet returnVal = null;
+
+        try {
+
+            Map<String, Object> parameters = new HashMap<>();
+
+            parameters.put("typeId", typeId);
+
+            SpGetDataSetsByTypeId spGetDataSetsByTypeId = new SpGetDataSetsByTypeId(parameters);
+
+            storedProcExec.doWithConnection(spGetDataSetsByTypeId);
+
+            returnVal = spGetDataSetsByTypeId.getResultSet();
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving datasets by type ID with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+
+        }
+
+        return returnVal;
+    }
 
 } // RsProjectDaoImpl

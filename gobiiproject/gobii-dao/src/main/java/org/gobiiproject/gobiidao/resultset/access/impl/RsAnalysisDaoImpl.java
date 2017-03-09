@@ -60,10 +60,10 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
 
             returnVal = spGetDatasetDetailsByExperimentId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving analysis details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving analysis details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -77,13 +77,22 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
 
         ResultSet returnVal = null;
 
-        SpGetAnalysisNames spGetAnalysisNames = new SpGetAnalysisNames();
-        storedProcExec.doWithConnection(spGetAnalysisNames);
-        returnVal = spGetAnalysisNames.getResultSet();
+        try {
+
+            SpGetAnalysisNames spGetAnalysisNames = new SpGetAnalysisNames();
+            storedProcExec.doWithConnection(spGetAnalysisNames);
+            returnVal = spGetAnalysisNames.getResultSet();
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving analysis names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+
+        }
 
         return returnVal;
 
-    }
+    } // getAnalysisNames
 
     @Transactional
     @Override

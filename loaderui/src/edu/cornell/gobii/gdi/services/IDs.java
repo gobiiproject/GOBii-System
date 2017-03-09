@@ -2,10 +2,14 @@ package edu.cornell.gobii.gdi.services;
 
 public class IDs {
 
+	public static int PIid=0;
+	public static int projectId=0;
+	public static int experimentId=0;
+	public static int datasetId=0;
+	
 	public static int contactId=0;
-	public static int projectId=0; 		public static String projectName = null; 
-	public static int experimentId=0;	public static String experimentName = null;
-	public static int datasetId=0;		public static String datasetName = null;
+	public static String projectName = null; 
+	public static String experimentName = null;		public static String datasetName = null;
 	public static int mapTypeId=0;		
 	public static int analysisId=0;		public static String analysisName = null;
 	public static int analysisTypeId=0;
@@ -21,5 +25,6 @@ public class IDs {
 	public static int manifestId=0;		public static String manifestName = null;
 	public static int organizationId=0;
 	public static String organizationName = null;
-	public static int PIid=0;
+	
+	
 }

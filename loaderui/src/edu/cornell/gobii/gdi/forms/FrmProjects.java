@@ -19,7 +19,7 @@ import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ProjectDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
@@ -66,6 +66,8 @@ public class FrmProjects extends AbstractFrm {
 	private TableColumn tblclmnProperty;
 	private TableColumn tblclmnValue;
 	private Button btnClearFields;
+	private Label label;
+	private Label lblProject;
 
 	/**
 	 * Create the composite.
@@ -96,7 +98,7 @@ public class FrmProjects extends AbstractFrm {
 		
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("*Name:");
+		lblName.setText("*Project Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
@@ -111,15 +113,23 @@ public class FrmProjects extends AbstractFrm {
 		textCode.setEditable(false);
 		textCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		textCode.addModifyListener((ModifyListener) listener);
+		
+		label = new Label(cmpForm, SWT.NONE);
+		label.setText(" ");
+		
+				styledTextDesc = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
+				GridData gd_styledTextDesc = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3);
+				gd_styledTextDesc.heightHint = 43;
+				styledTextDesc.setLayoutData(gd_styledTextDesc);
+				styledTextDesc.addModifyListener((ModifyListener) listener);
+		
+		lblProject = new Label(cmpForm, SWT.NONE);
+		lblProject.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, false, false, 1, 1));
+		lblProject.setText("Project");
 
 		Label lblNewLabel = new Label(cmpForm, SWT.NONE);
+		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		lblNewLabel.setText("Description:");
-
-		styledTextDesc = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
-		GridData gd_styledTextDesc = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_styledTextDesc.heightHint = 43;
-		styledTextDesc.setLayoutData(gd_styledTextDesc);
-		styledTextDesc.addModifyListener((ModifyListener) listener);
 
 		Label lblPiContact = new Label(cmpForm, SWT.NONE);
 		lblPiContact.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -209,6 +219,7 @@ public class FrmProjects extends AbstractFrm {
 		btnAddNew.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				PayloadEnvelope<ProjectDTO> resultEnvelope = null;
 				try{
 					if(!validate(true)) return;
 					ProjectDTO projectDTORequest = new ProjectDTO();
@@ -224,22 +235,18 @@ public class FrmProjects extends AbstractFrm {
 						if(item.getText(1).isEmpty()) continue;
 						projectDTORequest.getProperties().add(new EntityPropertyDTO(null, null, item.getText(0), item.getText(1)));
 					}
-					try {
 						RestUri projectsUri = App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_PROJECTS);
 						GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjects = new GobiiEnvelopeRestResource<>(projectsUri);
 						PayloadEnvelope<ProjectDTO> payloadEnvelope = new PayloadEnvelope<>(projectDTORequest, GobiiProcessType.CREATE);
-						PayloadEnvelope<ProjectDTO> resultEnvelope = restResourceForProjects
+						resultEnvelope = restResourceForProjects
 								.post(ProjectDTO.class, payloadEnvelope);
-						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
-							if (cbList.getSelectionIndex()>0) populateProjectsFromSelectedContact(cbList.getText());
-							else populateTableWithAllProjects(tbList);
-						};
-					} catch (Exception err) {
-						Utils.log(shell, memInfo, log, "Error saving Project", err);
-					}
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error saving Project", err);
 				}
+				
+				if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
+					populateProjectsFromSelectedContact(cbList.getText());
+				};
 			}
 		});
 		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -275,9 +282,8 @@ public class FrmProjects extends AbstractFrm {
 						GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjectGet = new GobiiEnvelopeRestResource<>(projectsUri);
 						PayloadEnvelope<ProjectDTO> requestEnvelope =  new PayloadEnvelope<>(projectDTORequest, GobiiProcessType.UPDATE);
 						PayloadEnvelope<ProjectDTO> resultEnvelope = restResourceForProjectGet.put(ProjectDTO.class, requestEnvelope);
-						if(Controller.getDTOResponse(shell, requestEnvelope.getHeader(), memInfo, true)){
-							if(cbList.getSelectionIndex()>0) populateProjectsFromSelectedContact(cbList.getText());
-							else populateTableWithAllProjects(tbList);
+						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
+							populateProjectsFromSelectedContact(cbList.getText());
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error saving Project", err);
@@ -351,6 +357,7 @@ public class FrmProjects extends AbstractFrm {
 			public void handleEvent(Event e) {
 				String selected = cbList.getText(); //single selection
 				cbPIContact.select(cbPIContact.indexOf(selected));
+				cbPIContact.setText(selected);
 				populateProjectsFromSelectedContact(selected);
 				cleanProjectDetails();
 			}
@@ -416,9 +423,10 @@ public class FrmProjects extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Integer id = FormUtils.getIdFromFormList(cbList);
+				String selected = cbList.getText();
 				if(id>0){
 					FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbList, id);
-					populateProjectsFromSelectedContact(id);
+					populateProjectsFromSelectedContact(selected);
 				}
 				else{
 					populateContactsList(cbList);
@@ -456,19 +464,12 @@ public class FrmProjects extends AbstractFrm {
 	}
 
 	//retrieve and display projects by contact Id
-	protected void populateProjectsFromSelectedContact(String selectedContact){
+
+	protected void populateProjectsFromSelectedContact(String selectedContact) {
 		try{
 			IDs.PIid = Integer.parseInt((String) cbList.getData(selectedContact));
-			populateProjectsFromSelectedContact(IDs.PIid ); //retrieve and display projects by contact Id
-		}catch(Exception err){
-			Utils.log(shell, memInfo, log, "Error retrieving Project details", err);
-		}
-	}
-
-	protected void populateProjectsFromSelectedContact(Integer selectedContactId) {
-		try{
 			tbList.removeAll();
-			FormUtils.entrySetToTable(Controller.getProjectNamesByContactId(selectedContactId), tbList);
+			FormUtils.entrySetToTable(Controller.getProjectNamesByContactId(IDs.PIid), tbList);
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error retrieving Porject details", err);
 		}

@@ -21,6 +21,7 @@ public interface RsProtocolDao {
     ResultSet getVendorByProtocolByCompoundIds(Integer protocolId, Integer vendorId) throws GobiiDaoException;
     ResultSet getVendorProtocolsForVendor(Integer organizationId) throws GobiiDaoException;
     ResultSet getVendorProtocolsForProtocol(Integer protocolId) throws GobiiDaoException;
-    ResultSet getVendorProtocolForVendorProtoclId(Integer vendorProtocolId) throws GobiiDaoException;
+    ResultSet getVendorProtocolForVendorProtocolId(Integer vendorProtocolId) throws GobiiDaoException;
+    ResultSet getProtocolDetailsByExperimentId(Integer experimentId) throws GobiiDaoException;
     void updateVendorProtocol(Map<String,Object> parameters) throws GobiiDaoException;
 }

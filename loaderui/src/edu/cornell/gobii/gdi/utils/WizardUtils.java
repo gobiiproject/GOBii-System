@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
@@ -43,6 +44,7 @@ import org.gobiiproject.gobiimodel.headerlesscontainer.ExperimentDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderFilePreviewDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
 import org.gobiiproject.gobiimodel.types.GobiiCropType;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
@@ -204,6 +206,7 @@ public class WizardUtils {
 	public static void setMarkerPropInstructions(LoaderInstructionFilesDTO instructions, DTOmarkers dto, final GobiiFileColumn colId, String name, String propName, HashMap<String, GobiiFileColumn> props, boolean isDataset) throws Exception{
 		if(colId != null && props.size() > 0){
 			GobiiLoaderInstruction instProp = new GobiiLoaderInstruction();
+			instProp.setQcCheck(dto.isQcCheck());
 			instProp.setTable(propName);
 			instProp.setGobiiFile(dto.getFile());
 			GobiiFileColumn col = copyColumn(colId);
@@ -215,7 +218,9 @@ public class WizardUtils {
 			colPlatform.setGobiiColumnType(GobiiColumnType.CONSTANT);
 			colPlatform.setConstantValue(dto.getPlatformID().toString());
 			instProp.getGobiiFileColumns().add(colPlatform);
-			// add open parenthesis
+
+			addJSONprops(instProp, props, dto, isDataset);
+			/*// add open parenthesis
 			GobiiFileColumn colOpenParenthesis = new GobiiFileColumn();
 			colOpenParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
 			colOpenParenthesis.setName("props");
@@ -276,7 +281,7 @@ public class WizardUtils {
 			colCloseParenthesis.setConstantValue("}\"");
 			colCloseParenthesis.setSubcolumn(true);
 			colCloseParenthesis.setSubcolumnDelimiter("");
-			instProp.getGobiiFileColumns().add(colCloseParenthesis);
+			instProp.getGobiiFileColumns().add(colCloseParenthesis);*/
 			// instruction to set
 			instProp.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 			instProp.setContactId(App.INSTANCE.getUser().getUserId());
@@ -289,6 +294,7 @@ public class WizardUtils {
 		try{
 			for(GobiiLoaderInstruction instruction : instructions.getGobiiLoaderInstructions()){
 				Utils.setDSInstructionFileDetails(instruction, dto);
+				instruction.setQcCheck(dto.isQcCheck());
 				instruction.setGobiiFile(dto.getFile());
 				instruction.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 				instruction.setContactId(App.INSTANCE.getUser().getUserId());
@@ -323,6 +329,7 @@ public class WizardUtils {
 		try{
 			for(GobiiLoaderInstruction instruction : instructions.getGobiiLoaderInstructions()){
 				Utils.setMarkerInstructionFileDetails(instruction, dto);
+				instruction.setQcCheck(dto.isQcCheck());
 				instruction.setGobiiFile(dto.getFile());
 				instruction.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 				instruction.setContactId(App.INSTANCE.getUser().getUserId());
@@ -406,6 +413,7 @@ public class WizardUtils {
 			
 			if(dto.getMarkerFields().size() > 0){
 				GobiiLoaderInstruction instMarker = new GobiiLoaderInstruction();
+				instMarker.setQcCheck(dto.isQcCheck());
 				Utils.setMarkerInstructionFileDetails(instMarker, dto);
 				instMarker.setGobiiFile(dto.getFile());
 				instMarker.setTable("marker");
@@ -465,6 +473,7 @@ public class WizardUtils {
 
 			if(dto.getLgFields().size() > 0){
 				GobiiLoaderInstruction instLG = new GobiiLoaderInstruction();
+				instLG.setQcCheck(dto.isQcCheck());
 				Utils.setMarkerInstructionFileDetails(instLG, dto);
 				instLG.setTable("linkage_group");
 				instLG.setGobiiFile(dto.getFile());
@@ -517,6 +526,7 @@ public class WizardUtils {
 
 			if(dto.getLgMarkerFields().size() > 0){
 				GobiiLoaderInstruction instLGmarker = new GobiiLoaderInstruction();
+				instLGmarker.setQcCheck(dto.isQcCheck());
 				Utils.setMarkerInstructionFileDetails(instLGmarker, dto);
 				instLGmarker.setTable("marker_linkage_group");
 				instLGmarker.setGobiiFile(dto.getFile());
@@ -564,6 +574,7 @@ public class WizardUtils {
 	public static void setSamplePropInstructions(Shell shell, LoaderInstructionFilesDTO instructions, DTOsamples dto, GobiiFileColumn colId, String name, String propName, HashMap<String, GobiiFileColumn> props, boolean isDataset) throws Exception{
 		if(colId != null && props.size() > 0){
 			GobiiLoaderInstruction instProp = new GobiiLoaderInstruction();
+			instProp.setQcCheck(dto.isQcCheck());
 			instProp.setTable(propName);
 			instProp.setGobiiFile(dto.getFile());
 			GobiiFileColumn col = copyColumn(colId);
@@ -752,6 +763,7 @@ public class WizardUtils {
 			if(dto.getGermplasmFields().size() > 0){
 				GobiiLoaderInstruction instGermplasm = new GobiiLoaderInstruction();
 				Utils.setSampleInstructionFileDetails(instGermplasm, dto);
+				instGermplasm.setQcCheck(dto.isQcCheck());
 				instGermplasm.setTable("germplasm");
 				instGermplasm.setGobiiFile(dto.getFile());
 				for(Entry<String, GobiiFileColumn> entry : dto.getGermplasmFields().entrySet()){
@@ -786,6 +798,7 @@ public class WizardUtils {
 
 			if(dto.getSampleFields().size() > 0){
 				GobiiLoaderInstruction instSample = new GobiiLoaderInstruction();
+				instSample.setQcCheck(dto.isQcCheck());
 				Utils.setSampleInstructionFileDetails(instSample, dto);
 				instSample.setTable("dnasample");
 				instSample.setGobiiFile(dto.getFile());
@@ -826,6 +839,7 @@ public class WizardUtils {
 			
 			if(dto.getRunFields().size() > 0){
 				GobiiLoaderInstruction instRun = new GobiiLoaderInstruction();
+				instRun.setQcCheck(dto.isQcCheck());
 				Utils.setSampleInstructionFileDetails(instRun, dto);
 				instRun.setTable("dnarun");
 				instRun.setGobiiFile(dto.getFile());
@@ -920,7 +934,7 @@ public class WizardUtils {
 		}
 	}
 	
-	public static void populateDatasetInformation(Shell shell, int datasetId, Combo cbType, DTOdataset dto){
+	public static void populateDatasetInformation(Shell shell, int datasetId, Text text, DTOdataset dto){
 		try{
 			RestUri projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DATASETS);
 			projectsUri.setParamValue("id", Integer.toString(datasetId));
@@ -931,12 +945,14 @@ public class WizardUtils {
 			if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), null, false)){
 				DataSetDTO dataSetDTOResponse = resultEnvelope.getPayload().getData().get(0);
 				Integer typeId = dataSetDTOResponse.getTypeId();
-				FormUtils.entrySetToComboSelectId(Controller.getCVByGroup("dataset_type"), cbType, typeId);
+				String typeName = FormUtils.getNameById(Controller.getCVByGroup("dataset_type"), typeId);
+				text.setText(typeName);
 				dto.setDatasetTypeID(typeId);
-				dto.setDatasetType(cbType.getItem(cbType.getSelectionIndex()).toUpperCase());
+				dto.setDatasetType(typeName.toUpperCase());
 			}
 		}catch(Exception err){
-			Utils.log(shell, null, log, "Error retrieving Dataset details", err);
+			text.setText(" ");
+			Utils.log(shell, null, log, "Error retrieving Dataset details.\n\n Please use the Analysis Dataset form to specify a type for this dataset.", err);
 		}
 	}
 	
@@ -1083,5 +1099,15 @@ public class WizardUtils {
 			instProp.getGobiiFileColumns().add(colComma);
 		}
 		instProp.getGobiiFileColumns().remove(instProp.getGobiiFileColumns().size()-1);
+	}
+
+	public static void populatePlatformText(Shell shell, int platformId, Text textPlatform) {
+		// TODO Auto-generated method stub
+		PayloadEnvelope<PlatformDTO> resultEnvelope = Controller.getPlatformDetails(platformId);
+		if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), null, false)){
+			PlatformDTO platformDTO = resultEnvelope.getPayload().getData().get(0);
+			textPlatform.setText(platformDTO.getPlatformName());
+			
+		}
 	}
 }
