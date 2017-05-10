@@ -109,6 +109,32 @@ public class RsContactDaoImpl implements RsContactDao {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
+    public ResultSet getContactDetailsByUsername(String username) throws GobiiDaoException {
+
+        ResultSet returnVal = null;
+
+        try {
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("username", username);
+            SpGetContactDetailsByUsername spGetContactDetailsByUsername = new SpGetContactDetailsByUsername(parameters);
+
+            storedProcExec.doWithConnection(spGetContactDetailsByUsername);
+
+            returnVal = spGetContactDetailsByUsername.getResultSet();
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving contact details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+
+        }
+
+        return returnVal;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
     public ResultSet getContactDetailsByEmail(String email) throws GobiiDaoException {
 
         ResultSet returnVal = null;

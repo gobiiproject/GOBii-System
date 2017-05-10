@@ -13,7 +13,19 @@ import static org.gobiiproject.gobiimodel.utils.FileSystemInterface.rmIfExist;
  */
 public class FlapjackTransformer {
 
-	public static boolean generateMapFile(String markerFile, String sampleFile, String chrLengthFile, int datasetId, String tempDir, String outFile, String errorFile) {
+	/**
+	 *
+	 * @param markerFile marker file name *extended* if the extended flag is true (has map info)
+	 * @param sampleFile sample file name
+	 * @param chrLengthFile chromosome length file
+	 * @param datasetId ID number of the dataset (unused)
+	 * @param tempDir directory for temp (and output) files. This function does not distinguish between the two
+	 * @param outFile output map file
+	 * @param errorFile temporary file to redirect error stream to
+	 * @param extended if the marker file is extended
+	 * @return if successful (always true, ignore)
+	 */
+	public static boolean generateMapFile(String markerFile, String sampleFile, String chrLengthFile, String tempDir, String outFile, String errorFile, boolean extended) {
    /*
    		1) create the output header
    		2) remove the headers from chrLengthFile
@@ -29,7 +41,9 @@ public class FlapjackTransformer {
 			HelperFunctions.tryExec("tail -n +2 "+chrLengthFile, tempDir+"map.chrLengths",
 					errorFile);
 		}
-		HelperFunctions.tryExec("cut -f1,28,31 "+markerFile,tempDir+"tmp",errorFile);//Marker Name, Linkage Group Name, Marker Linkage Group Start
+		String locations="1,28,31";//extended marker locations of Marker Name (1) Linkage Group Name(28) and MarkerLinkageGroupStart(31)
+		if(!extended)locations="1";
+		HelperFunctions.tryExec("cut -f"+locations+" "+markerFile,tempDir+"tmp",errorFile);//Marker Name, Linkage Group Name, Marker Linkage Group Start
 		HelperFunctions.tryExec("tail -n +2 "+tempDir+"tmp",tempDir+"map.body",errorFile);
 		rm(tempDir+"tmp");
 		
@@ -56,9 +70,9 @@ public class FlapjackTransformer {
 	 * @param errorFile Temporary file to write error logs to
 	 * @return true on success
 	 */
-	public static boolean generateGenotypeFile(String markerFile, String sampleFile, String genotypeFile, int datasetId, String tempDir, String outFile,String errorFile){
+	public static boolean generateGenotypeFile(String markerFile, String sampleFile, String genotypeFile, String tempDir, String outFile,String errorFile){
 		/**
-		 * Genotype file - 
+		 * Genotype file -
 1) create response file
   # fjFile = GENOTYPE
 2)
@@ -98,7 +112,6 @@ transpose marker names
 		HelperFunctions.tryExec("cat "+tempDir+"map.response "+ inverseMarkerList+" " + tempDir+"blank.file "+ tempDir+"sample.matrix",outFile,errorFile);
 
 		rm(tempDir+"map.response");
-		rm(genotypeFile);
 		rm(markerList);
 		rm(inverseMarkerList);
 		rm(tempDir+"genotype.sampleList");

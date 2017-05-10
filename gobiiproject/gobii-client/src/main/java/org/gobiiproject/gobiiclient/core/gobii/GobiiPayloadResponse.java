@@ -51,31 +51,42 @@ public class GobiiPayloadResponse<T> {
 
                 if(HttpStatus.SC_METHOD_NOT_ALLOWED != httpMethodResult.getResponseCode()) {
 
-                    try {
+                    if( HttpStatus.SC_UNAUTHORIZED != httpMethodResult.getResponseCode() ) {
 
-                        returnVal = new PayloadEnvelope<T>()
-                                .fromJson(httpMethodResult.getPayLoad(),
-                                        dtoType);
+                        try {
 
-                        // it's possible that you can have codes other than success, and still have valid response
-                        // body
-                        if (httpMethodResult.getResponseCode() != httpSuccessCode) {
+                            returnVal = new PayloadEnvelope<T>()
+                                    .fromJson(httpMethodResult.getPayLoad(),
+                                            dtoType);
 
-                            String message = makeMessageFromHttpResult(restMethodType.toString(), httpMethodResult);
+                            // it's possible that you can have codes other than success, and still have valid response
+                            // body
+                            if (httpMethodResult.getResponseCode() != httpSuccessCode) {
 
-                            GobiiStatusLevel gobiiStatusLevel = returnVal.getHeader().getStatus().isSucceeded() ?
-                                    GobiiStatusLevel.WARNING :
-                                    GobiiStatusLevel.ERROR;
+                                String message = makeMessageFromHttpResult(restMethodType.toString(), httpMethodResult);
 
-                            returnVal.getHeader()
-                                    .getStatus()
-                                    .addStatusMessage(gobiiStatusLevel,
-                                            message);
+                                GobiiStatusLevel gobiiStatusLevel = returnVal.getHeader().getStatus().isSucceeded() ?
+                                        GobiiStatusLevel.WARNING :
+                                        GobiiStatusLevel.ERROR;
+
+                                returnVal.getHeader()
+                                        .getStatus()
+                                        .addStatusMessage(gobiiStatusLevel,
+                                                message);
+                            }
+
+
+                        } catch (Exception e) {
+                            returnVal.getHeader().getStatus().addException(e);
                         }
 
-
-                    } catch (Exception e) {
-                        returnVal.getHeader().getStatus().addException(e);
+                    } else {
+                        returnVal.getHeader()
+                                .getStatus()
+                                .addStatusMessage(GobiiStatusLevel.ERROR,
+                                        makeMessageFromHttpResult(restMethodType.toString(),
+                                                httpMethodResult,
+                                                "Access is not authorized: " + restMethodType.toString()));
                     }
                 } else {
                     returnVal.getHeader()
@@ -83,7 +94,7 @@ public class GobiiPayloadResponse<T> {
                             .addStatusMessage(GobiiStatusLevel.ERROR,
                                     makeMessageFromHttpResult(restMethodType.toString(),
                                             httpMethodResult,
-                                            "The server does not support this method: " + restMethodType.toString()));
+                                            "Unauthorized: the client may needs to re-authenticate"));
                 }
 
             } else {

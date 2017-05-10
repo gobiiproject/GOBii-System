@@ -37,6 +37,7 @@ public class FrmManifest extends AbstractFrm {
 	private Text txtName;
 	private Text txtCode;
 	private Text txtFilePath;
+	protected Integer currentManifestId;
 
 	/**
 	 * Create the composite.
@@ -94,7 +95,10 @@ public class FrmManifest extends AbstractFrm {
 								payloadEnvelope);
 						
 						if(Controller.getDTOResponse(shell, manifestDTOResponse.getHeader(), memInfo, true)){
+							currentManifestId = manifestDTOResponse.getPayload().getData().get(0).getManifestId();
 							populateManifestTable();
+							FormUtils.selectRowById(tbList,currentManifestId);
+							selectedName = txtName.getText();
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving Manifests", err);
@@ -114,9 +118,9 @@ public class FrmManifest extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Manifest", IDs.manifestName)) return;
+					if(!FormUtils.updateForm(getShell(), "Manifest", selectedName)) return;
 					ManifestDTO manifestDTORequest = new ManifestDTO();
-					manifestDTORequest.setManifestId(IDs.manifestId);
+					manifestDTORequest.setManifestId(currentManifestId);
 					String name = txtName.getText();
 					manifestDTORequest.setName(name);
 					manifestDTORequest.setCode(name);
@@ -124,7 +128,7 @@ public class FrmManifest extends AbstractFrm {
 
 					try {
 						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MANIFEST);
-						restUri.setParamValue("id", Integer.toString(IDs.manifestId));
+						restUri.setParamValue("id", Integer.toString(currentManifestId));
 						GobiiEnvelopeRestResource<ManifestDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
 						restResourceById.setParamValue("id", manifestDTORequest.getManifestId().toString());
 						PayloadEnvelope<ManifestDTO> manifestDTOResponse = restResourceById.put(
@@ -132,6 +136,7 @@ public class FrmManifest extends AbstractFrm {
 						
 						if(Controller.getDTOResponse(shell, manifestDTOResponse.getHeader(), memInfo, true)){
 							populateManifestTable();
+							FormUtils.selectRowById(tbList,currentManifestId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving Manifests", err);
@@ -183,9 +188,9 @@ public class FrmManifest extends AbstractFrm {
 
 			public void handleEvent(Event e) {
 				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.manifestName = selected;
-				IDs.manifestId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateManifestDetails(IDs.manifestId); 
+				selectedName = selected;
+				currentManifestId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				populateManifestDetails(currentManifestId); 
 			}
 
 
@@ -229,7 +234,7 @@ public class FrmManifest extends AbstractFrm {
 	
 	private void clearDetails(){
 		try{
-			IDs.manifestId=0;
+			currentManifestId=0;
 			txtName.setText("");
 			txtCode.setText("");
 			txtFilePath.setText("");
@@ -244,7 +249,7 @@ public class FrmManifest extends AbstractFrm {
 		if(txtName.getText().isEmpty()){
 			successful = false;
 			message = "Name is required field!";
-		}else if(!isNew && IDs.manifestId==0){
+		}else if(!isNew && currentManifestId==0){
 			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
 			successful = false;
 		}else if(isNew || !txtName.getText().equalsIgnoreCase(selectedName)){

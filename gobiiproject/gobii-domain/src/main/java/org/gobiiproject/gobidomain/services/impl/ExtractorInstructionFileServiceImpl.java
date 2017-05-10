@@ -5,6 +5,7 @@ import org.gobiiproject.gobidomain.services.ExtractorInstructionFilesService;
 import org.gobiiproject.gobiidtomapping.DtoMapExtractorInstructions;
 import org.gobiiproject.gobiimodel.config.GobiiException;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ExtractorInstructionFilesDTO;
+import org.gobiiproject.gobiimodel.types.GobiiExtractFilterType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.slf4j.Logger;
@@ -21,6 +22,12 @@ public class ExtractorInstructionFileServiceImpl implements ExtractorInstruction
 
     @Autowired
     private DtoMapExtractorInstructions dtoMapExtractorInstructions = null;
+
+
+    @Override
+    public void writeDataFile(String cropType, GobiiExtractFilterType gobiiExtractFilterType, String jobId, byte[] byteArray) throws GobiiException {
+        dtoMapExtractorInstructions.writeDataFile(cropType,gobiiExtractFilterType,jobId,byteArray);
+    }
 
     @Override
     public ExtractorInstructionFilesDTO createInstruction(String cropType, ExtractorInstructionFilesDTO ExtractorInstructionFilesDTO)

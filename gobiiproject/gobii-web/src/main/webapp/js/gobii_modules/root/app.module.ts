@@ -4,15 +4,10 @@ import {HttpModule} from "@angular/http";
 import {BrowserModule} from "@angular/platform-browser";
 
 import {ExportFormatComponent} from "../views/export-format.component";
-import {ContactsListBoxComponent} from "../views/contacts-list-box.component";
 import {ProjectListBoxComponent} from "../views/project-list-box.component";
-import {ExperimentListBoxComponent} from "../views/experiment-list-box.component";
 import {DataSetCheckListBoxComponent} from "../views/dataset-checklist-box.component";
-import {MapsetsListBoxComponent} from "../views/mapsets-list-box.component";
-import {CriteriaDisplayComponent} from "../views/criteria-display.component";
 import {StatusDisplayComponent} from "../views/status-display-box.component";
 import {CropsListBoxComponent} from "../views/crops-list-box.component";
-import {UsersListBoxComponent} from "../views/users-list-box.component";
 import {ExportTypeComponent} from "../views/export-type.component";
 import {DatasetTypeListBoxComponent} from "../views/dataset-types-list-box.component";
 import {CheckListBoxComponent} from "../views/checklist-box.component";
@@ -24,10 +19,17 @@ import {AuthenticationService} from "../services/core/authentication.service";
 import {TextAreaComponent} from "../views/text-area.component";
 import {UploaderComponent} from "../views/uploader.component";
 import {SampleListTypeComponent} from "../views/sample-list-type.component";
-import {TreeModule, SharedModule, TreeNode} from 'primeng/primeng';
+import {TreeModule, SharedModule, TreeNode, Dialog} from 'primeng/primeng';
 import {StatusDisplayTreeComponent} from "../views/status-display-tree.component";
 import {FileModelTreeService} from "../services/core/file-model-tree-service";
-
+import {NameIdListBoxComponent} from "../views/name-id-list-box.component";
+import {NameIdService} from "../services/core/name-id-service";
+import {AppComponent} from "./app.component";
+import {LoginComponent} from "../views/login.component";
+import {routing} from "./app.routing";
+import {APP_BASE_HREF} from "@angular/common";
+import {AuthGuard} from "../services/core/auth.guard";
+import {Button} from "primeng/components/button/button";
 
 @NgModule({
     imports: [BrowserModule,
@@ -35,18 +37,17 @@ import {FileModelTreeService} from "../services/core/file-model-tree-service";
         FormsModule,
         ReactiveFormsModule,
         TreeModule,
-        SharedModule],
-    declarations: [ExtractorRoot,
+        SharedModule,
+        routing],
+    declarations: [
+        AppComponent,
+        ExtractorRoot,
+        LoginComponent,
         ExportFormatComponent,
-        ContactsListBoxComponent,
         ProjectListBoxComponent,
-        ExperimentListBoxComponent,
         DataSetCheckListBoxComponent,
-        MapsetsListBoxComponent,
-        CriteriaDisplayComponent,
         StatusDisplayComponent,
         CropsListBoxComponent,
-        UsersListBoxComponent,
         ExportTypeComponent,
         DatasetTypeListBoxComponent,
         CheckListBoxComponent,
@@ -56,11 +57,17 @@ import {FileModelTreeService} from "../services/core/file-model-tree-service";
         TextAreaComponent,
         UploaderComponent,
         SampleListTypeComponent,
-        StatusDisplayTreeComponent],
-    providers: [AuthenticationService,
+        NameIdListBoxComponent,
+        StatusDisplayTreeComponent,
+        Dialog,
+        Button],
+    providers: [AuthGuard,
+        AuthenticationService,
         DtoRequestService,
-        FileModelTreeService],
-    bootstrap: [ExtractorRoot]
+        FileModelTreeService,
+        NameIdService,
+        {provide: APP_BASE_HREF, useValue: './'}],
+    bootstrap: [AppComponent]
 })
 
 export class AppModule {

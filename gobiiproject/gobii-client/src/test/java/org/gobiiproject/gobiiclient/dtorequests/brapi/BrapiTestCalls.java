@@ -4,11 +4,11 @@ import org.apache.commons.lang.ObjectUtils;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ControllerType;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiibrapi.calls.calls.BrapiResponseCallsItem;
-import org.gobiiproject.gobiibrapi.core.derived.BrapiResponseEnvelopeList;
+import org.gobiiproject.gobiibrapi.calls.calls.BrapiResponseCalls;
+import org.gobiiproject.gobiibrapi.core.responsemodel.BrapiResponseEnvelopeMasterDetail;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.brapi.BrapiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
+import org.gobiiproject.gobiiclient.core.common.Authenticator;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -40,17 +40,17 @@ public class BrapiTestCalls {
                 .getUriFactory(ControllerType.BRAPI)
                 .resourceColl(ServiceRequestId.URL_CALLS);
 
-        BrapiEnvelopeRestResource<ObjectUtils.Null,ObjectUtils.Null,BrapiResponseCallsItem> brapiEnvelopeRestResource =
+        BrapiEnvelopeRestResource<ObjectUtils.Null,ObjectUtils.Null,BrapiResponseCalls> brapiEnvelopeRestResource =
                 new BrapiEnvelopeRestResource<>(restUriCalls,
                         ObjectUtils.Null.class,
                         ObjectUtils.Null.class,
-                        BrapiResponseCallsItem.class);
+                        BrapiResponseCalls.class);
 
-        BrapiResponseEnvelopeList<ObjectUtils.Null,BrapiResponseCallsItem> callsResult = brapiEnvelopeRestResource.getFromListResource();
+        BrapiResponseEnvelopeMasterDetail<BrapiResponseCalls> callsResult = brapiEnvelopeRestResource.getFromListResource();
 
         BrapiTestResponseStructure.validatateBrapiResponseStructure(callsResult.getBrapiMetaData());
 
-        Assert.assertTrue(callsResult.getData().getData().size() > 0 );
+        Assert.assertTrue(callsResult.getResult().getData().size() > 0 );
 
     }
 }

@@ -3,13 +3,23 @@ import {EntityFilter} from "../model/type-entity-filter";
 import {GobiiExtractFilterType} from "../model/type-extractor-filter";
 
 
+// if the radios are not in a form, the BY_SAMPLE one doe snot show as being checked when it is clearly selected
 @Component({
     selector: 'export-type',
     outputs: ['onExportTypeSelected'],
-    template: `<label class="the-label">Extract By:&nbsp;</label>
-                  <input type="radio" (change)="handleExportTypeSelected($event)" name="format" value="WHOLE_DATASET" checked="checked">Data Set&nbsp;
-                  <input type="radio" (change)="handleExportTypeSelected($event)" name="format" value="BY_SAMPLE" disabled>Sample&nbsp;
-                  <input type="radio" (change)="handleExportTypeSelected($event)" name="format" value="BY_MARKER" disabled>Marker&nbsp;` // end template
+    template: `<fieldset class="well the-fieldset" style="width: 350px">
+                  <div class="the-legend" >
+                      <form>
+                          <label class="the-legend">Extract By:&nbsp;</label>
+                            <input type="radio" (change)="handleExportTypeSelected($event)" name="format" value="WHOLE_DATASET" checked="checked">
+                            <label  for="WHOLE_DATASET" class="the-legend">Datasets</label>
+                            <input type="radio" (change)="handleExportTypeSelected($event)" name="format" value="BY_SAMPLE">
+                            <label for="BY_SAMPLE" class="the-legend">Samples</label>
+                            <input type="radio" (change)="handleExportTypeSelected($event)" name="format" value="BY_MARKER">
+                            <label  for="BY_MARKER" class="the-legend">Markers</label>
+                      </form>
+                  </div>
+                </fieldset>` // end template
 })
 
 export class ExportTypeComponent implements OnInit {
@@ -34,6 +44,8 @@ export class ExportTypeComponent implements OnInit {
 
 
     ngOnInit() {
+
+        //this.handleExportTypeSelected(GobiiExtractFilterType.WHOLE_DATASET);
     }
 
 }

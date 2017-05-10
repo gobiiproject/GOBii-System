@@ -12,15 +12,15 @@ public class MailMessage{
 	private String img = "GobiiWebImg.png"; // Note: This is full sized logo from the main page
 	
 	MailMessage(){
-		header = "<b>"+getHeaderSalutation()+"</b><br/> Here is a summary of your transaction: <br/><br/>";
-		footer = "<br/><br/>"+getFooterSalutation()+", <br/> <img src=\"cid:image\" width=\"300\">";
+		header = "<b><i>"+getHeaderSalutation()+"</i></b></br><br/> Here is a summary of your transaction: ";
+		footer = "<br/><br/>"+getFooterSalutation()+", </br> <a href=\"http://www.gobiiproject.org\"><img src=\"cid:image\" width=\"300\"></a>";
 	}
 	private static String getHeaderSalutation(){
 		int numChoices=10;//Several cases of Good Day
 		int choice=(int)Math.floor(Math.random()*numChoices);
 		switch(choice){
 			case 0: return "G'day.";
-			case 1: return "Lovely day for data loading.";
+			case 1: return "Greetings!";
 			case 2:	return "Salutations!";
 			case 3: return "Hope you're doing well.";
 			default:

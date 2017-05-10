@@ -5,11 +5,11 @@ import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ControllerType;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiibrapi.calls.studies.search.BrapiRequestStudiesSearch;
-import org.gobiiproject.gobiibrapi.calls.studies.search.BrapiResponseStudiesSearchItem;
-import org.gobiiproject.gobiibrapi.core.derived.BrapiResponseEnvelopeList;
+import org.gobiiproject.gobiibrapi.calls.studies.search.BrapiResponseStudiesSearch;
+import org.gobiiproject.gobiibrapi.core.responsemodel.BrapiResponseEnvelopeMasterDetail;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.brapi.BrapiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
+import org.gobiiproject.gobiiclient.core.common.Authenticator;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -44,17 +44,17 @@ public class BrapiTestSearchStudies {
         BrapiRequestStudiesSearch brapiRequestStudiesSearch = new BrapiRequestStudiesSearch();
         brapiRequestStudiesSearch.setStudyType("genotype");
 
-        BrapiEnvelopeRestResource<BrapiRequestStudiesSearch,ObjectUtils.Null,BrapiResponseStudiesSearchItem> brapiEnvelopeRestResource =
-                new BrapiEnvelopeRestResource<>(restUriStudiesSearch,
+        BrapiEnvelopeRestResource<BrapiRequestStudiesSearch,ObjectUtils.Null,BrapiResponseStudiesSearch> brapiEnvelopeRestResource =
+                new BrapiEnvelopeRestResource<BrapiRequestStudiesSearch,ObjectUtils.Null,BrapiResponseStudiesSearch>(restUriStudiesSearch,
                         BrapiRequestStudiesSearch.class,
                         ObjectUtils.Null.class,
-                        BrapiResponseStudiesSearchItem.class);
+                        BrapiResponseStudiesSearch.class);
 
-        BrapiResponseEnvelopeList<ObjectUtils.Null,BrapiResponseStudiesSearchItem> studiesResult = brapiEnvelopeRestResource.postToListResource(brapiRequestStudiesSearch);
+        BrapiResponseEnvelopeMasterDetail<BrapiResponseStudiesSearch> studiesResult = brapiEnvelopeRestResource.postToListResource(brapiRequestStudiesSearch);
 
         BrapiTestResponseStructure.validatateBrapiResponseStructure(studiesResult.getBrapiMetaData());
 
-        Assert.assertTrue(studiesResult.getData().getData().size() > 0);
+        Assert.assertTrue(studiesResult.getResult().getData().size() > 0);
 
     }
 }

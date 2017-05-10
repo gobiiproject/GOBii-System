@@ -25,19 +25,19 @@ public class WizardMarkers extends Wizard {
 	private String config;
 	private DTOmarkers dto = new DTOmarkers();
 
-	public WizardMarkers(String config){
+	public WizardMarkers(String config, int piID, int projectID, int experimentID, int datasetID){
 		setWindowTitle("Marker Data Loading Wizard");
 		this.config = config;
-	}
-
-	public WizardMarkers(String config, Integer projectID, Integer platformID, Integer experiemtnID) {
-		setWindowTitle("Marker Data Loading Wizard");
-		this.config = config;
+		
+		dto.setPiID(piID);
+		dto.setProjectID(projectID);
+		dto.setExperimentID(experimentID);
+		dto.setDatasetID(datasetID);
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new Pg1Markers(config, dto));
+		addPage(new Pg1Markers(config, dto, dto.getPiID(), dto.getProjectID(), dto.getExperimentID(), dto.getDatasetID()));
 		addPage(new Pg2Markers(config, dto));
 		addPage(new Pg3Markers(config, dto));
 	}

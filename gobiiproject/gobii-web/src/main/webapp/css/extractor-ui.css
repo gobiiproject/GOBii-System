@@ -1,16 +1,18 @@
 
 /* Styles from original angular demo */
-h2 { 
+
+/*
+h2 {
   color: #444;
-  font-family: Arial, Helvetica, sans-serif;   
+  font-family: Arial, Helvetica, sans-serif;
   font-weight: lighter;
 }
-body { 
-  margin: 2em; 
+body {
+  margin: 2em;
 }
-body, input[text], button { 
-  color: #888; 
-  font-family: Cambria, Georgia; 
+body, input[text], button {
+  color: #888;
+  font-family: Cambria, Georgia;
 }
 button {
   font-family: Arial;
@@ -26,24 +28,31 @@ button:hover {
 }
 button:disabled {
   background-color: #eee;
-  color: #aaa; 
+  color: #aaa;
   cursor: auto;
 }
+
+*/
+
 /* everywhere else */
-* { 
+/*
+* {
   font-family: Arial, Helvetica, sans-serif; 
 }
-
+*/
 
 /* Changes specifically for extractor UI*/
 
 /* apparently you can */
+/*
 .row {
     margin-top: 15px;
     margin-bottom: 15px;
 }
+*/
+/* make sidebar nav vertical */
 
-/* make sidebar nav vertical */ 
+/*
 @media (min-width: 768px) {
   .sidebar-nav .navbar .navbar-collapse {
     padding: 0;
@@ -69,6 +78,7 @@ button:disabled {
     border-style: none;
     border-width: 0;
     font-size: 14px;
+    font-weight: normal;
     line-height: 20px;
     margin-bottom: 0;
 }
@@ -77,11 +87,14 @@ button:disabled {
     -webkit-box-shadow:  0px 0px 0px 0px #000;
             box-shadow:  0px 0px 0px 0px #000;
 }
+*/
 
 .criteria-tree {
     height: 40%;
+    width: 2000px;
     margin: 0;
     overflow: auto;
     padding: .25em;
     white-space: nowrap;
 }
+

@@ -17,19 +17,23 @@ System.register(["./type-entity", "./cv-filter-type", "./guid"], function (expor
         execute: function () {
             (function (ExtractorItemType) {
                 ExtractorItemType[ExtractorItemType["UNKNOWN"] = 0] = "UNKNOWN";
-                ExtractorItemType[ExtractorItemType["CATEGORY"] = 1] = "CATEGORY";
-                ExtractorItemType[ExtractorItemType["ENTITY"] = 2] = "ENTITY";
-                ExtractorItemType[ExtractorItemType["MARKER_LIST"] = 3] = "MARKER_LIST";
-                ExtractorItemType[ExtractorItemType["SAMPLE_LIST"] = 4] = "SAMPLE_LIST";
-                ExtractorItemType[ExtractorItemType["EXPORT_FORMAT"] = 5] = "EXPORT_FORMAT";
-                ExtractorItemType[ExtractorItemType["CROP_TYPE"] = 6] = "CROP_TYPE";
+                ExtractorItemType[ExtractorItemType["ENTITY"] = 1] = "ENTITY";
+                ExtractorItemType[ExtractorItemType["MARKER_FILE"] = 2] = "MARKER_FILE";
+                ExtractorItemType[ExtractorItemType["MARKER_LIST_ITEM"] = 3] = "MARKER_LIST_ITEM";
+                ExtractorItemType[ExtractorItemType["SAMPLE_LIST_ITEM"] = 4] = "SAMPLE_LIST_ITEM";
+                ExtractorItemType[ExtractorItemType["SAMPLE_FILE"] = 5] = "SAMPLE_FILE";
+                ExtractorItemType[ExtractorItemType["EXPORT_FORMAT"] = 6] = "EXPORT_FORMAT";
+                ExtractorItemType[ExtractorItemType["CROP_TYPE"] = 7] = "CROP_TYPE";
+                ExtractorItemType[ExtractorItemType["STATUS_DISPLAY_TREE_READY"] = 8] = "STATUS_DISPLAY_TREE_READY";
+                ExtractorItemType[ExtractorItemType["JOB_ID"] = 9] = "JOB_ID";
+                ExtractorItemType[ExtractorItemType["SAMPLE_LIST_TYPE"] = 10] = "SAMPLE_LIST_TYPE";
+                ExtractorItemType[ExtractorItemType["LABEL"] = 11] = "LABEL";
+                ExtractorItemType[ExtractorItemType["CLEAR_TREE"] = 12] = "CLEAR_TREE";
             })(ExtractorItemType || (ExtractorItemType = {}));
             exports_1("ExtractorItemType", ExtractorItemType);
             (function (ExtractorCategoryType) {
-                ExtractorCategoryType[ExtractorCategoryType["MODEL_CONTAINER"] = 0] = "MODEL_CONTAINER";
-                ExtractorCategoryType[ExtractorCategoryType["ENTITY_CONTAINER"] = 1] = "ENTITY_CONTAINER";
-                ExtractorCategoryType[ExtractorCategoryType["CATEGORY_CONTAINER"] = 2] = "CATEGORY_CONTAINER";
-                ExtractorCategoryType[ExtractorCategoryType["LEAF"] = 3] = "LEAF";
+                ExtractorCategoryType[ExtractorCategoryType["CONTAINER"] = 0] = "CONTAINER";
+                ExtractorCategoryType[ExtractorCategoryType["LEAF"] = 1] = "LEAF";
             })(ExtractorCategoryType || (ExtractorCategoryType = {}));
             exports_1("ExtractorCategoryType", ExtractorCategoryType);
             (function (CardinalityType) {
@@ -50,7 +54,7 @@ System.register(["./type-entity", "./cv-filter-type", "./guid"], function (expor
                     this._categoryType = ExtractorCategoryType.LEAF;
                     this._entityType = type_entity_1.EntityType.UNKNOWN;
                     this._entitySubType = type_entity_1.EntitySubType.UNKNOWN;
-                    this._cvFilterType = cv_filter_type_1.CvFilterType.UKNOWN;
+                    this._cvFilterType = cv_filter_type_1.CvFilterType.UNKNOWN;
                     this._fileItems = [];
                     this._fileModelNodeUniqueId = guid_1.Guid.generateUUID();
                     this._itemType = itemType;
@@ -141,6 +145,13 @@ System.register(["./type-entity", "./cv-filter-type", "./guid"], function (expor
                 };
                 FileModelNode.prototype.getFileModelNodeUniqueId = function () {
                     return this._fileModelNodeUniqueId;
+                };
+                FileModelNode.prototype.getRequired = function () {
+                    return this._required;
+                };
+                FileModelNode.prototype.setRequired = function (value) {
+                    this._required = value;
+                    return this;
                 };
                 return FileModelNode;
             }());

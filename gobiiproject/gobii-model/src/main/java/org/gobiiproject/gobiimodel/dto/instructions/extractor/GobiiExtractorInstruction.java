@@ -10,16 +10,17 @@ import java.util.List;
  */
 public class GobiiExtractorInstruction {
 
-    List<GobiiDataSetExtract> dataSetExtracts = new ArrayList<>();
-    List<Integer> mapsetIds = new ArrayList<>();
+    private List<GobiiDataSetExtract> dataSetExtracts = new ArrayList<>();
+    private List<Integer> mapsetIds = new ArrayList<>();
 
     //Contact for this instruction
-    Integer contactId;
+    private Integer contactId;
     //Email address of the primary contact for this instruction
-    String contactEmail;
+    private String contactEmail;
     //Crop that this applies to
     private String gobiiCropType = null;
-
+    //QC
+    private boolean qcCheck = false;
 
     public Integer getContactId() {
         return contactId;
@@ -37,14 +38,11 @@ public class GobiiExtractorInstruction {
         this.contactEmail = contactEmail;
     }
 
-
     public List<GobiiDataSetExtract> getDataSetExtracts() {
         return dataSetExtracts;
     }
 
-    public void setDataSetExtracts(List<GobiiDataSetExtract> dataSetExtracts) {
-        this.dataSetExtracts = dataSetExtracts;
-    }
+    public void setDataSetExtracts(List<GobiiDataSetExtract> dataSetExtracts) { this.dataSetExtracts = dataSetExtracts; }
 
     public String getGobiiCropType() {
         return gobiiCropType;
@@ -60,5 +58,13 @@ public class GobiiExtractorInstruction {
 
     public void setMapsetIds(List<Integer> mapsetIds) {
         this.mapsetIds = mapsetIds;
+    }
+
+    public boolean isQcCheck() {
+        return qcCheck;
+    }
+
+    public void setQcCheck(boolean qcCheck) {
+        this.qcCheck = qcCheck;
     }
 }

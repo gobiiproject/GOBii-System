@@ -1,8 +1,11 @@
 package org.gobiiproject.gobidomain.services.impl;
 
+import org.gobiiproject.gobidomain.GobiiDomainException;
 import org.gobiiproject.gobiidtomapping.DtoMapCvGroup;
 import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
 import org.gobiiproject.gobiimodel.headerlesscontainer.CvDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.CvGroupDTO;
+import org.gobiiproject.gobiimodel.types.GobiiCvGroupType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,21 @@ public class CvGroupServiceImpl implements CvGroupService {
 
         return returnVal;
 
+    }
+
+    @Override
+    public List<CvGroupDTO> getCvsForType(GobiiCvGroupType gobiiCvGroupType) throws GobiiDomainException {
+
+        List<CvGroupDTO> returnVal;
+
+        returnVal = dtoMapCvGroup.getCvGroupsForType(gobiiCvGroupType);
+
+        for (CvGroupDTO currentCvDTO : returnVal) {
+
+            currentCvDTO.getAllowedProcessTypes().add(GobiiProcessType.READ);
+        }
+
+        return returnVal;
     }
 
 

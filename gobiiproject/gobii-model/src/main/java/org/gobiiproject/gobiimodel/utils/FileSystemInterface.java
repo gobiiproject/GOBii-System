@@ -10,15 +10,23 @@ import static org.gobiiproject.gobiimodel.utils.HelperFunctions.tryExec;
 
 public class FileSystemInterface {
 
+	private static boolean keepAllFiles=false;
 	/**
 	 * As unix RM command.
 	 * @param file
 	 */
 	public static void rm(String file){
+		if(keepAllFiles){
+			return;
+		}
 		HelperFunctions.tryExec("rm "+file);
 	}
 
 	public static void rmIfExist(String file){
+		if(file==null)return;
+		if(keepAllFiles){
+			return;
+		}
 		File f=new File(file);
 		if(f.exists()){
 			f.delete();
@@ -52,5 +60,13 @@ public class FileSystemInterface {
 			ErrorLogger.logError("FileSystemInterface","Unable to call wc",e);
 		}
 		return retVal;
+	}
+
+	/**
+	 * Determines whether or not to keep temporary files. Useful for debuggins
+	 * @param keep
+	 */
+	public static void keepAllFiles(boolean keep){
+		keepAllFiles=keep;
 	}
 }

@@ -46,7 +46,7 @@ public class HeaderAuth implements Serializable {
     }
 
     public String getGobiiCropType() {
-        return gobiiCropType;
+        return this.gobiiCropType;
     }
 
     public void setGobiiCropType(String gobiiCropType) {

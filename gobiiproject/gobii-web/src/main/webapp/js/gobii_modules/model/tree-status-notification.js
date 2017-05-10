@@ -6,9 +6,13 @@ System.register([], function (exports_1, context_1) {
         setters: [],
         execute: function () {
             TreeStatusNotification = (function () {
-                function TreeStatusNotification(fileModelState, dtoHeaderResponse) {
+                function TreeStatusNotification(gobiiExractFilterType, fileModelState, modelTreeValidationErrors) {
+                    this.gobiiExractFilterType = gobiiExractFilterType;
                     this.fileModelState = fileModelState;
-                    this.dtoHeaderResponse = dtoHeaderResponse;
+                    this.modelTreeValidationErrors = modelTreeValidationErrors;
+                    if (modelTreeValidationErrors === null) {
+                        this.modelTreeValidationErrors = [];
+                    }
                 }
                 return TreeStatusNotification;
             }());

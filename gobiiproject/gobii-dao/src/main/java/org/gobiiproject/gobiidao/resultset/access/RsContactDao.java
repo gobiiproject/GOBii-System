@@ -17,4 +17,5 @@ public interface RsContactDao {
     ResultSet getContactDetailsByEmail(String email) throws GobiiDaoException;
     Integer createContact(Map<String,Object> parameters) throws GobiiDaoException;
     void updateContact(Map<String,Object> parameters) throws GobiiDaoException;
+    ResultSet getContactDetailsByUsername(String username) throws GobiiDaoException;
 }

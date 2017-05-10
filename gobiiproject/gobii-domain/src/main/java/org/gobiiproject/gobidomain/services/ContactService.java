@@ -17,6 +17,7 @@ public interface ContactService {
     ContactDTO replaceContact(Integer contactId, ContactDTO contactDTO) throws GobiiDomainException;
     ContactDTO getContactById(Integer contactId) throws GobiiDomainException;
     ContactDTO getContactByEmail(String email) throws GobiiDomainException;
+    ContactDTO getContactByUserName( String userName ) throws GobiiDomainException;
     ContactDTO getContactByLastName(String lastName) throws GobiiDomainException;
     ContactDTO getContactByFirstName(String email, String lastName, String firstName) throws GobiiDomainException;
 

@@ -81,11 +81,7 @@ public class MailInterface {
 		props.setProperty("mail.port", this.getPort());
 		props.setProperty("mail.user", username);
 		props.setProperty("mail.password", password);
-
-		ErrorLogger.logDebug("Mail Interface","Properties Values:");
-		for(Map.Entry<Object,Object> entry:props.entrySet()){
-			ErrorLogger.logDebug("Mail Interface",entry.getKey()+" => "+entry.getValue());
-		}
+		
 
 
 		Session mailSession = Session.getInstance(props,

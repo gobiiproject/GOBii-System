@@ -48,13 +48,16 @@ import org.eclipse.swt.custom.CCombo;
 
 public class FrmPlatforms extends AbstractFrm {
 	private static Logger log = Logger.getLogger(FrmPlatforms.class.getName());
-	private Text txtName;
 	private Text txtCode;
 	private Table tbProperties;
 
 	private StyledText memDescription;
 	private TableViewer viewerProperties;
-	private Combo typeCombo;
+	private String comboSelectedName;
+	private Button btnUpdate;
+	private CCombo nameCombo;
+	private int currentPlatformId=0;
+	private int currentPlatformTypeId=0;
 
 	/**
 	 * Create the composite.
@@ -69,29 +72,19 @@ public class FrmPlatforms extends AbstractFrm {
 
 		TableColumn tblclmnPlatforms = new TableColumn(tbList, SWT.NONE);
 		tblclmnPlatforms.setWidth(250);
-		tblclmnPlatforms.setText("Platforms:");
+		tblclmnPlatforms.setText("Platforms");
 		
 		Label lbltype = new Label(cmpForm, SWT.NONE);
 		lbltype.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lbltype.setText("*Type:");
+		lbltype.setText("*Platform Name:");
 		
-		typeCombo = new Combo(cmpForm, SWT.BORDER);
-		typeCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		FormUtils.entrySetToCombo(Controller.getCVByGroup("platform_type"), typeCombo);
+		nameCombo = new CCombo(cmpForm, SWT.BORDER);
+		nameCombo.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		nameCombo.setEditable(false);
+		nameCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		FormUtils.entrySetToCombo(Controller.getCVByGroup("platform_type"), nameCombo);
+		nameCombo.setText("*Select Platform");
 		
-		
-		Label lblName = new Label(cmpForm, SWT.NONE);
-		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("*Platform Name:");
-
-		txtName = new Text(cmpForm, SWT.BORDER);
-		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		typeCombo.addListener (SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				String selected = typeCombo.getText(); //single selection
-				txtName.setText(selected);
-			}
-		});
 		Label lblCode = new Label(cmpForm, SWT.NONE);
 		lblCode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblCode.setText("Code:");
@@ -100,18 +93,11 @@ public class FrmPlatforms extends AbstractFrm {
 		txtCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		Label label = new Label(cmpForm, SWT.NONE);
-		label.setText(" ");
+		new Label(cmpForm, SWT.NONE);
 		
 				memDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
-				memDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3));
-		
-		Label lblPlatform = new Label(cmpForm, SWT.NONE);
-		lblPlatform.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, false, false, 1, 1));
-		lblPlatform.setText("Platform");
+				memDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2));
 		Label lblDescription = new Label(cmpForm, SWT.NONE);
-		lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		lblDescription.setText("Description:");
 		
 				Label lblProperties = new Label(cmpForm, SWT.NONE);
@@ -198,6 +184,7 @@ public class FrmPlatforms extends AbstractFrm {
 				btnAddNew.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
+					
 						if(!validate(true)) return;
 						newPlatform(true);
 
@@ -207,12 +194,13 @@ public class FrmPlatforms extends AbstractFrm {
 				btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
 		
-				Button btnUpdate = new Button(cmpForm, SWT.NONE);
+				btnUpdate = new Button(cmpForm, SWT.NONE);
+				btnUpdate.setEnabled(false);
 				btnUpdate.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
 						if(!validate(false)) return;
-						if(!FormUtils.updateForm(getShell(), "Platform", IDs.platformName)) return;
+						if(!FormUtils.updateForm(getShell(), "Platform", selectedName)) return;
 						newPlatform(false);
 					}
 				});
@@ -224,13 +212,14 @@ public class FrmPlatforms extends AbstractFrm {
 				btnClearFields.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						IDs.platformId=0;
+						currentPlatformId=0;
+						FormUtils.entrySetToCombo(Controller.getCVByGroup("platform_type"), nameCombo);
+						nameCombo.setText("*Select Platform");
 						cleanDetails();
 					}
 				});
 				btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 				btnClearFields.setText("Clear Fields");
-		cbList.setText("*Select platform type");
 	}
 
 	protected void newPlatform(boolean newPlatform) {
@@ -255,7 +244,7 @@ public class FrmPlatforms extends AbstractFrm {
 						payloadEnvelope);
 			}
 			else{
-				newPlatformDto.setPlatformId(IDs.platformId);
+				newPlatformDto.setPlatformId(currentPlatformId);
 				payloadEnvelope = new PayloadEnvelope<>(newPlatformDto, GobiiProcessType.UPDATE);
 				RestUri restUriPlatformForGetById = App
 						.INSTANCE.getUriFactory()
@@ -268,8 +257,12 @@ public class FrmPlatforms extends AbstractFrm {
 			try{
 				if(Controller.getDTOResponse(shell, platformDTOResponseEnvelope.getHeader(), memInfo, true)){
 					tbList.removeAll();
-					if(IDs.platformTypeId==0) populatePlatformsTable();
+					if(currentPlatformTypeId==0) populatePlatformsTable();
 					else populatePlatformFromSelectedType(newPlatformDto.getTypeId());
+					currentPlatformId=platformDTOResponseEnvelope.getPayload().getData().get(0).getId();
+					populatePlatformDetails(currentPlatformId);
+					btnUpdate.setEnabled(true);
+					FormUtils.selectRowById(tbList,currentPlatformId);
 				};
 			}catch(Exception err){
 				Utils.log(shell, memInfo, log, "Error savging Platform", err);
@@ -281,13 +274,12 @@ public class FrmPlatforms extends AbstractFrm {
 
 	private void setPlatformDetails(PlatformDTO newPlatformDto) {
 		try{
-			String name = txtName.getText();
-			String typeName = typeCombo.getItem(typeCombo.getSelectionIndex());
-			Integer typeId = Integer.parseInt((String) typeCombo.getData(typeName));
+			comboSelectedName = nameCombo.getText();
+			newPlatformDto.setPlatformName(comboSelectedName);
+			Integer typeId = Integer.parseInt((String) nameCombo.getData(comboSelectedName));
 			newPlatformDto.setTypeId(typeId);
-			newPlatformDto.setPlatformCode(name);
+			newPlatformDto.setPlatformCode(comboSelectedName);
 			newPlatformDto.setPlatformDescription(memDescription.getText());
-			newPlatformDto.setPlatformName(name);
 			newPlatformDto.setCreatedBy(App.INSTANCE.getUser().getUserId());
 			newPlatformDto.setCreatedDate(new Date());
 			newPlatformDto.setModifiedBy(App.INSTANCE.getUser().getUserId());
@@ -313,8 +305,11 @@ public class FrmPlatforms extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				tbList.removeAll();
 
+				FormUtils.entrySetToCombo(Controller.getCVByGroup("platform_type"), nameCombo);
+				nameCombo.setText("*Select Platform");
 				populatePlatformsTable();
 				cleanDetails();
+				
 			}
 		});
 
@@ -322,38 +317,38 @@ public class FrmPlatforms extends AbstractFrm {
 
 			public void handleEvent(Event e) {
 				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.platformName = selected;
-				IDs.platformId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populatePlatformDetails(IDs.platformId); //retrieve and display projects by contact Id
+				selectedName = selected;
+				currentPlatformId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				populatePlatformDetails(currentPlatformId); //retrieve and display projects by contact Id
+				btnUpdate.setEnabled(true);
 			}
 
-			protected void populatePlatformDetails(int platformId) {
-				try{
-					cleanDetails();
-					
-					try {
-						PayloadEnvelope<PlatformDTO> resultEnvelopeForGetByID = Controller.getPlatformDetails(platformId);
-
-						if(Controller.getDTOResponse(shell, resultEnvelopeForGetByID.getHeader(), memInfo, false)){
-							PlatformDTO platformDTOResponse = resultEnvelopeForGetByID.getPayload().getData().get(0);
-							selectedName = platformDTOResponse.getPlatformName();
-							txtName.setText(platformDTOResponse.getPlatformName());
-							txtCode.setText(platformDTOResponse.getPlatformCode());
-							memDescription.setText(platformDTOResponse.getPlatformDescription());
-							FormUtils.entrySetToComboSelectId(Controller.getCVByGroup("platform_type"), typeCombo, platformDTOResponse.getTypeId());
-							populateTableFromStringList(platformDTOResponse.getProperties(), tbProperties);
-						}
-					} catch (Exception err) {
-						Utils.log(shell, memInfo, log, "Error retrieving Platforms", err);
-					}
-				}catch(Exception err){
-					Utils.log(shell, memInfo, log, "Error retrieving Platforms", err);
-				}
-
-			}
+			
 		});
 	}
+	private void populatePlatformDetails(int platformId) {
+		try{
+			cleanDetails();
+			
+			try {
+				PayloadEnvelope<PlatformDTO> resultEnvelopeForGetByID = Controller.getPlatformDetails(platformId);
 
+				if(Controller.getDTOResponse(shell, resultEnvelopeForGetByID.getHeader(), memInfo, false)){
+					PlatformDTO platformDTOResponse = resultEnvelopeForGetByID.getPayload().getData().get(0);
+					selectedName = platformDTOResponse.getPlatformName();
+					txtCode.setText(platformDTOResponse.getPlatformCode());
+					memDescription.setText(platformDTOResponse.getPlatformDescription());
+					nameCombo.setText(selectedName);
+					populateTableFromStringList(platformDTOResponse.getProperties(), tbProperties);
+				}
+			} catch (Exception err) {
+				Utils.log(shell, memInfo, log, "Error retrieving Platforms", err);
+			}
+		}catch(Exception err){
+			Utils.log(shell, memInfo, log, "Error retrieving Platforms", err);
+		}
+
+	}
 	private void populateTableFromStringList(List<EntityPropertyDTO> properties, Table table) {
 		try{
 			for(TableItem item : tbProperties.getItems()){
@@ -383,12 +378,12 @@ public class FrmPlatforms extends AbstractFrm {
 
 	protected void cleanDetails() {
 		try{
-			txtName.setText("");
 			txtCode.setText("");
 			memDescription.setText("");
 			for(TableItem item : tbProperties.getItems()){
 				item.setText(1, "");
 			}
+			btnUpdate.setEnabled(false);
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error clearing fields", err);
 		}
@@ -400,23 +395,22 @@ public class FrmPlatforms extends AbstractFrm {
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error retrieving Platforms", err);
 		}
-
 	}
 
 	private boolean validate(boolean isNew){
 		boolean successful = true;
 		String message = null;
 		MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-		if(txtName.getText().isEmpty()){
-			message = "Name field is required!";
+		if(nameCombo.getText().equals("*Select Platform")){
+			message = "Please select a platform!";
 			successful = false;
-		}else if(!isNew && IDs.platformId==0){
-			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
+		}else if(!isNew && currentPlatformId==0){
+			message = "'"+nameCombo.getText()+"' is recognized as a new value. Please use Add instead.";
 			successful = false;
 		}else{
-			if(isNew|| !txtName.getText().equalsIgnoreCase(selectedName)){
+			if(isNew|| !nameCombo.getText().equalsIgnoreCase(selectedName)){
 				for(int i=0; i<tbList.getItemCount(); i++){
-					if(tbList.getItem(i).getText(0).equalsIgnoreCase(txtName.getText())){
+					if(tbList.getItem(i).getText(0).equalsIgnoreCase(nameCombo.getText())){
 						successful = false;
 						message = "Name of platform already exists";
 						break;

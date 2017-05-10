@@ -3,6 +3,7 @@ package edu.cornell.gobii.gdi.wizards.markers;
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -64,16 +65,27 @@ public class Pg1Markers extends WizardPage {
 	private ScrolledComposite scrolledComposite;
 	private SashForm sashForm;
 	private Text textPlatform;
+	private Button btnServer;
+	private Button btnLocal;
 
+	private int PIid;
+	private int projectId;
+	private int experimentId;
+	private int datasetId;
 	/**
 	 * Create the wizard.
 	 */
-	public Pg1Markers(String config, DTOmarkers dto) {
+	public Pg1Markers(String config, DTOmarkers dto, int PIid, int projectId, int experimentId, int datasetId) {
 		super("wizardPage");
 		setTitle("Wizard :: Marker Information");
 		setDescription("Wizard to load marker & map information to data warehouse.");
-		this.config = config;
+		this.config = config;		
 		this.dto = dto;
+		
+		this.PIid = PIid;
+		this.projectId = projectId;
+		this.experimentId = experimentId;
+		this.datasetId = datasetId;
 	}
 
 	/**
@@ -97,7 +109,7 @@ public class Pg1Markers extends WizardPage {
 		Group grpInformation = new Group(scrolledComposite, SWT.NONE);
 		grpInformation.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
 		grpInformation.setText("Information");
-		grpInformation.setLayout(new GridLayout(2, false));
+		grpInformation.setLayout(new GridLayout(3, false));
 
 		lblPi = new Label(grpInformation, SWT.NONE);
 		lblPi.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -115,12 +127,13 @@ public class Pg1Markers extends WizardPage {
 						String key = (String) cbPi.getData(cbPi.getItem(cbPi.getSelectionIndex()));
 						FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(Integer.parseInt(key)), cbProject);
 					}
+					textPlatform.setText("");
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error retrieving Projects", err);
 				}
 			}
 		});
-		cbPi.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbPi.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		Label lblProject = new Label(grpInformation, SWT.NONE);
 		lblProject.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -141,12 +154,13 @@ public class Pg1Markers extends WizardPage {
 						dto.setProjectName(cbProject.getText());
 						FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(dto.getProjectID()), cbExperiment);
 					}
+					textPlatform.setText("");
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error retrieving Experiments", err);
 				}
 			}
 		});
-		cbProject.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbProject.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		Label lblExperiment = new Label(grpInformation, SWT.NONE);
 		lblExperiment.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -165,7 +179,7 @@ public class Pg1Markers extends WizardPage {
 						dto.setExperimentID(Integer.parseInt(key));
 						dto.setExperimentName(cbExperiment.getText());
 						FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(dto.getExperimentID()), cbDataset);
-						
+
 						Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
 						dto.setPlatformID(platformId);
 						WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
@@ -175,15 +189,15 @@ public class Pg1Markers extends WizardPage {
 				}
 			}
 		});
-		cbExperiment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbExperiment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		Label lblPlatform = new Label(grpInformation, SWT.NONE);
 		lblPlatform.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblPlatform.setText("Platform:");
-		
+
 		textPlatform = new Text(grpInformation, SWT.BORDER);
 		textPlatform.setEditable(false);
-		textPlatform.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		textPlatform.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		Label lblDataset = new Label(grpInformation, SWT.NONE);
 		lblDataset.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -206,7 +220,7 @@ public class Pg1Markers extends WizardPage {
 				}
 			}
 		});
-		cbDataset.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbDataset.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		Label lblMapset = new Label(grpInformation, SWT.NONE);
 		lblMapset.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -230,24 +244,51 @@ public class Pg1Markers extends WizardPage {
 				}
 			}
 		});
-		cbMapset.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbMapset.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		new Label(grpInformation, SWT.NONE);
 
-		Label lblRemotePath = new Label(grpInformation, SWT.NONE);
-		lblRemotePath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblRemotePath.setText("Remote Path:");
+		btnLocal = new Button(grpInformation, SWT.RADIO);
+		btnLocal.setSelection(true);
+		btnLocal.setText("Local");
 
-		txtRemotePath = new Text(grpInformation, SWT.BORDER);
-		txtRemotePath.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent arg0) {
-				boolean isRemote = !txtRemotePath.getText().isEmpty();
-				dto.setRemote(isRemote);
-				dto.getFile().setSource(isRemote ? txtRemotePath.getText() : null);
+		btnServer = new Button(grpInformation, SWT.RADIO);
+		btnServer.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(btnLocal.getSelection()){
+					if(!txtRemotePath.getText().isEmpty()){
+						if(!MessageDialog.openConfirm(parent.getShell(), "Clear Changes", "Switching to Local will clear the files you've already selected through the server path, do you want to continue with this action?")){
+							btnServer.setSelection(true);
+							btnLocal.setSelection(false);
+						} else{
+							enableLocalFileBrowse(true);
+							clearUploadedFileValues();
+						}
+					}else{
+						enableLocalFileBrowse(true);
+						clearUploadedFileValues();
+					}
+				}else{ //btnServer has been selected
+					if(tbLocalfiles.getItemCount()>0){
+						if(!MessageDialog.openConfirm(parent.getShell(), "Clear Changes", "Switching to Server will clear the files you've already selected, do you want to continue with this action?")){
+							btnLocal.setSelection(true);
+							btnServer.setSelection(false);
+						} else{
+							enableLocalFileBrowse(false);
+							clearUploadedFileValues();
+						}
+					} else{
+						enableLocalFileBrowse(false);
+						clearUploadedFileValues();
+					}
+
+				}
 			}
 		});
-		txtRemotePath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnServer.setText("Server");
 
 		Label lblLocalFiles = new Label(grpInformation, SWT.NONE);
-		lblLocalFiles.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 2));
+		lblLocalFiles.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		lblLocalFiles.setText("Local files:");
 
 		btnBrowse = new Button(grpInformation, SWT.NONE);
@@ -281,11 +322,27 @@ public class Pg1Markers extends WizardPage {
 				}
 			}
 		});
-		btnBrowse.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnBrowse.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		btnBrowse.setText("Browse");
 
+		Label lblRemotePath = new Label(grpInformation, SWT.NONE);
+		lblRemotePath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblRemotePath.setText("Server Path:");
+
+		txtRemotePath = new Text(grpInformation, SWT.BORDER);
+		txtRemotePath.setEnabled(false);
+		txtRemotePath.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				boolean isRemote = !txtRemotePath.getText().isEmpty();
+				dto.setRemote(isRemote);
+				dto.getFile().setSource(isRemote ? txtRemotePath.getText() : null);
+			}
+		});
+		txtRemotePath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		new Label(grpInformation, SWT.NONE);
+
 		tbLocalfiles = new Table(grpInformation, SWT.BORDER | SWT.CHECK | SWT.FULL_SELECTION);
-		GridData gd_tbLocalfiles = new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1);
+		GridData gd_tbLocalfiles = new GridData(SWT.FILL, SWT.TOP, true, true, 2, 2);
 		gd_tbLocalfiles.minimumWidth = 150;
 		gd_tbLocalfiles.minimumHeight = 150;
 		gd_tbLocalfiles.heightHint = 223;
@@ -293,6 +350,7 @@ public class Pg1Markers extends WizardPage {
 		tbLocalfiles.setHeaderVisible(true);
 		tbLocalfiles.setLinesVisible(true);
 		Utils.getLocalFiles(tbLocalfiles, dto.getFiles());
+		new Label(grpInformation, SWT.NONE);
 		new Label(grpInformation, SWT.NONE);
 
 		btnRemove = new Button(grpInformation, SWT.NONE);
@@ -302,29 +360,8 @@ public class Pg1Markers extends WizardPage {
 				WizardUtils.removeFiles(tbLocalfiles, dto.getFiles());
 			}
 		});
-		btnRemove.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnRemove.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		btnRemove.setText("Remove Selected File(s)");
-
-		Label lblSavedTemplates = new Label(grpInformation, SWT.NONE);
-		lblSavedTemplates.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblSavedTemplates.setText("Saved Templates:");
-
-		cbTemplates = new Combo(grpInformation, SWT.NONE);
-		cbTemplates.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				String template = null;
-				if(cbTemplates.getSelectionIndex() == -1 || cbTemplates.getText().isEmpty()){
-					template = null;
-				}else{
-					int index = cbTemplates.getSelectionIndex();
-					template = cbTemplates.getItem(index);
-				}
-				dto.setTemplate(template);
-			}
-		});
-		cbTemplates.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		WizardUtils.getTemplateFiles(TemplateCode.MKR, cbTemplates);
 
 		Label lblFileFormat = new Label(grpInformation, SWT.NONE);
 		lblFileFormat.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -345,7 +382,7 @@ public class Pg1Markers extends WizardPage {
 				}
 			}
 		});
-		cbFileFormat.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbFileFormat.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		new Label(grpInformation, SWT.NONE);
 		fileformats = (FileFormats) Utils.unmarshalFileFormats(config+"/FileFormats.xml");
 		for(FileFormat fileformat : fileformats.getFileFormat()){
@@ -356,11 +393,6 @@ public class Pg1Markers extends WizardPage {
 		btnPreview.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//				int index = cbFileFormat.getSelectionIndex();
-				//				if(index > -1){
-				//					FileFormat ff = fileformats.getFileFormat().get(index);
-				//					Utils.loadSampleLocalData(tbData, tbLocalfiles, ff.getExtention(), ff.getDelim());
-				//				}
 				int index = cbFileFormat.getSelectionIndex();
 				if(txtRemotePath.getText().trim().isEmpty() && tbLocalfiles.getItems().length<1){
 					MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_WARNING | SWT.OK);  
@@ -389,16 +421,43 @@ public class Pg1Markers extends WizardPage {
 							TableItem item = new TableItem(tbLocalfiles, SWT.NONE);
 							item.setText(dto.getFiles().get(i));
 						}
+						btnServer.setSelection(true);
+						btnLocal.setSelection(false);
+						btnPreview.setEnabled(false);
+						enableLocalFileBrowse(false);
+						txtRemotePath.setEnabled(false);
 					}
 				}else{
 					MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_WARNING | SWT.OK);  
 					messageBox.setMessage("Please select a file format.");  
 					messageBox.open();
 				}
+
 			}
 		});
-		btnPreview.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnPreview.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		btnPreview.setText("Preview Data");
+
+		Label lblSavedTemplates = new Label(grpInformation, SWT.NONE);
+		lblSavedTemplates.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblSavedTemplates.setText("Saved Templates:");
+
+		cbTemplates = new Combo(grpInformation, SWT.NONE);
+		cbTemplates.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String template = null;
+				if(cbTemplates.getSelectionIndex() == -1 || cbTemplates.getText().isEmpty()){
+					template = null;
+				}else{
+					int index = cbTemplates.getSelectionIndex();
+					template = cbTemplates.getItem(index);
+				}
+				dto.setTemplate(template);
+			}
+		});
+		cbTemplates.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		WizardUtils.getTemplateFiles(TemplateCode.MKR, cbTemplates);
 
 		Label lblOrientation = new Label(grpInformation, SWT.NONE);
 		lblOrientation.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -415,7 +474,7 @@ public class Pg1Markers extends WizardPage {
 			}
 		});
 		cbOrientation.setItems(new String[] {"TOP", "LEFT"});
-		cbOrientation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbOrientation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		Label lblFistSnpCoordinate = new Label(grpInformation, SWT.NONE);
 		lblFistSnpCoordinate.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -424,7 +483,7 @@ public class Pg1Markers extends WizardPage {
 		txtHeaderRow = new Text(grpInformation, SWT.BORDER);
 		txtHeaderRow.setEnabled(false);
 		txtHeaderRow.setEditable(false);
-		txtHeaderRow.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		txtHeaderRow.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 		scrolledComposite.setContent(grpInformation);
 		scrolledComposite.setMinSize(grpInformation.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
@@ -457,37 +516,140 @@ public class Pg1Markers extends WizardPage {
 		});
 		tbData.setLinesVisible(true);
 		tbData.setHeaderVisible(true);
-		sashForm.setWeights(new int[] {370, 357});
+		sashForm.setWeights(new int[] {275, 666});
 
 		createContent();
 	}
 
+	protected void enableLocalFileBrowse(boolean enabled) {
+		// TODO Auto-generated method stub
+		btnRemove.setEnabled(enabled);
+		btnBrowse.setEnabled(enabled);
+		txtRemotePath.setEnabled(!enabled);
+
+	}
+
+	protected void clearUploadedFileValues(){
+		txtRemotePath.setText("");
+		tbLocalfiles.removeAll();
+		tbData.removeAll();
+
+		cbOrientation.setText("");
+		txtHeaderRow.setText("");
+		btnPreview.setEnabled(true);
+		cbTemplates.select(-1);
+		cbTemplates.setText("");
+	}
+
 	public void createContent(){
-		if(IDs.PIid!=0){
-			FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbPi, IDs.PIid);
-			if(IDs.projectId!=0){
-				FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(IDs.PIid), cbProject,IDs.projectId);
-				dto.setProjectName(cbProject.getText());
-				dto.setProjectID(IDs.projectId);
-				if(IDs.experimentId!=0){
-					FormUtils.entrySetToComboSelectId(Controller.getExperimentNamesByProjectId(IDs.projectId), cbExperiment, IDs.experimentId);
-					dto.setExperimentName(cbExperiment.getText());
-					dto.setExperimentID(IDs.experimentId);
-					Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
-					WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
-					dto.setPlatformID(platformId);
-					dto.setPlatformName(textPlatform.getText());
-					if(IDs.datasetId!=0){
-						FormUtils.entrySetToComboSelectId(Controller.getDataSetNamesByExperimentId(IDs.experimentId), cbDataset, IDs.datasetId);
-						dto.setDatasetName(cbDataset.getText());
-						dto.setDatasetID(IDs.datasetId);
-					}else FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(IDs.experimentId), cbDataset);
-				}else FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(IDs.projectId), cbExperiment);
-			}else FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(IDs.PIid), cbProject);
+		if(datasetId==0 && experimentId==0 && PIid==0 && projectId==0){
+			FormUtils.entrySetToCombo(Controller.getPIContactNames(), cbPi);
 		}
-		else FormUtils.entrySetToCombo(Controller.getPIContactNames(), cbPi);
+		else	{
+
+			//Populate Dataset Combobox
+			if(datasetId==0 && experimentId==0){
+
+				FormUtils.entrySetToCombo(Controller.getDataSetNames(), cbDataset);
+
+			} else if(datasetId!=0){
+
+				if(experimentId==0){ // get experiment Id first via datasetId
+
+					experimentId = FormUtils.getExperimentIdByDatasetId(datasetId);	
+				}
+
+				//populate dataset combo given experiment Id && select datasetId
+				FormUtils.entrySetToComboSelectId(Controller.getDataSetNamesByExperimentId(experimentId), cbDataset, datasetId);
+				dto.setDatasetName(cbDataset.getText());
+				dto.setDatasetID(datasetId);
+
+			} else{ //experiment id!= 0 && datasetId == 0
+
+				FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(experimentId), cbDataset);
+			}
+
+			//Populate experiment Combobox
+
+			if(experimentId==0 && projectId==0){
+
+				FormUtils.entrySetToCombo(Controller.getExperimentNames(), cbExperiment);
+
+			} else if(experimentId!=0){
+
+				if(projectId==0){ // get project Id first via experiment ID
+
+					projectId = FormUtils.getProjectIdByExperimentId(experimentId);	
+				}
+
+				//populate experiment combo given project Id && select experimentId
+				FormUtils.entrySetToComboSelectId(Controller.getExperimentNamesByProjectId(projectId), cbExperiment, experimentId);
+				dto.setExperimentName(cbExperiment.getText());
+				dto.setExperimentID(experimentId);
+				Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
+				dto.setPlatformID(platformId);
+				WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
+				dto.setPlatformName(textPlatform.getText());
+
+			} else{ //projectId id!= 0 && experiment == 0
+
+				FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(projectId), cbExperiment);
+			}
+
+
+			//Populate project Combobox
+
+			if(PIid==0 && projectId==0){
+
+				FormUtils.entrySetToCombo(Controller.getProjectNames(), cbProject);
+
+			} else if(projectId!=0){
+
+				if(PIid==0){ // get PI Id first via project ID
+
+					PIid = FormUtils.getPIidByProjectId(projectId);	
+				}
+
+				//populate project combo given PI Id && select projectID
+				FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(PIid), cbProject, projectId);
+				dto.setProjectName(cbProject.getText());
+				dto.setProjectID(projectId);
+
+			} else{ //PI id!= 0 && projectId == 0
+
+				FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(PIid), cbProject);
+			}
+
+			//Populate PI combobox
+			if(PIid!=0){
+				FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbPi, PIid);
+			}else FormUtils.entrySetToCombo(Controller.getPIContactNames(), cbPi);
+
+		}
+		//		if(PIid!=0){
+		//			FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbPi, PIid);
+		//			if(projectId!=0){
+		//				FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(PIid), cbProject,projectId);
+		//				dto.setProjectName(cbProject.getText());
+		//				dto.setProjectID(projectId);
+		//				if(experimentId!=0){
+		//					FormUtils.entrySetToComboSelectId(Controller.getExperimentNamesByProjectId(projectId), cbExperiment, experimentId);
+		//					dto.setExperimentName(cbExperiment.getText());
+		//					dto.setExperimentID(experimentId);
+		//					Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
+		//					WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
+		//					dto.setPlatformID(platformId);
+		//					dto.setPlatformName(textPlatform.getText());
+		//					if(datasetId!=0){
+		//						FormUtils.entrySetToComboSelectId(Controller.getDataSetNamesByExperimentId(experimentId), cbDataset, datasetId);
+		//						dto.setDatasetName(cbDataset.getText());
+		//						dto.setDatasetID(datasetId);
+		//					}else FormUtils.entrySetToCombo(Controller.getDataSetNamesByExperimentId(experimentId), cbDataset);
+		//				}else FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(projectId), cbExperiment);
+		//			}else FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(PIid), cbProject);
+		//		}
+		//		else FormUtils.entrySetToCombo(Controller.getPIContactNames(), cbPi);
+
 		FormUtils.entrySetToCombo(Controller.getMapNames(), cbMapset);
-
-
 	}
 }

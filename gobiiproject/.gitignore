@@ -1,3 +1,5 @@
+listMergedBranches.sh
+
 .idea
 *.iml
 gobii-client/target

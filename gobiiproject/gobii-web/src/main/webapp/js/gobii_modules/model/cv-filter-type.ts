@@ -1,4 +1,4 @@
-export enum CvFilterType {UKNOWN,
+export enum CvFilterType {UNKNOWN,
 ANALYSIS_TYPE,
 DATASET_TYPE}
 ;

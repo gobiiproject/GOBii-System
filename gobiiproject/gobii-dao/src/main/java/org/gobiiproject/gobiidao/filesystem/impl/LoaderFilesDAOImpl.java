@@ -102,6 +102,9 @@ public class LoaderFilesDAOImpl implements LoaderFilesDAO {
             case "vcf":
                 delimiter = "\t";
                 break;
+            case "hmp.txt":
+                delimiter = "\t";
+                break;
             default:
                 throw new GobiiDaoException("File Format not supported: " + fileFormat);
         }

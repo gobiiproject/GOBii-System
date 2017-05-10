@@ -5,6 +5,8 @@ import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
 import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderAuth;
+import org.gobiiproject.gobiimodel.types.GobiiHttpHeaderNames;
 import org.gobiiproject.gobiimodel.types.RestMethodTypes;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiimodel.headerlesscontainer.DTOBase;
@@ -12,8 +14,10 @@ import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
 import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
+import sun.net.www.protocol.http.AuthenticationHeader;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Properties;
 
@@ -26,12 +30,16 @@ public class PayloadWriter<T extends DTOBase> {
 
     private final Class<T> dtoType;
     private HttpServletRequest httpServletRequest;
+    private HttpServletResponse httpServletResponse;
     private String gobiiWebVersion;
 
     public PayloadWriter(HttpServletRequest httpServletRequest,
-                         Class<T> dtoType) throws Exception{
+                         HttpServletResponse httpServletResponse,
+                         Class<T> dtoType) throws Exception {
+
         this.dtoType = dtoType;
         this.httpServletRequest = httpServletRequest;
+        this.httpServletResponse = httpServletResponse;
 
         this.gobiiWebVersion = GobiiVersionInfo.getVersion();
     }
@@ -80,6 +88,8 @@ public class PayloadWriter<T extends DTOBase> {
 
 
                 payloadEnvelope.getHeader().setGobiiVersion(this.gobiiWebVersion);
+                setAuthHeader(payloadEnvelope.getHeader().getDtoHeaderAuth(),this.httpServletResponse);
+                payloadEnvelope.getHeader().setCropType(payloadEnvelope.getHeader().getDtoHeaderAuth().getGobiiCropType());
                 payloadEnvelope.getPayload().getLinkCollection().getLinksPerDataItem().add(link);
 
 
@@ -123,5 +133,17 @@ public class PayloadWriter<T extends DTOBase> {
 
 
         payloadEnvelope.getHeader().setGobiiVersion(this.gobiiWebVersion);
+    }
+
+    public void setAuthHeader(HeaderAuth headerAuth, HttpServletResponse response) {
+
+        String userName = response.getHeader(GobiiHttpHeaderNames.HEADER_USERNAME);
+        String token = response.getHeader(GobiiHttpHeaderNames.HEADER_TOKEN);
+        String gobiiCropType = response.getHeader(GobiiHttpHeaderNames.HEADER_GOBII_CROP);
+
+        headerAuth.setToken(token);
+        headerAuth.setGobiiCropType(gobiiCropType);
+        headerAuth.setUserName(userName);
+
     }
 }

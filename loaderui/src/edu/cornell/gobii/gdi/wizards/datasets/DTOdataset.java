@@ -3,6 +3,7 @@ package edu.cornell.gobii.gdi.wizards.datasets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFile;
 import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderFilePreviewDTO;
 import org.gobiiproject.gobiimodel.types.DataSetOrientationType;
@@ -26,6 +27,7 @@ public class DTOdataset implements WizardDTO{
 	private List<String> files = new ArrayList<String>();
 	private int rCoord = -1;
 	private int cCoord = -1;
+	private Integer piId;
 	private Integer projectID;
 	private Integer experimentID;
 	private Integer datasetID;
@@ -242,5 +244,11 @@ public class DTOdataset implements WizardDTO{
 	}
 	public void setQcCheck(boolean qcCheck) {
 		this.qcCheck = qcCheck;
+	}
+	public Integer getPiId() {
+		return piId;
+	}
+	public void setPiId(Integer piId) {
+		this.piId = piId;
 	}
 }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.common.HttpCore;
 import org.gobiiproject.gobiiclient.core.common.HttpMethodResult;
 import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
@@ -29,15 +30,13 @@ public class EnvelopeRestRequest<T> {
 
     Logger LOGGER = LoggerFactory.getLogger(EnvelopeRestRequest.class);
 
-    public EnvelopeRestRequest(String baseUrl,
-                               Integer port,
-                               String cropContextRoot,
-                               Class<T> paramType) {
+    public EnvelopeRestRequest(   String cropContextRoot,
+                               Class<T> paramType) throws  Exception {
 
         this.paramType = paramType;
 
         this.uriFactory = new UriFactory(cropContextRoot);
-        this.httpCore = new HttpCore(baseUrl, port,cropContextRoot);
+        this.httpCore = ClientContext.getInstance(null,false).getHttp();
 
     } // ctor
 

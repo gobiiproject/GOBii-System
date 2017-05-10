@@ -1,5 +1,6 @@
 package org.gobiiproject.gobiimodel.config;
 
+import org.gobiiproject.gobiimodel.security.Decrypter;
 import org.gobiiproject.gobiimodel.types.GobiiDbType;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -18,7 +19,8 @@ public class CropDbConfig {
                         String dbName,
                         Integer port,
                         String userName,
-                        String password) {
+                        String password,
+                        boolean decrypt) {
 
         this.gobiiDbType = gobiiDbType;
         this.host = host;
@@ -26,8 +28,11 @@ public class CropDbConfig {
         this.port = port;
         this.userName = userName;
         this.password = password;
+        this.decrypt = decrypt;
     }
 
+    @Element(required = false)
+    private boolean decrypt = false;
 
     @Element(required = false)
     private GobiiDbType gobiiDbType = null;
@@ -84,7 +89,16 @@ public class CropDbConfig {
     }
 
     public String getUserName() {
-        return userName;
+
+        String returnVal = null;
+
+        if (this.decrypt) {
+            returnVal = Decrypter.decrypt(this.userName, null);
+        } else {
+            returnVal = this.userName;
+        }
+
+        return returnVal;
     }
 
     public CropDbConfig setUserName(String userName) {
@@ -93,7 +107,16 @@ public class CropDbConfig {
     }
 
     public String getPassword() {
-        return password;
+
+        String returnVal = null;
+
+        if (this.decrypt) {
+            returnVal = Decrypter.decrypt(this.password, null);
+        } else {
+            returnVal = this.password;
+        }
+
+        return returnVal;
     }
 
     public CropDbConfig setPassword(String password) {
@@ -111,5 +134,13 @@ public class CropDbConfig {
                 + this.port.toString()
                 + "/"
                 + this.dbName);
+    }
+
+    public boolean isDecrypt() {
+        return decrypt;
+    }
+
+    public void setDecrypt(boolean decrypt) {
+        this.decrypt = decrypt;
     }
 }

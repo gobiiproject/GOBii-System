@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset raza:Platform_seed_data context:general splitStatements:false
+--changeset raza:Platform_seed_data context:seed_general splitStatements:false
 select * from createplatform('Illumina_Infinium','Illumina_Infinium','',1,NULL,NULL,NULL,1,NULL);
 select * from createplatform('Illumina_Goldengate','Illumina_Goldengate','',1,NULL,NULL,NULL,1,NULL); 
 select * from createplatform('Illumina_TSCA','Illumina_TSCA','',1,NULL,NULL,NULL,1,NULL); 
@@ -13,7 +13,7 @@ select * from createplatform('Dart_Amplicon','Dart_Amplicon','',1,NULL,NULL,NULL
 select * from createplatform('SSR_STS_CAPS','SSR_STS_CAPS','',1,NULL,NULL,NULL,1,NULL); 
 select * from createplatform('InDels','InDels','',1,NULL,NULL,NULL,1,NULL); 
 
---changeset raza:Protocol_seed_data context:general splitStatements:false
+--changeset raza:Protocol_seed_data context:seed_general splitStatements:false
 select * from createProtocol('Illumina_Infinium','Illumina_Infinium',NULL,(select platform_id from platform where name ='Illumina_Infinium' ),null,null,null,null,1);
 select * from createProtocol('Illumina_Goldengate','Illumina_Goldengate',NULL,(select platform_id from platform where name ='Illumina_Goldengate' ),null,null,null,null,1);
 select * from createProtocol('Illumina_TSCA','Illumina_TSCA',NULL,(select platform_id from platform where name ='Illumina_TSCA' ),null,null,null,null,1);

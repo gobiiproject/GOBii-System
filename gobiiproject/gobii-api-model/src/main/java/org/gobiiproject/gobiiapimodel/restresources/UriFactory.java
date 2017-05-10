@@ -102,7 +102,8 @@ public class UriFactory {
                 ServiceRequestId.URL_CONTACT_SEARCH)
                 .addQueryParam("email")
                 .addQueryParam("lastName")
-                .addQueryParam("firstName");
+                .addQueryParam("firstName")
+                .addQueryParam("userName");
 
         return returnVal;
 

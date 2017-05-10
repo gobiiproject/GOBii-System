@@ -2,6 +2,8 @@ package org.gobiiproject.gobidomain.services;
 
 import org.gobiiproject.gobidomain.GobiiDomainException;
 import org.gobiiproject.gobiimodel.headerlesscontainer.CvDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.CvGroupDTO;
+import org.gobiiproject.gobiimodel.types.GobiiCvGroupType;
 
 import java.util.List;
 
@@ -11,5 +13,6 @@ import java.util.List;
 public interface CvGroupService {
 
     List<CvDTO> getCvsForGroup(Integer groupId) throws GobiiDomainException;
+    List<CvGroupDTO> getCvsForType(GobiiCvGroupType groupType) throws GobiiDomainException;
 
 }

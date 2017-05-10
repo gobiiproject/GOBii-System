@@ -5,6 +5,5 @@
 \i functions.sql
 \i cvs.sql
 \i roles.sql
-\i contacts.sql
 \i displays.sql
 

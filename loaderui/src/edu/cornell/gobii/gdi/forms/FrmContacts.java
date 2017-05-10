@@ -46,6 +46,7 @@ public class FrmContacts extends AbstractFrm {
 	private Table tbRoles;
 	private Combo comboOrganization;
 	private String selectedContactEmail = "";
+	private Integer selectedContactId;
 
 	/**
 	 * Create the composite.
@@ -60,14 +61,14 @@ public class FrmContacts extends AbstractFrm {
 
 		Label lblLastName = new Label(cmpForm, SWT.NONE);
 		lblLastName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblLastName.setText("*Last name:");
+		lblLastName.setText("*Last Name:");
 
 		txtLastName = new Text(cmpForm, SWT.BORDER);
 		txtLastName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label lblFirstName = new Label(cmpForm, SWT.NONE);
 		lblFirstName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblFirstName.setText("*First name:");
+		lblFirstName.setText("*First Name:");
 
 		txtFirstName = new Text(cmpForm, SWT.BORDER);
 		txtFirstName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -130,6 +131,7 @@ public class FrmContacts extends AbstractFrm {
 					contactDTORequest.setModifiedBy(1);
 					contactDTORequest.setCreatedDate(new Date());
 					contactDTORequest.setModifiedDate(new Date());
+					selectedName = txtLastName.getText()+", "+txtFirstName.getText();
 					if (comboOrganization.getSelectionIndex() > -1) {
 						String ref = (String) comboOrganization
 								.getData(comboOrganization.getItem(comboOrganization.getSelectionIndex()));
@@ -148,12 +150,16 @@ public class FrmContacts extends AbstractFrm {
 						PayloadEnvelope<ContactDTO> contactDTOResponseEnvelope = restResource.post(ContactDTO.class,
 								payloadEnvelope);
 						if (Controller.getDTOResponse(shell, contactDTOResponseEnvelope.getHeader(), memInfo, true)) {
-							IDs.contactId = contactDTOResponseEnvelope.getPayload().getData().get(0).getContactId();
+							selectedContactId = contactDTOResponseEnvelope.getPayload().getData().get(0).getContactId();
 							selectedContactEmail = txtEmail.getText();
-							if (cbList.getSelectionIndex() < 0)
+							if (cbList.getSelectionIndex() < 0){
 								displayAllContacts();
-							else
+							}
+							else{
 								populateContactFromSelectedRole(cbList.getText());
+							}
+							FormUtils.selectRowById(tbList, selectedContactId);
+
 						}
 						;
 					} catch (Exception err) {
@@ -173,11 +179,13 @@ public class FrmContacts extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try {
+					
 					if (!validate(false))
 						return;
 
+					if(!FormUtils.updateForm(getShell(), "contact", selectedName)) return;
 					ContactDTO contactDTORequest = new ContactDTO();
-					contactDTORequest.setContactId(IDs.contactId);
+					contactDTORequest.setContactId(selectedContactId);
 					contactDTORequest.setLastName(txtLastName.getText());
 					contactDTORequest.setFirstName(txtFirstName.getText());
 					contactDTORequest.setEmail(txtEmail.getText());
@@ -202,17 +210,21 @@ public class FrmContacts extends AbstractFrm {
 					}
 					try {
 						RestUri restUriContact = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_CONTACTS);
-						restUriContact.setParamValue("id", Integer.toString(IDs.contactId));
+						restUriContact.setParamValue("id", Integer.toString(selectedContactId));
 						GobiiEnvelopeRestResource<ContactDTO> restResourceContactById = new GobiiEnvelopeRestResource<>(restUriContact);
 						restResourceContactById.setParamValue("id", contactDTORequest.getContactId().toString());
 						PayloadEnvelope<ContactDTO> contactDTOResponseEnvelopeUpdate = restResourceContactById.put(
 								ContactDTO.class, new PayloadEnvelope<>(contactDTORequest, GobiiProcessType.UPDATE));
 						if (Controller.getDTOResponse(shell, contactDTOResponseEnvelopeUpdate.getHeader(), memInfo,
 								true)) {
-							if (cbList.getSelectionIndex() < 0)
+							if (cbList.getSelectionIndex() < 0){
 								displayAllContacts();
-							else
+							}
+							else{
 								populateContactFromSelectedRole(cbList.getText());
+							}
+
+							FormUtils.selectRowById(tbList, selectedContactId);
 						}
 						;
 					} catch (Exception err) {
@@ -276,12 +288,14 @@ public class FrmContacts extends AbstractFrm {
 					txtCode.setText(contactDTO.getCode());
 					selectedContactEmail = contactDTO.getEmail();
 					txtEmail.setText(contactDTO.getEmail());
+					selectedName = txtLastName.getText()+", "+txtFirstName.getText();
 					populateOrganizationComboAndSelect(comboOrganization, contactDTO.getOrganizationId());
 					for (TableItem item : tbRoles.getItems()) {
 						Integer index = Integer.parseInt((String) item.getData(item.getText()));
 						boolean checked = contactDTO.getRoles().contains(index) ? true : false;
 						item.setChecked(checked);
 					}
+					selectedContactId = contactDTO.getId();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -311,13 +325,14 @@ public class FrmContacts extends AbstractFrm {
 	protected void createContent() {
 		// TODO Auto-generated method stub
 		FormUtils.entrySetToCombo(Controller.getRoleNames(), cbList);
+
+		lblCbList.setText("Contact Types:");
 		cbList.setText("*Select Contact Type");
 		FormUtils.entrySetToTable(Controller.getContactNames(), tbList);
 		cbList.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				try {
 					String selected = cbList.getText(); // single selection
-					IDs.roleId = Integer.parseInt((String) cbList.getData(selected));
 					populateContactsFromSelectedRole(selected);
 				} catch (Exception err) {
 					Utils.log(shell, memInfo, log, "Error retrieving contacts", err);
@@ -329,9 +344,9 @@ public class FrmContacts extends AbstractFrm {
 			@Override
 			public void handleEvent(Event event) {
 				try {
-					String selected = tbList.getSelection()[0].getText();
-					IDs.contactId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-					populateContactDetails(IDs.contactId);
+					
+					selectedContactId = FormUtils.getIdFromTableList(tbList);
+					populateContactDetails(selectedContactId);
 				} catch (Exception e) {
 					Utils.log(shell, memInfo, log, "Error retrieving contacts", e);
 				}
@@ -358,7 +373,6 @@ public class FrmContacts extends AbstractFrm {
 
 	protected void populateContactFromSelectedRole(String selectedRole) {
 		try {
-			IDs.roleId = Integer.parseInt((String) cbList.getData(selectedRole));
 			populateContactsFromSelectedRole(selectedRole);
 		} catch (Exception e) {
 			Utils.log(shell, memInfo, log, "Error retrieving contacts", e);
@@ -386,6 +400,7 @@ public class FrmContacts extends AbstractFrm {
 			for (TableItem item : tbRoles.getItems()) {
 				item.setChecked(false);
 			}
+			selectedContactId = -1;
 		} catch (Exception e) {
 			Utils.log(shell, memInfo, log, "Error clearing fields", e);
 		}
@@ -407,7 +422,7 @@ public class FrmContacts extends AbstractFrm {
 		} else if (!txtEmail.getText().contains("@") || !txtEmail.getText().contains(".")) {
 			successful = false;
 			message = "Incorrect Email format, please check and correct!";
-		} else if (!isNew && IDs.contactId == 0) {
+		} else if (!isNew && selectedContactId < 0) {
 			message = "Your entry is recognized as a new value. Please use Add instead.";
 			successful = false;
 		} else if (!Controller.isNewContactEmail(txtEmail.getText())) {

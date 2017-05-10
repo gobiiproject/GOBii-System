@@ -68,7 +68,7 @@ public class DtoRequestProcessor<T extends Header> {
 
         T returnVal;
 
-        HttpCore httpCore = new HttpCore(host, port,cropContextRoot);
+        HttpCore httpCore = ClientContext.getInstance(null,false).getHttp();
 
 
         ObjectMapper objectMapper = new ObjectMapper();

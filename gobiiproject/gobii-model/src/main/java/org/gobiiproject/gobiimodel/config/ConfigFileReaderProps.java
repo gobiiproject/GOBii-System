@@ -186,7 +186,8 @@ public class ConfigFileReaderProps {
                     serviceDomain,
                     serviceAppRoot,
                     servicePort,
-                    isActive);
+                    isActive,
+                    false);
 
             for (GobiiDbType currentDbType : GobiiDbType.values()) {
 
@@ -206,7 +207,8 @@ public class ConfigFileReaderProps {
                             currentDbName,
                             currentPort,
                             currentUserName,
-                            currentPassword
+                            currentPassword,
+                            false
                     );
 
                     currentCropConfig.addCropDbConfig(currentDbType, currentCropDbConfig);

@@ -28,9 +28,7 @@ public class EnvelopeDtoRequest<T> {
 
         PayloadEnvelope<T> returnVal = null;
 
-        EnvelopeRestRequest<T> envelopeRestRequest= new EnvelopeRestRequest<>(host,
-                port,
-                cropContextRoot,
+        EnvelopeRestRequest<T> envelopeRestRequest = new EnvelopeRestRequest<>(cropContextRoot,
                 DtoType);
 
 
@@ -38,8 +36,7 @@ public class EnvelopeDtoRequest<T> {
             throw (new Exception("there is no user token; user must log in"));
         }
 
-        String url = requestId.getRequestUrl(cropContextRoot,controllerType);
-
+        String url = requestId.getRequestUrl(cropContextRoot, controllerType);
 
 
         returnVal = envelopeRestRequest.getTypedHtppResponseForDtoEnvelope(url,

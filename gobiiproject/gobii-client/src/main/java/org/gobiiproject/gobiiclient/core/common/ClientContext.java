@@ -4,6 +4,7 @@ import org.apache.http.HttpStatus;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
+import org.gobiiproject.gobiimodel.types.GobiiAutoLoginType;
 import org.gobiiproject.gobiimodel.types.RestMethodTypes;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiPayloadResponse;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
@@ -13,9 +14,6 @@ import org.gobiiproject.gobiimodel.headerlesscontainer.ConfigSettingsDTO;
 import org.gobiiproject.gobiiapimodel.types.ControllerType;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
-import org.gobiiproject.gobiimodel.types.SystemUserDetail;
-import org.gobiiproject.gobiimodel.types.SystemUserNames;
-import org.gobiiproject.gobiimodel.types.SystemUsers;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +66,7 @@ public final class ClientContext {
 
 
     public synchronized static ClientContext getInstance(ConfigSettings configSettings,
-                                                         String cropType) throws Exception {
+                                                         String cropType, GobiiAutoLoginType gobiiAutoLoginType) throws Exception {
 
         if (null == clientContext) {
 
@@ -103,6 +101,28 @@ public final class ClientContext {
                 clientContext.serverConfigs.put(currentCropConfig.getGobiiCropType(),
                         currentServerConfig);
             }
+
+            if (gobiiAutoLoginType != GobiiAutoLoginType.UNKNOWN) {
+
+                String userName = null;
+                String password = null;
+
+                if (gobiiAutoLoginType == GobiiAutoLoginType.USER_RUN_AS) {
+
+                    userName = configSettings.getLdapUserForBackendProcs();
+                    password = configSettings.getLdapPasswordForBackendProcs();
+
+                } else if (gobiiAutoLoginType == GobiiAutoLoginType.USER_TEST) {
+                    userName = configSettings.getTestExecConfig().getLdapUserForUnitTest();
+                    password = configSettings.getTestExecConfig().getLdapPasswordForUnitTest();
+                } else {
+                    throw new Exception("Unknown gobiiAutoLoginType: " + gobiiAutoLoginType.toString());
+                }
+
+                if (!LineUtils.isNullOrEmpty(userName) && !LineUtils.isNullOrEmpty(password)) {
+                    clientContext.login(userName, password);
+                }
+            }
         }
 
         return clientContext;
@@ -132,7 +152,7 @@ public final class ClientContext {
                                 + "; url must be in this format: http://host:port/context-root");
                     }
 
-                    clientContext = (new ClientContext()).makeFromServer(url);
+                    clientContext = (new ClientContext()).initServerConfigsFromAnonymousAccess(url);
 
                 } else {
                     throw new Exception("initConfigFromServer is specfied, but the gobiiUrl parameter is null or empty");
@@ -151,7 +171,7 @@ public final class ClientContext {
         return clientContext;
     }
 
-    private ClientContext makeFromServer(URL url) throws Exception {
+    private ClientContext initServerConfigsFromAnonymousAccess(URL url) throws Exception {
 
         ClientContext returnVal = new ClientContext();
 
@@ -172,22 +192,15 @@ public final class ClientContext {
             throw new Exception("The specified URL does not contain a valid port id: " + url.toString());
         }
 
-        // first authenticate
-        // you can't use login() from here -- it assumes that ClientContext has already been constructed
-        String authPath = ServiceRequestId.URL_AUTH.getRequestUrl(context, ControllerType.GOBII);
+        // The /configsettings resource does not require authentication
+        // this should be the only case in which we don't provide a crop ID
         HttpCore httpCore = new HttpCore(host, port, null);
-
-        SystemUsers systemUsers = new SystemUsers();
-        SystemUserDetail userDetail = systemUsers.getDetail(SystemUserNames.USER_READER.toString());
-        returnVal.userToken = httpCore.getTokenForUser(authPath, userDetail.getUserName(), userDetail.getPassword());
-
-        // now get the settings
-        String settingsPath = ServiceRequestId.URL_CONFIGSETTINGS.getRequestUrl(context,ControllerType.GOBII);
+        String settingsPath = ServiceRequestId.URL_CONFIGSETTINGS.getRequestUrl(context, ControllerType.GOBII);
 
         RestUri configSettingsUri = new UriFactory(null).RestUriFromUri(settingsPath);
-        HttpMethodResult httpMethodResult = httpCore.get(configSettingsUri, returnVal.userToken);
-        GobiiPayloadResponse<ConfigSettingsDTO> gobiiPayloadResponse = new GobiiPayloadResponse<>(configSettingsUri);
+        HttpMethodResult httpMethodResult = httpCore.get(configSettingsUri, null);
 
+        GobiiPayloadResponse<ConfigSettingsDTO> gobiiPayloadResponse = new GobiiPayloadResponse<>(configSettingsUri);
         PayloadEnvelope<ConfigSettingsDTO> resultEnvelope = gobiiPayloadResponse.getPayloadFromResponse(ConfigSettingsDTO.class,
                 RestMethodTypes.GET,
                 HttpStatus.SC_OK,
@@ -221,7 +234,6 @@ public final class ClientContext {
     private Map<String, ServerConfig> serverConfigs = new HashMap<>();
 
 
-    private ProcessMode processMode = ProcessMode.Asynch;
     private String userToken = null;
 
     String currentGobiiCropType;
@@ -241,7 +253,11 @@ public final class ClientContext {
             cropType = this.defaultGobiiCropType;
         }
 
-        returnVal = this.getServerConfigByCropType(cropType);
+        if (!this.serverConfigs.containsKey(cropType)) {
+            throw new Exception("No server configuration is defined for crop: " + cropType);
+        }
+
+        returnVal = this.serverConfigs.get(cropType);
 
         return returnVal;
     }
@@ -273,14 +289,14 @@ public final class ClientContext {
     }
 
     public String getCurrentCropContextRoot() throws Exception {
-        return this.getServerConfigByCropType(this.currentGobiiCropType).getContextRoot();
+        return this.getServerConfig().getContextRoot();
     }
 
     public String getCropContextRoot(String cropType) throws Exception {
 
         String returnVal;
 
-        returnVal = this.getServerConfigByCropType(cropType).getContextRoot();
+        returnVal = this.getServerConfig().getContextRoot();
 
         return returnVal;
     }
@@ -292,7 +308,7 @@ public final class ClientContext {
 
         if (null == sshOverridePort) {
 
-            returnVal = this.getServerConfigByCropType(this.currentGobiiCropType).getPort();
+            returnVal = this.getServerConfig().getPort();
         } else {
             returnVal = sshOverridePort;
         }
@@ -319,9 +335,19 @@ public final class ClientContext {
     }
 
     public String getFileLocationOfCurrenCrop(GobiiFileProcessDir gobiiFileProcessDir) throws Exception {
-        return this.getServerConfigByCropType(this.currentGobiiCropType)
+        return this.getServerConfig()
                 .getFileLocations()
                 .get(gobiiFileProcessDir);
+    }
+
+
+    public HttpCore getHttp() throws Exception {
+
+        HttpCore returnVal = new HttpCore(this.getCurrentCropDomain(),
+                this.getCurrentCropPort(),
+                this.getCurrentClientCropType());
+
+        return returnVal;
     }
 
     public boolean login(String userName, String password) throws Exception {
@@ -330,13 +356,11 @@ public final class ClientContext {
         try {
             String authUrl = ServiceRequestId.URL_AUTH
                     .getRequestUrl(this.getCurrentCropContextRoot(),
-                    ControllerType.GOBII);
+                            ControllerType.GOBII);
 
-            HttpCore httpCore = new HttpCore(this.getCurrentCropDomain(),
-                    this.getCurrentCropPort(),
-                    this.getCurrentCropContextRoot());
+            RestUri authUri = this.getUriFactory().RestUriFromUri(authUrl);
+            userToken = this.getHttp().getTokenForUser(authUri, userName, password);
 
-            userToken = httpCore.getTokenForUser(authUrl, userName, password);
         } catch (Exception e) {
             LOGGER.error("Authenticating", e);
             throw new Exception(e);
@@ -353,16 +377,5 @@ public final class ClientContext {
         return fileSystemRoot;
     }
 
-    private ServerConfig getServerConfigByCropType(String cropType) throws Exception {
 
-        ServerConfig returnVal;
-
-        if (!this.serverConfigs.containsKey(cropType)) {
-            throw new Exception("No server configuration is defined for crop: " + cropType);
-        }
-
-        returnVal = this.serverConfigs.get(cropType);
-
-        return returnVal;
-    }
 }

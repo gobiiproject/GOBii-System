@@ -46,7 +46,6 @@ import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO
 import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
-import org.gobiiproject.gobiimodel.types.GobiiCropType;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
@@ -145,9 +144,9 @@ public class WizardUtils {
 		return MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Confirmation", message);
 	}
 
-	public static void CreateMarkerWizard(Shell shell, String config) {
+	public static void CreateMarkerWizard(Shell shell, String config, int piID, int projectID, int experimentID, int datasetID) {
 		// TODO Auto-generated method stub
-		WizardDialog wizardDialog = new WizardDialog(shell, new WizardMarkers(config));
+		WizardDialog wizardDialog = new WizardDialog(shell, new WizardMarkers(config, piID, projectID, experimentID, datasetID));
 		if (wizardDialog.open() == Window.OK) {
 			System.out.println("Ok pressed");
 		} else {
@@ -155,9 +154,9 @@ public class WizardUtils {
 		}
 	}
 
-	public static void createDNASampleWizard(Shell shell, String config) {
+	public static void createDNASampleWizard(Shell shell, String config, int piID, int projectID, int experimentID) {
 		// TODO Auto-generated method stub
-		WizardDialog wizardDialog = new WizardDialog(shell, new WizardDNAsamples(config));
+		WizardDialog wizardDialog = new WizardDialog(shell, new WizardDNAsamples(config, piID, projectID, experimentID));
 		if (wizardDialog.open() == Window.OK) {
 			System.out.println("Ok pressed");
 		} else {
@@ -165,9 +164,9 @@ public class WizardUtils {
 		}
 	}
 
-	public static void CreateDatasetWizard(Shell shell, String config) {
+	public static void CreateDatasetWizard(Shell shell, String config, int piID, int projectID, int experimentID, int datasetID) {
 		// TODO Auto-generated method stub
-		WizardDialog wizardDialog = new WizardDialog(shell, new WizardDataset(config));
+		WizardDialog wizardDialog = new WizardDialog(shell, new WizardDataset(config, piID, projectID, experimentID, datasetID));
 		if (wizardDialog.open() == Window.OK) {
 			System.out.println("Ok pressed");
 		} else {

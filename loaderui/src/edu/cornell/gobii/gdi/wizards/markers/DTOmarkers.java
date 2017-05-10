@@ -30,6 +30,7 @@ public class DTOmarkers implements WizardDTO{
 	private GobiiColumnType columnType;
 	private int rCoord = -1;
 	private int cCoord = -1;
+	private Integer piID;
 	private Integer projectID;
 	private Integer experimentID;
 	private Integer datasetID;
@@ -285,5 +286,13 @@ public class DTOmarkers implements WizardDTO{
 
 	public void setQcCheck(boolean qcCheck) {
 		this.qcCheck = qcCheck;
+	}
+
+	public Integer getPiID() {
+		return piID;
+	}
+
+	public void setPiID(Integer piID) {
+		this.piID = piID;
 	}
 }

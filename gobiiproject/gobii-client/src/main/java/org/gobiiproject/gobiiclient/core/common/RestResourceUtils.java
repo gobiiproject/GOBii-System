@@ -29,20 +29,5 @@ public class RestResourceUtils {
 
     }
 
-    public HttpCore getHttp() throws Exception {
-
-
-        if (null == this.httpCore) {
-            String host = ClientContext.getInstance(null, false).getCurrentCropDomain();
-            Integer port = ClientContext.getInstance(null, false).getCurrentCropPort();
-            String clientContextRoot = ClientContext.getInstance(null, false).getCurrentCropContextRoot();
-            this.httpCore = new HttpCore(host, port, clientContextRoot);
-        }
-
-
-        return httpCore;
-    }
-
-
 
 }

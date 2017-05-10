@@ -4,8 +4,8 @@ package org.gobiiproject.gobiimodel.config;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.gobiiproject.gobiimodel.types.GobiiAuthenticationType;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
-import org.gobiiproject.gobiimodel.utils.LineUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
  * * A ConfigValuesFactory, which knows how to create a ConfigValues instance.
  * This form of organization enables this class to function as a dependency firewall between the actual
  * format of the data and the rest of the system.
- *
- *
  */
 public class ConfigSettings {
 
@@ -100,11 +98,11 @@ public class ConfigSettings {
         this.configValues.setCrop(gobiiCropType, isActive, serviceDomain, serviceAppRoot, servicePort);
     }
 
-    public void removeCrop(String cropId ) throws Exception {
+    public void removeCrop(String cropId) throws Exception {
         this.configValues.removeCrop(cropId);
     }
 
-    public boolean isCropDefined(String gobiiCropType ) {
+    public boolean isCropDefined(String gobiiCropType) {
         return this.configValues.isCropDefined(gobiiCropType);
     }
 
@@ -223,6 +221,47 @@ public class ConfigSettings {
         this.configValues.setIflIntegrityCheck(iflIntegrityCheck);
     }
 
+    public GobiiAuthenticationType getGobiiAuthenticationType() {
+        return this.configValues.getGobiiAuthenticationType();
+    }
+
+    public void setGobiiAuthenticationType(GobiiAuthenticationType gobiiAuthenticationType) {
+        this.configValues.setGobiiAuthenticationType(gobiiAuthenticationType);
+    }
+
+    public String getLdapUrl() {
+        return this.configValues.getLdapUrl();
+    }
+
+    public void setLdapUrl(String ldapSvrDomain) {
+        this.configValues.setLdapUrl(ldapSvrDomain);
+    }
+
+    public String getLdapUserDnPattern() {
+        return this.configValues.getLdapUserDnPattern();
+    }
+
+    public void setLdapUserDnPattern(String ldapUserPath) {
+        this.configValues.setLdapUserDnPattern(ldapUserPath);
+    }
+
+
+    public String getLdapBindUser() {
+        return this.configValues.getLdapBindUser();
+    }
+
+    public void setLdapBindUser(String ldapBindUser) {
+        this.configValues.setLdapBindUser(ldapBindUser);
+    }
+
+    public String getLdapBindPassword() {
+        return this.configValues.getLdapBindPassword();
+    }
+
+    public void setLdapBindPassword(String ldapBindPassword) {
+        this.configValues.setLdapBindPassword(ldapBindPassword);
+    }
+
     public String getFileSystemRoot() {
 
         return this.configValues.getFileSystemRoot();
@@ -250,6 +289,37 @@ public class ConfigSettings {
         this.configValues.setFileSysCropsParent(fileSysCropsParent);
     }
 
+    public boolean isDecrypt() {
+        return this.configValues.isDecrypt();
+    }
+
+    public void setIsDecrypt(boolean isDecrypt) {
+        this.configValues.setDecrypt(isDecrypt);
+    }
+
+    public void setLdapUserForBackendProcs(String ldapUserForBackendProcs) {
+        this.configValues.setLdapUserForBackendProcs(ldapUserForBackendProcs);
+    }
 
 
+    public String getLdapUserForBackendProcs() {
+        return this.configValues.getLdapUserForBackendProcs();
+    }
+
+    public String getLdapPasswordForBackendProcs() {
+        return this.configValues.getLdapPasswordForBackendProcs();
+    }
+
+    public void setLdapPasswordForBackendProcs(String ldapPassworedForBackendProcs) {
+        this.configValues.setLdapPasswordForBackendProcs(ldapPassworedForBackendProcs);
+    }
+
+
+    public boolean isAuthenticateBrapi() {
+        return this.configValues.isAuthenticateBrapi();
+    }
+
+    public void setAuthenticateBrapi(boolean authenticateBrapi) {
+        this.configValues.setAuthenticateBrapi(authenticateBrapi);
+    }
 }

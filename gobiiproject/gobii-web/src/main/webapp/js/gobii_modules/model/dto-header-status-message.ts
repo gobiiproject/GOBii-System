@@ -1,9 +1,10 @@
 
 
+import {StatusLevel} from "./type-status-level";
 export class HeaderStatusMessage {
 
     public constructor(public message:string,
-                       public statusLevel:string,
+                       public statusLevel:StatusLevel,
                        public validationStatusType:string) {
 
     }

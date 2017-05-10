@@ -687,24 +687,5 @@ public class Utils {
 		}
 		return version;
 	}
-//
-//	public static boolean isVersionAcceptable(String minimumGobiiVersion, String gobiiVersion) {
-//		// TODO Auto-generated method stub
-//		boolean acceptable = true;
-//		System.out.println("minimumGobiiVersion"+ minimumGobiiVersion);
-//		System.out.println("gobiiVersion"+gobiiVersion);
-//		
-//		String[] fromTxt = minimumGobiiVersion.split(".");
-//		String[] fromHeader =  gobiiVersion.split(".");
-//		
-//		if(Integer.parseInt(fromTxt[0]) > Integer.parseInt(fromHeader[0])){ // compare first digit
-//			acceptable = false;
-//		}else if(Integer.parseInt(fromTxt[1]) > Integer.parseInt(fromHeader[1])){ // compare second digit
-//			acceptable = false;
-//		}else if(Integer.parseInt(fromTxt[2]) > Integer.parseInt(fromHeader[2])){// compare last digit
-//			acceptable = false;
-//		}
-//		
-//		return acceptable;
-//	}
+
 }

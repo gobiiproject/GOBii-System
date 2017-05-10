@@ -15,9 +15,10 @@ System.register(["@angular/http", "./header-names"], function (exports_1, contex
             HttpValues = (function () {
                 function HttpValues() {
                 }
-                HttpValues.makeTokenHeaders = function (token) {
+                HttpValues.makeTokenHeaders = function (token, gobiiCropType) {
                     var returnVal = this.makeContentHeaders();
                     returnVal.append(header_names_1.HeaderNames.headerToken, token);
+                    returnVal.append(header_names_1.HeaderNames.headerGobiiCrop, gobiiCropType);
                     return returnVal;
                 };
                 HttpValues.makeContentHeaders = function () {

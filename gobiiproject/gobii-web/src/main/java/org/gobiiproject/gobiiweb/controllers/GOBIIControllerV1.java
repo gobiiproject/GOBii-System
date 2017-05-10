@@ -5,6 +5,7 @@
 // ************************************************************************
 package org.gobiiproject.gobiiweb.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.math.NumberUtils;
 import org.gobiiproject.gobidomain.services.*;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
@@ -15,8 +16,11 @@ import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
 import org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdParams;
 import org.gobiiproject.gobiimodel.config.GobiiException;
 import org.gobiiproject.gobiimodel.headerlesscontainer.*;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderAuth;
 import org.gobiiproject.gobiimodel.types.GobiiEntityNameType;
+import org.gobiiproject.gobiimodel.types.GobiiExtractFilterType;
 import org.gobiiproject.gobiimodel.types.GobiiFilterType;
+import org.gobiiproject.gobiimodel.types.GobiiCvGroupType;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
 import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
@@ -36,7 +40,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -55,7 +58,7 @@ import java.util.List;
  */
 @Scope(value = "request")
 @Controller
-@RequestMapping("/gobii/v1")
+@RequestMapping(ServiceRequestId.SERVICE_PATH_GOBII)
 public class GOBIIControllerV1 {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(GOBIIControllerV1.class);
@@ -165,11 +168,23 @@ public class GOBIIControllerV1 {
 
     @RequestMapping(value = "/auth", method = RequestMethod.POST)
     @ResponseBody
-    public String authenticate(@RequestBody String noContentExpected) {
+    public String authenticate(@RequestBody String noContentExpected,
+                               HttpServletRequest request,
+                               HttpServletResponse response) {
 
         String returnVal = null;
         try {
             returnVal = "Authenticated: " + (new Date()).toString();
+
+            PayloadWriter<AuthDTO> payloadWriter = new PayloadWriter<>(request, response,
+                    AuthDTO.class);
+
+            HeaderAuth dtoHeaderAuth = new HeaderAuth();
+            payloadWriter.setAuthHeader(dtoHeaderAuth, response);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String dtoHeaderAuthString = objectMapper.writeValueAsString(dtoHeaderAuth);
+            returnVal = dtoHeaderAuthString;
+
         } catch (Exception e) {
             String msg = e.getMessage();
             String tmp = msg;
@@ -196,7 +211,7 @@ public class GOBIIControllerV1 {
             ConfigSettingsDTO configSettingsDTO = configSettingsService.getConfigSettings();
             if (null != configSettingsDTO) {
 
-                PayloadWriter<ConfigSettingsDTO> payloadWriter = new PayloadWriter<>(request,
+                PayloadWriter<ConfigSettingsDTO> payloadWriter = new PayloadWriter<>(request, response,
                         ConfigSettingsDTO.class);
 
                 payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -246,7 +261,7 @@ public class GOBIIControllerV1 {
 
             AnalysisDTO analysisDTONew = analysisService.createAnalysis(analysisDTOToCreate);
 
-            PayloadWriter<AnalysisDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<AnalysisDTO> payloadWriter = new PayloadWriter<>(request, response,
                     AnalysisDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -285,7 +300,7 @@ public class GOBIIControllerV1 {
 
             AnalysisDTO analysisDTOReplaced = analysisService.replaceAnalysis(analysisId, analysisDTOToReplace);
 
-            PayloadWriter<AnalysisDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<AnalysisDTO> payloadWriter = new PayloadWriter<>(request, response,
                     AnalysisDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -318,7 +333,7 @@ public class GOBIIControllerV1 {
 
             List<AnalysisDTO> analysisDTOs = analysisService.getAnalyses();
 
-            PayloadWriter<AnalysisDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<AnalysisDTO> payloadWriter = new PayloadWriter<>(request, response,
                     AnalysisDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -352,7 +367,7 @@ public class GOBIIControllerV1 {
 
             AnalysisDTO analysisDTO = analysisService.getAnalysisById(analysisId);
 
-            PayloadWriter<AnalysisDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<AnalysisDTO> payloadWriter = new PayloadWriter<>(request, response,
                     AnalysisDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -393,7 +408,7 @@ public class GOBIIControllerV1 {
 
             ContactDTO contactDTONew = contactService.createContact(contactDTOToCreate);
 
-            PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ContactDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -433,7 +448,7 @@ public class GOBIIControllerV1 {
 
             ContactDTO contactDTOReplaced = contactService.replaceContact(contactId, contactDTOToReplace);
 
-            PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ContactDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -470,7 +485,7 @@ public class GOBIIControllerV1 {
             ContactDTO contactDTO = contactService.getContactById(contactId);
             if (null != contactDTO) {
 
-                PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request,
+                PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request, response,
                         ContactDTO.class);
 
                 payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -510,7 +525,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<ContactDTO> payloadReader = new PayloadReader<>(ContactDTO.class);
             List<ContactDTO> platformDTOs = contactService.getContacts();
 
-            PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ContactDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -574,25 +589,40 @@ public class GOBIIControllerV1 {
     // Example: http://localhost:8282/gobii-dev/gobii/v1/contact-search?email=foo&lastName=bar&firstName=snot
     // all parameters must be present, but they don't all neeed a value
     @RequestMapping(value = "/contact-search",
-            params = {"email", "lastName", "firstName"},
+            params = {"email", "lastName", "firstName", "userName"},
             method = RequestMethod.GET)
     @ResponseBody
     public PayloadEnvelope<ContactDTO> getContactsBySearch(@RequestParam("email") String email,
                                                            @RequestParam("lastName") String lastName,
                                                            @RequestParam("firstName") String firstName,
+                                                           @RequestParam("userName") String userName,
                                                            HttpServletRequest request,
                                                            HttpServletResponse response) {
 
         PayloadEnvelope<ContactDTO> returnVal = new PayloadEnvelope<>();
         try {
-            ContactDTO contactDTO = contactService.getContactByEmail(email);
-            PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request,
+            ContactDTO contactDTO = null;
+
+            PayloadWriter<ContactDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ContactDTO.class);
 
-            payloadWriter.writeSingleItemForDefaultId(returnVal,
-                    UriFactory.resourceByUriIdParam(request.getContextPath(),
-                            ServiceRequestId.URL_CONTACTS),
-                    contactDTO);
+            if (!LineUtils.isNullOrEmpty(email)) {
+                contactDTO = contactService.getContactByEmail(email);
+            } else if (!LineUtils.isNullOrEmpty(userName)) {
+                contactDTO = contactService.getContactByUserName(userName);
+            } else {
+                returnVal.getHeader().getStatus().addException(new GobiiException(GobiiStatusLevel.ERROR,
+                        GobiiValidationStatusType.BAD_REQUEST,
+                        "search request must provide email or userName"));
+            }
+
+
+            if (contactDTO != null) {
+                payloadWriter.writeSingleItemForDefaultId(returnVal,
+                        UriFactory.resourceByUriIdParam(request.getContextPath(),
+                                ServiceRequestId.URL_CONTACTS),
+                        contactDTO);
+            }
 
         } catch (GobiiException e) {
             returnVal.getHeader().getStatus().addException(e);
@@ -628,7 +658,7 @@ public class GOBIIControllerV1 {
 
             CvDTO cvDTONew = cvService.createCv(cvDTOToCreate);
 
-            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request, response,
                     CvDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -667,7 +697,7 @@ public class GOBIIControllerV1 {
 
             CvDTO cvDTOReplaced = cvService.replaceCv(cvId, cvDTOToReplace);
 
-            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request, response,
                     CvDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -700,7 +730,7 @@ public class GOBIIControllerV1 {
 
             List<CvDTO> cvDTOs = cvService.getCvs();
 
-            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request, response,
                     CvDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -734,7 +764,7 @@ public class GOBIIControllerV1 {
 
             CvDTO cvDTO = cvService.getCvById(cvId);
 
-            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request, response,
                     CvDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -771,7 +801,7 @@ public class GOBIIControllerV1 {
 
             CvDTO cvDTODeleted = cvService.deleteCv(cvId);
 
-            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request, response,
                     CvDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -810,7 +840,7 @@ public class GOBIIControllerV1 {
 
             List<CvDTO> cvDTOs = cvService.getCvsByGroupName(groupName);
 
-            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request, response,
                     CvDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -848,7 +878,7 @@ public class GOBIIControllerV1 {
 
             List<CvDTO> cvDTOS = cvGroupService.getCvsForGroup(cvGroupId);
 
-            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<CvDTO> payloadWriter = new PayloadWriter<>(request, response,
                     CvDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -875,6 +905,54 @@ public class GOBIIControllerV1 {
         return (returnVal);
     }
 
+    @RequestMapping(value = "/cvgroups/{cvGroupTypeId}", method = RequestMethod.GET)
+    @ResponseBody
+    public PayloadEnvelope<CvGroupDTO> getCvGroupsByType(@PathVariable Integer cvGroupTypeId,
+                                                   HttpServletRequest request,
+                                                   HttpServletResponse response) {
+
+        PayloadEnvelope<CvGroupDTO> returnVal = new PayloadEnvelope<>();
+
+        try {
+
+            GobiiCvGroupType gobiiCvGroupType = GobiiCvGroupType.fromInt(cvGroupTypeId);
+
+            if( gobiiCvGroupType != GobiiCvGroupType.GROUP_TYPE_UNKNOWN ) {
+
+                List<CvGroupDTO> cvGroupDTOS = cvGroupService.getCvsForType(gobiiCvGroupType);
+
+                PayloadWriter<CvGroupDTO> payloadWriter = new PayloadWriter<>(request, response,
+                        CvGroupDTO.class);
+
+                // we don't have a GET for a single cvGrouop, and probably don't need one
+                // so  our links will just be the same URL as we got
+                payloadWriter.writeList(returnVal,
+                        UriFactory.resourceColl(request.getContextPath(),
+                                ServiceRequestId.URL_CVGROUP)
+                                .addUriParam("id"),
+                        cvGroupDTOS);
+            } else {
+                returnVal.getHeader().getStatus().addException(new Exception("Unknown group type: "
+                        + cvGroupTypeId.toString()));
+            }
+
+        } catch (GobiiException e) {
+
+            returnVal.getHeader().getStatus().addException(e);
+
+        } catch (Exception e) {
+
+            returnVal.getHeader().getStatus().addException(e);
+
+        }
+
+        ControllerUtils.setHeaderResponse(returnVal.getHeader(),
+                response,
+                HttpStatus.OK,
+                HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return (returnVal);
+    }
 
     // *********************************************
     // *************************** DATASET METHODS
@@ -894,7 +972,7 @@ public class GOBIIControllerV1 {
             DataSetDTO dataSetDTONew = dataSetService.createDataSet(dataSetDTOToCreate);
 
 
-            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DataSetDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -934,7 +1012,7 @@ public class GOBIIControllerV1 {
             DataSetDTO dataSetDTOReplaced = dataSetService.replaceDataSet(dataSetId, dataSetDTOToReplace);
 
 
-            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DataSetDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -970,7 +1048,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<DataSetDTO> payloadReader = new PayloadReader<>(DataSetDTO.class);
             List<DataSetDTO> dataSetDTOs = dataSetService.getDataSets();
 
-            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DataSetDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -1004,7 +1082,7 @@ public class GOBIIControllerV1 {
 
             DataSetDTO dataSetDTO = dataSetService.getDataSetById(dataSetId);
 
-            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DataSetDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1043,7 +1121,7 @@ public class GOBIIControllerV1 {
 
             List<NameIdDTO> nameIdDTOList = nameIdListService.getNameIdList(dtoMapNameIdParams);
 
-            PayloadWriter<NameIdDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<NameIdDTO> payloadWriter = new PayloadWriter<>(request, response,
                     NameIdDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -1079,14 +1157,13 @@ public class GOBIIControllerV1 {
 
             List<DataSetDTO> dataSetDTOS = dataSetService.getDataSetsByTypeId(id);
 
-            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DataSetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DataSetDTO.class);
 
             payloadWriter.writeList(returnVal,
                     UriFactory.resourceByUriIdParam(request.getContextPath(),
                             ServiceRequestId.URL_DATASETS),
                     dataSetDTOS);
-
 
 
         } catch (GobiiException e) {
@@ -1126,7 +1203,7 @@ public class GOBIIControllerV1 {
 
             DisplayDTO displayDTONew = displayService.createDisplay(displayDTOToCreate);
 
-            PayloadWriter<DisplayDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DisplayDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DisplayDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1165,7 +1242,7 @@ public class GOBIIControllerV1 {
 
             DisplayDTO displayDTOReplaced = displayService.replaceDisplay(displayId, displayDTOToReplace);
 
-            PayloadWriter<DisplayDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DisplayDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DisplayDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1198,7 +1275,7 @@ public class GOBIIControllerV1 {
 
             List<DisplayDTO> displayDTOS = displayService.getDisplays();
 
-            PayloadWriter<DisplayDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DisplayDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DisplayDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -1232,7 +1309,7 @@ public class GOBIIControllerV1 {
 
             DisplayDTO displayDTO = displayService.getDisplayById(displayId);
 
-            PayloadWriter<DisplayDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<DisplayDTO> payloadWriter = new PayloadWriter<>(request, response,
                     DisplayDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1274,7 +1351,7 @@ public class GOBIIControllerV1 {
             String cropType = CropRequestAnalyzer.getGobiiCropType(request);
             LoaderInstructionFilesDTO loaderInstructionFilesDTONew = loaderInstructionFilesService.createInstruction(cropType, loaderInstructionFilesDTOToCreate);
 
-            PayloadWriter<LoaderInstructionFilesDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<LoaderInstructionFilesDTO> payloadWriter = new PayloadWriter<>(request, response,
                     LoaderInstructionFilesDTO.class);
 
             payloadWriter.writeSingleItemForId(returnVal,
@@ -1310,7 +1387,7 @@ public class GOBIIControllerV1 {
             String cropType = CropRequestAnalyzer.getGobiiCropType(request);
             LoaderInstructionFilesDTO loaderInstructionFilesDTO = loaderInstructionFilesService.getInstruction(cropType, instructionFileName);
 
-            PayloadWriter<LoaderInstructionFilesDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<LoaderInstructionFilesDTO> payloadWriter = new PayloadWriter<>(request, response,
                     LoaderInstructionFilesDTO.class);
 
             payloadWriter.writeSingleItemForId(returnVal,
@@ -1354,7 +1431,7 @@ public class GOBIIControllerV1 {
             ExtractorInstructionFilesDTO extractorInstructionFilesDTONew = extractorInstructionFilesService.createInstruction(cropType, extractorInstructionFilesDTOToCreate);
 
 
-            PayloadWriter<ExtractorInstructionFilesDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ExtractorInstructionFilesDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ExtractorInstructionFilesDTO.class);
 
             payloadWriter.writeSingleItemForId(returnVal,
@@ -1391,7 +1468,7 @@ public class GOBIIControllerV1 {
             ExtractorInstructionFilesDTO extractorInstructionFilesDTO = extractorInstructionFilesService.getStatus(cropType, jobId);
 
 
-            PayloadWriter<ExtractorInstructionFilesDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ExtractorInstructionFilesDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ExtractorInstructionFilesDTO.class);
 
             payloadWriter.writeSingleItemForId(returnVal,
@@ -1433,7 +1510,7 @@ public class GOBIIControllerV1 {
 
             ManifestDTO manifestDTONew = manifestService.createManifest(manifestDTOToCreate);
 
-            PayloadWriter<ManifestDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ManifestDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ManifestDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1471,7 +1548,7 @@ public class GOBIIControllerV1 {
 
             ManifestDTO manifestDTOReplaced = manifestService.replaceManifest(manifestId, manifestDTOToReplace);
 
-            PayloadWriter<ManifestDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ManifestDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ManifestDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1512,7 +1589,7 @@ public class GOBIIControllerV1 {
             QCInstructionsDTO qcInstructionsDTONew = qcInstructionFilesService.createInstruction(cropType, qcInstructionsDTOToCreate);
 
 
-            PayloadWriter<QCInstructionsDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<QCInstructionsDTO> payloadWriter = new PayloadWriter<>(request, response,
                     QCInstructionsDTO.class);
 
             payloadWriter.writeSingleItemForId(returnVal,
@@ -1548,7 +1625,7 @@ public class GOBIIControllerV1 {
             String cropType = CropRequestAnalyzer.getGobiiCropType(request);
             QCInstructionsDTO qcInstructionsDTONew = qcInstructionFilesService.getInstruction(cropType, dataFileName);
 
-            PayloadWriter<QCInstructionsDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<QCInstructionsDTO> payloadWriter = new PayloadWriter<>(request, response,
                     QCInstructionsDTO.class);
 
             payloadWriter.writeSingleItemForId(returnVal,
@@ -1581,7 +1658,7 @@ public class GOBIIControllerV1 {
 
             List<ManifestDTO> manifestDTOS = manifestService.getManifests();
 
-            PayloadWriter<ManifestDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ManifestDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ManifestDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -1615,7 +1692,7 @@ public class GOBIIControllerV1 {
 
             ManifestDTO manifestDTO = manifestService.getManifestById(manifestId);
 
-            PayloadWriter<ManifestDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ManifestDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ManifestDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1656,7 +1733,7 @@ public class GOBIIControllerV1 {
             MarkerDTO dataSetDTONew = markerService.createMarker(markerDtoToCreate);
 
 
-            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1696,7 +1773,7 @@ public class GOBIIControllerV1 {
             MarkerDTO dataSetDTOReplaced = markerService.replaceMarker(markerId, markerDTOToReplace);
 
 
-            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1732,7 +1809,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<MarkerDTO> payloadReader = new PayloadReader<>(MarkerDTO.class);
             List<MarkerDTO> markerDTOs = markerService.getMarkers();
 
-            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -1767,7 +1844,7 @@ public class GOBIIControllerV1 {
 
             MarkerDTO dataSetDTO = markerService.getMarkerById(markerId);
 
-            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1804,7 +1881,7 @@ public class GOBIIControllerV1 {
 
             List<MarkerDTO> markersByName = markerService.getMarkersByName(name);
 
-            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -1869,7 +1946,10 @@ public class GOBIIControllerV1 {
 
                     throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
                             GobiiValidationStatusType.NONE,
-                            "Unsupported filter for list request: " + filterType);
+                            "Unsupported filter for list request: "
+                                    + filterType
+                                    + " for entity "
+                                    + gobiiEntityNameType);
                 }
 
                 if (!LineUtils.isNullOrEmpty(filterValue)) {
@@ -1883,7 +1963,9 @@ public class GOBIIControllerV1 {
                                     "Value for "
                                             + filterType
                                             + " value is not a number: "
-                                            + filterValue);
+                                            + filterValue
+                                            + " for entity "
+                                            + gobiiEntityNameType);
                         }
 
                     } else if (GobiiFilterType.BYTYPENAME == gobiiFilterType) {
@@ -1896,13 +1978,18 @@ public class GOBIIControllerV1 {
                                 "Unable to do type checking on filter value for filter type "
                                         + filterType
                                         + " with value "
-                                        + filterValue);
+                                        + filterValue
+                                        + " for entity "
+                                        + gobiiEntityNameType);
                     }
 
                 } else {
                     throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
                             GobiiValidationStatusType.NONE,
-                            "A value was not supplied for filter: " + filterType);
+                            "A value was not supplied for filter: "
+                                    + filterType
+                                    + " for entity "
+                                    + gobiiEntityNameType);
                 }
             }
 
@@ -1911,11 +1998,13 @@ public class GOBIIControllerV1 {
 
             List<NameIdDTO> nameIdList = nameIdListService.getNameIdList(dtoMapNameIdParams);
 
-            PayloadWriter<NameIdDTO> payloadWriter = new PayloadWriter<>(request, NameIdDTO.class);
+            PayloadWriter<NameIdDTO> payloadWriter = new PayloadWriter<>(request, response, NameIdDTO.class);
             payloadWriter.writeList(returnVal,
                     EntityNameConverter.toServiceRequestId(request.getContextPath(),
                             gobiiEntityNameType),
                     nameIdList);
+
+            String cropType = returnVal.getHeader().getCropType();
 
         } catch (GobiiException e) {
             returnVal.getHeader().getStatus().addException(e);
@@ -1952,7 +2041,7 @@ public class GOBIIControllerV1 {
 
             OrganizationDTO OrganizationDTONew = organizationService.createOrganization(organizationDTOToCreate);
 
-            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request, response,
                     OrganizationDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -1991,7 +2080,7 @@ public class GOBIIControllerV1 {
 
             OrganizationDTO organizationDTOReplaced = organizationService.replaceOrganization(organizationId, organizationDTOToReplace);
 
-            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request, response,
                     OrganizationDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2028,7 +2117,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<OrganizationDTO> payloadReader = new PayloadReader<>(OrganizationDTO.class);
             List<OrganizationDTO> organizationDTOs = organizationService.getOrganizations();
 
-            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request, response,
                     OrganizationDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -2064,7 +2153,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<OrganizationDTO> payloadReader = new PayloadReader<>(OrganizationDTO.class);
             OrganizationDTO organizationDTO = organizationService.getOrganizationById(organizationId);
 
-            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request, response,
                     OrganizationDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2108,7 +2197,7 @@ public class GOBIIControllerV1 {
 
             List<MapsetDTO> mapsetDTOs = mapsetService.getAllMapsetNames();
 
-            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MapsetDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -2150,7 +2239,7 @@ public class GOBIIControllerV1 {
 
             PlatformDTO platformDTONew = platformService.createPlatform(platformDTOToCreate);
 
-            PayloadWriter<PlatformDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<PlatformDTO> payloadWriter = new PayloadWriter<>(request, response,
                     PlatformDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2190,7 +2279,7 @@ public class GOBIIControllerV1 {
 
             PlatformDTO platformDTOReplaced = platformService.replacePlatform(platformId, platformDTOToReplace);
 
-            PayloadWriter<PlatformDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<PlatformDTO> payloadWriter = new PayloadWriter<>(request, response,
                     PlatformDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2227,7 +2316,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<PlatformDTO> payloadReader = new PayloadReader<>(PlatformDTO.class);
             List<PlatformDTO> platformDTOs = platformService.getPlatforms();
 
-            PayloadWriter<PlatformDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<PlatformDTO> payloadWriter = new PayloadWriter<>(request, response,
                     PlatformDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -2263,7 +2352,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<PlatformDTO> payloadReader = new PayloadReader<>(PlatformDTO.class);
             PlatformDTO platformDTO = platformService.getPlatformById(platformId);
 
-            PayloadWriter<PlatformDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<PlatformDTO> payloadWriter = new PayloadWriter<>(request, response,
                     PlatformDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2306,7 +2395,7 @@ public class GOBIIControllerV1 {
             ProjectDTO projectDTONew = projectService.createProject(projectDTOToCreate);
 
 
-            PayloadWriter<ProjectDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProjectDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProjectDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2346,7 +2435,7 @@ public class GOBIIControllerV1 {
             ProjectDTO projectDTOReplaced = projectService.replaceProject(projectId, projectDTOToReplace);
 
 
-            PayloadWriter<ProjectDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProjectDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProjectDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2382,7 +2471,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<ProjectDTO> payloadReader = new PayloadReader<>(ProjectDTO.class);
             List<ProjectDTO> projectDTOs = projectService.getProjects();
 
-            PayloadWriter<ProjectDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProjectDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProjectDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -2417,7 +2506,7 @@ public class GOBIIControllerV1 {
 
             ProjectDTO projectDTO = projectService.getProjectById(projectId);
 
-            PayloadWriter<ProjectDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProjectDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProjectDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2459,7 +2548,7 @@ public class GOBIIControllerV1 {
 
             ExperimentDTO exprimentDTONew = experimentService.createExperiment(exprimentDTOToCreate);
 
-            PayloadWriter<ExperimentDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ExperimentDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ExperimentDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2499,7 +2588,7 @@ public class GOBIIControllerV1 {
             ExperimentDTO exprimentDTOReplaced = experimentService.replaceExperiment(experimentId, exprimentDTOToReplace);
 
 
-            PayloadWriter<ExperimentDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ExperimentDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ExperimentDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2536,7 +2625,7 @@ public class GOBIIControllerV1 {
             List<ExperimentDTO> experimentDTOs = experimentService.getExperiments();
 
 
-            PayloadWriter<ExperimentDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ExperimentDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ExperimentDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -2571,7 +2660,7 @@ public class GOBIIControllerV1 {
 
             ExperimentDTO experimentDTO = experimentService.getExperimentById(experimentId);
 
-            PayloadWriter<ExperimentDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ExperimentDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ExperimentDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2612,7 +2701,7 @@ public class GOBIIControllerV1 {
 
             ProtocolDTO protocolDTONew = protocolService.createProtocol(protocolDTOToCreate);
 
-            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProtocolDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2650,7 +2739,7 @@ public class GOBIIControllerV1 {
 
             ProtocolDTO protocolDTOReplaced = protocolService.replaceProtocol(protocolId, protocolDTOToReplace);
 
-            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProtocolDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2685,7 +2774,7 @@ public class GOBIIControllerV1 {
 
             ProtocolDTO protocolDTO = protocolService.getProtocolById(protocolId);
 
-            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProtocolDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2719,7 +2808,7 @@ public class GOBIIControllerV1 {
             //PayloadReader<ProtocolDTO> payloadReader = new PayloadReader<>(ProtocolDTO.class);
             List<ProtocolDTO> ProtocolDTOs = protocolService.getProtocols();
 
-            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProtocolDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -2758,7 +2847,7 @@ public class GOBIIControllerV1 {
 
             OrganizationDTO protocolDTOAssociated = protocolService.addVendotrToProtocol(protocolId, organizationDTO);
 
-            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request, response,
                     OrganizationDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2797,7 +2886,7 @@ public class GOBIIControllerV1 {
 
             OrganizationDTO protocolDTOAssociated = protocolService.updateOrReplaceVendotrToProtocol(protocolId, organizationDTO);
 
-            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request, response,
                     OrganizationDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2833,7 +2922,7 @@ public class GOBIIControllerV1 {
 
             List<OrganizationDTO> organizationDTOs = this.protocolService.getVendorsForProtocolByProtocolId(protocolId);
 
-            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<OrganizationDTO> payloadWriter = new PayloadWriter<>(request, response,
                     OrganizationDTO.class);
 
 
@@ -2874,7 +2963,7 @@ public class GOBIIControllerV1 {
 
             ProtocolDTO protocolDTO = protocolService.getProtocolsByExperimentId(experimentId);
 
-            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ProtocolDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ProtocolDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2915,7 +3004,7 @@ public class GOBIIControllerV1 {
             String cropType = CropRequestAnalyzer.getGobiiCropType(request);
 
             LoaderFilePreviewDTO loaderFilePreviewDTO = loaderFilesService.makeDirectory(cropType, directoryName);
-            PayloadWriter<LoaderFilePreviewDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<LoaderFilePreviewDTO> payloadWriter = new PayloadWriter<>(request, response,
                     LoaderFilePreviewDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2954,7 +3043,7 @@ public class GOBIIControllerV1 {
 
             String cropType = CropRequestAnalyzer.getGobiiCropType(request);
             LoaderFilePreviewDTO loaderFilePreviewDTO = loaderFilesService.getPreview(cropType, directoryName, fileFormat);
-            PayloadWriter<LoaderFilePreviewDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<LoaderFilePreviewDTO> payloadWriter = new PayloadWriter<>(request, response,
                     LoaderFilePreviewDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -2997,7 +3086,7 @@ public class GOBIIControllerV1 {
 
             MapsetDTO mapsetDTONew = mapsetService.createMapset(mapsetDTOToCreate);
 
-            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MapsetDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3035,7 +3124,7 @@ public class GOBIIControllerV1 {
 
             MapsetDTO mapsetDTOReplaced = mapsetService.replaceMapset(mapsetId, mapsetDTOToReplace);
 
-            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MapsetDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3068,7 +3157,7 @@ public class GOBIIControllerV1 {
 
             List<MapsetDTO> mapsetDTOs = mapsetService.getMapsets();
 
-            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MapsetDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -3102,7 +3191,7 @@ public class GOBIIControllerV1 {
 
             MapsetDTO mapsetDTO = mapsetService.getMapsetById(mapsetId);
 
-            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MapsetDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MapsetDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3144,7 +3233,7 @@ public class GOBIIControllerV1 {
 
             MarkerGroupDTO markerGroupDTONew = markerGroupService.createMarkerGroup(markerGroupDTOToCreate);
 
-            PayloadWriter<MarkerGroupDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerGroupDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerGroupDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3182,7 +3271,7 @@ public class GOBIIControllerV1 {
 
             MarkerGroupDTO markerGroupDTOReplaced = markerGroupService.replaceMarkerGroup(markerGroupId, markerGroupDTOToReplace);
 
-            PayloadWriter<MarkerGroupDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerGroupDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerGroupDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3215,7 +3304,7 @@ public class GOBIIControllerV1 {
 
             List<MarkerGroupDTO> markerGroupDTOs = markerGroupService.getMarkerGroups();
 
-            PayloadWriter<MarkerGroupDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerGroupDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerGroupDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -3249,7 +3338,7 @@ public class GOBIIControllerV1 {
 
             MarkerGroupDTO markerGroupDTO = markerGroupService.getMarkerGroupById(markerGroupId);
 
-            PayloadWriter<MarkerGroupDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<MarkerGroupDTO> payloadWriter = new PayloadWriter<>(request, response,
                     MarkerGroupDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3291,7 +3380,7 @@ public class GOBIIControllerV1 {
 
             ReferenceDTO referenceDTONew = referenceService.createReference(referenceDTOToCreate);
 
-            PayloadWriter<ReferenceDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ReferenceDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ReferenceDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3329,7 +3418,7 @@ public class GOBIIControllerV1 {
 
             ReferenceDTO referenceDTOReplaced = referenceService.replaceReference(referenceId, referenceDTOToReplace);
 
-            PayloadWriter<ReferenceDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ReferenceDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ReferenceDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3362,7 +3451,7 @@ public class GOBIIControllerV1 {
 
             List<ReferenceDTO> referenceDTOS = referenceService.getReferences();
 
-            PayloadWriter<ReferenceDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ReferenceDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ReferenceDTO.class);
 
             payloadWriter.writeList(returnVal,
@@ -3396,7 +3485,7 @@ public class GOBIIControllerV1 {
 
             ReferenceDTO referenceDTO = referenceService.getReferenceById(referenceId);
 
-            PayloadWriter<ReferenceDTO> payloadWriter = new PayloadWriter<>(request,
+            PayloadWriter<ReferenceDTO> payloadWriter = new PayloadWriter<>(request, response,
                     ReferenceDTO.class);
 
             payloadWriter.writeSingleItemForDefaultId(returnVal,
@@ -3422,10 +3511,13 @@ public class GOBIIControllerV1 {
     // *********************************************
     // *************************** FILE UPLOAD
     // *********************************************
-    @RequestMapping(value = "/uploadfile", method = RequestMethod.POST)
+    @RequestMapping(value = "/uploadfile",
+            params = {"gobiiExtractFilterType"},
+            method = RequestMethod.POST)
     public
     @ResponseBody
-    String uploadFileHandler(@RequestParam("file") MultipartFile file,
+    String uploadFileHandler(@RequestParam("gobiiExtractFilterType") String gobiiExtractFilterType,
+                             @RequestParam("file") MultipartFile file,
                              HttpServletRequest request,
                              HttpServletResponse response) {
 
@@ -3437,30 +3529,38 @@ public class GOBIIControllerV1 {
         if (!file.isEmpty()) {
             try {
 
-                byte[] bytes = file.getBytes();
+                byte[] byteArray = file.getBytes();
 
-                // Creating the directory to store file
-                String rootPath = System.getProperty("catalina.home");
-                File dir = new File(rootPath + File.separator + "tmpFiles");
-                if (!dir.exists())
-                    dir.mkdirs();
+                String cropType = CropRequestAnalyzer.getGobiiCropType(request);
+                String jobId = file.getOriginalFilename();
+                GobiiExtractFilterType gobiiExtractFilterTypeParsed = GobiiExtractFilterType.valueOf(gobiiExtractFilterType);
+                this.extractorInstructionFilesService.writeDataFile(cropType, gobiiExtractFilterTypeParsed, jobId, byteArray);
 
-                // Create the file on server
-                File serverFile = new File(dir.getAbsolutePath()
-                        + File.separator + name);
-                BufferedOutputStream stream = new BufferedOutputStream(
-                        new FileOutputStream(serverFile));
-                stream.write(bytes);
-                stream.close();
+//                // Creating the directory to store file
+//                String rootPath = System.getProperty("catalina.home");
+//                File dir = new File(rootPath + File.separator + "tmpFiles");
+//                if (!dir.exists())
+//                    dir.mkdirs();
+//
+//                // Create the file on server
+//                File serverFile = new File(dir.getAbsolutePath()
+//                        + File.separator + name);
+//                BufferedOutputStream stream = new BufferedOutputStream(
+//                        new FileOutputStream(serverFile));
+//                stream.write(byteArray);
+//                stream.close();
 
 //                logger.info("Server File Location="
 //                        + serverFile.getAbsolutePath());
 
                 return "You successfully uploaded file=" + name;
             } catch (Exception e) {
+                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 return "You failed to upload " + name + " => " + e.getMessage();
             }
         } else {
+
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return "You failed to upload because the file was empty.";
         }
     }

@@ -31,14 +31,18 @@ public class WizardDataset extends Wizard {
 	private String config;
 	private DTOdataset dto = new DTOdataset();
 
-	public WizardDataset(String config) {
+	public WizardDataset(String config, int piID, int projectID, int experimentID, int datasetID) {
 		setWindowTitle("New Wizard");
 		this.config = config;
+		dto.setPiId(piID);
+		dto.setProjectID(projectID);
+		dto.setExperimentID(experimentID);
+		dto.setDatasetID(datasetID);
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new Page1Datasets(config, dto));
+		addPage(new Page1Datasets(config, dto, dto.getPiId(), dto.getProjectID(), dto.getExperimentID(), dto.getDatasetID()));
 		addPage(new Pg2Markers(config, dto.getDtoMarkers()));
 		addPage(new Pg3Markers(config, dto.getDtoMarkers()));
 		addPage(new Pg2DNAsamples(config, dto.getDtoSamples()));

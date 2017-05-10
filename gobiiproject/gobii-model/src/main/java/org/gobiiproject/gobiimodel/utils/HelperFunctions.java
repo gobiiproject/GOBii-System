@@ -2,6 +2,7 @@ package org.gobiiproject.gobiimodel.utils;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
@@ -356,13 +357,68 @@ public class HelperFunctions {
 	 * @param fileLocation String representation of the file's location (absolute or relative).
 	 * @return true if non-empty file exists
 	 */
-	private static boolean checkFileExistance(String fileLocation) {
-	if(fileLocation==null)return false;
-	File f = new File(fileLocation);
-	return f.exists() && f.getTotalSpace()!=0;
-}
+	public static boolean checkFileExistance(String fileLocation) {
+		if(fileLocation==null)return false;
+		File f = new File(fileLocation);
+		return f.exists() && f.getTotalSpace()!=0;
+	}
 
 
+	/**
+	 * convert file size in to human readable format
+	 * @param bytes
+	 * @return String
+	 */
+	public static String sizeToReadable(long bytes) {
+		int unit = 1024;
+		if (bytes < unit) return bytes + " B";
+		int exp = (int) (Math.log(bytes) / Math.log(unit));
+		String pre = ("KMGTPE").charAt(exp-1) + "i";
+		return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+	}
+
+	/**
+	 * Convert String's first character into uppercase
+	 * @param original
+	 * @return
+	 */
+	public static String uppercaseFirstLetter(String original) {
+		if (original == null || original.length() == 0) {
+			return original;
+		}
+		return original.substring(0, 1).toUpperCase() + original.substring(1);
+	}
+
+	/**
+	 * Convert miliseconds to human readable time format : 00 days 00 hrs 00 minutes 00 secs
+	 * @param millis
+	 * @return
+	 */
+	public static String getDurationReadable(long millis) {
+		if(millis < 0) {
+			throw new IllegalArgumentException("Duration must be greater than zero!");
+		}
+
+		long days = TimeUnit.MILLISECONDS.toDays(millis);
+		millis -= TimeUnit.DAYS.toMillis(days);
+		long hours = TimeUnit.MILLISECONDS.toHours(millis);
+		millis -= TimeUnit.HOURS.toMillis(hours);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+		millis -= TimeUnit.MINUTES.toMillis(minutes);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+
+		StringBuilder sb = new StringBuilder(64);
+		sb.append(days);
+		sb.append(" Days ");
+		sb.append(hours);
+		sb.append(" Hours ");
+		sb.append(minutes);
+		sb.append(" Minutes ");
+		sb.append(seconds);
+		sb.append(" Seconds");
+
+		return sb.toString();
+	}
 
 	/**
 	 * Wizardry.

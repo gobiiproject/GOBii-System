@@ -6,10 +6,12 @@ System.register([], function (exports_1, context_1) {
         setters: [],
         execute: function () {
             (function (ProcessType) {
-                ProcessType[ProcessType["CREATE"] = 0] = "CREATE";
-                ProcessType[ProcessType["READ"] = 1] = "READ";
-                ProcessType[ProcessType["UPDATE"] = 2] = "UPDATE";
-                ProcessType[ProcessType["DELETE"] = 3] = "DELETE";
+                ProcessType[ProcessType["UNKNOWN"] = 0] = "UNKNOWN";
+                ProcessType[ProcessType["CREATE"] = 1] = "CREATE";
+                ProcessType[ProcessType["READ"] = 2] = "READ";
+                ProcessType[ProcessType["UPDATE"] = 3] = "UPDATE";
+                ProcessType[ProcessType["DELETE"] = 4] = "DELETE";
+                ProcessType[ProcessType["NOTIFY"] = 5] = "NOTIFY";
             })(ProcessType || (ProcessType = {}));
             exports_1("ProcessType", ProcessType);
             ;

@@ -29,6 +29,7 @@ public class DTOsamples implements WizardDTO{
 	private HashMap<String, GobiiFileColumn> runFields = new HashMap<>();
 	private HashMap<String, GobiiFileColumn> subRunFields = new HashMap<>();
 	private HashMap<String, GobiiFileColumn> runPropFields = new HashMap<>();
+	private Integer piID;
 	private Integer projectID;
 	private Integer experimentID;
 	private Integer datasetID;
@@ -206,5 +207,11 @@ public class DTOsamples implements WizardDTO{
 	}
 	public void setQcCheck(boolean qcCheck) {
 		this.qcCheck = qcCheck;
+	}
+	public Integer getPiID() {
+		return piID;
+	}
+	public void setPiID(Integer piID) {
+		this.piID = piID;
 	}
 }

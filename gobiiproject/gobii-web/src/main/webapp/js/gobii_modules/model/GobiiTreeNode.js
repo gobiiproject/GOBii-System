@@ -13,11 +13,13 @@ System.register(["./type-entity", "./cv-filter-type"], function (exports_1, cont
         ],
         execute: function () {
             GobiiTreeNode = (function () {
-                function GobiiTreeNode(fileModelNodeId, fileItemId, required) {
+                function GobiiTreeNode(parent, fileModelNodeId, fileItemId, required) {
                     this.entityType = type_entity_1.EntityType.UNKNOWN;
-                    this.cvFilterType = cv_filter_type_1.CvFilterType.UKNOWN;
+                    this.entitySubType = type_entity_1.EntitySubType.UNKNOWN;
+                    this.cvFilterType = cv_filter_type_1.CvFilterType.UNKNOWN;
                     this.children = [];
                     this.required = false;
+                    this.parent = parent;
                     this.fileModelNodeId = fileModelNodeId;
                     this.fileItemId = fileItemId;
                     this.required = required;

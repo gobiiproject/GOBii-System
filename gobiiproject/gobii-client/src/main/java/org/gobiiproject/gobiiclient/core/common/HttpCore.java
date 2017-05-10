@@ -14,11 +14,10 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.gobiiproject.gobiiapimodel.restresources.ResourceParam;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
 import org.gobiiproject.gobiimodel.types.RestMethodTypes;
 import org.gobiiproject.gobiimodel.types.GobiiHttpHeaderNames;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
@@ -37,17 +36,17 @@ public class HttpCore {
 
     private String host = null;
     private Integer port = null;
-    private UriFactory uriFactory;
+    private String cropId;
     private boolean logJson = false;
 
 
     public HttpCore(String host,
                     Integer port,
-                    String cropContextRoot) {
+                    String cropId) {
 
         this.host = host;
         this.port = port;
-        this.uriFactory = new UriFactory(cropContextRoot);
+        this.cropId = cropId;
     }
 
 
@@ -93,9 +92,8 @@ public class HttpCore {
         }
 
 
-        if (ClientContext.isInitialized()) {
-            httpUriRequest.addHeader(GobiiHttpHeaderNames.HEADER_GOBII_CROP,
-                    ClientContext.getInstance(null, false).getCurrentClientCropType().toString());
+        if (!LineUtils.isNullOrEmpty(this.cropId)) {
+            httpUriRequest.addHeader(GobiiHttpHeaderNames.HEADER_GOBII_CROP, this.cropId);
         }
 
         return (HttpClientBuilder.create().build().execute(httpUriRequest));
@@ -120,12 +118,12 @@ public class HttpCore {
 
     }// getHeader()
 
-    private HttpResponse authenticateWithUser(String url, String userName, String password) throws Exception {
+    private HttpResponse authenticateWithUser(URI uri, String userName, String password) throws Exception {
 
         HttpResponse returnVal = null;
 
-        URI uri = makeUri(this.uriFactory.RestUriFromUri(url));
         HttpPost postRequest = new HttpPost(uri);
+        this.setHttpBody(postRequest, "empty");
         returnVal = submitUriRequest(postRequest, userName, password, null);
 
         if (HttpStatus.SC_OK != returnVal.getStatusLine().getStatusCode()) {
@@ -140,11 +138,12 @@ public class HttpCore {
 
     }//authenticateWithUser()
 
-    public String getTokenForUser(String url, String userName, String password) throws Exception {
+    public String getTokenForUser(RestUri restUri, String userName, String password) throws Exception {
 
         String returnVal = null;
 
-        HttpResponse response = authenticateWithUser(url, userName, password);
+        URI uri = makeUri(restUri);
+        HttpResponse response = authenticateWithUser(uri, userName, password);
         Header tokenHeader = getHeader(response.getAllHeaders(), GobiiHttpHeaderNames.HEADER_TOKEN);
         returnVal = tokenHeader.getValue();
 
@@ -178,7 +177,8 @@ public class HttpCore {
 
         if (HttpStatus.SC_NOT_FOUND != responseCode &&
                 HttpStatus.SC_BAD_REQUEST != responseCode &&
-                HttpStatus.SC_METHOD_NOT_ALLOWED != responseCode) {
+                HttpStatus.SC_METHOD_NOT_ALLOWED != responseCode &&
+                HttpStatus.SC_UNAUTHORIZED != responseCode) {
 
             InputStream inputStream = httpResponse.getEntity().getContent();
             BufferedReader bufferedReader = new BufferedReader(
@@ -234,7 +234,7 @@ public class HttpCore {
 
             System.out.println("Response: ");
 
-            if( httpMethodResult.getPayLoad() != null ) {
+            if (httpMethodResult.getPayLoad() != null) {
                 System.out.println(httpMethodResult.getPayLoad().toString());
             } else {
                 System.out.println("Null payload");

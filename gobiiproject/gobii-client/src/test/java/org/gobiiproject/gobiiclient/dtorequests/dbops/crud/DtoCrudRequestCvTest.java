@@ -10,10 +10,13 @@ import org.gobiiproject.gobiiapimodel.hateos.LinkCollection;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.Authenticator;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.*;
 import org.gobiiproject.gobiimodel.headerlesscontainer.CvDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.CvGroupDTO;
+import org.gobiiproject.gobiimodel.types.GobiiCvGroupType;
 import org.gobiiproject.gobiimodel.types.GobiiEntityNameType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.junit.AfterClass;
@@ -22,8 +25,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class DtoCrudRequestCvTest implements DtoCrudRequestTest {
 
@@ -37,12 +42,10 @@ public class DtoCrudRequestCvTest implements DtoCrudRequestTest {
         Assert.assertTrue(Authenticator.deAuthenticate());
     }
 
-
-
     @Test
     @Override
     public void get() throws Exception {
-        RestUri restUriCv = ClientContext.getInstance(null,false)
+        RestUri restUriCv = ClientContext.getInstance(null, false)
                 .getUriFactory()
                 .resourceColl(ServiceRequestId.URL_CV);
         GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriCv);
@@ -129,33 +132,38 @@ public class DtoCrudRequestCvTest implements DtoCrudRequestTest {
     @Test
     public void createCvForSystemGroup() throws Exception {
 
-        CvDTO newCvDto = TestDtoFactory
-                .makePopulatedCvDTO(GobiiProcessType.CREATE, 1);
+        Integer systemOnlyGroupId = this.getGroupIdForASystemOnlyGroup();
+        if (systemOnlyGroupId > 0) {
 
-        newCvDto.setGroupId(1);
+            CvDTO newCvDto = TestDtoFactory
+                    .makePopulatedCvDTO(GobiiProcessType.CREATE, 1);
 
-        PayloadEnvelope<CvDTO> payloadEnvelope = new PayloadEnvelope<>(newCvDto, GobiiProcessType.CREATE);
-        GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
-                .getUriFactory()
-                .resourceColl(ServiceRequestId.URL_CV));
-        PayloadEnvelope<CvDTO> cvDTOResponseEnvelope = gobiiEnvelopeRestResource.post(CvDTO.class,
-                payloadEnvelope);
+            newCvDto.setGroupId(systemOnlyGroupId);
 
-        Assert.assertTrue(TestUtils.checkAndPrintHeaderMessages(cvDTOResponseEnvelope.getHeader()));
 
-        Assert.assertTrue("The error message should contain 'belongs to a cvgroup of type system'",
-            cvDTOResponseEnvelope.getHeader()
-                    .getStatus()
-                    .getStatusMessages()
-                    .stream()
-                    .filter(m -> m.getMessage().toLowerCase().contains("belongs to a cvgroup of type system"))
-                    .count()
-                    > 0);
+            PayloadEnvelope<CvDTO> payloadEnvelope = new PayloadEnvelope<>(newCvDto, GobiiProcessType.CREATE);
+            GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                    .getUriFactory()
+                    .resourceColl(ServiceRequestId.URL_CV));
+            PayloadEnvelope<CvDTO> cvDTOResponseEnvelope = gobiiEnvelopeRestResource.post(CvDTO.class,
+                    payloadEnvelope);
 
-        Assert.assertTrue(cvDTOResponseEnvelope.getPayload().getData().size() == 0);
 
+            Assert.assertTrue("The error message should contain 'There is no user cvgroup for the specified CV group'",
+                    cvDTOResponseEnvelope.getHeader()
+                            .getStatus()
+                            .getStatusMessages()
+                            .stream()
+                            .filter(m -> m.getMessage().contains("There is no user cvgroup for the specified CV group"))
+                            .count()
+                            > 0);
+
+            Assert.assertTrue(cvDTOResponseEnvelope.getPayload().getData().size() == 0);
+
+        } else {
+            throw new Exception("There is no system-only groiup with which to run this test");
+        }
     }
-
 
 
     @Test
@@ -212,6 +220,41 @@ public class DtoCrudRequestCvTest implements DtoCrudRequestTest {
 
     }
 
+    public Integer getGroupIdForASystemOnlyGroup() throws Exception {
+
+        Integer returnVal = 0;
+
+        Integer systemType = GobiiCvGroupType.GROUP_TYPE_SYSTEM.getGroupTypeId();
+        RestUri restUriCvGroupByType = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_CVGROUP)
+                .setParamValue("id", systemType.toString());
+
+        GobiiEnvelopeRestResource<CvGroupDTO> restResourceForGetCvByType = new GobiiEnvelopeRestResource<>(restUriCvGroupByType);
+        PayloadEnvelope<CvGroupDTO> resultEnvelopeForGetCvsByType = restResourceForGetCvByType
+                .get(CvGroupDTO.class);
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetCvsByType.getHeader()));
+
+
+        if (resultEnvelopeForGetCvsByType.getPayload().getData().size() > 1) {
+
+            List<Integer> typeIds = resultEnvelopeForGetCvsByType
+                    .getPayload()
+                    .getData()
+                    .stream()
+                    .filter(cvg -> cvg.getName().equals("gobii_datawarehouse"))
+                    .map(CvGroupDTO::getCvGroupId)
+                    .collect(Collectors.toList());
+
+            if (typeIds.size() == 1) {
+                returnVal = typeIds.get(0);
+            }
+        }
+
+        return returnVal;
+    }
+
 
     @Test
     public void updateCvForSystemGroup() throws Exception {
@@ -233,23 +276,31 @@ public class DtoCrudRequestCvTest implements DtoCrudRequestTest {
 
         String newName = UUID.randomUUID().toString();
         cvDTOReceived.setTerm(newName);
-        restResourceForGetById.setParamValue("id", cvDTOReceived.getCvId().toString());
-        PayloadEnvelope<CvDTO> cvDTOResponseEnvelopeUpdate = restResourceForGetById.put(CvDTO.class,
-                new PayloadEnvelope<>(cvDTOReceived, GobiiProcessType.UPDATE));
-
-        Assert.assertTrue(TestUtils.checkAndPrintHeaderMessages(cvDTOResponseEnvelopeUpdate.getHeader()));
-
-        Assert.assertTrue("The error message should contain 'belongs to a cvgroup of type system'",
-            cvDTOResponseEnvelopeUpdate.getHeader()
-                    .getStatus()
-                    .getStatusMessages()
-                    .stream()
-                    .filter(m -> m.getMessage().toLowerCase().contains("belongs to a cvgroup of type system"))
-                    .count()
-                    > 0);
 
 
-        Assert.assertTrue(cvDTOResponseEnvelopeUpdate.getPayload().getData().size() == 0);
+        Integer systemOnlyGroupId = this.getGroupIdForASystemOnlyGroup();
+        if (systemOnlyGroupId > 0) {
+            cvDTOReceived.setGroupId(systemOnlyGroupId); // gobii_datawarehouse
+
+            restResourceForGetById.setParamValue("id", cvDTOReceived.getCvId().toString());
+            PayloadEnvelope<CvDTO> cvDTOResponseEnvelopeUpdate = restResourceForGetById.put(CvDTO.class,
+                    new PayloadEnvelope<>(cvDTOReceived, GobiiProcessType.UPDATE));
+
+
+            Assert.assertTrue("The error message should contain 'There is no user cvgroup for the specified CV group'",
+                    cvDTOResponseEnvelopeUpdate.getHeader()
+                            .getStatus()
+                            .getStatusMessages()
+                            .stream()
+                            .filter(m -> m.getMessage().contains("There is no user cvgroup for the specified CV group"))
+                            .count()
+                            > 0);
+
+
+            Assert.assertTrue(cvDTOResponseEnvelopeUpdate.getPayload().getData().size() == 0);
+        } else {
+            throw new Exception("There is no system-only groiup with which to run this test");
+        }
 
 
         restUriCvForGetById.setParamValue("id", cvDTOReceived.getCvId().toString());
@@ -325,55 +376,58 @@ public class DtoCrudRequestCvTest implements DtoCrudRequestTest {
     }
 
 
-
     @Test
     public void deleteCvForSystemGroup() throws Exception {
 
         // retrieve cv with system group
 
-        RestUri restUriCvForGetById = ClientContext.getInstance(null, false)
-                .getUriFactory()
-                .resourceByUriIdParam(ServiceRequestId.URL_CV);
-
-        restUriCvForGetById.setParamValue("id", "1");
-        GobiiEnvelopeRestResource<CvDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriCvForGetById);
-        PayloadEnvelope<CvDTO> resultEnvelopeForGetById = restResourceForGetById
-                .get(CvDTO.class);
-
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetById.getHeader()));
-        CvDTO cvDTOReceived = resultEnvelopeForGetById.getPayload().getData().get(0);
-
-        restResourceForGetById.setParamValue("id", cvDTOReceived.getCvId().toString());
-
-        PayloadEnvelope<CvDTO> cvDTOResponseEnvelopeDelete = restResourceForGetById.delete(CvDTO.class);
-
-        Assert.assertTrue(TestUtils.checkAndPrintHeaderMessages(cvDTOResponseEnvelopeDelete.getHeader()));
 
 
-        Assert.assertTrue("The error message should contain 'belongs to a cvgroup of type system'",
-            cvDTOResponseEnvelopeDelete.getHeader()
-                    .getStatus()
-                    .getStatusMessages()
-                    .stream()
-                    .filter(m -> m.getMessage().toLowerCase().contains("belongs to a cvgroup of type system"))
-                    .count()
-                    > 0);
+        Integer systemOnlyGroupId = this.getGroupIdForASystemOnlyGroup();
+        if (systemOnlyGroupId > 0) {
+            RestUri restUriCvForGetById = ClientContext.getInstance(null, false)
+                    .getUriFactory()
+                    .resourceByUriIdParam(ServiceRequestId.URL_CV);
 
-        // the cv should not be deleted
+            restUriCvForGetById.setParamValue("id", "1");
+            GobiiEnvelopeRestResource<CvDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriCvForGetById);
+            PayloadEnvelope<CvDTO> resultEnvelopeForGetById = restResourceForGetById
+                    .get(CvDTO.class);
 
-        RestUri restUriCvForGetByIdDeleted = ClientContext.getInstance(null, false)
-                .getUriFactory()
-                .resourceByUriIdParam(ServiceRequestId.URL_CV);
-        restUriCvForGetByIdDeleted.setParamValue("id", cvDTOReceived.getCvId().toString());
-        GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriCvForGetByIdDeleted);
-        PayloadEnvelope<CvDTO> resultEnvelopeForGetByIdDeleted = gobiiEnvelopeRestResourceForGetById
-                .get(CvDTO.class);
+            Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetById.getHeader()));
+            CvDTO cvDTOReceived = resultEnvelopeForGetById.getPayload().getData().get(0);
 
-        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetByIdDeleted.getHeader()));
-        Integer responseSize = resultEnvelopeForGetByIdDeleted.getPayload().getData().size();
-        Assert.assertTrue(responseSize > 0);
+            restResourceForGetById.setParamValue("id", cvDTOReceived.getCvId().toString());
+
+            PayloadEnvelope<CvDTO> cvDTOResponseEnvelopeDelete = restResourceForGetById.delete(CvDTO.class);
 
 
+            Assert.assertTrue("The error message should contain 'Cannot delete cv term that belongs to a system group'",
+                    cvDTOResponseEnvelopeDelete.getHeader()
+                            .getStatus()
+                            .getStatusMessages()
+                            .stream()
+                            .filter(m -> m.getMessage().contains("Cannot delete cv term that belongs to a system group"))
+                            .count()
+                            > 0);
+
+            // the cv should not be deleted
+
+            RestUri restUriCvForGetByIdDeleted = ClientContext.getInstance(null, false)
+                    .getUriFactory()
+                    .resourceByUriIdParam(ServiceRequestId.URL_CV);
+            restUriCvForGetByIdDeleted.setParamValue("id", cvDTOReceived.getCvId().toString());
+            GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriCvForGetByIdDeleted);
+            PayloadEnvelope<CvDTO> resultEnvelopeForGetByIdDeleted = gobiiEnvelopeRestResourceForGetById
+                    .get(CvDTO.class);
+
+            Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeForGetByIdDeleted.getHeader()));
+            Integer responseSize = resultEnvelopeForGetByIdDeleted.getPayload().getData().size();
+            Assert.assertTrue(responseSize > 0);
+
+        } else {
+                throw new Exception("There is no system-only groiup with which to run this test");
+            }
     }
 
 
@@ -428,7 +482,7 @@ public class DtoCrudRequestCvTest implements DtoCrudRequestTest {
 
         RestUri restUriCvForGetByGroupName = ClientContext.getInstance(null, false)
                 .getUriFactory()
-                .resourceByUriIdParamName("groupName",ServiceRequestId.URL_CV);
+                .resourceByUriIdParamName("groupName", ServiceRequestId.URL_CV);
         restUriCvForGetByGroupName.setParamValue("groupName", "germplasm_prop");
         GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResourceForGetByGroupName = new GobiiEnvelopeRestResource<>(restUriCvForGetByGroupName);
         PayloadEnvelope<CvDTO> resultEnvelopeForGetByGroupName = gobiiEnvelopeRestResourceForGetByGroupName
@@ -438,7 +492,7 @@ public class DtoCrudRequestCvTest implements DtoCrudRequestTest {
         List<CvDTO> cvDTOByGroupName = resultEnvelopeForGetByGroupName.getPayload().getData();
         Assert.assertTrue(cvDTOByGroupName.size() > 0); //at most 2: 1 for system and 1 for user.
 
-        for(int currentIdx = 0 ; currentIdx<cvDTOByGroupName.size(); currentIdx++ ){
+        for (int currentIdx = 0; currentIdx < cvDTOByGroupName.size(); currentIdx++) {
             CvDTO currentCvDto = cvDTOList.get(currentIdx);
             Link currentLink = linkCollection.getLinksPerDataItem().get(currentIdx);
 

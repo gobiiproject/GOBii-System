@@ -47,6 +47,8 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Group;
@@ -60,18 +62,33 @@ public class FrmProtocol  extends AbstractFrm {
 	private Table tbVendorProtocol;
 	private Button btnApply;
 	protected int newlyCheckedItems=0;
-
+	protected boolean isNameChanged = false;
+	private int currentPlatformId=0;
+	private int currentProtocolId=0;
 	public FrmProtocol(Shell shell, Composite parent, int style) {
 		super(shell, parent, style);
 		cmpForm.setLayout(new GridLayout(2, false));
 
+		lblCbList.setText("Platforms:");
+		
 		Label lblprotocolName = new Label(cmpForm, SWT.NONE);
 		lblprotocolName.setText("*Protocol Name:");
 		lblprotocolName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
+		txtName.addModifyListener(new ModifyListener() {
+			/** {@inheritDoc} */
+			public void modifyText(ModifyEvent e) {
+				// Handle event
+				if (currentProtocolId>0 && !isNameChanged){
+					refreshVendorProtocolGroup();
+					isNameChanged = true;
+					btnApply.setEnabled(false);
+				}
+			}
+		});
+		
 		Label lblPlatform = new Label(cmpForm, SWT.NONE);
 		lblPlatform.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblPlatform.setText("Platform:");
@@ -79,10 +96,7 @@ public class FrmProtocol  extends AbstractFrm {
 		cbPlatform = new Combo(cmpForm, SWT.NONE);
 		cbPlatform.setEnabled(false);
 		cbPlatform.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		if(IDs.platformId > 0)
-			FormUtils.entrySetToComboSelectId(Controller.getPlatformNames(), cbPlatform, IDs.platformId);
-		else
-			FormUtils.entrySetToCombo(Controller.getPlatformNames(), cbPlatform);
+		populateDisabledComboPlatform();
 
 		Label lblNewLabel = new Label(cmpForm, SWT.NONE);
 		GridData gd_lblNewLabel = new GridData(SWT.RIGHT, SWT.BOTTOM, false, false, 1, 1);
@@ -113,7 +127,7 @@ public class FrmProtocol  extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(!validate(false)) return;
-				if(!FormUtils.updateForm(getShell(), "Protocol", txtName.getText())) return;
+				if(!FormUtils.updateForm(getShell(), "Protocol", selectedName)) return;
 				newProtocol(false);
 			}
 		});
@@ -133,7 +147,7 @@ public class FrmProtocol  extends AbstractFrm {
 		new Label(cmpForm, SWT.NONE);
 
 		Group grpUpdateProtocolvendor = new Group(cmpForm, SWT.BORDER);
-		grpUpdateProtocolvendor.setText("Update Protocol-Vendors");
+		grpUpdateProtocolvendor.setText("Update Vendor-Protocols");
 		grpUpdateProtocolvendor.setLayout(new GridLayout(8, false));
 		grpUpdateProtocolvendor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 3));
 
@@ -146,14 +160,14 @@ public class FrmProtocol  extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				// Identify the selected row
 				TableItem item = (TableItem) e.item;
-				if (item == null || IDs.protocolId==0)
+				if (item == null || currentProtocolId==0)
 					return;
 
 				if(e.detail == SWT.CHECK){
 					if((boolean) item.getData("checked")){
 						item.setChecked(true);
 					}else{
-						if(item.getChecked()){
+						if(item.getChecked() && !isNameChanged){
 							newlyCheckedItems++;
 							String protocolName = txtName.getText().isEmpty() ? "" : txtName.getText();
 							String vendorName = item.getText(0).replaceAll(" ", "_");
@@ -214,7 +228,7 @@ public class FrmProtocol  extends AbstractFrm {
 
 						private void enableApplyButton() {
 							// TODO Auto-generated method stub
-							if((boolean)item.getData("checked")){
+							if((boolean)item.getData("checked") && !isNameChanged){
 								item.setData("updated", "true");
 								newlyCheckedItems++;
 								btnApply.setEnabled(true);
@@ -248,7 +262,7 @@ public class FrmProtocol  extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-				if( IDs.protocolId==0){
+				if( currentProtocolId==0){
 					String message = "'"+txtName.getText()+"' is recognized as a new entry. Please Add or Select a protocol first.";
 					dialog.setMessage(message);
 					dialog.open();
@@ -256,11 +270,11 @@ public class FrmProtocol  extends AbstractFrm {
 				}else{
 					String confirmationMessage = "Do you want to update "+ txtName.getText() +" with the Protocol-Vendor changes?";
 					if(MessageDialog.openConfirm(shell, "Confirm", confirmationMessage)){
-						newVendorProtocol(IDs.protocolId);
+						newVendorProtocol(currentProtocolId);
 						tbList.removeAll();
-						populateProtocolDetails(IDs.protocolId);
-						if(IDs.platformId==0) populatePlatformsAndProtocols();
-						else populateProtocolListFromSelectedPlatform(IDs.platformId);
+						populateProtocolDetails(currentProtocolId);
+						if(currentPlatformId==0) populatePlatformsAndProtocols();
+						else populateProtocolListFromSelectedPlatform(currentPlatformId);
 					}
 				}
 			}
@@ -278,19 +292,25 @@ public class FrmProtocol  extends AbstractFrm {
 		// TODO Auto-generated constructor stub
 	}
 
+	private void populateDisabledComboPlatform() {
+		// TODO Auto-generated method stub
+		if(currentPlatformId > 0)
+			FormUtils.entrySetToComboSelectId(Controller.getPlatformNames(), cbPlatform, currentPlatformId);
+		else
+			FormUtils.entrySetToCombo(Controller.getPlatformNames(), cbPlatform);
+	}
+
 	@Override
 	protected void createContent() {
-		IDs.protocolId=0;
-
 		populatePlatformsAndProtocols();
 
 		btnRefresh.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				tbList.removeAll();
-
 				populatePlatformsAndProtocols();
 				cleanDetails();
+				populateDisabledComboPlatform();
 			}
 		});
 
@@ -300,9 +320,9 @@ public class FrmProtocol  extends AbstractFrm {
 					cleanDetails();
 					String selected = cbList.getText(); //single selection
 					cbPlatform.select(cbPlatform.indexOf(selected));
-					IDs.platformId = Integer.parseInt((String) cbList.getData(selected));
-
-					populateProtocolListFromSelectedPlatform(IDs.platformId ); //retrieve and display projects by contact Id
+					currentPlatformId = Integer.parseInt((String) cbList.getData(selected));
+					isNameChanged = false;
+					populateProtocolListFromSelectedPlatform(currentPlatformId ); //retrieve and display projects by contact Id
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving protocols", err);
 				}
@@ -313,8 +333,8 @@ public class FrmProtocol  extends AbstractFrm {
 
 			public void handleEvent(Event e) {
 				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.protocolId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateProtocolDetails(IDs.protocolId); //retrieve and display projects by contact Id
+				currentProtocolId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				populateProtocolDetails(currentProtocolId); //retrieve and display projects by contact Id
 			}
 
 			
@@ -332,6 +352,7 @@ public class FrmProtocol  extends AbstractFrm {
 					selectedName = protocolDTOResponse.getName();
 					txtName.setText(protocolDTOResponse.getName());
 
+					isNameChanged = false;
 					FormUtils.entrySetToComboSelectId(Controller.getPlatformNames(), cbPlatform, protocolDTOResponse.getPlatformId());
 					memDescription.setText(protocolDTOResponse.getDescription());
 
@@ -363,10 +384,10 @@ public class FrmProtocol  extends AbstractFrm {
 	private void populatePlatformsAndProtocols() {
 		try{
 			cbList.setText("*Select a Platform");
-			tbList.removeAll();
-			if(IDs.platformId > 0){
-				FormUtils.entrySetToComboSelectId(Controller.getPlatformNames(), cbList, IDs.platformId);
-				FormUtils.entrySetToTable(Controller.getProtocolNamesByPlatformId(IDs.platformId), tbList);
+//			tbList.removeAll();
+			if(currentPlatformId > 0){
+				FormUtils.entrySetToComboSelectId(Controller.getPlatformNames(), cbList, currentPlatformId);
+				FormUtils.entrySetToTable(Controller.getProtocolNamesByPlatformId(currentPlatformId), tbList);
 			}else{
 				FormUtils.entrySetToCombo(Controller.getPlatformNames(), cbList);
 				FormUtils.entrySetToTable(Controller.getProtocolNames(), tbList);
@@ -389,15 +410,21 @@ public class FrmProtocol  extends AbstractFrm {
 
 	private void cleanDetails(){
 		try{
-			//			IDs.protocolId = 0;
+			//			currentProtocolId = 0;
 			txtName.setText("");
 			cbPlatform.deselectAll(); cbPlatform.setText("");
 			memDescription.setText("");
-			tbVendorProtocol.removeAll();
-			FormUtils.entrySetToTable(Controller.getOrganizationNames(), tbVendorProtocol);
+			
+			refreshVendorProtocolGroup();
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error clearing fields", err);
 		}
+	}
+
+	private void refreshVendorProtocolGroup() {
+		// TODO Auto-generated method stub
+		tbVendorProtocol.removeAll();
+		FormUtils.entrySetToTable(Controller.getOrganizationNames(), tbVendorProtocol);
 	}
 
 	private boolean validate(boolean isNew){
@@ -410,7 +437,7 @@ public class FrmProtocol  extends AbstractFrm {
 		}else if(cbPlatform.getText().isEmpty()){
 			message = "Please specify the platform!";
 			successful = false;
-		}else if(!isNew && IDs.protocolId==0){
+		}else if(!isNew && currentProtocolId==0){
 			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
 			successful = false;
 		}else{
@@ -451,7 +478,7 @@ public class FrmProtocol  extends AbstractFrm {
 						payloadEnvelope);
 			}
 			else{
-				newProtocolDto.setProtocolId(IDs.protocolId);
+				newProtocolDto.setProtocolId(currentProtocolId);
 				payloadEnvelope = new PayloadEnvelope<>(newProtocolDto, GobiiProcessType.UPDATE);
 				RestUri restUriProtocolForGetById = App
 						.INSTANCE.getUriFactory()
@@ -464,10 +491,13 @@ public class FrmProtocol  extends AbstractFrm {
 			try{
 				if(Controller.getDTOResponse(shell, protocolDTOResponseEnvelope.getHeader(), memInfo, true)){
 					
-					IDs.protocolId = protocolDTOResponseEnvelope.getPayload().getData().get(0).getId();
-					if(IDs.platformId==0) populatePlatformsAndProtocols();
-					else   populateProtocolListFromSelectedPlatform(IDs.platformId);
+					currentProtocolId = protocolDTOResponseEnvelope.getPayload().getData().get(0).getId();
+					if(currentPlatformId==0) populatePlatformsAndProtocols();
+					else   populateProtocolListFromSelectedPlatform(currentPlatformId);
 					btnApply.setEnabled(false);
+					isNameChanged = false;
+					selectedName = newProtocolDto.getName();
+					FormUtils.selectRowById(tbList,currentProtocolId);
 				}
 			}catch(Exception err){
 				Utils.log(shell, memInfo, log, "Error saving Platform", err);

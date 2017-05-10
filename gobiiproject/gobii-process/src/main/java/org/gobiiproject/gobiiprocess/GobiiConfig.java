@@ -13,14 +13,9 @@ import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 import org.gobiiproject.gobiimodel.config.CropConfig;
 import org.gobiiproject.gobiimodel.config.CropDbConfig;
-import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderStatusMessage;
+import org.gobiiproject.gobiimodel.types.GobiiAuthenticationType;
 import org.gobiiproject.gobiimodel.types.GobiiDbType;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
-import org.gobiiproject.gobiimodel.types.GobiiProcessType;
-import org.gobiiproject.gobiimodel.types.SystemUserDetail;
-import org.gobiiproject.gobiimodel.types.SystemUserNames;
-import org.gobiiproject.gobiimodel.types.SystemUsers;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,6 +65,18 @@ public class GobiiConfig {
     private static String CONFIG_SVR_CROP_POSTGRES = "stP";
     private static String CONFIG_SVR_CROP_MONET = "stM";
 
+
+    private static String CONFIG_SVR_GLOBAL_AUTH_TYPE = "auT";
+    private static String CONFIG_SVR_GLOBAL_LDAP_UDN = "ldUDN";
+    private static String CONFIG_SVR_GLOBAL_LDAP_URL = "ldURL";
+    private static String CONFIG_SVR_GLOBAL_LDAP_BUSR = "ldBUSR";
+    private static String CONFIG_SVR_GLOBAL_LDAP_BPAS = "ldBPAS";
+    private static String CONFIG_SVR_GLOBAL_LDAP_RUN_AS_USER = "ldraUSR";
+    private static String CONFIG_SVR_GLOBAL_LDAP_RUN_AS_PASSWORD = "ldraPAS";
+    private static String CONFIG_SVR_GLOBAL_LDAP_AUTHENTICATE_BRAPI = "ldBR";
+
+    private static String CONFIG_SVR_GLOBAL_LDAP_DECRYPT = "e";
+
     private static String CONFIG_TST_GLOBAL = "gt";
     private static String CONFIG_TST_GLOBAL_INTIAL_URL = "gtiu";
     private static String CONFIG_TST_GLOBAL_SSH_INTIAL_URL = "gtsu";
@@ -79,6 +86,8 @@ public class GobiiConfig {
     private static String CONFIG_TST_GLOBAL_CONFIG_DIR_TEST = "gtcd";
     private static String CONFIG_TST_GLOBAL_CONFIG_UTIL_CMD_STEM = "gtcs";
     private static String CONFIG_TST_GLOBAL_CONFIG_CROP_ID = "gtcr";
+    private static String CONFIG_TST_GLOBAL_LDAP_USER = "gtldu";
+    private static String CONFIG_TST_GLOBAL_LDAP_PASSWORD = "gtldp";
 
 
     private static String CONFIG_CROP_ID = "c";
@@ -210,6 +219,18 @@ public class GobiiConfig {
             setOption(options, CONFIG_SVR_CROP_POSTGRES, false, "Server type: postgres", "server: pgsql");
             setOption(options, CONFIG_SVR_CROP_MONET, false, "Server type: Monet DB", "server: monet");
 
+
+            setOption(options, CONFIG_SVR_GLOBAL_AUTH_TYPE, true, "Authentication type (LDAP | LDAP_CONNECT_WITH_MANAGER | ACTIVE_DIRECTORY | ACTIVE_DIRECTORY_CONNECT_WITH_MANAGER | TEST)", "authentication type");
+            setOption(options, CONFIG_SVR_GLOBAL_LDAP_UDN, true, "LDAP User DN pattern (e.g., uid={0},ou=people) ", "User DN Pattern");
+            setOption(options, CONFIG_SVR_GLOBAL_LDAP_URL, true, "Fully-qualified LDAP URL", "LDAP URL");
+            setOption(options, CONFIG_SVR_GLOBAL_LDAP_BUSR, true, "User for authenticated LDAP search", "LDAP user");
+            setOption(options, CONFIG_SVR_GLOBAL_LDAP_BPAS, true, "Password for authenticated LDAP search", "LDAP password");
+            setOption(options, CONFIG_SVR_GLOBAL_LDAP_RUN_AS_USER, true, "LDAP user as which background processes will run", "Background LDAP user");
+            setOption(options, CONFIG_SVR_GLOBAL_LDAP_RUN_AS_PASSWORD, true, "LDAP password with which background processes authenticate", "Background LDAP password");
+            setOption(options, CONFIG_SVR_GLOBAL_LDAP_AUTHENTICATE_BRAPI , true, "Whether or not BRAPI calls require authentication", "BRAPI Authentication");
+
+            setOption(options, CONFIG_SVR_GLOBAL_LDAP_DECRYPT, true, "Whether or not to decrypt ALL userids and passwords (true | false)", "decryption flag");
+
             setOption(options, CONFIG_SVR_OPTIONS_HOST, true, "Server option: hostname", "hostname");
             setOption(options, CONFIG_SVR_OPTIONS_PORT, true, "Server option: port number", "port number");
             setOption(options, CONFIG_SVR_OPTIONS_CONTEXT_ROOT, true, "Server option: context root ("
@@ -231,6 +252,8 @@ public class GobiiConfig {
             setOption(options, CONFIG_TST_GLOBAL_CONFIG_DIR_TEST, true, "directory for creating test configuration files", "test directory");
             setOption(options, CONFIG_TST_GLOBAL_CONFIG_UTIL_CMD_STEM, true, "configuration utility command to which command args are appended", "config cmd");
             setOption(options, CONFIG_TST_GLOBAL_CONFIG_CROP_ID, true, "Crop to use for automated testing", "crop id");
+            setOption(options, CONFIG_TST_GLOBAL_LDAP_USER, true, "LDAP user as which unit tests authenticate (if Authentication requires LDAP)", "LDAP test user");
+            setOption(options, CONFIG_TST_GLOBAL_LDAP_PASSWORD, true, "LDAP password with which LDAP unit test user authenticates (if Authentication requires LDAP)", "LDAP test user password");
 
             setOption(options, VALIDATE_CONFIGURATION, false, "Verify that the specified configuration has all the values necessary for the system to function (does not test that the servers exist); requires " + PROP_FILE_FQPN, "validate");
 
@@ -413,6 +436,13 @@ public class GobiiConfig {
                     System.err.println("Value is required: " + options.getOption(PROP_FILE_FQPN).getDescription());
                 }
 
+            } else if (commandLine.hasOption(CONFIG_SVR_GLOBAL_LDAP_DECRYPT)
+                    && commandLine.hasOption(PROP_FILE_FQPN)) {
+
+                if (setDecryptionFlag(options, commandLine.getOptionValue(PROP_FILE_FQPN), commandLine.getOptionValue(CONFIG_SVR_GLOBAL_LDAP_DECRYPT))) {
+                    exitCode = 0;
+                }
+
             } else if (commandLine.hasOption(VALIDATE_CONFIGURATION)) {
 
 
@@ -469,6 +499,60 @@ public class GobiiConfig {
         }
     }
 
+
+    private static ConfigSettings getConfigSettings(String propFileFqpn) {
+
+        ConfigSettings returnVal = null;
+
+        try {
+
+            File file = new File(propFileFqpn);
+            if (file.exists()) {
+
+                returnVal = ConfigSettings.read(propFileFqpn);
+            } else {
+                returnVal = ConfigSettings.makeNew(propFileFqpn);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return returnVal;
+
+    }
+
+
+    private static boolean setDecryptionFlag(Options options, String propFileFqpn, String flagAsString) {
+
+        boolean returnVal = false;
+
+        try {
+
+            ConfigSettings configSettings = getConfigSettings(propFileFqpn);
+
+            boolean decrypt = false;
+            if (flagAsString.toLowerCase().equals("true")) {
+                decrypt = true;
+            }
+
+            configSettings.setIsDecrypt(decrypt);
+            configSettings.commit();
+            returnVal = true;
+
+            writeConfigSettingsMessage(options,
+                    propFileFqpn,
+                    Arrays.asList(CONFIG_SVR_GLOBAL_LDAP_DECRYPT),
+                    Arrays.asList(decrypt ? "true" : "false"),
+                    null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            returnVal = false;
+        }
+
+        return returnVal;
+    }
+
     private static boolean setGobiiConfiguration(String propFileFqpn, Options options, CommandLine commandLine) {
 
         boolean returnVal = true;
@@ -476,15 +560,7 @@ public class GobiiConfig {
         try {
 
 
-            ConfigSettings configSettings;
-            File file = new File(propFileFqpn);
-            if (file.exists()) {
-
-                configSettings = ConfigSettings.read(propFileFqpn);
-            } else {
-                configSettings = ConfigSettings.makeNew(propFileFqpn);
-            }
-
+            ConfigSettings configSettings = getConfigSettings(propFileFqpn);
 
             if (commandLine.hasOption(CONFIG_GLOBAL_DEFAULT_CROP)) {
 
@@ -572,6 +648,8 @@ public class GobiiConfig {
                 String sshOverrideHost = null;
                 Integer sshOverridePort = null;
                 String testCrop = null;
+                String ldapTestUser = null;
+                String ldapTestPassword = null;
                 boolean isTestSsh = false;
 
                 if (commandLine.hasOption(CONFIG_TST_GLOBAL_INTIAL_URL)) {
@@ -639,6 +717,21 @@ public class GobiiConfig {
                     configSettings.getTestExecConfig().setTestCrop(testCrop);
                 }
 
+                if (commandLine.hasOption(CONFIG_TST_GLOBAL_LDAP_USER)) {
+                    ldapTestUser = commandLine.getOptionValue(CONFIG_TST_GLOBAL_LDAP_USER);
+                    argsSet.add(CONFIG_TST_GLOBAL_LDAP_USER);
+                    valsSet.add(ldapTestUser);
+                    configSettings.getTestExecConfig().setLdapUserForUnitTest(ldapTestUser);
+                }
+
+                if (commandLine.hasOption(CONFIG_TST_GLOBAL_LDAP_PASSWORD)) {
+                    ldapTestPassword = commandLine.getOptionValue(CONFIG_TST_GLOBAL_LDAP_PASSWORD);
+                    argsSet.add(CONFIG_TST_GLOBAL_LDAP_PASSWORD);
+                    valsSet.add(ldapTestPassword);
+                    configSettings.getTestExecConfig().setLdapPasswordForUnitTest(ldapTestPassword);
+                }
+
+
                 configSettings.commit();
 
                 writeConfigSettingsMessage(options,
@@ -646,6 +739,86 @@ public class GobiiConfig {
                         argsSet,
                         valsSet,
                         null);
+
+            } else if (commandLine.hasOption(CONFIG_SVR_GLOBAL_AUTH_TYPE)) {
+
+                List<String> argsSet = new ArrayList<>();
+                List<String> valsSet = new ArrayList<>();
+
+                String gobiiAuthenticationTypeRaw = commandLine.getOptionValue(CONFIG_SVR_GLOBAL_AUTH_TYPE);
+                GobiiAuthenticationType gobiiAuthenticationType = GobiiAuthenticationType.valueOf(gobiiAuthenticationTypeRaw);
+                argsSet.add(CONFIG_SVR_GLOBAL_AUTH_TYPE);
+                valsSet.add(gobiiAuthenticationTypeRaw);
+                configSettings.setGobiiAuthenticationType(gobiiAuthenticationType);
+
+                String ldapUserDnPattern = null;
+                String ldapUrl = null;
+                String ldapBindUser = null;
+                String ldapBindPassword = null;
+                String ldapRunAsUser = null;
+                String ldapRunAsPassword = null;
+                boolean ldapAuthenticateBrapi = true;
+
+                if (commandLine.hasOption(CONFIG_SVR_GLOBAL_LDAP_UDN)) {
+                    ldapUserDnPattern = commandLine.getOptionValue(CONFIG_SVR_GLOBAL_LDAP_UDN);
+                    argsSet.add(CONFIG_SVR_GLOBAL_LDAP_UDN);
+                    valsSet.add(ldapUserDnPattern);
+                }
+
+                if (commandLine.hasOption(CONFIG_SVR_GLOBAL_LDAP_URL)) {
+                    ldapUrl = commandLine.getOptionValue(CONFIG_SVR_GLOBAL_LDAP_URL);
+                    argsSet.add(CONFIG_SVR_GLOBAL_LDAP_URL);
+                    valsSet.add(ldapUrl);
+                }
+
+                if (commandLine.hasOption(CONFIG_SVR_GLOBAL_LDAP_BUSR)) {
+                    ldapBindUser = commandLine.getOptionValue(CONFIG_SVR_GLOBAL_LDAP_BUSR);
+                    argsSet.add(CONFIG_SVR_GLOBAL_LDAP_BUSR);
+                    valsSet.add(ldapBindUser);
+                }
+
+                if (commandLine.hasOption(CONFIG_SVR_GLOBAL_LDAP_BPAS)) {
+                    ldapBindPassword = commandLine.getOptionValue(CONFIG_SVR_GLOBAL_LDAP_BPAS);
+                    argsSet.add(CONFIG_SVR_GLOBAL_LDAP_BPAS);
+                    valsSet.add(ldapBindPassword);
+                }
+
+                if (commandLine.hasOption(CONFIG_SVR_GLOBAL_LDAP_RUN_AS_USER)) {
+                    ldapRunAsUser = commandLine.getOptionValue(CONFIG_SVR_GLOBAL_LDAP_RUN_AS_USER);
+                    argsSet.add(CONFIG_SVR_GLOBAL_LDAP_RUN_AS_USER);
+                    valsSet.add(ldapRunAsUser);
+                }
+
+                if (commandLine.hasOption(CONFIG_SVR_GLOBAL_LDAP_RUN_AS_PASSWORD)) {
+                    ldapRunAsPassword = commandLine.getOptionValue(CONFIG_SVR_GLOBAL_LDAP_RUN_AS_PASSWORD);
+                    argsSet.add(CONFIG_SVR_GLOBAL_LDAP_RUN_AS_PASSWORD);
+                    valsSet.add(ldapRunAsPassword);
+                }
+
+
+                if (commandLine.hasOption(CONFIG_SVR_GLOBAL_LDAP_AUTHENTICATE_BRAPI)) {
+                    ldapAuthenticateBrapi = commandLine.getOptionValue(CONFIG_SVR_GLOBAL_LDAP_AUTHENTICATE_BRAPI)
+                    .toLowerCase()
+                    .equals("true");
+                    argsSet.add(CONFIG_SVR_GLOBAL_LDAP_AUTHENTICATE_BRAPI);
+                    valsSet.add(ldapAuthenticateBrapi ? "true" : "false");
+                }
+
+                configSettings.setLdapUrl(ldapUrl);
+                configSettings.setLdapUserDnPattern(ldapUserDnPattern);
+                configSettings.setLdapBindUser(ldapBindUser);
+                configSettings.setLdapBindPassword(ldapBindPassword);
+                configSettings.setLdapUserForBackendProcs(ldapRunAsUser);
+                configSettings.setLdapPasswordForBackendProcs(ldapRunAsPassword);
+                configSettings.setAuthenticateBrapi(ldapAuthenticateBrapi);
+                configSettings.commit();
+
+                writeConfigSettingsMessage(options,
+                        propFileFqpn,
+                        argsSet,
+                        valsSet,
+                        null);
+
 
             } else if (commandLine.hasOption(CONFIG_SVR_GLOBAL_EMAIL) ||
                     commandLine.hasOption(CONFIG_CROP_ID)) {
@@ -852,6 +1025,50 @@ public class GobiiConfig {
                     }
                 }
 
+                if (configSettings.getGobiiAuthenticationType() == null) {
+                    System.err.println("An authentication type is not specified");
+                    returnVal = false;
+                }
+
+                // for TEST authentication we use internal, in-memory users
+                if (!configSettings.getGobiiAuthenticationType().equals(GobiiAuthenticationType.TEST)) {
+
+                    if (LineUtils.isNullOrEmpty(configSettings.getLdapUserDnPattern())) {
+                        System.err.println("The authentication type is "
+                                + configSettings.getGobiiAuthenticationType().toString()
+                                + " but a user dn pattern is not specified");
+                        returnVal = false;
+                    }
+
+                    if (LineUtils.isNullOrEmpty(configSettings.getLdapUrl())) {
+                        System.err.println("The authentication type is "
+                                + configSettings.getGobiiAuthenticationType().toString()
+                                + " but an ldap url is not specified");
+                        returnVal = false;
+                    }
+
+                    if (configSettings.getGobiiAuthenticationType().equals(GobiiAuthenticationType.LDAP_CONNECT_WITH_MANAGER) ||
+                            configSettings.getGobiiAuthenticationType().equals(GobiiAuthenticationType.ACTIVE_DIRECTORY_CONNECT_WITH_MANAGER)) {
+
+                        if (LineUtils.isNullOrEmpty(configSettings.getLdapBindUser())) {
+                            System.err.println("The authentication type is "
+                                    + configSettings.getGobiiAuthenticationType().toString()
+                                    + " but an ldap bind user is not specified");
+                            returnVal = false;
+                        }
+
+                        if (LineUtils.isNullOrEmpty(configSettings.getLdapBindPassword())) {
+                            System.err.println("The authentication type is "
+                                    + configSettings.getGobiiAuthenticationType().toString()
+                                    + " but an ldap bind password is not specified");
+                            returnVal = false;
+                        }
+
+                    } // if the authentication type requires connection credentails
+
+                } // if the authentication type requires url and user dn pattern
+
+
                 if (LineUtils.isNullOrEmpty(configSettings.getFileSystemLog())) {
                     System.err.println("A file system log directory is not defined");
                     returnVal = false;
@@ -936,6 +1153,14 @@ public class GobiiConfig {
 
                 for (CropConfig currentCropConfig : configSettings.getActiveCropConfigs()) {
 
+
+                    if (!currentCropConfig.getServiceAppRoot().toLowerCase().contains(currentCropConfig.getGobiiCropType())) {
+                        System.err.println("The context root "
+                                + currentCropConfig.getServiceAppRoot()
+                                + " does not contain the crop ID "
+                                + currentCropConfig.getGobiiCropType());
+                        returnVal = false;
+                    }
 
                     if (LineUtils.isNullOrEmpty(currentCropConfig.getGobiiCropType())) {
                         System.err.println("The crop type for the active crop  is not defined");
@@ -1072,42 +1297,41 @@ public class GobiiConfig {
 
             //if(!LineUtils.isNullOrEmpty())
 
-            SystemUsers systemUsers = new SystemUsers();
-            SystemUserDetail userDetail = systemUsers.getDetail(SystemUserNames.USER_READER.toString());
-
-            if (ClientContext.getInstance(null, false).login(userDetail.getUserName(), userDetail.getPassword())) {
-
-                PingDTO pingDTORequest = new PingDTO();
-
-
-                //DtoRequestPing dtoRequestPing = new DtoRequestPing();
-                GobiiEnvelopeRestResource<PingDTO> gobiiEnvelopeRestResourcePingDTO = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
-                        .getUriFactory()
-                        .resourceColl(ServiceRequestId.URL_PING));
-
-                PayloadEnvelope<PingDTO> resultEnvelopePing = gobiiEnvelopeRestResourcePingDTO.post(PingDTO.class,
-                        new PayloadEnvelope<>(pingDTORequest, GobiiProcessType.CREATE));
-                //PayloadEnvelope<ContactDTO> resultEnvelopeNewContact = dtoRequestContact.process(new PayloadEnvelope<>(newContactDto, GobiiProcessType.CREATE));
-
-
-
-
-                Integer responseNum = 1;
-                if (resultEnvelopePing.getHeader().getStatus().isSucceeded()) {
-                    PingDTO pingDTOResponse = resultEnvelopePing.getPayload().getData().get(0);
-                    for (String currentResponse : pingDTOResponse.getPingResponses()) {
-                        GobiiConfig.printField("Ping response " + (responseNum++).toString(), currentResponse);
-                    }
-                } else {
-                    for (HeaderStatusMessage currentHeader : resultEnvelopePing.getHeader().getStatus().getStatusMessages()) {
-                        GobiiConfig.printField("Service error " + (responseNum++).toString(), currentHeader.getMessage());
-                        returnVal = false;
-                    }
-                }
-            } else {
-                System.err.println("Authentication to server for crop failed: " + currentCropType.toString());
-                returnVal = false;
-            }
+            // This ping thing gives out too much internal details about the server. Removing this for now.
+//            SystemUsers systemUsers = new SystemUsers();
+//            SystemUserDetail userDetail = systemUsers.getDetail(SystemUserNames.USER_READER.toString());
+//
+//            if (ClientContext.getInstance(null, false).login(userDetail.getUserName(), userDetail.getPassword())) {
+//
+//                PingDTO pingDTORequest = new PingDTO();
+//
+//
+//                //DtoRequestPing dtoRequestPing = new DtoRequestPing();
+//                GobiiEnvelopeRestResource<PingDTO> gobiiEnvelopeRestResourcePingDTO = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+//                        .getUriFactory()
+//                        .resourceColl(ServiceRequestId.URL_PING));
+//
+//                PayloadEnvelope<PingDTO> resultEnvelopePing = gobiiEnvelopeRestResourcePingDTO.post(PingDTO.class,
+//                        new PayloadEnvelope<>(pingDTORequest, GobiiProcessType.CREATE));
+//                //PayloadEnvelope<ContactDTO> resultEnvelopeNewContact = dtoRequestContact.process(new PayloadEnvelope<>(newContactDto, GobiiProcessType.CREATE));
+//
+//
+//                Integer responseNum = 1;
+//                if (resultEnvelopePing.getHeader().getStatus().isSucceeded()) {
+//                    PingDTO pingDTOResponse = resultEnvelopePing.getPayload().getData().get(0);
+//                    for (String currentResponse : pingDTOResponse.getPingResponses()) {
+//                        GobiiConfig.printField("Ping response " + (responseNum++).toString(), currentResponse);
+//                    }
+//                } else {
+//                    for (HeaderStatusMessage currentHeader : resultEnvelopePing.getHeader().getStatus().getStatusMessages()) {
+//                        GobiiConfig.printField("Service error " + (responseNum++).toString(), currentHeader.getMessage());
+//                        returnVal = false;
+//                    }
+//                }
+//            } else {
+//                System.err.println("Authentication to server for crop failed: " + currentCropType.toString());
+//                returnVal = false;
+//            }
         }
 
         return returnVal;

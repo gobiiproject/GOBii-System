@@ -9,8 +9,9 @@ System.register([], function (exports_1, context_1) {
                 FileModelState[FileModelState["UNKNOWN"] = 0] = "UNKNOWN";
                 FileModelState[FileModelState["READY"] = 1] = "READY";
                 FileModelState[FileModelState["SUBMISSION_INCOMPLETE"] = 2] = "SUBMISSION_INCOMPLETE";
-                FileModelState[FileModelState["ERROR"] = 3] = "ERROR";
-                FileModelState[FileModelState["SUBMISSION_READY"] = 4] = "SUBMISSION_READY";
+                FileModelState[FileModelState["MISMATCHED_EXTRACTOR_FILTER_TYPE"] = 3] = "MISMATCHED_EXTRACTOR_FILTER_TYPE";
+                FileModelState[FileModelState["ERROR"] = 4] = "ERROR";
+                FileModelState[FileModelState["SUBMISSION_READY"] = 5] = "SUBMISSION_READY";
             })(FileModelState || (FileModelState = {}));
             exports_1("FileModelState", FileModelState);
             FileModelTreeEvent = (function () {

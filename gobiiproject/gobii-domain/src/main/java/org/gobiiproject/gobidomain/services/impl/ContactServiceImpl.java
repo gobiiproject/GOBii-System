@@ -4,7 +4,6 @@ import org.gobiiproject.gobidomain.GobiiDomainException;
 import org.gobiiproject.gobidomain.services.ContactService;
 import org.gobiiproject.gobiidtomapping.DtoMapContact;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO;
-import org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.slf4j.Logger;
@@ -156,6 +155,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactDTO getContactByEmail(String email) {
+
         ContactDTO returnVal;
         try {
             returnVal = dtoMapContact.getContactByEmail(email);
@@ -170,6 +170,26 @@ public class ContactServiceImpl implements ContactService {
         }
 
         return returnVal;
+    }
+
+    @Override
+    public ContactDTO getContactByUserName(String userName) throws GobiiDomainException {
+
+        ContactDTO returnVal;
+
+        try {
+            returnVal = dtoMapContact.getContactByUserName(userName);
+            returnVal.getAllowedProcessTypes().add(GobiiProcessType.READ);
+            returnVal.getAllowedProcessTypes().add(GobiiProcessType.UPDATE);
+
+        } catch (Exception e) {
+
+            LOGGER.error("Gobii service error", e);
+            throw new GobiiDomainException(e);
+
+        }
+
+        return  returnVal;
     }
 
     @Override

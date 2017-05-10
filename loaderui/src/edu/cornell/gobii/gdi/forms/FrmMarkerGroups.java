@@ -52,6 +52,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 	private Table table;
 	private TableViewer viewerParameters;
 	private Button btnSelectAll;
+	private int currentMarkerGroupId;
 
 	/**
 	 * Create the composite.
@@ -176,7 +177,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 		btnExportMarkers.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FormUtils.exportTableAsTxt(shell, table);
+				FormUtils.exportTableAsTxt(shell, table, "Markers");
 			}
 		});
 		btnExportMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -219,8 +220,8 @@ public class FrmMarkerGroups extends AbstractFrm {
 		btnSave.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				boolean isNew = IDs.MarkerGroupId == -1 ? true : false;
-				if(IDs.MarkerGroupId > 0){
+				boolean isNew = currentMarkerGroupId == -1 ? true : false;
+				if(currentMarkerGroupId > 0){
 					MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 					dialog.setMessage("A MarkerGroup seems to be selected, do you want to update this group with information or save as new?\n\n Please click YES to update selected MarkerGrup, or NO to add new MarkerGroup!");
 					isNew = dialog.open() == SWT.YES ? false : true;
@@ -237,7 +238,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 						marker.setFavorableAllele(item.getText(2));
 					}
 					MarkerGroupDTO markerGroupDTORequest = new MarkerGroupDTO(); //isNew ? Header.ProcessType.CREATE : Header.ProcessType.UPDATE
-					if(!isNew) markerGroupDTORequest.setMarkerGroupId(IDs.MarkerGroupId);
+					if(!isNew) markerGroupDTORequest.setMarkerGroupId(currentMarkerGroupId);
 					markerGroupDTORequest.setName(txtName.getText());
 					markerGroupDTORequest.setCode(txtName.getText());
 					markerGroupDTORequest.setGermplasmGroup(txtGermplasmGroup.getText());
@@ -338,8 +339,8 @@ public class FrmMarkerGroups extends AbstractFrm {
 				TableItem item = tbList.getItem(tbList.getSelectionIndex());
 				if(item == null) return;
 				String selected = item.getText(); //single selection
-				IDs.MarkerGroupId = Integer.parseInt((String) item.getData(selected));
-				populateMarkerGroupDetails(IDs.MarkerGroupId); //retrieve and display projects by contact Id
+				currentMarkerGroupId = Integer.parseInt((String) item.getData(selected));
+				populateMarkerGroupDetails(currentMarkerGroupId); //retrieve and display projects by contact Id
 			}
 
 			protected void populateMarkerGroupDetails(int markerGroupId) {
@@ -391,7 +392,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 	}
 	protected void cleanDetails() {
 		try{
-			IDs.MarkerGroupId = -1;
+			currentMarkerGroupId = -1;
 			txtName.setText("");
 			txtCode.setText("");
 			txtGermplasmGroup.setText("");

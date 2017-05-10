@@ -32,11 +32,18 @@ file, the index position of the desired marker, and the name of the
 output file.  Output is a one-line file with the alleles of all samples
 for that marker, tab-delimited.
 
+`bin/fetchmarkerlist` takes four arguments: the orientation of the
+output (samples as rows or markers as rows), the name of the source HDF5
+file, the name of a file containing a list of index positions of the
+desired markers, and the name of the output file.  Output is a
+tab-delimited file in the orientation specified.
+
 `bin/fetchpoints` takes at least four arguments: the name of the source
 HDF5 file, the name of the output file, and at least one pair of (index
 position of sample, index position of marker), all punctuated only by
 blanks.  Up to sixty sample/marker pairs can be requested, which is
 faster than running the program sixty times.
+
 
 All programs output a Usage message and a working example if they are
 invoked with no arguments.

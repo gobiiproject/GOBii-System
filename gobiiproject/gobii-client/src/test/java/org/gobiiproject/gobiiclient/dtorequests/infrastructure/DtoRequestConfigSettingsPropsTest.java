@@ -11,18 +11,16 @@ import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestConfiguration;
+import org.gobiiproject.gobiiclient.core.common.Authenticator;
+import org.gobiiproject.gobiiclient.core.common.TestConfiguration;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestDtoFactory;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestUtils;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 import org.gobiiproject.gobiimodel.config.ServerConfig;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ConfigSettingsDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.PingDTO;
+import org.gobiiproject.gobiimodel.types.GobiiAutoLoginType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
-import org.gobiiproject.gobiimodel.types.SystemUserDetail;
-import org.gobiiproject.gobiimodel.types.SystemUserNames;
-import org.gobiiproject.gobiimodel.types.SystemUsers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -119,9 +117,11 @@ public class DtoRequestConfigSettingsPropsTest {
         ClientContext.getInstance(null, false)
                 .setCurrentClientCrop(defaultCrop);
 
-        SystemUserDetail userDetail = (new SystemUsers()).getDetail(SystemUserNames.USER_READER.toString());
+        String testUser = Authenticator.getTestExecConfig().getLdapUserForUnitTest();
+        String testPassword = Authenticator.getTestExecConfig().getLdapPasswordForUnitTest();
+
         Assert.assertTrue("Unable to authenticate to remote server with default drop " + defaultCrop,
-                ClientContext.getInstance(null, false).login(userDetail.getUserName(), userDetail.getPassword()));
+                ClientContext.getInstance(null, false).login(testUser, testPassword));
 
         Assert.assertTrue(Authenticator.deAuthenticate());
 
@@ -176,21 +176,21 @@ public class DtoRequestConfigSettingsPropsTest {
         ClientContext.resetConfiguration();
         ConfigSettings configSettings = new TestConfiguration().getConfigSettings();
 
-        SystemUsers systemUsers = new SystemUsers();
-        SystemUserDetail userDetail = systemUsers.getDetail(SystemUserNames.USER_READER.toString());
-
         TestConfiguration testConfiguration = new TestConfiguration();
 
 
-        Assert.assertTrue("Unable to log in with locally instantiated config settings",
                 ClientContext.getInstance(configSettings,
                         testConfiguration
                                 .getConfigSettings()
                                 .getTestExecConfig()
-                                .getTestCrop())
-                        .login(userDetail.getUserName(), userDetail.getPassword()));
+                                .getTestCrop(),
+                        GobiiAutoLoginType.USER_TEST);
 
-        PingDTO pingDTORequest = TestDtoFactory.makePingDTO();
+        Assert.assertNotNull("Unable to log in with locally instantiated config settings",
+                ClientContext.getInstance(null,false).getUserToken());
+
+
+                PingDTO pingDTORequest = TestDtoFactory.makePingDTO();
         //DtoRequestPing dtoRequestPing = new DtoRequestPing();
         GobiiEnvelopeRestResource<PingDTO> gobiiEnvelopeRestResourcePingDTO = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
                 .getUriFactory()

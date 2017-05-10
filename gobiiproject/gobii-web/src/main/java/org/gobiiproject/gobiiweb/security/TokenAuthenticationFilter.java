@@ -45,25 +45,38 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
     private final String logoutLink;
     private final AuthenticationService authenticationService;
 
-    public TokenAuthenticationFilter(AuthenticationService authenticationService, String logoutLink) {
+
+    public TokenAuthenticationFilter(AuthenticationService authenticationService,
+                                     String logoutLink) {
+
         this.authenticationService = authenticationService;
         this.logoutLink = logoutLink;
+
     }
+
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        try {
-            HttpServletRequest httpRequest = (HttpServletRequest) request;
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-            // ordinary page GETs pass right through
-            if (!httpRequest.getMethod().equals("GET")) {
+        HttpServletRequest httpRequest = null;
+        HttpServletResponse httpResponse = null;
+
+        try {
+            httpRequest = (HttpServletRequest) request;
+            httpResponse = (HttpServletResponse) response;
+
+
+            String gobiiCropType = CropRequestAnalyzer.getGobiiCropType(httpRequest);
+            if (gobiiCropType != null) {
 
                 String tokenHeaderVal = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_TOKEN);
                 boolean hasValidToken = authenticationService.checkToken(tokenHeaderVal);
 
                 if (hasValidToken) {
+
+                    //header data
+                    this.addHeadersToValidRequest(httpResponse,null,gobiiCropType,tokenHeaderVal);
                     chain.doFilter(request, response);
                 } else {
 
@@ -87,21 +100,8 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
 
                     if (null != tokenInfo) {
 
-                        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_TOKEN, tokenInfo.getToken());
-
-                        String gobiiCropType = CropRequestAnalyzer.getGobiiCropType(httpRequest);
-                        HeaderAuth dtoHeaderAuth = new HeaderAuth();
-                        dtoHeaderAuth.setToken(tokenInfo.getToken());
-                        dtoHeaderAuth.setGobiiCropType(gobiiCropType);
-                        dtoHeaderAuth.setUserName(userName);
-
-
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        String dtoHeaderAuthString = objectMapper.writeValueAsString(dtoHeaderAuth);
-                        httpResponse.getWriter()
-                                .write(dtoHeaderAuthString);
-                        httpResponse.getWriter().flush();
-                        httpResponse.getWriter().close();
+                        this.addHeadersToValidRequest(httpResponse,userName,gobiiCropType,tokenInfo.getToken());
+                        chain.doFilter(request, response);
 
                     } else {
                         httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -109,13 +109,37 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
                 }
 
             } else {
-                chain.doFilter(request, response);
-            } // if-else we're not doing a plain page get
+
+                httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                LOGGER.error("Unable to proceed with authentication: no crop type could be derived from the request");
+
+            } // if-else crop type could not be found
+
         } catch (Exception e) {
+
             LOGGER.error("Error in authentication filter", e);
+
+            if( httpResponse != null ) {
+                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
 
     } // doFilter()
+
+
+    private void addHeadersToValidRequest(HttpServletResponse httpResponse,
+                                          String userName,
+                                          String gobiiCropType,
+                                          String token) throws Exception {
+
+
+        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_TOKEN, token);
+        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_GOBII_CROP, gobiiCropType);
+        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_USERNAME, userName);
+
+
+
+    }
 
     private TokenInfo checkBasicAuthorization(String authorization, HttpServletResponse httpResponse) throws IOException {
 

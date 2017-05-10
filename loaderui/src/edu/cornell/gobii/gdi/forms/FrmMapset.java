@@ -13,6 +13,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
@@ -38,8 +39,11 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.TableColumn;
 
 public class FrmMapset extends AbstractFrm {
@@ -52,6 +56,8 @@ public class FrmMapset extends AbstractFrm {
 	private Combo cbReference;
 	private Combo cbMapType;
 	private StyledText memoDescription;
+	protected Integer currentMapTypeId;
+	protected Integer currentMapsetId;
 
 	/**
 	 * Create the composite.
@@ -62,6 +68,7 @@ public class FrmMapset extends AbstractFrm {
 		super(shell, parent, style);
 		this.config = config;
 
+		lblCbList.setText("Mapset Types:");
 		GridLayout gridLayout = (GridLayout) cmpForm.getLayout();
 		gridLayout.numColumns = 2;
 
@@ -71,7 +78,28 @@ public class FrmMapset extends AbstractFrm {
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtName.addFocusListener(new FocusListener() {
+    		ToolTip tip = new ToolTip(shell, SWT.BALLOON);
+    		
+			@Override
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				if(cbList.getSelectionIndex()<0){
+				
+				Point loc = cbList.toDisplay(cbList.getLocation());
 
+        		tip.setMessage("Please select a Mapset Type before creating or updating an entry.");
+        		tip.setLocation(loc.x + cbList.getSize().x , loc.y-cbList.getSize().y);
+                tip.setVisible(true);
+				}
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				 tip.setVisible(false);
+			}
+        });
 		Label lblCode = new Label(cmpForm, SWT.NONE);
 		lblCode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblCode.setText("Code:");
@@ -201,7 +229,7 @@ public class FrmMapset extends AbstractFrm {
 						String key = (String) cbReference.getData(cbReference.getText());
 						mapsetDTO.setReferenceId(Integer.parseInt(key));
 					}
-					mapsetDTO.setMapType(IDs.mapTypeId);
+					mapsetDTO.setMapType(currentMapTypeId);
 					for(TableItem item : tbProperties.getItems()){
 						if(!item.getText(1).isEmpty()){
 							Integer id = Integer.parseInt((String) item.getData(item.getText(0)));
@@ -226,6 +254,9 @@ public class FrmMapset extends AbstractFrm {
 
 						if(Controller.getDTOResponse(shell, mapsetDTOResponse.getHeader(), memInfo, true)){
 							populateMapsetFromSelectedMapType(cbList.getText());
+							currentMapsetId = mapsetDTOResponse.getPayload().getData().get(0).getMapsetId();
+							populateMapsetDetails(currentMapsetId);
+							FormUtils.selectRowById(tbList,currentMapsetId);
 						};
 					}catch(Exception err){
 						Utils.log(shell, memInfo, log, "Error saving Mapset", err);
@@ -245,9 +276,9 @@ public class FrmMapset extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Mapset", IDs.mapsetName)) return;
+					if(!FormUtils.updateForm(getShell(), "Mapset", selectedName)) return;
 					MapsetDTO mapsetDTO = new MapsetDTO();
-					mapsetDTO.setMapsetId(IDs.mapsetId);
+					mapsetDTO.setMapsetId(currentMapsetId);
 					mapsetDTO.setName(txtName.getText());
 					mapsetDTO.setCode(cbList.getText()+"_"+txtName.getText().replaceAll(" ", "_"));
 					mapsetDTO.setDescription(memoDescription.getText() == null ? "" : memoDescription.getText());
@@ -255,7 +286,7 @@ public class FrmMapset extends AbstractFrm {
 						String key = (String) cbReference.getData(cbReference.getText());
 						mapsetDTO.setReferenceId(Integer.parseInt(key));
 					}
-					mapsetDTO.setMapType(IDs.mapTypeId);
+					mapsetDTO.setMapType(currentMapTypeId);
 					for(TableItem item : tbProperties.getItems()){
 						if(!item.getText(1).isEmpty()){
 							Integer id = Integer.parseInt((String) item.getData(item.getText(0)));
@@ -272,7 +303,7 @@ public class FrmMapset extends AbstractFrm {
 					mapsetDTO.setStatusId(1);
 					try{
 						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MAPSET);
-						restUri.setParamValue("id", Integer.toString(IDs.mapsetId));
+						restUri.setParamValue("id", Integer.toString(currentMapsetId));
 						GobiiEnvelopeRestResource<MapsetDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
 						restResourceById.setParamValue("id", mapsetDTO.getMapsetId().toString());
 						PayloadEnvelope<MapsetDTO> mapsetDTOResponseEnvelope = restResourceById.put(
@@ -280,6 +311,8 @@ public class FrmMapset extends AbstractFrm {
 						
 						if(Controller.getDTOResponse(shell, mapsetDTOResponseEnvelope.getHeader(), memInfo, true)){
 							populateMapsetFromSelectedMapType(cbList.getText());
+							selectedName = mapsetDTOResponseEnvelope.getPayload().getData().get(0).getName();
+							FormUtils.selectRowById(tbList,currentMapsetId);
 						};
 					}catch(Exception err){
 						Utils.log(shell, memInfo, log, "Error saving Mapset", err);
@@ -309,7 +342,7 @@ public class FrmMapset extends AbstractFrm {
 		btnMarkerWizard.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardUtils.CreateMarkerWizard(shell, config);
+				WizardUtils.CreateMarkerWizard(shell, config, 0, 0, 0, 0);
 			}
 		});
 		btnMarkerWizard.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -326,7 +359,7 @@ public class FrmMapset extends AbstractFrm {
 	protected void createContent() {
 		try{
 			FormUtils.entrySetToCombo(Controller.getMapTypes(), cbList);
-			cbList.setText("*Select mapset type");
+			cbList.setText("*Select a Mapset Type");
 			FormUtils.entrySetToTable(Controller.getMapNames(), tbList);
 
 			TableColumn tblclmnMapsets = new TableColumn(tbList, SWT.NONE);
@@ -343,9 +376,9 @@ public class FrmMapset extends AbstractFrm {
 			tbList.addListener (SWT.Selection, new Listener() {
 				public void handleEvent(Event e) {
 					String selected = tbList.getSelection()[0].getText(); //single selection
-					IDs.mapsetName = selected;
-					IDs.mapsetId= Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-					populateMapsetDetails(IDs.mapsetId);
+					selectedName = selected;
+					currentMapsetId = FormUtils.getIdFromTableList(tbList);
+					populateMapsetDetails(currentMapsetId);
 				}
 
 
@@ -377,8 +410,8 @@ public class FrmMapset extends AbstractFrm {
 
 	protected void populateMapsetFromSelectedMapType(String selected){
 		try{
-			IDs.mapTypeId = Integer.parseInt((String) cbList.getData(selected));
-			populateMapsetFromSelectedMapType(IDs.mapTypeId);
+			currentMapTypeId = FormUtils.getIdFromFormList(cbList);
+			populateMapsetFromSelectedMapType(currentMapTypeId);
 		}catch (Exception err) {
 			Utils.log(shell, memInfo, log, "Error retrieving Mapsets", err);
 		}
@@ -407,10 +440,10 @@ public class FrmMapset extends AbstractFrm {
 		}
 	}
 
-	protected void populateMapsetDetails(int mapsetId) {
+	private void populateMapsetDetails(int mapsetId) {
 		cleanDetails();
 		MapsetDTO MapsetDTORequest = new MapsetDTO();
-		MapsetDTORequest.setMapsetId(IDs.mapsetId);
+		MapsetDTORequest.setMapsetId(currentMapsetId);
 		try {
 			
 			RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MAPSET);
@@ -458,7 +491,7 @@ public class FrmMapset extends AbstractFrm {
 		}else if(txtName.getText().isEmpty()){
 			successful = false;
 			message = "Name is a required field!";
-		}else if(!isNew && IDs.mapsetId==0){
+		}else if(!isNew && currentMapsetId==0){
 			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
 			successful = false;
 		}else if(isNew|| !txtName.getText().equalsIgnoreCase(selectedName)){

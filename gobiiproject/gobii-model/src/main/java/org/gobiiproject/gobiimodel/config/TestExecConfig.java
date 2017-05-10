@@ -1,5 +1,6 @@
 package org.gobiiproject.gobiimodel.config;
 
+import org.gobiiproject.gobiimodel.security.Decrypter;
 import org.simpleframework.xml.Element;
 
 /**
@@ -18,7 +19,7 @@ public class TestExecConfig {
 
     @Element(required = false)
     private String sshOverrideHost = "localhost";
-    
+
     @Element(required = false)
     private Integer sshOverridePort = 8080;
 
@@ -30,6 +31,15 @@ public class TestExecConfig {
 
     @Element(required = false)
     private String configUtilCommandlineStem = "java -jar C:\\phil-source\\IntelliJ\\gobiiproject\\gobii-process\\target\\gobiiconfig.jar";
+
+    @Element(required = false)
+    private String ldapUserForUnitTest;
+
+    @Element(required = false)
+    private String ldapPasswordForUnitTest;
+
+    @Element(required = false)
+    private boolean decrypt = false;
 
     public String getTestCrop() {
         return testCrop;
@@ -100,5 +110,47 @@ public class TestExecConfig {
     public TestExecConfig setConfigUtilCommandlineStem(String configUtilCommandlineStem) {
         this.configUtilCommandlineStem = configUtilCommandlineStem;
         return this;
+    }
+
+    public String getLdapUserForUnitTest() {
+        
+        String returnVal;
+
+        if (this.decrypt) {
+            returnVal = Decrypter.decrypt(this.ldapUserForUnitTest, null);
+        } else {
+            returnVal = this.ldapUserForUnitTest;
+        }
+
+        return returnVal;
+    }
+
+    public void setLdapUserForUnitTest(String ldapUserForUnitTest) {
+        this.ldapUserForUnitTest = ldapUserForUnitTest;
+    }
+
+    public String getLdapPasswordForUnitTest() {
+
+        String returnVal;
+
+        if (this.decrypt) {
+            returnVal = Decrypter.decrypt(this.ldapPasswordForUnitTest, null);
+        } else {
+            returnVal = this.ldapPasswordForUnitTest;
+        }
+
+        return returnVal;
+    }
+
+    public void setLdapPasswordForUnitTest(String ldapPasswordForUnitTest) {
+        this.ldapPasswordForUnitTest = ldapPasswordForUnitTest;
+    }
+
+    public boolean isDecrypt() {
+        return decrypt;
+    }
+
+    public void setDecrypt(boolean decrypt) {
+        this.decrypt = decrypt;
     }
 }

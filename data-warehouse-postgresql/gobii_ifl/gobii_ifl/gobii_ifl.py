@@ -6,6 +6,7 @@ import os
 import getopt
 import load_ifile
 import preprocess_ifile
+import deduplicate_ifile
 from util.ifl_utility import IFLUtility
 from os.path import basename
 from os.path import splitext
@@ -57,6 +58,7 @@ def main(argv):
 							longPropFilename = outputPath+"long_"+basename(f)
 						#preprocessing happens here
 						preprocessedFile, exitCode = preprocess_ifile.main(verbose, connectionStr, os.path.join(inputDir, f), outputPath)
+
 						if exitCode != 0:
 							sys.exit(exitCode)
 
@@ -73,7 +75,11 @@ def main(argv):
 								exitCode = 5
 								sys.exit(exitCode)
 
-						loadFile, exitCode = load_ifile.main(verbose, connectionStr, preprocessedFile, outputPath)
+						if not isProp:
+							dedupFile, exitCode = deduplicate_ifile.main(verbose, preprocessedFile, outputPath, tableName)
+							loadFile, exitCode = load_ifile.main(verbose, connectionStr, dedupFile, outputPath)
+						else:  # DO NOT DEDUPLICATE PROPERTY FILES AS YOU'LL REMOVE GOOD DATA, NO NEED FOR IT ANYWAY SINCE THIS WILL BE AN UPSERT OPERATION
+							loadFile, exitCode = load_ifile.main(verbose, connectionStr, preprocessedFile, outputPath)
 						if exitCode != 0:
 							sys.exit(exitCode)
 						'''
@@ -97,6 +103,7 @@ def main(argv):
 					longPropFilename = outputPath+"long_"+basename(iFile)
 				#preprocessing happens here
 				preprocessedFile, exitCode = preprocess_ifile.main(verbose, connectionStr, iFile, outputPath)
+
 				#terminate if there are any errors in preprocessing stage
 				if exitCode != 0:
 					sys.exit(exitCode)
@@ -113,8 +120,12 @@ def main(argv):
 						IFLUtility.printError("File length mismatch detected on %s. You either have duplicate entries in the table where the NMAP file maps to OR you're trying to load data to entities that do not exist, please fix it first. Loading will abort." % iFile)
 						exitCode = 5
 						sys.exit(exitCode)
+				if not isProp:
+					dedupFile, exitCode = deduplicate_ifile.main(verbose, preprocessedFile, outputPath, tableName)
+					loadFile, exitCode = load_ifile.main(verbose, connectionStr, dedupFile, outputPath)
+				else:  # DO NOT DEDUPLICATE PROPERTY FILES AS YOU'LL REMOVE GOOD DATA, NO NEED FOR IT ANYWAY SINCE THIS WILL BE AN UPSERT OPERATION
+					loadFile, exitCode = load_ifile.main(verbose, connectionStr, preprocessedFile, outputPath)
 
-				loadFile, exitCode = load_ifile.main(verbose, connectionStr, preprocessedFile, outputPath)
 				if exitCode != 0:
 						sys.exit(exitCode)
 				'''
@@ -157,6 +168,7 @@ def printUsageHelp():
 	print ("\t-v or --verbose = Print the status of the IFL in more detail")
 	print ("\t-l or --fileLengthCheck = This will check if the preprocessed file is of the same length as the input file. \n\t\tA mismatch indicates duplicate entries in the table where the NMAP file maps to.\n\t\tInput file should not be loaded in that case.")
 	sys.exit(1)
+
 
 if __name__ == "__main__":
 	main(sys.argv[1:])

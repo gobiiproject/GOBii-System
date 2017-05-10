@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<GobiiTestData>
+    <Entities>
+        <Organizations DbPKeysurrogate="Name">
+            <Organization>
+                <Keys>
+                    <DbPKey></DbPKey>
+                </Keys>
+                <Properties>
+                    <Name>sim_Cornell</Name>
+                    <Address>Ithaca</Address>
+                    <Website>cornell.edu</Website>
+                </Properties>
+            </Organization>
+        </Organizations>
+        <Contacts DbPKeysurrogate="Email">
+            <Contact>
+                <Keys>
+                    <DbPKey></DbPKey>
+                    <Fkey entity="Organization" fkproperty="organizationId">
+                        <DbPKeySurrogate>sim_Cornell</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                </Keys>
+                <Properties>
+                    <LastName>Gobii</LastName>
+                    <FirstName>Sim</FirstName>
+                    <Code>gobii_sim</Code>
+                    <Email>gobii.jira@gmail.com</Email>
+                    <Roles>
+                        <Role>Curator</Role>
+                        <Role>PI</Role>
+                    </Roles>
+                </Properties>
+            </Contact>
+        </Contacts>
+        <Platforms DbPKeysurrogate="PlatformName">
+            <Platform>
+                <Keys>
+                    <DbPKey></DbPKey>
+                </Keys>
+                <Properties>
+                    <PlatformName>sim_GBS</PlatformName>
+                    <PlatformCode>sim_GBS</PlatformCode>
+                    <PlatformDescription>sim_GBS</PlatformDescription>
+                    <StatusId>1</StatusId>
+                    <TypeId>GBS</TypeId>
+                    <Properties/>
+                </Properties>
+            </Platform>
+        </Platforms>
+        <Protocols DbPKeysurrogate="Name">
+            <Protocol>
+                <Keys>
+                    <DbPKey></DbPKey>
+                    <Fkey entity="Platform" fkproperty="platformId">
+                        <DbPKeySurrogate>sim_GBS</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                </Keys>
+                <Properties>
+                    <Name>sim_GBS</Name>
+                    <Description>sim_GBS</Description>
+                    <TypeId>1</TypeId>
+                    <Status>1</Status>
+                    <Props/>
+                    <VendorProtocols/>
+                </Properties>
+            </Protocol>
+        </Protocols>
+        <VendorProtocols DbPKeysurrogate="Name">
+            <VendorProtocol>
+                <Keys>
+                    <DbPKey></DbPKey>
+                    <Fkey entity="Organization" fkproperty="organizationId">
+                        <DbPKeySurrogate>sim_Cornell</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                    <Fkey entity="Protocol" fkproperty="protocolId">
+                        <DbPKeySurrogate>sim_GBS</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                </Keys>
+                <Properties>
+                    <Name>sim_Cornell_GBS</Name>
+                    <Status>1</Status>
+                </Properties>
+            </VendorProtocol>
+        </VendorProtocols>
+        <Mapsets DbPKeysurrogate="Name">
+            <Mapset>
+                <Keys>
+                    <DbPKey></DbPKey>
+                </Keys>
+                <Properties>
+                    <Name>sim_GBS</Name>
+                    <Code>sim_GBS_code</Code>
+                    <Description>sim_GBS</Description>
+                    <MapType>Physical</MapType>
+                    <StatusId>1</StatusId>
+                    <Properties/>
+                </Properties>
+            </Mapset>
+        </Mapsets>
+        <Projects DbPKeysurrogate="ProjectName">
+            <Project>
+                <Keys>
+                    <DbPKey></DbPKey>
+                    <Fkey entity="Contact" fkproperty="piContact">
+                        <DbPKeySurrogate>gobii.jira@gmail.com</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                </Keys>
+                <Properties>
+                    <ProjectName>sim_VCF</ProjectName>
+                    <ProjectCode>sim_VCF_code</ProjectCode>
+                    <ProjectDescription>sim_VCF</ProjectDescription>
+                    <ProjectStatus>1</ProjectStatus>
+                </Properties>
+            </Project>
+        </Projects>
+        <Experiments DbPKeysurrogate="ExperimentName">
+            <Experiment>
+                <Keys>
+                    <DbPKey></DbPKey>
+                    <Fkey entity="Project" fkproperty="projectId">
+                        <DbPKeySurrogate>sim_VCF</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                    <Fkey entity="VendorProtocol" fkproperty="vendorProtocolId">
+                        <DbPKeySurrogate>sim_Cornell_GBS</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                </Keys>
+                <Properties>
+                    <ExperimentName>sim_VCF</ExperimentName>
+                    <ExperimentCode>sim_VCF_code</ExperimentCode>
+                    <StatusId>1</StatusId>
+                </Properties>
+            </Experiment>
+        </Experiments>
+        <Analyses DbPKeysurrogate="AnalysisName">
+            <Analysis>
+                <Keys>
+                    <DbPKey></DbPKey>
+                </Keys>
+                <Properties>
+                    <AnalysisName>sim_none</AnalysisName>
+                    <AnalysisDescription>sim_none</AnalysisDescription>
+                    <AnlaysisTypeId>Calling</AnlaysisTypeId>
+                    <Program>sim_none_program</Program>
+                    <ProgramVersion>sim_none_program_version</ProgramVersion>
+                    <Algorithm>sim_none_algorithm</Algorithm>
+                    <SourceName>sim_none_sourcename</SourceName>
+                    <SourceVersion>sim_none_sourceversion</SourceVersion>
+                    <SourceUri>sim_none_sourceuri</SourceUri>
+                    <StatusId>1</StatusId>
+                    <Parameters/>
+                </Properties>
+            </Analysis>
+        </Analyses>
+        <Datasets DbPKeysurrogate="Name">
+            <Dataset>
+                <Keys>
+                    <DbPKey></DbPKey>
+                    <Fkey entity="Experiment" fkproperty="experimentId">
+                        <DbPKeySurrogate>sim_VCF</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                    <Fkey entity="Analysis" fkproperty="callingAnalysisId">
+                        <DbPKeySurrogate>sim_none</DbPKeySurrogate>
+                        <DbPKey></DbPKey>
+                    </Fkey>
+                </Keys>
+                <Properties>
+                    <Name>sim_VCF_chr1</Name>
+                    <DataTable>sim_VCF_chr1_datatable</DataTable>
+                    <DataFile>sim_VCF_chr1_datafile</DataFile>
+                    <QualityTable>sim_VCF_chr1_qualitytable</QualityTable>
+                    <QualityFile>sim_VCF_chr1_qualityfile</QualityFile>
+                    <StatusId>1</StatusId>
+                    <TypeId>Nucleotide_2_letter</TypeId>
+                    <AnalysesIds/>
+                    <Scores/>
+                </Properties>
+            </Dataset>
+        </Datasets>
+    </Entities>
+
+    <Scenarios>
+        <Scenario>
+            <Name>2 Letter Nucleotide</Name>
+            <Files>
+                <Instruction/>
+                <Data/>
+            </Files>
+
+            <DbFkey entity="Contact">
+                <DbPKeySurrogate/>
+                <DbPKey/>
+            </DbFkey>
+            <DbFkey entity="Project">
+                <DbPKeySurrogate/>
+                <DbPKey/>
+            </DbFkey>
+
+            <DbFkey entity="Experiment">
+                <DbPKeySurrogate/>
+                <DbPKey/>
+            </DbFkey>
+
+            <DbFkey entity="Dataset">
+                <DbPKeySurrogate/>
+                <DbPKey/>
+            </DbFkey>
+        </Scenario>
+
+    </Scenarios>
+
+</GobiiTestData>

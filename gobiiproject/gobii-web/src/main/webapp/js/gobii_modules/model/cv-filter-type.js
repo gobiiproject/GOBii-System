@@ -6,7 +6,7 @@ System.register([], function (exports_1, context_1) {
         setters: [],
         execute: function () {
             (function (CvFilterType) {
-                CvFilterType[CvFilterType["UKNOWN"] = 0] = "UKNOWN";
+                CvFilterType[CvFilterType["UNKNOWN"] = 0] = "UNKNOWN";
                 CvFilterType[CvFilterType["ANALYSIS_TYPE"] = 1] = "ANALYSIS_TYPE";
                 CvFilterType[CvFilterType["DATASET_TYPE"] = 2] = "DATASET_TYPE";
             })(CvFilterType || (CvFilterType = {}));

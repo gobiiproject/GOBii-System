@@ -13,7 +13,7 @@ import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
+import org.gobiiproject.gobiiclient.core.common.Authenticator;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.DtoRestRequestUtils;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.EntityParamValues;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.GlobalPkColl;
@@ -216,7 +216,7 @@ public class DtoCrudRequestContactTest implements DtoCrudRequestTest {
         RestUri restUriContact = ClientContext.getInstance(null, false)
                 .getUriFactory()
                 .contactsByQueryParams();
-        restUriContact.setParamValue("email", "user.gobii@gobii.com");
+        restUriContact.setParamValue("email", "user1.gobii@gobii.org");
         GobiiEnvelopeRestResource<ContactDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriContact);
         PayloadEnvelope<ContactDTO> resultEnvelope = gobiiEnvelopeRestResource
                 .get(ContactDTO.class);
@@ -226,6 +226,62 @@ public class DtoCrudRequestContactTest implements DtoCrudRequestTest {
         Assert.assertNotNull(contactDTO);
         Assert.assertNotNull(contactDTO.getEmail());
         Assert.assertTrue(contactDTO.getRoles().size() > 0);
+
+        //restUriContact.setParamValue(Param);
+    }
+
+    @Test
+    public void getContactsBySearchForUserName() throws Exception {
+
+
+        ContactDTO newContactDTO = new ContactDTO();
+
+        Integer organizationId = (new GlobalPkColl<DtoCrudRequestOrganizationTest>()).getAPkVal(DtoCrudRequestOrganizationTest.class,
+                GobiiEntityNameType.ORGANIZATIONS);
+
+        String userName = UUID.randomUUID().toString();
+        String emailAddress = UUID.randomUUID().toString();
+
+        // set the plain properties
+        newContactDTO.setFirstName("Authenticated");
+        newContactDTO.setLastName("Guy");
+        newContactDTO.setEmail(emailAddress);
+        newContactDTO.setCode("added New Code");
+        newContactDTO.setCreatedBy(1);
+        newContactDTO.setCreatedDate(new Date());
+        newContactDTO.setModifiedBy(1);
+        newContactDTO.setModifiedDate(new Date());
+        newContactDTO.setOrganizationId(organizationId);
+        newContactDTO.getRoles().add(1);
+        newContactDTO.getRoles().add(2);
+        newContactDTO.setUserName(userName);
+
+        //Set up the POST request to create the contact
+        PayloadEnvelope<ContactDTO> payloadEnvelope = new PayloadEnvelope<>(newContactDTO, GobiiProcessType.CREATE);
+        GobiiEnvelopeRestResource<ContactDTO> gobiiEnvelopeRestResourceForPost = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .resourceColl(ServiceRequestId.URL_CONTACTS));
+        PayloadEnvelope<ContactDTO> contactDTOResponseEnvelope = gobiiEnvelopeRestResourceForPost.post(ContactDTO.class,
+                payloadEnvelope);
+        Assert.assertNotEquals(null, contactDTOResponseEnvelope);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(contactDTOResponseEnvelope.getHeader()));
+
+
+        RestUri restUriContact = ClientContext.getInstance(null, false)
+                .getUriFactory()
+                .contactsByQueryParams();
+        restUriContact.setParamValue("userName", userName);
+        GobiiEnvelopeRestResource<ContactDTO> gobiiEnvelopeRestResourceForGet = new GobiiEnvelopeRestResource<>(restUriContact);
+        PayloadEnvelope<ContactDTO> resultEnvelope = gobiiEnvelopeRestResourceForGet
+                .get(ContactDTO.class);
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelope.getHeader()));
+        Assert.assertTrue("Test user was not retrieved: " + userName,resultEnvelope.getPayload().getData().size() == 1);
+        ContactDTO contactDTOFromGet = resultEnvelope.getPayload().getData().get(0);
+        Assert.assertNotNull(contactDTOFromGet);
+        Assert.assertNotNull(contactDTOFromGet.getEmail());
+        Assert.assertTrue("Retrieved contact for user name does not match",contactDTOFromGet.getEmail().equals(emailAddress));
+        Assert.assertNotNull(contactDTOFromGet.getUserName());
+        Assert.assertTrue("Retrieved contact for user name does not match", contactDTOFromGet.getUserName().equals(userName));
 
         //restUriContact.setParamValue(Param);
     }
@@ -253,6 +309,7 @@ public class DtoCrudRequestContactTest implements DtoCrudRequestTest {
         newContactDTO.setOrganizationId(organizationId);
         newContactDTO.getRoles().add(1);
         newContactDTO.getRoles().add(2);
+        newContactDTO.setUserName("araquel " + UUID.randomUUID().toString());
 
         //Set up the POST request to create the contact
         PayloadEnvelope<ContactDTO> payloadEnvelope = new PayloadEnvelope<>(newContactDTO, GobiiProcessType.CREATE);
@@ -270,6 +327,7 @@ public class DtoCrudRequestContactTest implements DtoCrudRequestTest {
         Assert.assertNotEquals(null, contactDTOResponse);
         Assert.assertTrue(contactDTOResponse.getContactId() > 0);
         GlobalPkValues.getInstance().addPkVal(GobiiEntityNameType.CONTACTS, contactDTOResponse.getContactId());
+        Assert.assertNotNull(contactDTOResponse.getUserName());
 
         //Now re-retrieve with the link we got back
         Assert.assertNotNull(contactDTOResponseEnvelope.getPayload().getLinkCollection());

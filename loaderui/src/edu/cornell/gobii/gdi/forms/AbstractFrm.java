@@ -38,6 +38,7 @@ public abstract class AbstractFrm extends Composite {
 	protected String selectedName;
 	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 	private SashForm sashForm;
+	protected Label lblCbList;
 
 	/**
 	 * Create the composite.
@@ -67,6 +68,8 @@ public abstract class AbstractFrm extends Composite {
 		Group group = new Group(sashForm, SWT.NONE);
 		group.setLayout(new GridLayout(1, false));
 		
+		lblCbList = new Label(group, SWT.NONE);
+		
 		cbList = new Combo(group, SWT.NONE);
 		cbList.setToolTipText("Select Project");
 		cbList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -91,7 +94,7 @@ public abstract class AbstractFrm extends Composite {
 		btnExport.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FormUtils.exportTableAsTxt(shell, tbList);
+				FormUtils.exportTableAsTxt(shell, tbList, "exportList");
 			}
 		});
 		btnExport.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -106,7 +109,7 @@ public abstract class AbstractFrm extends Composite {
 		cmpForm.setLayout(new GridLayout(1, false));
 		
 		memInfo = new StyledText(sashForm, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.WRAP);
-		sashForm.setWeights(new int[] {1, 2, 1});
+		sashForm.setWeights(new int[] {143, 206, 118});
 		
 		
 	}

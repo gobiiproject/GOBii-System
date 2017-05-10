@@ -36,6 +36,7 @@ public class FrmOrganization extends AbstractFrm {
 	private Text txtName;
 	private Text txtAddress;
 	private Text txtWebsite;
+	private int currentOrganizationId;
 
 	/**
 	 * Create the composite.
@@ -96,6 +97,8 @@ public class FrmOrganization extends AbstractFrm {
 
 						if(Controller.getDTOResponse(shell, organizationDTOResponseEnvelope.getHeader(), memInfo, true)){
 							populateOrganizationTable();
+							currentOrganizationId = organizationDTOResponseEnvelope.getPayload().getData().get(0).getOrganizationId();
+							FormUtils.selectRowById(tbList,currentOrganizationId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving Organizations", err);
@@ -115,10 +118,10 @@ public class FrmOrganization extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Organization", IDs.organizationName)) return;
+					if(!FormUtils.updateForm(getShell(), "Organization", selectedName)) return;
 
 					OrganizationDTO organizationDTORequest = new OrganizationDTO();
-					organizationDTORequest.setOrganizationId(IDs.organizationId);
+					organizationDTORequest.setOrganizationId(currentOrganizationId);
 					String name = txtName.getText();
 					organizationDTORequest.setName(name);
 					organizationDTORequest.setAddress(txtAddress.getText());
@@ -138,6 +141,8 @@ public class FrmOrganization extends AbstractFrm {
 
 						if(Controller.getDTOResponse(shell, organizationDTOResponseEnvelopeUpdate.getHeader(), memInfo, true)){
 							populateOrganizationTable();
+							FormUtils.selectRowById(tbList,currentOrganizationId);
+							
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving Organizations", err);
@@ -189,9 +194,9 @@ public class FrmOrganization extends AbstractFrm {
 
 			public void handleEvent(Event e) {
 				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.organizationName = selected;
-				IDs.organizationId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateOrganizationDetails(IDs.organizationId); 
+				selectedName = selected;
+				currentOrganizationId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				populateOrganizationDetails(currentOrganizationId); 
 			}
 
 
@@ -239,7 +244,7 @@ public class FrmOrganization extends AbstractFrm {
 
 	private void clearDetails(){
 		try{
-			IDs.organizationId=0;
+			currentOrganizationId=0;
 			txtName.setText("");
 			txtAddress.setText("");
 			txtWebsite.setText("");
@@ -254,7 +259,7 @@ public class FrmOrganization extends AbstractFrm {
 		if(txtName.getText().isEmpty()){
 			successful = false;
 			message = "Name is required field!";
-		}else if(!isNew && IDs.organizationId==0){
+		}else if(!isNew && currentOrganizationId==0){
 			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
 			successful = false;
 		}else if(isNew|| !txtName.getText().equalsIgnoreCase(selectedName)){

@@ -25,12 +25,12 @@ public class HTMLTableEntity {
      * @param fieldNames List of table header names
      * @return valid table starting row elements
      */
-    private static String getHTMLTableStart(String... fieldNames){
+    private static String getHTMLTableStart(String width, String... fieldNames){
         if(fieldNames.length==0){
             throw new RuntimeException("Invalid Table Construction");
         }
         StringBuilder sb=new StringBuilder();
-        sb.append("<table><tr>");
+        sb.append("<table style=width:"+width+"%, border=\"1\"><tr>");
         for(String name:fieldNames) {
             sb.append("<th align=\"left\">").append(name).append("</th>");//Left align to better align tables
         }
@@ -60,13 +60,13 @@ public class HTMLTableEntity {
      * @param labels String labels for each value, in order.
      * @return Valid HTML table based on the entities and labels
      */
-    public static String getHTMLTable(List<HTMLTableEntity> contents,String... labels){
-         StringBuilder sb = new StringBuilder();
-        sb.append(getHTMLTableStart(labels));
-        for(HTMLTableEntity content:contents){
-            sb.append(content.getHTMLTableRow());
-        }
-        sb.append(getHTMLTableEnd());
-        return sb.toString();
-    }
+    public static String getHTMLTable(List<HTMLTableEntity> contents,String width, String... labels){
+        StringBuilder sb = new StringBuilder();
+       sb.append(getHTMLTableStart(width, labels));
+       for(HTMLTableEntity content:contents){
+           sb.append(content.getHTMLTableRow());
+       }
+       sb.append(getHTMLTableEnd());
+       return sb.toString();
+   }
 }

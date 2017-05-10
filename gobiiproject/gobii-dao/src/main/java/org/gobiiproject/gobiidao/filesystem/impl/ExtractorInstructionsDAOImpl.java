@@ -10,10 +10,13 @@ import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
 import org.gobiiproject.gobiimodel.types.GobiiFileType;
 import org.gobiiproject.gobiimodel.types.GobiiJobStatus;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +28,24 @@ import java.util.List;
 public class ExtractorInstructionsDAOImpl implements ExtractorInstructionsDAO {
 
     private final String LOADER_FILE_EXT = ".json";
+
+    public void writePlainFile(String fileFqpn, byte[] byteArray) throws GobiiDaoException {
+
+        try {
+
+            File file = new File(fileFqpn);
+
+            BufferedOutputStream stream = new BufferedOutputStream(
+                    new FileOutputStream(file));
+            stream.write(byteArray);
+            stream.close();
+
+        } catch (IOException e) {
+            throw new GobiiDaoException("Error wriring file " + fileFqpn + ": " + e.getMessage());
+        }
+
+
+    }
 
     @Override
     public boolean writeInstructions(String instructionFileFqpn,
@@ -168,7 +189,7 @@ public class ExtractorInstructionsDAOImpl implements ExtractorInstructionsDAO {
 
                     List<String> datasetExtractFiles =  new ArrayList<String>();
 
-                    String fileName="DS"+ Integer.toString(dataSetExtract.getDataSetId());
+                    String fileName="DS"+ Integer.toString(dataSetExtract.getDataSet().getId());
 
                     switch (dataSetExtract.getGobiiFileType()) {
                         case GENERIC:

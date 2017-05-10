@@ -13,12 +13,14 @@ import org.eclipse.swt.widgets.MessageBox;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
@@ -36,10 +38,13 @@ import edu.cornell.gobii.gdi.utils.WizardUtils;
 
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class FrmExperiments extends AbstractFrm {
@@ -60,16 +65,103 @@ public class FrmExperiments extends AbstractFrm {
 	private Combo comboProject;
 	private TableColumn tblColumn;
 	private Button btnClearFields;
+	protected int currentProjectId;
+	protected int currentExperimentId;
+	protected int currentPiId;
 	private Button btnAddAnalysisDataset;
 
 	/**
 	 * Create the composite.
 	 * @param parent
 	 * @param style
+	 * @wbp.parser.constructor
 	 */
 	public FrmExperiments(final Shell shell, Composite parent, int style, final String config) {
 		super(shell, parent, style);
 		this.config = config;
+		currentProjectId = 0;
+		currentExperimentId = 0;
+		currentPiId = 0;
+		
+		populateCbListAndTbList();
+	}
+
+	public FrmExperiments(Shell shell, Composite parent, int style, String config, int PiId, int projectId) {
+		// TODO Auto-generated constructor stub
+		super(shell, parent, style);
+		this.config = config;
+		currentPiId = PiId;
+		currentProjectId = projectId;
+		currentExperimentId = 0;
+		
+
+		populateCbListAndTbList();
+	}
+
+	@Override
+	protected void checkSubclass() {
+		// Disable the check that prevents subclassing of SWT components
+	}
+
+	@Override
+	protected void createContent() {
+
+		cbList.addListener (SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				try{
+					String selected = cbList.getText(); //single selection
+					comboProject.select(comboProject.indexOf(selected));
+					comboProject.setText(selected);
+					currentProjectId = FormUtils.getIdFromFormList(cbList);
+					currentExperimentId = 0;
+					for(int i=0; i<cbList.getItemCount(); i++){
+						String item = cbList.getItem(i);
+						Integer key = Integer.parseInt((String) cbList.getData(item));
+						if(key == currentProjectId){
+							cbList.select(i);
+							break;
+						}
+					}
+					
+					cleanExperimentDetails();
+					populateExperimentsListFromSelectedProject(currentProjectId); //retrieve and display projects by contact Id
+				}catch(Exception err){
+					Utils.log(shell, memInfo, log, "Error retrieving Project", err);
+				}
+			}
+		});
+
+		tbList.addListener (SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				currentExperimentId = FormUtils.getIdFromTableList(tbList);
+				populateExperimentDetails(currentExperimentId); //retrieve and display projects by contact Id
+				tblColumn.pack();
+			}
+		});
+
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Integer id = FormUtils.getIdFromFormList(cbList);
+				if(id>0){
+					if (currentPiId>0) FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(currentPiId), cbList, id);
+					else FormUtils.entrySetToComboSelectId(Controller.getProjectNames(), cbList, id);
+					populateExperimentsListFromSelectedProject(id);
+				}
+				else{
+					populateCbListAndTbList();
+				}
+
+				populateProjectsListByContactId(comboProject);
+				FormUtils.entrySetToCombo(Controller.getVendorProtocolNames(), cbVendorProtocol);
+				FormUtils.entrySetToCombo(Controller.getManifestNames(), comboManifest);
+				cleanExperimentDetails();
+			}
+		});
+		
+
+		lblCbList.setText("Projects:");
+		
 		tblColumn = new TableColumn(tbList, SWT.NONE);
 		tblColumn.setText("Experiments:");
 		tblColumn.setWidth(300);
@@ -92,7 +184,29 @@ public class FrmExperiments extends AbstractFrm {
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		txtName.addModifyListener((ModifyListener) listener);
+		txtName.addFocusListener(new FocusListener() {
+    		ToolTip tip = new ToolTip(shell, SWT.BALLOON);
+    		
+			@Override
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				if(cbList.getSelectionIndex()<0){
+				
+	            Point loc = cbList.toDisplay(cbList.getLocation());
 
+        		tip.setMessage("Please select a Project before creating or updating an entry.");
+        		tip.setLocation(loc.x + cbList.getSize().x , loc.y-cbList.getSize().y);
+                tip.setVisible(true);
+				}
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				 tip.setVisible(false);
+			}
+        });
+		
 		lblCode = new Label(cmpForm, SWT.NONE);
 		lblCode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblCode.setText("Code:");
@@ -109,7 +223,6 @@ public class FrmExperiments extends AbstractFrm {
 		comboProject = new Combo(cmpForm, SWT.NONE);
 		comboProject.setEnabled(false);
 		comboProject.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		populateProjectsListByContactId(comboProject);
 
 		Label lblVendorProtocol = new Label(cmpForm, SWT.NONE);
 		lblVendorProtocol.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -130,9 +243,10 @@ public class FrmExperiments extends AbstractFrm {
 
 		Label lblDataFile = new Label(cmpForm, SWT.NONE);
 		lblDataFile.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblDataFile.setText("Data file:");
+		lblDataFile.setText("Data File:");
 
 		txtDatafile = new Text(cmpForm, SWT.BORDER);
+		txtDatafile.setEditable(false);
 		txtDatafile.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(cmpForm, SWT.NONE);
 		txtDatafile.addModifyListener((ModifyListener) listener);
@@ -152,7 +266,7 @@ public class FrmExperiments extends AbstractFrm {
 					String platform = cbVendorProtocol.getText().replaceAll(" ", "_");
 					String project = comboProject.getText().replaceAll(" ", "_");
 					experimentDTO.setExperimentCode(name+"_"+platform+"_"+project);
-					experimentDTO.setProjectId(IDs.projectId);
+					experimentDTO.setProjectId(currentProjectId);
 					String strVendorProtocolId = (String) cbVendorProtocol.getData(cbVendorProtocol.getItem(cbVendorProtocol.getSelectionIndex()));
 					experimentDTO.setVendorProtocolId(Integer.parseInt(strVendorProtocolId));
 					if(comboManifest.getSelectionIndex() >= 0){
@@ -169,7 +283,10 @@ public class FrmExperiments extends AbstractFrm {
 						PayloadEnvelope<ExperimentDTO> resultEnvelope = restResourceForExperiments
 								.post(ExperimentDTO.class, payloadEnvelope);
 						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo,true)){
-							populateExperimentsListFromSelectedProject(IDs.projectId);
+							populateExperimentsListFromSelectedProject(currentProjectId);
+							currentExperimentId = resultEnvelope.getPayload().getData().get(0).getExperimentId();
+							populateExperimentDetails(currentExperimentId); 
+							FormUtils.selectRowById(tbList,currentExperimentId);
 						};
 					}catch(Exception err){
 						Utils.log(shell, memInfo, log, "Error saving Experiemnts", err);
@@ -190,19 +307,19 @@ public class FrmExperiments extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Experiment", IDs.experimentName)) return;
+					if(!FormUtils.updateForm(getShell(), "Experiment", selectedName)) return;
 					ExperimentDTO experimentDTO = new ExperimentDTO();
 					experimentDTO.setCreatedBy(1);
 					experimentDTO.setCreatedDate(new Date());
 					experimentDTO.setModifiedBy(1);
 					experimentDTO.setStatusId(2);
-					experimentDTO.setExperimentId(IDs.experimentId);
+					experimentDTO.setExperimentId(currentExperimentId);
 					experimentDTO.setExperimentName(txtName.getText());
 					String name = txtName.getText().replaceAll(" ", "_");
 					String platform = cbVendorProtocol.getText().replaceAll(" ", "_");
 					String project = comboProject.getText().replaceAll(" ", "_");
 					experimentDTO.setExperimentCode(name+"_"+platform+"_"+project);
-					Integer projectId = IDs.projectId > 0 ? IDs.projectId : Integer.parseInt((String) comboProject.getData(comboProject.getItem(comboProject.getSelectionIndex())));
+					Integer projectId = currentProjectId > 0 ? currentProjectId : FormUtils.getIdFromFormList(cbList);
 					experimentDTO.setProjectId(projectId);
 					String strVendorProtocolId = (String) cbVendorProtocol.getData(cbVendorProtocol.getItem(cbVendorProtocol.getSelectionIndex()));
 					experimentDTO.setVendorProtocolId(Integer.parseInt(strVendorProtocolId));
@@ -216,14 +333,15 @@ public class FrmExperiments extends AbstractFrm {
 					try{
 						RestUri experimentsUriById = App.INSTANCE.getUriFactory()
 								.resourceByUriIdParam(ServiceRequestId.URL_EXPERIMENTS);
-						experimentsUriById.setParamValue("id", Integer.toString(IDs.experimentId));
+						experimentsUriById.setParamValue("id", Integer.toString(currentExperimentId));
 						GobiiEnvelopeRestResource<ExperimentDTO> restResourceForExperimentsById = new GobiiEnvelopeRestResource<>(experimentsUriById);
 						PayloadEnvelope<ExperimentDTO> postRequestEnvelope = new PayloadEnvelope<>(experimentDTO,GobiiProcessType.UPDATE);
 						PayloadEnvelope<ExperimentDTO> resultEnvelope = restResourceForExperimentsById
 								.put(ExperimentDTO.class,postRequestEnvelope);
 
 						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
-							populateExperimentsListFromSelectedProject(IDs.projectId);
+							populateExperimentsListFromSelectedProject(currentProjectId);
+							FormUtils.selectRowById(tbList,currentExperimentId);
 						};
 					}catch(Exception err){
 						Utils.log(shell, memInfo, log, "Error saving Experiemnts", err);
@@ -252,17 +370,17 @@ public class FrmExperiments extends AbstractFrm {
 		btnAddAnalysisDataset.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FrmDatasets frm = new FrmDatasets(shell, parent, SWT.NONE, config);
-				CTabFolder tabContent = (CTabFolder) parent;
+				FrmDatasets frm = new FrmDatasets(shell, getParent(), SWT.NONE, config, currentProjectId, currentExperimentId);
+				CTabFolder tabContent = (CTabFolder) getParent();
 				CTabItem item = new CTabItem(tabContent, SWT.NONE);
-				item.setText("Analysis Datasets");
+				item.setText("Datasets");
 				item.setShowClose(true);
 				item.setControl(frm);
 				tabContent.setSelection(item);
 			}
 		});
 		btnAddAnalysisDataset.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		btnAddAnalysisDataset.setText("Add Analysis Dataset");
+		btnAddAnalysisDataset.setText("Add Dataset");
 		new Label(cmpForm, SWT.NONE);
 
 		btnMarkerWiz = new Button(cmpForm, SWT.FLAT);
@@ -270,7 +388,7 @@ public class FrmExperiments extends AbstractFrm {
 		btnMarkerWiz.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardUtils.CreateMarkerWizard(shell, config);
+				WizardUtils.CreateMarkerWizard(shell, config, currentPiId, currentProjectId, currentExperimentId, 0);
 			}
 		});
 		btnMarkerWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -282,103 +400,34 @@ public class FrmExperiments extends AbstractFrm {
 		btnDnaWiz.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardUtils.createDNASampleWizard(shell, config);
+				WizardUtils.createDNASampleWizard(shell, config, currentPiId, currentProjectId, currentExperimentId);
 			}
 		});
 		btnDnaWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		btnDnaWiz.setText("DNA Sample wizard");
-
-		cmpForm.addListener(SWT.Show, new Listener(){
-
-			@Override
-			public void handleEvent(Event arg0) {
-				if(IDs.projectId > 0){
-					for(int i=0; i<cbList.getItemCount(); i++){
-						String item = cbList.getItem(i);
-						Integer key = Integer.parseInt((String) cbList.getData(item));
-						if(key == IDs.projectId){
-							cbList.select(i);
-							break;
-						}
-					}
-				}
-			}
-
-		});
+		btnDnaWiz.setText("DNA Sample Wizard");
 	}
 
-	@Override
-	protected void checkSubclass() {
-		// Disable the check that prevents subclassing of SWT components
-	}
-
-	@Override
-	protected void createContent() {
-
-		populateAllProjectsAndExperiments(cbList,tbList);
-		cbList.addListener (SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				try{
-					String selected = cbList.getText(); //single selection
-					comboProject.select(comboProject.indexOf(selected));
-					comboProject.setText(selected);
-					IDs.projectId = Integer.parseInt((String) cbList.getData(selected));
-
-					cleanExperimentDetails();
-					populateExperimentsListFromSelectedProject(IDs.projectId ); //retrieve and display projects by contact Id
-				}catch(Exception err){
-					Utils.log(shell, memInfo, log, "Error retrieving Project", err);
-				}
-			}
-		});
-
-		tbList.addListener (SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.experimentName = selected;
-				IDs.experimentId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateExperimentDetails(IDs.experimentId); //retrieve and display projects by contact Id
-				tblColumn.pack();
-			}
-		});
-
-		btnRefresh.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Integer id = FormUtils.getIdFromFormList(cbList);
-				if(id>0){
-					if (IDs.PIid>0) FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(IDs.PIid), cbList, id);
-					else FormUtils.entrySetToComboSelectId(Controller.getProjectNames(), cbList, id);
-					populateExperimentsListFromSelectedProject(id);
-				}
-				else{
-					populateAllProjectsAndExperiments(cbList,tbList);
-				}
-				FormUtils.entrySetToCombo(Controller.getVendorProtocolNames(), cbVendorProtocol);
-				FormUtils.entrySetToCombo(Controller.getManifestNames(), comboManifest);
-				cleanExperimentDetails();
-			}
-		});
-	}
-
-	private void populateAllProjectsAndExperiments(Combo cbList, Table tbList) {
+	private void populateCbListAndTbList() {
 		try{
 			// get projects
 			cbList.setText("*Select a Project");
 			tbList.removeAll();
-			if(IDs.PIid>0 ){
-				if(IDs.projectId>0){
-					FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(IDs.PIid), cbList, IDs.projectId);
-
+			if(currentPiId>0 ){
+				if(currentProjectId>0){
+					FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(currentPiId), cbList, currentProjectId);
+					comboProject.setText(cbList.getText());
 				}
-				else FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(IDs.PIid), cbList);
+				else FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(currentPiId), cbList);
 			}else{
-				if(IDs.projectId>0) FormUtils.entrySetToComboSelectId(Controller.getProjectNames(), cbList, IDs.projectId);
+				if(currentProjectId>0){
+					FormUtils.entrySetToComboSelectId(Controller.getProjectNames(), cbList, currentProjectId);
+					comboProject.setText(cbList.getText());
+				}
 				else FormUtils.entrySetToCombo(Controller.getProjectNames(), cbList);
 			}
 			// get experiments
-			if(IDs.projectId>0){
-				FormUtils.entrySetToTable(Controller.getExperimentNamesByProjectId(IDs.projectId), tbList);
+			if(currentProjectId>0){
+				FormUtils.entrySetToTable(Controller.getExperimentNamesByProjectId(currentProjectId), tbList);
 			}
 			else{FormUtils.entrySetToTable(Controller.getExperimentNames(), tbList);
 			}
@@ -392,7 +441,7 @@ public class FrmExperiments extends AbstractFrm {
 			ExperimentDTO experimentDTO = null;
 			try {
 			
-				PayloadEnvelope<ExperimentDTO> resultEnvelope = Controller.getExperimentDetails(experimentId);
+				PayloadEnvelope<ExperimentDTO> resultEnvelope = Controller.getExperimentDetailsById(experimentId);
 
 				if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, false)){
 					experimentDTO = resultEnvelope.getPayload().getData().get(0);
@@ -439,18 +488,18 @@ public class FrmExperiments extends AbstractFrm {
 	}
 	private void populateProjectsListByContactId(Combo cbList) {
 		try{
-			if(IDs.projectId > 0){
-				FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(IDs.PIid), cbList, IDs.projectId);
+			if(currentProjectId > 0){
+				FormUtils.entrySetToComboSelectId(Controller.getProjectNamesByContactId(currentPiId), cbList, currentProjectId);
 				for(int i=0; i<cbList.getItemCount(); i++){
 					String key = (String) cbList.getData(cbList.getItem(i));
-					if(Integer.parseInt(key) == IDs.projectId){
+					if(Integer.parseInt(key) == currentProjectId){
 						cbList.select(i);
 						break;
 					}
 				}
-				populateExperimentsListFromSelectedProject(IDs.projectId );
+				populateExperimentsListFromSelectedProject(currentProjectId);
 			}else{
-				FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(IDs.PIid), cbList);
+				FormUtils.entrySetToCombo(Controller.getProjectNamesByContactId(currentPiId), cbList);
 				if (cbList.getItemCount()<1) FormUtils.entrySetToCombo(Controller.getProjectNames(), comboProject);
 			}
 		}catch(Exception err){
@@ -487,13 +536,13 @@ public class FrmExperiments extends AbstractFrm {
 		if(txtName.getText().isEmpty()){
 			message = "Name field is required!";
 			successful = false;
-		}else if(comboProject.getSelectionIndex() < 0){
-			message = "Project is a required filed!";
-			successful = false;
 		}else if(cbList.getSelectionIndex() < 0){
-			message = "Vendor-Protocol is a required field!";
+			message = "Project is a required field!";
 			successful = false;
-		}else if(!isNew && IDs.experimentId==0){
+		}else if(cbVendorProtocol.getSelectionIndex() < 0){
+			message = "Vendor-Protocol is a required filed!";
+			successful = false;
+		}else if(!isNew && currentExperimentId==0){
 			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
 			successful = false;
 		}else if(isNew|| !txtName.getText().equalsIgnoreCase(selectedName)){

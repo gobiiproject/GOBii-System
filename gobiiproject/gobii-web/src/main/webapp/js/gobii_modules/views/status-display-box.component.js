@@ -23,6 +23,9 @@ System.register(["@angular/core"], function (exports_1, context_1) {
                     // useg
                     this.messages = [];
                 } // ctor
+                StatusDisplayComponent.prototype.handleClearMessages = function () {
+                    this.messages = [];
+                };
                 StatusDisplayComponent.prototype.ngOnInit = function () {
                     return null;
                 };
@@ -36,7 +39,7 @@ System.register(["@angular/core"], function (exports_1, context_1) {
                     selector: 'status-display',
                     inputs: ['messages'],
                     //directives: [RADIO_GROUP_DIRECTIVES]
-                    template: "<div style=\"overflow:auto; height: 240px; border: 1px solid #336699; padding-left: 5px;\">\n                    <ol>\n                    <li *ngFor=\"let message of messages\">{{message}}</li>\n                    </ol>\n                </div>\n" // end template
+                    template: "<div style=\"overflow:auto; height: 240px; border: 1px solid #336699; padding-left: 5px;\">\n                    <div *ngFor=\"let message of messages\">{{message}}\n                    <hr style=\"height:1px;border:none;color:#333;background-color:#333;\">\n                    </div>\n                </div>" // end template
                 }),
                 __metadata("design:paramtypes", [])
             ], StatusDisplayComponent);

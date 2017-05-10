@@ -28,7 +28,7 @@ public class RestUri {
     private List<ResourceParam> resourceParams = new ArrayList<>();
 
 
-    public String getResourcePath() {
+    public String getResourcePath() throws Exception {
 
         String returnVal;
 
@@ -41,7 +41,7 @@ public class RestUri {
 
         return RestUri.URL_SEPARATOR
                 + returnVal
-                .replace(this.controllerType.getControllerPath(), "")
+                .replace(ServiceRequestId.getControllerPath(this.controllerType), "")
                 .replace(this.cropContextRoot, "");
     }
 

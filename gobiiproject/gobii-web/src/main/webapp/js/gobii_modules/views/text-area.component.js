@@ -17,24 +17,28 @@ System.register(["@angular/core"], function (exports_1, context_1) {
         execute: function () {
             TextAreaComponent = (function () {
                 function TextAreaComponent() {
-                    this.textValue = "initial value";
                     this.log = '';
+                    this.onTextboxClicked = new core_1.EventEmitter();
                     this.onTextboxDataComplete = new core_1.EventEmitter();
                 }
                 TextAreaComponent.prototype.logText = function (value) {
                     this.log += "Text changed to '" + value + "'\n";
                 };
+                TextAreaComponent.prototype.handleTextboxClicked = function (arg) {
+                    this.onTextboxClicked.emit(arg);
+                };
                 TextAreaComponent.prototype.handleTextboxDataComplete = function (arg) {
                     var items = arg.split("\n");
                     this.onTextboxDataComplete.emit(items);
+                    this.textValue = '';
                 };
                 return TextAreaComponent;
             }());
             TextAreaComponent = __decorate([
                 core_1.Component({
                     selector: 'text-area',
-                    outputs: ['onTextboxDataComplete'],
-                    template: "\n        <textarea ref-textarea [(ngModel)]=\"textValue\" rows=\"4\" style=\"width: 100%;\"></textarea><br/>\n        <button (click)=\"handleTextboxDataComplete(textarea.value)\">Add To Extract</button>\n        <button (click)=\"textValue=''\">Clear</button>\n        \n         <!--<h2>Log <button (click)=\"log=''\">Clear</button></h2>-->\n        <!--<pre>{{log}}</pre>-->\n"
+                    outputs: ['onTextboxDataComplete', 'onTextboxClicked'],
+                    template: "\n        <textarea ref-textarea \n        [(ngModel)]=\"textValue\" rows=\"4\" style=\"width: 100%;\"\n        (click)=\"handleTextboxClicked($event)\"></textarea><br/>\n        <button (click)=\"handleTextboxDataComplete(textarea.value)\">Add To Extract</button>\n        <button (click)=\"textValue=''\">Clear</button>\n        \n         <!--<h2>Log <button (click)=\"log=''\">Clear</button></h2>-->\n        <!--<pre>{{log}}</pre>-->\n"
                 })
             ], TextAreaComponent);
             exports_1("TextAreaComponent", TextAreaComponent);

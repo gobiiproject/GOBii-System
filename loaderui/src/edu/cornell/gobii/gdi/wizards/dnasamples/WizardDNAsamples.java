@@ -25,14 +25,18 @@ public class WizardDNAsamples extends Wizard {
 	private String config;
 	private DTOsamples dto = new DTOsamples();
 
-	public WizardDNAsamples(String config) {
+	public WizardDNAsamples(String config, int piID, int projectID, int experimentID) {
 		setWindowTitle("DNA Sample Data Loading Wizard");
 		this.config = config;
+		dto.setPiID(piID);
+		dto.setProjectID(projectID);
+		dto.setExperimentID(experimentID);
+		
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new Pg1DNAsamples(config, dto));
+		addPage(new Pg1DNAsamples(config, dto, dto.getPiID(), dto.getProjectID(), dto.getExperimentID()));
 		addPage(new Pg2DNAsamples(config, dto));
 		addPage(new Pg3DNAsamples(config, dto));
 	}

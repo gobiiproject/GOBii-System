@@ -8,6 +8,9 @@ package org.gobiiproject.gobidomain.services.impl;
 import org.gobiiproject.gobidomain.security.TokenInfo;
 import org.gobiiproject.gobidomain.security.TokenManager;
 import org.gobiiproject.gobidomain.services.AuthenticationService;
+import org.gobiiproject.gobidomain.services.ContactService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,76 +28,86 @@ import javax.annotation.PostConstruct;
  */
 public class AuthenticationServiceDefault implements AuthenticationService {
 
-	@Autowired
-	private ApplicationContext applicationContext;
+    @Autowired
+    private ApplicationContext applicationContext;
 
-	private final AuthenticationManager authenticationManager;
-	private final TokenManager tokenManager;
+    @Autowired
+    private ContactService contactService;
 
-	public AuthenticationServiceDefault(AuthenticationManager authenticationManager, TokenManager tokenManager) {
-		this.authenticationManager = authenticationManager;
-		this.tokenManager = tokenManager;
-	}
+    Logger LOGGER = LoggerFactory.getLogger(AuthenticationServiceDefault.class);
 
-	@PostConstruct
-	public void init() {
-		System.out.println(" *** AuthenticationServiceImpl.init with: " + applicationContext);
-	}
+    private final AuthenticationManager authenticationManager;
+    private final TokenManager tokenManager;
 
-	@Override
-	public TokenInfo authenticate(String login, String password) {
-		System.out.println(" *** AuthenticationServiceImpl.authenticate");
+    public AuthenticationServiceDefault(AuthenticationManager authenticationManager, TokenManager tokenManager) {
+        this.authenticationManager = authenticationManager;
+        this.tokenManager = tokenManager;
+    }
 
-		// Here principal=username, credentials=password
-		Authentication authentication = new UsernamePasswordAuthenticationToken(login, password);
-		try {
-			authentication = authenticationManager.authenticate(authentication);
-			// Here principal=UserDetails (UserContext in our case), credentials=null (security reasons)
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+    @PostConstruct
+    public void init() {
+        System.out.println(" *** AuthenticationServiceImpl.init with: " + applicationContext);
+    }
 
-			if (authentication.getPrincipal() != null) {
-				UserDetails userContext = (UserDetails) authentication.getPrincipal();
-				TokenInfo newToken = tokenManager.createNewToken(userContext);
-				if (newToken == null) {
-					return null;
-				}
-				return newToken;
-			}
-		} catch (AuthenticationException e) {
-			System.out.println(" *** AuthenticationServiceImpl.authenticate - FAILED: " + e.toString());
-		}
-		return null;
-	}
+    @Override
+    public TokenInfo authenticate(String login, String password) {
 
-	@Override
-	public boolean checkToken(String token) {
-		System.out.println(" *** AuthenticationServiceImpl.checkToken");
+        TokenInfo returnVal = null;
 
-		UserDetails userDetails = tokenManager.getUserDetails(token);
-		if (userDetails == null) {
-			return false;
-		}
+        // Here principal=username, credentials=password
+        Authentication authentication = new UsernamePasswordAuthenticationToken(login, password);
 
-		UsernamePasswordAuthenticationToken securityToken = new UsernamePasswordAuthenticationToken(
-			userDetails, null, userDetails.getAuthorities());
-		SecurityContextHolder.getContext().setAuthentication(securityToken);
+        try {
+            authentication = authenticationManager.authenticate(authentication);
+            // Here principal=UserDetails (UserContext in our case), credentials=null (security reasons)
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		return true;
-	}
+            if (authentication.getPrincipal() != null) {
 
-	@Override
-	public void logout(String token) {
-		UserDetails logoutUser = tokenManager.removeToken(token);
-		System.out.println(" *** AuthenticationServiceImpl.logout: " + logoutUser);
-		SecurityContextHolder.clearContext();
-	}
+                if (contactService.getContactByUserName(login).getContactId() > 0) {
 
-	@Override
-	public UserDetails currentUser() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			return null;
-		}
-		return null;
-	}
+                    UserDetails userContext = (UserDetails) authentication.getPrincipal();
+                    returnVal = tokenManager.createNewToken(userContext);
+                } else {
+                    LOGGER.error("There is no contact table entry for username " + login);
+                }
+            }
+
+        } catch (AuthenticationException e) {
+            LOGGER.error("Error authenticating for user " + login, e);
+        }
+
+        return returnVal;
+    }
+
+    @Override
+    public boolean checkToken(String token) {
+
+        UserDetails userDetails = tokenManager.getUserDetails(token);
+        if (userDetails == null) {
+            return false;
+        }
+
+        UsernamePasswordAuthenticationToken securityToken = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(securityToken);
+
+        return true;
+    }
+
+    @Override
+    public void logout(String token) {
+        UserDetails logoutUser = tokenManager.removeToken(token);
+        System.out.println(" *** AuthenticationServiceImpl.logout: " + logoutUser);
+        SecurityContextHolder.clearContext();
+    }
+
+    @Override
+    public UserDetails currentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        return null;
+    }
 }

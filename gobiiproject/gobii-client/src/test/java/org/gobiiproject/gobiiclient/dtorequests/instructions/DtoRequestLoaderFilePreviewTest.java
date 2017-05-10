@@ -11,8 +11,8 @@ import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestConfiguration;
+import org.gobiiproject.gobiiclient.core.common.Authenticator;
+import org.gobiiproject.gobiiclient.core.common.TestConfiguration;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestDtoFactory;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestUtils;
 import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderFilePreviewDTO;
@@ -73,7 +73,10 @@ public class DtoRequestLoaderFilePreviewTest {
 
     }
 
-    @Ignore // fails on SYS_INT
+    //Fails on SYS_INT due to the fact that it physically copies files; this test
+    // mechanism does not work unless the unit tests run on the same system as the
+    // as the web server.
+    @Ignore
     public void testGetFilePreview() throws Exception {
         //Create newFolder
         LoaderFilePreviewDTO loaderFileCreateDTO = new LoaderFilePreviewDTO();
@@ -124,6 +127,55 @@ public class DtoRequestLoaderFilePreviewTest {
 
         //compare results read to file
         Assert.assertTrue(checkPreviewFileMatch(resultLoaderFilePreviewDTO.getFilePreview(), resourcesDirectory,resultLoaderFilePreviewDTO.getFileList().get(0)));
+
+        /** TEST hmp.txt format **/
+
+        //Create newFolder
+        LoaderFilePreviewDTO loaderFileCreateDTOHmp = new LoaderFilePreviewDTO();
+        RestUri previewTestUriCreateHmp = ClientContext
+                .getInstance(null,false)
+                .getUriFactory()
+                .resourceByUriIdParam(ServiceRequestId.URL_FILE_LOAD);
+        previewTestUriCreateHmp.setParamValue("id", TestDtoFactory.getFolderNameWithTimestamp("Loader File Preview Test"));
+        GobiiEnvelopeRestResource<LoaderFilePreviewDTO> gobiiEnvelopeRestResourceCreateHmp = new GobiiEnvelopeRestResource<>(previewTestUriCreateHmp);
+        PayloadEnvelope<LoaderFilePreviewDTO> resultEnvelopeCreateHmp = gobiiEnvelopeRestResourceCreateHmp.put(LoaderFilePreviewDTO.class,
+                new PayloadEnvelope<>(loaderFileCreateDTOHmp, GobiiProcessType.CREATE));
+
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeCreateHmp.getHeader()));
+        Assert.assertTrue("No directory name DTO received", resultEnvelopeCreateHmp.getPayload().getData().size() > 0);
+        LoaderFilePreviewDTO  resultLoaderFilePreviewDTOCreatedHmp = resultEnvelopeCreateHmp.getPayload().getData().get(0);
+        Assert.assertNotNull(resultLoaderFilePreviewDTOCreatedHmp.getDirectoryName());
+
+        //get intended path for the created directory
+        TestConfiguration testConfigurationHmp = new TestConfiguration();
+        String testCropHmp = testConfigurationHmp.getConfigSettings().getTestExecConfig().getTestCrop();
+        String destinationDirectoryHmp = testConfigurationHmp.getConfigSettings().getProcessingPath(testCropHmp, GobiiFileProcessDir.RAW_USER_FILES);
+        String createdFileDirectoryHmp = destinationDirectoryHmp + new File(resultLoaderFilePreviewDTOCreatedHmp.getDirectoryName()).getName();
+
+        File resourceDirectoryHmp = new File("src/test/resources/hmp_dataset");
+        File dstHmp = new File(resultLoaderFilePreviewDTOCreatedHmp.getDirectoryName());
+
+        FileUtils.copyDirectory(resourceDirectoryHmp, dstHmp);
+
+        RestUri previewTestUriHmp = ClientContext
+                .getInstance(null,false)
+                .getUriFactory()
+                .fileLoaderPreview();
+        previewTestUriHmp.setParamValue("directoryName", dstHmp.getName());
+        previewTestUriHmp.setParamValue("fileFormat", "hmp.txt");
+
+        GobiiEnvelopeRestResource<LoaderFilePreviewDTO> gobiiEnvelopeRestResourceHmp = new GobiiEnvelopeRestResource<>(previewTestUriHmp);
+        PayloadEnvelope<LoaderFilePreviewDTO> resultEnvelopeHmp = gobiiEnvelopeRestResourceHmp.get(LoaderFilePreviewDTO.class);
+
+        Assert.assertFalse(TestUtils.checkAndPrintHeaderMessages(resultEnvelopeHmp.getHeader()));
+        Assert.assertTrue("No file preview DTO received", resultEnvelopeCreateHmp.getPayload().getData().size() > 0);
+        LoaderFilePreviewDTO resultLoaderFilePreviewDTOhmp = resultEnvelopeHmp.getPayload().getData().get(0);
+        Assert.assertNotNull(resultLoaderFilePreviewDTOhmp.getDirectoryName());
+        Assert.assertTrue(resultLoaderFilePreviewDTOhmp.getDirectoryName().replace("C:","").equals(createdFileDirectoryHmp.replaceAll("/","\\\\"))); // because the getAbsolutePath function in files returns a windows format path to the file
+        Assert.assertNotNull(resultLoaderFilePreviewDTOhmp.getFileList().get(0));
+
+        Assert.assertTrue(checkPreviewFileMatch(resultLoaderFilePreviewDTOhmp.getFilePreview(), resourceDirectoryHmp, resultLoaderFilePreviewDTOhmp.getFileList().get(0)));
 
     }
 

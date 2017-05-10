@@ -32,7 +32,7 @@ class ExtractMetadataManager:
 			sql = "copy (select * from getAllMarkerMetadataByDataset("+datasetId+")) to STDOUT with delimiter E'\\t'"+" csv header;"
 		else:
 			sql = "copy (select * from getAllMarkerMetadataByDatasetAndMap("+datasetId+","+mapId+")) to STDOUT with delimiter E'\\t'"+" csv header;"
-		print (sql)
+		#print (sql)
 		with open(outputFilePath, 'w') as outputFile:
 			self.cur.copy_expert(sql, outputFile, 20480)
 		outputFile.close()
@@ -77,6 +77,7 @@ class ExtractMetadataManager:
 			sql = "copy (select * from getAllChrLenByMarkerList('{"+(','.join(markerList))+"}')) to STDOUT with delimiter E'\\t'"+" csv header;"
 		elif sampleList:
 			print("Not yet implemented")
+			#with the decision on doing an extraction by marker list in the background of an extraction by samples request, this is now an unreachable condition. Code cleanup pending.
 			return
 		else:
 			if mapId == -1:
@@ -128,8 +129,15 @@ class ExtractMetadataManager:
 			self.cur.copy_expert(sql, outputFile, 20480)
 		outputFile.close()
 
-	def createSampleQCMetadataByMarkerList(self, outputFilePath, markerList):
-		sql = "copy (select * from getSampleQCMetadataByMarkerList('{"+(','.join(markerList))+"}')) to STDOUT with delimiter E'\\t'"+" csv header;"
+	def createSampleQCMetadataByMarkerList(self, outputFilePath, markerList, datasetType):
+		#print(self.cur.mogrify("copy (select * from getSampleQCMetadataByMarkerList('{"+(','.join(markerList))+"}',"+datasetType+")) to STDOUT with delimiter E'\\t'"+" csv header;"))
+		sql = "copy (select * from getSampleQCMetadataByMarkerList('{"+(','.join(markerList))+"}',"+datasetType+")) to STDOUT with delimiter E'\\t'"+" csv header;"
+		with open(outputFilePath, 'w') as outputFile:
+			self.cur.copy_expert(sql, outputFile, 20480)
+		outputFile.close()
+
+	def createSampleQCMetadataBySampleList(self, outputFilePath, sampleList, datasetType):
+		sql = "copy (select * from getSampleQCMetadataBySampleList('{"+(','.join(sampleList))+"}',"+datasetType+")) to STDOUT with delimiter E'\\t'"+" csv header;"
 		with open(outputFilePath, 'w') as outputFile:
 			self.cur.copy_expert(sql, outputFile, 20480)
 		outputFile.close()
@@ -144,27 +152,86 @@ class ExtractMetadataManager:
 			self.cur.copy_expert(sql, outputFile, 20480)
 		outputFile.close()
 
-	def createMapsetFile(self, outputFilePath, datasetId, mapId, markerList, sampleList):
+	def createMapsetFile(self, outputFilePath, datasetId, mapId, markerList, sampleList, extractionType):
 		#outputFilePath = outputFilePath+".mapset"
 		sql = ""
-		if markerList:
+		if extractionType == 2 or extractionType == 3:
 			sql = "copy (select * from getMarkerMapsetInfoByMarkerList('{"+(','.join(markerList))+"}')) to STDOUT with delimiter E'\\t'"+" csv header;"
-		elif sampleList:
-			print("Not yet implemented")
-			return
-			#sql = ""
-		else:
+		elif extractionType == 1:
 			sql = "copy (select * from getMarkerAllMapsetInfoByDataset("+datasetId+","+mapId+")) to STDOUT with delimiter E'\\t'"+" csv header;"
 		with open(outputFilePath, 'w') as outputFile:
 			self.cur.copy_expert(sql, outputFile, 20480)
 		outputFile.close()
 
-	def createMarkerPositionsFileByMarkerList(self, outputFilePath, markerList):
+	def createMarkerPositionsFile(self, outputFilePath, markerList, datasetType):
 		outputFilePath = outputFilePath+".pos"
-		sql = "copy (select * from getMatrixPosOfMarkers('{"+(','.join(markerList))+"}')) to STDOUT with delimiter E'\\t'"+" csv header;"
+		sql = "copy (select * from getMatrixPosOfMarkers('{"+(','.join(markerList))+"}',"+datasetType+")) to STDOUT with delimiter E'\\t'"+" csv header;"
 		with open(outputFilePath, 'w') as outputFile:
 			self.cur.copy_expert(sql, outputFile, 20480)
 		outputFile.close()
+
+	def createSamplePositionsFile(self, outputFilePath, sampleList, datasetType):
+		outputFilePath = outputFilePath+".pos"
+		sql = "copy (select * from getMatrixPosOfSamples('{"+(','.join(sampleList))+"}',"+datasetType+")) to STDOUT with delimiter E'\\t'"+" csv header;"
+		with open(outputFilePath, 'w') as outputFile:
+			self.cur.copy_expert(sql, outputFile, 20480)
+		outputFile.close()
+
+	def getMarkerIds(self, markerNames, platformList):
+		#print("Generating marker ids...")
+		if markerNames and platformList:
+			#print(self.cur.mogrify("select marker_id from getMarkerIdsByMarkerNamesAndPlatformList(%s, %s)", ("{"+(','.join(markerNames))+"}", "{"+(','.join(platformList))+"}")))
+			self.cur.execute("select marker_id from getMarkerIdsByMarkerNamesAndPlatformList(%s, %s)", ("{"+(','.join(markerNames))+"}", "{"+(','.join(platformList))+"}"))
+		elif markerNames and not platformList:
+			#print(self.cur.mogrify("select marker_id from getMarkerIdsByMarkerNames(%s)", ("{"+(','.join(markerNames))+"}",)))
+			self.cur.execute("select marker_id from getMarkerIdsByMarkerNames(%s)", ("{"+(','.join(markerNames))+"}",))
+		elif platformList and not markerNames:
+			#print(self.cur.mogrify("select marker_id from getMarkerIdsByPlatformList(%s)", ("{"+(','.join(platformList))+"}",)))
+			self.cur.execute("select marker_id from getMarkerIdsByPlatformList(%s)", ("{"+(','.join(platformList))+"}",))
+		else:  # both params are null
+			return None
+		res = self.cur.fetchall()
+		return res
+
+	def getDnarunIds(self, piId, projectId, sampleType, sampleNames):
+		print("Deriving Dnarun IDs...")
+		if sampleNames and sampleType > 0:
+			#1 = Germplasm Names, 2 = External Codes, 3 = DnaSample Names
+			if sampleType == 1:
+				print("...based on Germplasm Names")
+				self.cur.execute("select dnarun_id from getDnarunIdsByGermplasmNames(%s)", ("{"+(','.join(sampleNames))+"}",))
+			elif sampleType == 2:
+				print("...based on External Codes")
+				self.cur.execute("select dnarun_id from getDnarunIdsByExternalCodes(%s)", ("{"+(','.join(sampleNames))+"}",))
+			elif sampleType == 3:
+				print("...based on Dnasample Names")
+				#print(self.cur.mogrify("select dnarun_id from getDnarunIdsByDnasampleNames(%s)", ("{"+(','.join(sampleNames))+"}",)))
+				self.cur.execute("select dnarun_id from getDnarunIdsByDnasampleNames(%s)", ("{"+(','.join(sampleNames))+"}",))
+			else:
+				print("Invalid usage.")
+				return None
+		elif projectId > 0:
+			print("...based on projectID")
+			self.cur.execute("select dnarun_id from getDnarunIdsByProject(%s)", (projectId,))
+		elif piId > 0:
+			print("...based on PI")
+			self.cur.execute("select dnarun_id from getDnarunIdsByPI(%s)", (piId,))
+		else:
+			print("Invalid usage.")
+			return None
+		res = self.cur.fetchall()
+		return res
+
+	#datasetType = required, sampleList = required, platformList = optional
+	def getMarkerIdsFromSamples(self, sampleList, datasetType, platformList):
+		if sampleList and platformList:
+			self.cur.execute("select marker_id from getMarkerIdsBySamplesPlatformsAndDatasetType(%s, %s, %s)", ("{"+(','.join(sampleList))+"}", "{"+(','.join(platformList))+"}", datasetType))
+		elif sampleList and not platformList:
+			self.cur.execute("select marker_id from getMarkerIdsBySamplesAndDatasetType(%s)", ("{"+(','.join(sampleList))+"}",))
+		else:  # invalid usage
+			return None
+		res = self.cur.fetchall()
+		return res
 
 	def commitTransaction(self):
 		self.conn.commit()

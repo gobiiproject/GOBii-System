@@ -5,6 +5,7 @@ import "rxjs/add/operator/map";
 
 import {DtoHeaderAuth} from "../../model/dto-header-auth";
 import {HttpValues} from "../../model/http-values";
+import {PayloadEnvelope} from "../../model/payload/payload-envelope";
 
 @Injectable()
 export class AuthenticationService {
@@ -15,33 +16,15 @@ export class AuthenticationService {
 
     private defaultUser:string = 'USER_READER';
     private defaultPassword:string = 'reader';
-    private token:string = '';
+    private token:string = null;
+    private userName:string =  null;
     private _gobiiCropType:string;
-
-    public getToken():Observable<string> {
-
-        let scope$ = this;
-
-        return Observable.create(observer => {
-
-            if (!scope$.token) {
-
-                scope$.authenticateDefault()
-                    .subscribe(dtoHeaderAuth => {
-                            scope$.token = dtoHeaderAuth.getToken();
-                            scope$._gobiiCropType = dtoHeaderAuth.getGobiiCropType();
-                            observer.next(scope$.token);
-                            observer.complete();
-                        },
-                        error => observer.error(error));
-            } else {
-                observer.next(scope$.token);
-                observer.complete();
-
-            }// if we don't already have a token
+    private authUrl:string = "gobii/v1/auth";
 
 
-        }); // Observable
+    public getToken():string {
+
+        return this.token;
 
     } // getToken()
 
@@ -50,15 +33,18 @@ export class AuthenticationService {
     }
 
 
-    getGobiiCropType():string {
+    public getGobiiCropType():string {
         return this._gobiiCropType;
     }
 
-    
-    public authenticateDefault():Observable<DtoHeaderAuth> {
-        return this.authenticate(null, null);
+    private setGobiiCropType(gobiiCropType:string){
+        this._gobiiCropType =  gobiiCropType;
     }
 
+    public getUserName(): string {
+        return this.userName;
+    }
+    
     public authenticate(userName:string, password:string):Observable<DtoHeaderAuth> {
 
         let loginUser = userName ? userName : this.defaultUser;
@@ -71,20 +57,25 @@ export class AuthenticationService {
         return Observable.create(observer => {
                 this
                     ._http
-                    .post("load/auth", requestBody, {headers: headers})
+                    .post(scope$.authUrl, requestBody, {headers: headers})
                     .map(response => response.json())
                     .subscribe(json => {
                         let dtoHeaderAuth:DtoHeaderAuth = DtoHeaderAuth
                             .fromJSON(json);
                         if (dtoHeaderAuth.getToken()) {
+                            scope$.userName = userName;
                             scope$.setToken(dtoHeaderAuth.getToken())
+                            scope$.setGobiiCropType( dtoHeaderAuth.getGobiiCropType() );
                             observer.next(dtoHeaderAuth);
                             observer.complete();
                         } else {
                             observer.error("No token was provided by server");
                         }
-
-                    }) // subscribe
+                    },
+                        json => {
+                            let message:string = json.status + ": " + json.statusText;
+                            observer.error(message);
+                        }); // subscribe
             } // observer callback
         ); // Observer.create() 
 

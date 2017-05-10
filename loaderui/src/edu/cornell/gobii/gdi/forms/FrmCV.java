@@ -91,11 +91,6 @@ public class FrmCV extends AbstractFrm {
 		tblclmnDefinition.setWidth(109);
 		tblclmnDefinition.setText("*Definition");
 
-		TableViewerColumn tableViewerColumn_1 = new TableViewerColumn(viewerParameters, SWT.NONE);
-		TableColumn tblclmnRank = tableViewerColumn_1.getColumn();
-		tblclmnRank.setWidth(100);
-		tblclmnRank.setText("*Rank");
-
 		TableColumn tblclmnType = new TableColumn(tbTerms, SWT.NONE);
 		tblclmnType.setWidth(100);
 		tblclmnType.setText("Type");
@@ -113,9 +108,8 @@ public class FrmCV extends AbstractFrm {
 
 			Point pt = new Point(event.x, event.y);
 			TableItem item = tbTerms.getItem(pt);
-				if(item.getText(3).equals("User")){
-					if (item == null)
-						return;
+			try{
+				if(item.getText(2).equals("User")){
 
 					Text newEditor = new Text(tbTerms, SWT.NONE);
 					int EDITABLECOLUMN = -1;
@@ -159,6 +153,9 @@ public class FrmCV extends AbstractFrm {
 				}else{
 					item.setChecked(true);
 				}
+			}catch(NullPointerException npe){
+				return;	
+			}
 		});
 		new Label(cmpForm, SWT.NONE);
 
@@ -169,7 +166,7 @@ public class FrmCV extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				TableItem item = new TableItem(tbTerms, SWT.NONE);
 				item.setChecked(true);
-				item.setText(3, "User");
+				item.setText(2, "User");
 			}
 		});
 		btnInsert.setText("Insert New Record(s)");
@@ -182,23 +179,23 @@ public class FrmCV extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e){
 				try{
-					
+
 					if(!validate()) return;
 					CvDTO cvDTO = null;
 					boolean successful = true;
 					int saveCtr = 0;
 					PayloadEnvelope<CvDTO> cvDTOResponseEnvelope = null;
 					for(TableItem item : tbTerms.getItems()){
-						if(!item.getChecked() || item.getText(3).equals("System")) continue;
+						if(!item.getChecked() || item.getText(2).equals("System")) continue;
 						boolean isNew = item.getData() == null ? true : false;
 						cvDTO = new CvDTO();
 						if(!isNew) cvDTO.setCvId((Integer) item.getData());
-						cvDTO.setGroup(IDs.cvGroupId);
+						cvDTO.setGroup(FormUtils.getIdFromTableList(tbList));
 						cvDTO.setTerm(item.getText(0));
 						cvDTO.setDefinition(item.getText(1));
-						cvDTO.setRank(Integer.parseInt(item.getText(2)));
+						cvDTO.setRank(0);
 						cvDTO.setEntityStatus(1);
-						cvDTO.setGroupType((Integer) item.getData("groupType"));
+						cvDTO.setGroupType(2);
 						try{
 
 							saveCtr++;
@@ -229,7 +226,7 @@ public class FrmCV extends AbstractFrm {
 					}
 					if(successful && saveCtr >0){
 						if(Controller.getDTOResponse(shell, cvDTOResponseEnvelope.getHeader(), memInfo, true)){
-							populateCVDetails(IDs.cvGroupId, txtGroup.getText()); 
+							populateCVDetails(FormUtils.getIdFromTableList(tbList), txtGroup.getText()); 
 						}
 					}
 					else if(saveCtr==0){
@@ -259,7 +256,7 @@ public class FrmCV extends AbstractFrm {
 					if(!validate()) return;
 					int delCtr = 0;
 					for(TableItem item : tbTerms.getItems()){
-						if(item.getChecked() && item.getText(3).equals("User")){
+						if(item.getChecked() && item.getText(2).equals("User")){
 							cvDTO = new CvDTO();
 							cvDTO.setCvId((Integer) item.getData());
 							try{
@@ -273,29 +270,30 @@ public class FrmCV extends AbstractFrm {
 										restResourceForGetById.setParamValue("id", cvDTO.getCvId().toString());
 
 										cvDTOResponseEnvelope = restResourceForGetById.delete(CvDTO.class);
-										
+										delCtr++;
 									}catch(Exception err){
 										Utils.log(shell, memInfo, log, "Error saving Term", err);
 										break;
 									}
 								}
+								
 							}catch(NullPointerException npe){
 
 								MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-								dialog.setMessage("Failed to delete '"+cvDTO.getTerm()+"'. It is recognized as a new value.");
+								dialog.setMessage("Failed to delete '"+item.getText(0)+"'. It is recognized as a new value.");
 								dialog.open();
 							}
-							delCtr++;
+							
 						}
 					}
 					if(delCtr>0){
 						if(Controller.getDTOResponse(shell,  cvDTOResponseEnvelope.getHeader(), memInfo, true)){
-					
-						populateCVDetails(IDs.cvGroupId, txtGroup.getText()); 
+
+							populateCVDetails(FormUtils.getIdFromTableList(tbList), txtGroup.getText()); 
 						}
 					}else{
 						MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-						dialog.setMessage("There's nothing to delete. No CV of type 'User' has been selected. ");
+						dialog.setMessage("There's nothing to delete. No existing CV term of type 'User' has been selected. ");
 						dialog.open();
 					}
 				}catch(Exception err){
@@ -307,6 +305,22 @@ public class FrmCV extends AbstractFrm {
 			}
 		});
 		btnDelete.setText("Delete Selected Record(s)");
+		new Label(cmpForm, SWT.NONE);
+		
+		Button btnExportTerms = new Button(cmpForm, SWT.NONE);
+		btnExportTerms.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(txtGroup.getText().isEmpty()){
+					MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+					dialog.setMessage("There's no group selected. There's nothing to import.");
+					dialog.open();
+				}
+				else FormUtils.exportTableAsTxt(shell, tbTerms, txtGroup.getText());
+			}
+		});
+		btnExportTerms.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnExportTerms.setText("Export Terms");
 
 	}
 
@@ -319,7 +333,7 @@ public class FrmCV extends AbstractFrm {
 	protected void cleanParameterDetails(boolean deleteAll) {
 		// TODO Auto-generated method stub
 		for(TableItem item : tbTerms.getItems()){
-			if(deleteAll || ( item.getChecked() && item.getText(3).equals("User") )){
+			if(deleteAll || ( item.getChecked() && item.getText(2).equals("User") )){
 				item.dispose();
 			}
 		}
@@ -352,8 +366,7 @@ public class FrmCV extends AbstractFrm {
 			public void handleEvent(Event e) {
 				try{
 					String selected = tbList.getSelection()[0].getText(); //single selection
-					IDs.cvGroupId= Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-					populateCVDetails(IDs.cvGroupId, selected); //retrieve and display projects by contact Id
+					populateCVDetails(FormUtils.getIdFromTableList(tbList), selected); //retrieve and display projects by contact Id
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving CVs", err);
 				}
@@ -396,17 +409,16 @@ public class FrmCV extends AbstractFrm {
 				item= new TableItem(table, SWT.NONE); 
 				item.setText(0, c.getTerm()); //index zero - first column 
 				item.setText(1, c.getDefinition());
-				item.setText(2, Integer.toString(c.getRank())); //index zero - first column 
 				item.setData(c.getCvId());
 				item.setData("groupType", c.getGroupType());
 
 				if(c.getGroupType()==1){
 					item.setChecked(true);
-					item.setText(3, "System");
+					item.setText(2, "System");
 					item.setGrayed(true);
 					item.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BORDER));
 				}
-				else  item.setText(3, "User");
+				else  item.setText(2, "User");
 			}
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error retrieving CVs", err);
@@ -448,7 +460,7 @@ public class FrmCV extends AbstractFrm {
 				//			for(TableItem tbItem : viewerParameters.getTable().getItems()){
 				TableItem tbItem = viewerParameters.getTable().getItem(i);
 
-				if(tbItem.getChecked()){
+				if(tbItem.getChecked() && !tbItem.getGrayed()){
 					checked++;
 					if(tbItem.getText(0).isEmpty()){
 						message = "Column 'term' is required!";
@@ -459,19 +471,6 @@ public class FrmCV extends AbstractFrm {
 					successful = false;
 					break;
 
-					}
-					if(tbItem.getText(2).isEmpty()){message = "Column 'rank' is required!";
-					successful = false;
-					break;
-					}else{
-						try{
-							if(Integer.parseInt(tbItem.getText(2)) >0) continue;
-
-						}catch(NumberFormatException npe){
-							message = "Column 'rank' should be an integer!";
-							successful = false;
-							break;
-						}
 					}
 					for(int j=0; j<i; j++){
 						if(tbItem.getText(0).equalsIgnoreCase(viewerParameters.getTable().getItem(j).getText(0))){

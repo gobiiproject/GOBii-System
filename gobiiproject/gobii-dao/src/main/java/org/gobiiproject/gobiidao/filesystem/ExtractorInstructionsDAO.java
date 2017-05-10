@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface ExtractorInstructionsDAO {
 
+    public void writePlainFile(String fileFqpn, byte[] byteArray) throws GobiiDaoException;
+
     boolean writeInstructions(String instructionFileFqpn,
                               List<GobiiExtractorInstruction> instructions) throws GobiiDaoException;
 

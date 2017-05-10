@@ -5,12 +5,11 @@ import org.apache.commons.lang.ObjectUtils;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
 import org.gobiiproject.gobiiapimodel.types.ControllerType;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiibrapi.calls.studies.observationvariables.BrapiResponseObservationVariablesDetail;
 import org.gobiiproject.gobiibrapi.calls.studies.observationvariables.BrapiResponseObservationVariablesMaster;
-import org.gobiiproject.gobiibrapi.core.derived.BrapiResponseEnvelopeMaster;
+import org.gobiiproject.gobiibrapi.core.responsemodel.BrapiResponseEnvelopeMaster;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.brapi.BrapiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
+import org.gobiiproject.gobiiclient.core.common.Authenticator;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -44,11 +43,11 @@ public class BrapiTestObservationVariables {
                         ServiceRequestId.URL_OBSERVATION_VARIABLES);
         restUriObservationVariables.setParamValue("id", "1");
 
-        BrapiEnvelopeRestResource<ObjectUtils.Null, BrapiResponseObservationVariablesMaster, BrapiResponseObservationVariablesDetail> brapiEnvelopeRestResource =
+        BrapiEnvelopeRestResource<ObjectUtils.Null, BrapiResponseObservationVariablesMaster, BrapiResponseObservationVariablesMaster> brapiEnvelopeRestResource =
                 new BrapiEnvelopeRestResource<>(restUriObservationVariables,
                         ObjectUtils.Null.class,
                         BrapiResponseObservationVariablesMaster.class,
-                        BrapiResponseObservationVariablesDetail.class);
+                        BrapiResponseObservationVariablesMaster.class);
 
         BrapiResponseEnvelopeMaster<BrapiResponseObservationVariablesMaster> brapiResponseEnvelopeMaster =
                 brapiEnvelopeRestResource.getFromMasterResource();

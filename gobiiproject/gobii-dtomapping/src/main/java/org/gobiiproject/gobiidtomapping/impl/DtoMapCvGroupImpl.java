@@ -5,6 +5,8 @@ import org.gobiiproject.gobiidao.resultset.core.ResultColumnApplicator;
 import org.gobiiproject.gobiidtomapping.DtoMapCvGroup;
 import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
 import org.gobiiproject.gobiimodel.headerlesscontainer.CvDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.CvGroupDTO;
+import org.gobiiproject.gobiimodel.types.GobiiCvGroupType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,13 +50,40 @@ public class DtoMapCvGroupImpl implements DtoMapCvGroup {
         } catch (SQLException e) {
 
             LOGGER.error("Gobii Mapping Error", e);
-            throw  new GobiiDtoMappingException(e);
+            throw new GobiiDtoMappingException(e);
         }
 
         return returnVal;
 
     }
 
+    public List<CvGroupDTO> getCvGroupsForType(GobiiCvGroupType gobiiCvGroupType) throws GobiiDtoMappingException {
+
+        List<CvGroupDTO> returnVal = new ArrayList<>();
+
+        try {
+
+            ResultSet resultSet = rsCvGroupDao.getCvGroupsForType(gobiiCvGroupType.getGroupTypeId());
+
+            while (resultSet.next()) {
+
+                CvGroupDTO currentCvGroupDTO = new CvGroupDTO();
+
+                ResultColumnApplicator.applyColumnValues(resultSet, currentCvGroupDTO);
+                returnVal.add(currentCvGroupDTO);
+
+            }
+
+
+        } catch (SQLException e) {
+
+            LOGGER.error("Gobii Mapping Error", e);
+            throw new GobiiDtoMappingException(e);
+        }
+
+        return returnVal;
+
+    }
 
     public Integer getGroupTypeForGroupId(Integer groupId) throws GobiiDtoMappingException {
 
@@ -78,8 +107,55 @@ public class DtoMapCvGroupImpl implements DtoMapCvGroup {
 
         }
 
-        return  returnVal;
+        return returnVal;
 
     }
 
+
+    public CvGroupDTO getUserCvByGroupName(String groupName) throws GobiiDtoMappingException {
+
+        CvGroupDTO returnVal = new CvGroupDTO();
+
+        try {
+
+            ResultSet resultSet = rsCvGroupDao.getUserCvGroupByName(groupName);
+
+            if (resultSet.next()) {
+
+                ResultColumnApplicator.applyColumnValues(resultSet, returnVal);
+            }
+
+
+        } catch (SQLException e) {
+
+            LOGGER.error("Gobii Mapping Error", e);
+            throw new GobiiDtoMappingException(e);
+        }
+
+        return returnVal;
+
+    }
+
+    public CvGroupDTO getCvGroup(Integer cvGroupId) throws GobiiDtoMappingException {
+        CvGroupDTO returnVal = new CvGroupDTO();
+
+        try {
+
+            ResultSet resultSet = rsCvGroupDao.getCvGroupById(cvGroupId);
+
+            if (resultSet.next()) {
+
+                ResultColumnApplicator.applyColumnValues(resultSet, returnVal);
+            }
+
+
+        } catch (SQLException e) {
+
+            LOGGER.error("Gobii Mapping Error", e);
+            throw new GobiiDtoMappingException(e);
+        }
+
+        return returnVal;
+
+    }
 }

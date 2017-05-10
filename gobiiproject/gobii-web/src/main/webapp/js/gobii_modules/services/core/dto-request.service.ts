@@ -7,6 +7,9 @@ import {DtoHeaderResponse} from "../../model/dto-header-response";
 import {PayloadEnvelope} from "../../model/payload/payload-envelope";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/map";
+import {Header} from "../../model/payload/header";
+import {Status} from "../../model/payload/status";
+import {HeaderStatusMessage} from "../../model/dto-header-status-message";
 
 @Injectable()
 export class DtoRequestService<T> {
@@ -31,97 +34,50 @@ export class DtoRequestService<T> {
         return this._gobbiiVersion;
     }
 
-    public getResult(dtoRequestItem: DtoRequestItem<T>): Observable < T > {
-
-        return Observable.create(observer => {
-
-            this._authenticationService
-                .getToken()
-                .subscribe(token => {
-
-                        let headers = HttpValues.makeTokenHeaders(token);
-
-                        this._http
-                            .post(dtoRequestItem.getUrl(),
-                                dtoRequestItem.getRequestBody(),
-                                {headers: headers})
-                            .map(response => response.json())
-                            .subscribe(json => {
-
-                                    let headerResponse: DtoHeaderResponse = DtoHeaderResponse.fromJSON(json);
-
-                                    if (headerResponse.succeeded) {
-
-                                        let result = dtoRequestItem.resultFromJson(json);
-
-                                        observer.next(result);
-                                        observer.complete();
-                                    } else {
-                                        observer.error(headerResponse);
-                                    }
-
-                                },
-                                json => {
-                                    let obj = JSON.parse(json._body)
-                                    let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(obj);
-                                    observer.error(payloadResponse.header);
-                                }) // subscribe http
-
-                    },
-                    json => {
-                        let obj = JSON.parse(json._body)
-                        let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(obj);
-                        observer.error(payloadResponse.header);
-                    }); // subscribe get authentication token
-
-        }); // observable
-
-    }
-
-
     public post(dtoRequestItem: DtoRequestItem<T>): Observable < T > {
 
+        let scope$ = this;
+
         return Observable.create(observer => {
 
-            this._authenticationService
-                .getToken()
-                .subscribe(token => {
 
-                        let headers = HttpValues.makeTokenHeaders(token);
+            let token: string = this._authenticationService
+                .getToken();
 
-                        this._http
-                            .post(dtoRequestItem.getUrl(),
-                                dtoRequestItem.getRequestBody(),
-                                {headers: headers})
-                            .map(response => response.json())
-                            .subscribe(json => {
+            if (token) {
 
-                                    let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(json);
+                let headers = HttpValues.makeTokenHeaders(token, scope$._authenticationService.getGobiiCropType());
 
-                                    if (payloadResponse.header.status.succeeded) {
-                                        let result = dtoRequestItem.resultFromJson(json);
-                                        observer.next(result);
-                                        observer.complete();
-                                    } else {
-                                        observer.error(payloadResponse.header);
-                                    }
+                this._http
+                    .post(dtoRequestItem.getUrl(),
+                        dtoRequestItem.getRequestBody(),
+                        {headers: headers})
+                    .map(response => response.json())
+                    .subscribe(json => {
 
-                                },
-                                json => {
-                                    let obj = JSON.parse(json._body)
-                                    let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(obj);
-                                    observer.error(payloadResponse.header);
-                                }); // subscribe http
+                            let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(json);
 
-                    },
-                    json => {
-                        let obj = JSON.parse(json._body)
-                        let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(obj);
-                        observer.error(payloadResponse.header);
-                    }); // subscribe get authentication token
+                            if (payloadResponse.header.status.succeeded) {
+                                let result = dtoRequestItem.resultFromJson(json);
+                                observer.next(result);
+                                observer.complete();
+                            } else {
+                                observer.error(payloadResponse.header);
+                            }
+
+                        },
+                        json => {
+                            let obj = JSON.parse(json._body)
+                            let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(obj);
+                            observer.error(payloadResponse.header);
+                        }); // subscribe http
+
+            } else {
+                let header: Header = new Header(null, null, new Status(false, [new HeaderStatusMessage("Unauthenticated", null, null)]), null);
+                observer.error(header);
+            }
 
         }); // observable
-
     }
 
 
@@ -130,37 +86,41 @@ export class DtoRequestService<T> {
         let scope$ = this;
         return Observable.create(observer => {
 
-            this._authenticationService
-                .getToken()
-                .subscribe(token => {
+            let token: string = this._authenticationService
+                .getToken();
 
-                        let headers = HttpValues.makeTokenHeaders(token);
+            if (token) {
 
-                        this._http
-                            .get(dtoRequestItem.getUrl(),
-                                {headers: headers})
-                            .map(response => response.json())
-                            .subscribe(json => {
+                let headers = HttpValues.makeTokenHeaders(token, scope$._authenticationService.getGobiiCropType());
 
-                                let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(json);
+                this._http
+                    .get(dtoRequestItem.getUrl(),
+                        {headers: headers})
+                    .map(response => response.json())
+                    .subscribe(json => {
 
-                                if (payloadResponse.header.status.succeeded) {
-                                    scope$._gobbiiVersion = payloadResponse.header.gobiiVersion;
-                                    let result = dtoRequestItem.resultFromJson(json);
-                                    observer.next(result);
-                                    observer.complete();
-                                } else {
-                                    observer.error(payloadResponse);
-                                }
+                            let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(json);
 
-                            }) // subscribe http
+                            if (payloadResponse.header.status.succeeded) {
+                                scope$._gobbiiVersion = payloadResponse.header.gobiiVersion;
+                                let result = dtoRequestItem.resultFromJson(json);
+                                observer.next(result);
+                                observer.complete();
+                            } else {
+                                observer.error(payloadResponse);
+                            }
 
-                    },
-                    json => {
-                        let obj = JSON.parse(json._body)
-                        let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(obj);
-                        observer.error(payloadResponse.header);
-                    }); // subscribe get authentication token
+                        },
+                        json => {
+                            let obj = JSON.parse(json._body)
+                            let payloadResponse: PayloadEnvelope = PayloadEnvelope.fromJSON(obj);
+                            observer.error(payloadResponse.header);
+                        }); // subscribe http
+
+            } else {
+                let header: Header = new Header(null, null, new Status(false, [new HeaderStatusMessage("Unauthenticated", null, null)]), null);
+                observer.error(header);
+            }
 
         }); // observable
 

@@ -44,7 +44,7 @@ public class GobiiEnvelopeRestResource<T> {
 
     private HttpCore getHttp() throws Exception {
 
-        return this.restResourceUtils.getHttp();
+        return this.restResourceUtils.getClientContext().getHttp();
     }
 
 

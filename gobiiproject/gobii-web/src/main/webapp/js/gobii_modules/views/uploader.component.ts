@@ -1,18 +1,27 @@
-import {Component, OnInit, SimpleChange, EventEmitter} from "@angular/core";
+import {Component, OnInit, SimpleChange, EventEmitter, ViewChild} from "@angular/core";
 import {
     FileSelectDirective,
     FileDropDirective,
-    FileUploader, FileUploaderOptions, Headers
+    FileUploader, FileUploaderOptions, Headers, FileItem
 } from 'ng2-file-upload';
 import {AuthenticationService} from "../services/core/authentication.service";
 import {HeaderNames} from "../model/header-names";
 import {Header} from "../model/payload/header";
+import {HeaderStatusMessage} from "../model/dto-header-status-message";
+import {FileName} from "../model/file_name";
+import {FileModelTreeService} from "../services/core/file-model-tree-service";
+import {GobiiFileItem} from "../model/gobii-file-item";
+import {GobiiExtractFilterType} from "../model/type-extractor-filter";
+import {ProcessType} from "../model/type-process";
+import {ExtractorItemType} from "../model/file-model-node";
+import {GobiiUIEventOrigin} from "../model/type-event-origin";
 
-const URL = 'gobii/v1/uploadfile';
+const URL = 'gobii/v1/uploadfile?gobiiExtractFilterType=BY_MARKER';
 
 @Component({
     selector: 'uploader',
-    // outputs: ['onItemUnChecked', 'onItemSelected'],
+    inputs: ['gobiiExtractFilterType'],
+    outputs: ['onUploaderError', 'onClickBrowse'],
     template: `<style>
     .my-drop-zone { border: dotted 3px lightgray; }
     .nv-file-over { border: dotted 3px red; } /* Default class applied to drop zones on over */
@@ -47,17 +56,23 @@ const URL = 'gobii/v1/uploadfile';
             </div>
 
             Multiple
-            <input type="file" ng2FileSelect [uploader]="uploader" multiple  /><br/>
+            <input type="file" ng2FileSelect [uploader]="uploader" multiple /><br/>
             ================================================================================ -->
 
             
-            <input type="file" ng2FileSelect [uploader]="uploader" />
+            <input #selectedFile 
+                type="file" 
+                ng2FileSelect 
+                [uploader]="uploader"
+                 [disabled]="uploadComplete"
+                (click)="handleClickBrowse($event)"/>
             <!--  IF YOU REINSTATE THE QUEUES BELOW THIS BUTTON WILL BE SUPERFLUOUS -->
-            <button type="button" class="btn btn-success btn-s"
-                        (click)="uploader.uploadAll()" [disabled]="!uploader.getNotUploadedItems().length">
-                    <span class="glyphicon glyphicon-upload"></span> Upload
+            <BR>
+            <button type="button" class="btn btn-success"
+                        (click)="uploader.uploadAll()" 
+                        [disabled]="!uploader.getNotUploadedItems().length">
+                    Upload
             </button>
-
         </div>
 
         <div class="col-md-9" style="margin-bottom: 40px">
@@ -142,25 +157,71 @@ const URL = 'gobii/v1/uploadfile';
 
 export class UploaderComponent implements OnInit {
 
+    private onUploaderError: EventEmitter<HeaderStatusMessage> = new EventEmitter();
+    private gobiiExtractFilterType: GobiiExtractFilterType = GobiiExtractFilterType.UNKNOWN;
+    private uploadComplete = false;
 
-    constructor(private _authenticationService: AuthenticationService) {
+    constructor(private _authenticationService: AuthenticationService,
+                private _fileModelTreeService: FileModelTreeService) {
 
         let fileUploaderOptions: FileUploaderOptions = {}
         fileUploaderOptions.url = URL;
         fileUploaderOptions.headers = [];
+        fileUploaderOptions.removeAfterUpload = true;
 
         let authHeader: Headers = {name: '', value: ''};
         authHeader.name = HeaderNames.headerToken;
 
-        _authenticationService
-            .getToken()
-            .subscribe(token => {
-                authHeader.value = token;
-            });
+        let token: string = _authenticationService.getToken();
 
-        fileUploaderOptions.headers.push(authHeader);
+        if (token) {
+            authHeader.value = token;
 
-        this.uploader = new FileUploader(fileUploaderOptions);
+            fileUploaderOptions.headers.push(authHeader);
+
+            this.uploader = new FileUploader(fileUploaderOptions);
+
+            this.uploader.onBeforeUploadItem = (fileItem: FileItem) => {
+
+                this._fileModelTreeService.getFileItems(this.gobiiExtractFilterType).subscribe(
+                    fileItems => {
+                        let fileItemJobId: GobiiFileItem = fileItems.find(item => {
+                            return item.getExtractorItemType() === ExtractorItemType.JOB_ID
+                        });
+
+                        let jobId: string = fileItemJobId.getItemId();
+                        fileItem.file.name = FileName.makeFileNameFromJobId(this.gobiiExtractFilterType, jobId);
+                    });
+            }
+
+            this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+
+                if (status == 200) {
+                    let listItemType: ExtractorItemType =
+                        this.gobiiExtractFilterType === GobiiExtractFilterType.BY_MARKER ?
+                            ExtractorItemType.MARKER_FILE : ExtractorItemType.SAMPLE_FILE;
+
+                    _fileModelTreeService.put(GobiiFileItem
+                        .build(this.gobiiExtractFilterType, ProcessType.CREATE)
+                        .setExtractorItemType(listItemType)
+                        .setItemId(item.file.name)
+                        .setItemName(item.file.name))
+                        .subscribe(fme => {
+                                this.uploadComplete = true;
+                            },
+                            headerStatusMessage => {
+                                this.onUploaderError.emit(new HeaderStatusMessage(headerStatusMessage, null, null));
+                            });
+                } else {
+
+                    this.onUploaderError.emit(new HeaderStatusMessage(response, null, null));
+
+                }
+
+            };
+        } else {
+            this.onUploaderError.emit(new HeaderStatusMessage("Unauthenticated", null, null));
+        }
 
     } // ctor
 
@@ -178,10 +239,42 @@ export class UploaderComponent implements OnInit {
         this.hasAnotherDropZoneOver = e;
     }
 
+    @ViewChild('selectedFile') selectedFile: any;
 
-    ngOnInit(): any {
-        return null;
+    clearSelectedFile() {
+        this.selectedFile.nativeElement.value = '';
     }
 
+    private onClickBrowse: EventEmitter<any> = new EventEmitter();
 
+    private handleClickBrowse(event: any) {
+
+        this.onClickBrowse.emit(event);
+
+    }
+
+    ngOnInit(): any {
+
+        this._fileModelTreeService
+            .fileItemNotifications()
+            .subscribe(eventedFileItem => {
+                    if (eventedFileItem.getProcessType() === ProcessType.DELETE) {
+                        let currentItemType: ExtractorItemType = ExtractorItemType.UNKNOWN;
+                        if (this.gobiiExtractFilterType === GobiiExtractFilterType.BY_SAMPLE) {
+                            currentItemType = ExtractorItemType.SAMPLE_FILE;
+                        } else if (this.gobiiExtractFilterType === GobiiExtractFilterType.BY_MARKER) {
+                            currentItemType = ExtractorItemType.MARKER_FILE;
+                        }
+
+                        if ((eventedFileItem.getGobiiEventOrigin() === GobiiUIEventOrigin.CRITERIA_TREE)
+                            && (eventedFileItem.getExtractorItemType() === currentItemType )) {
+                            this.clearSelectedFile();
+                            this.uploadComplete = false;
+                        }
+                    }
+                },
+                responseHeader => {
+                    this.onUploaderError.emit(responseHeader);
+                });
+    }
 }

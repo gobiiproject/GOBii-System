@@ -7,9 +7,10 @@ import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
 import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.Authenticator;
-import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestConfiguration;
+import org.gobiiproject.gobiiclient.core.common.Authenticator;
+import org.gobiiproject.gobiiclient.core.common.TestConfiguration;
 import org.gobiiproject.gobiiclient.dtorequests.Helpers.TestUtils;
+import org.gobiiproject.gobiimodel.dto.instructions.GobiiFilePropNameId;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ExtractorInstructionFilesDTO;
 import org.gobiiproject.gobiimodel.dto.instructions.extractor.GobiiDataSetExtract;
 import org.gobiiproject.gobiimodel.dto.instructions.extractor.GobiiExtractorInstruction;
@@ -19,7 +20,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,10 +76,9 @@ public class DtoRequestFileExtractorInstructionsTest {
         GobiiDataSetExtract gobiiDataSetExtractOne = new GobiiDataSetExtract();
         GobiiFileType DataSetExtractOneFileType = GobiiFileType.HAPMAP;
         gobiiDataSetExtractOne.setGobiiFileType(DataSetExtractOneFileType);
-        String DataSetExtractOneName = "my_foo_Dataset";
-        gobiiDataSetExtractOne.setDataSetName(DataSetExtractOneName);
+        String dataSetExtractOneName = "my_foo_Dataset";
+        gobiiDataSetExtractOne.setDataSet(new GobiiFilePropNameId(1,dataSetExtractOneName));
         gobiiDataSetExtractOne.setAccolate(true);
-        gobiiDataSetExtractOne.setDataSetId(1);
 
 
         // ************** DATA SET EXTRACT two
@@ -87,9 +86,8 @@ public class DtoRequestFileExtractorInstructionsTest {
         GobiiFileType DataSetExtractFileTypeTwo = GobiiFileType.FLAPJACK;
         gobiiDataSetExtractTwo.setGobiiFileType(DataSetExtractFileTypeTwo);
         String DataSetExtractNameTwo = "my_foo_Dataset2";
-        gobiiDataSetExtractTwo.setDataSetName(DataSetExtractNameTwo);
         gobiiDataSetExtractTwo.setAccolate(true);
-        gobiiDataSetExtractTwo.setDataSetId(1);
+        gobiiDataSetExtractOne.setDataSet(new GobiiFilePropNameId(1,DataSetExtractNameTwo));
 
 
         gobiiExtractorInstructionOne.getDataSetExtracts().add(gobiiDataSetExtractOne);
@@ -110,17 +108,15 @@ public class DtoRequestFileExtractorInstructionsTest {
 
         // column one
         gobiiDataSetExtractOne = new GobiiDataSetExtract();
-        gobiiDataSetExtractOne.setDataSetName("my_foo_2Dataset");
         gobiiDataSetExtractOne.setAccolate(true);
         gobiiDataSetExtractOne.setGobiiFileType(DataSetExtractOneFileType);
-        gobiiDataSetExtractOne.setDataSetId(2);
+        gobiiDataSetExtractOne.setDataSet(new GobiiFilePropNameId(2,"my_foo_2Dataset"));
 
         // column two
         gobiiDataSetExtractTwo = new GobiiDataSetExtract();
-        gobiiDataSetExtractTwo.setDataSetName("my_foo_2Dataset2");
         gobiiDataSetExtractTwo.setAccolate(true);
         gobiiDataSetExtractTwo.setGobiiFileType(DataSetExtractFileTypeTwo);
-        gobiiDataSetExtractTwo.setDataSetId(2);
+        gobiiDataSetExtractOne.setDataSet(new GobiiFilePropNameId(2,"my_foo_2Dataset2"));
 
         gobiiExtractorInstructionTwo.getDataSetExtracts().add(gobiiDataSetExtractOne);
         gobiiExtractorInstructionTwo.getDataSetExtracts().add(gobiiDataSetExtractTwo);
@@ -173,8 +169,8 @@ public class DtoRequestFileExtractorInstructionsTest {
                         .get(0)
                         .getDataSetExtracts()
                         .get(0)
-                        .getDataSetName()
-                        .equals(DataSetExtractOneName)
+                        .getDataSet().getName()
+                        .equals(dataSetExtractOneName)
         );
 
 
@@ -201,8 +197,8 @@ public class DtoRequestFileExtractorInstructionsTest {
                         .get(0)
                         .getDataSetExtracts()
                         .get(0)
-                        .getDataSetName()
-                        .equals(DataSetExtractOneName)
+                        .getDataSet().getName()
+                        .equals(dataSetExtractOneName)
         );
 
         // ************** VERIFY THAT WE HANDLE USER INPUT FILE ALREADY EXISTS
@@ -284,7 +280,7 @@ public class DtoRequestFileExtractorInstructionsTest {
             for (GobiiDataSetExtract dataSetExtract : instruction.getDataSetExtracts()) {
 
                 String extractDestinationDirectory = dataSetExtract.getExtractDestinationDirectory();
-                List<String> dataExtractFileNames = getFileNamesFor("DS" + Integer.toString(dataSetExtract.getDataSetId()), dataSetExtract.getGobiiFileType());
+                List<String> dataExtractFileNames = getFileNamesFor("DS" + Integer.toString(dataSetExtract.getDataSet().getId()), dataSetExtract.getGobiiFileType());
 
                 for (String currentFileName : dataExtractFileNames) {
                     String currentExtractFile = extractDestinationDirectory + currentFileName;
@@ -306,7 +302,7 @@ public class DtoRequestFileExtractorInstructionsTest {
             for (GobiiDataSetExtract dataSetExtract : instruction.getDataSetExtracts()) {
 
                 String extractDestinationDirectory = dataSetExtract.getExtractDestinationDirectory();
-                List<String> dataExtractFileNames = getFileNamesFor("DS" + Integer.toString(dataSetExtract.getDataSetId()), dataSetExtract.getGobiiFileType());
+                List<String> dataExtractFileNames = getFileNamesFor("DS" + Integer.toString(dataSetExtract.getDataSet().getId()), dataSetExtract.getGobiiFileType());
 
                 for (String currentFileName : dataExtractFileNames) {
 

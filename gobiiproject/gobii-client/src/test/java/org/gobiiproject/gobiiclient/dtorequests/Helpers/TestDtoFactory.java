@@ -309,6 +309,7 @@ public class TestDtoFactory {
         returnVal.setOrganizationId(organizationId);
         returnVal.getRoles().add(1);
         returnVal.getRoles().add(2);
+        returnVal.setUserName(uniqueStem + "new username");
 
         return returnVal;
 

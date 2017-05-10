@@ -31,6 +31,7 @@ public class ContactDTO extends DTOBase {
     private Integer modifiedBy;
     private Date modifiedDate;
     private Integer organizationId;
+    private String userName;
 
     @Override
     public Integer getId() {
@@ -151,6 +152,12 @@ public class ContactDTO extends DTOBase {
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
+
+    @GobiiEntityParam(paramName = "username")
+    public String getUserName() { return userName; }
+
+    @GobiiEntityColumn(columnName = "username")
+    public void setUserName(String userName) {this.userName = userName; }
 
 
 }

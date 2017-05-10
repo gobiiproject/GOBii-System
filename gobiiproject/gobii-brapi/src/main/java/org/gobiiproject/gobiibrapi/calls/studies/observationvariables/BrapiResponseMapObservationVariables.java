@@ -9,7 +9,7 @@ import java.util.List;
 public class BrapiResponseMapObservationVariables {
 
 
-    public List<BrapiResponseObservationVariablesDetail> getObservationVariableDetails(Integer studyDbId ) throws Exception {
+    private List<BrapiResponseObservationVariablesDetail> getObservationVariableDetails(Integer studyDbId ) throws Exception {
 
         List<BrapiResponseObservationVariablesDetail> returnVal = new ArrayList<>();
 

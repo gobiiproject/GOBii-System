@@ -37,6 +37,7 @@ public class FrmReferences extends AbstractFrm {
 	private Text txtVersion;
 	private Text txtLink;
 	private Text txtFilePath;
+	private int currentReferenceId=0;
 
 	/**
 	 * Create the composite.
@@ -104,6 +105,8 @@ public class FrmReferences extends AbstractFrm {
 
 						if(Controller.getDTOResponse(shell, referenceDTOResponse.getHeader(), memInfo, true)){
 							populateReferenceTable();
+							currentReferenceId = referenceDTOResponse.getPayload().getData().get(0).getReferenceId();
+							FormUtils.selectRowById(tbList,currentReferenceId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving References", err);
@@ -123,9 +126,9 @@ public class FrmReferences extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Reference", IDs.referenceName)) return;
+					if(!FormUtils.updateForm(getShell(), "Reference", selectedName)) return;
 					ReferenceDTO referenceDTORequest = new ReferenceDTO();
-					referenceDTORequest.setReferenceId(IDs.referenceId);
+					referenceDTORequest.setReferenceId(currentReferenceId);
 					referenceDTORequest.setName(txtName.getText());
 					referenceDTORequest.setVersion(txtVersion.getText());
 					referenceDTORequest.setLink(txtLink.getText());
@@ -133,7 +136,7 @@ public class FrmReferences extends AbstractFrm {
 
 					try {
 						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_REFERENCE);
-						restUri.setParamValue("id", Integer.toString(IDs.referenceId));
+						restUri.setParamValue("id", Integer.toString(currentReferenceId));
 						GobiiEnvelopeRestResource<ReferenceDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
 						restResourceById.setParamValue("id", referenceDTORequest.getReferenceId().toString());
 						PayloadEnvelope<ReferenceDTO> referenceDTOResponse = restResourceById.put(
@@ -142,6 +145,7 @@ public class FrmReferences extends AbstractFrm {
 						
 						if(Controller.getDTOResponse(shell, referenceDTOResponse.getHeader(), memInfo, true)){
 							populateReferenceTable();
+							FormUtils.selectRowById(tbList,currentReferenceId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving References", err);
@@ -188,9 +192,9 @@ public class FrmReferences extends AbstractFrm {
 
 			public void handleEvent(Event e) {
 				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.referenceName = selected;
-				IDs.referenceId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateReferenceDetails(IDs.referenceId); 
+				selectedName = selected;
+				currentReferenceId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				populateReferenceDetails(currentReferenceId); 
 			}
 
 
@@ -255,7 +259,7 @@ public class FrmReferences extends AbstractFrm {
 		}else if(txtVersion.getText().isEmpty()){
 			successful = false;
 			message = "Version is required field!";
-		}else if(!isNew && IDs.referenceId==0){
+		}else if(!isNew && currentReferenceId==0){
 			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
 			successful = false;
 		}else if(isNew|| !txtName.getText().equalsIgnoreCase(selectedName)){

@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
@@ -22,29 +23,32 @@ import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderStatusMessage;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.DisplayDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ExperimentDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.OrganizationDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ProjectDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ProtocolDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.VendorProtocolDTO;
-import org.gobiiproject.gobiimodel.types.GobiiCropType;
 import org.gobiiproject.gobiimodel.types.GobiiEntityNameType;
 import org.gobiiproject.gobiimodel.types.GobiiFilterType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.types.SystemUserDetail;
-import org.gobiiproject.gobiimodel.types.SystemUserNames;
 import org.gobiiproject.gobiimodel.types.SystemUsers;
 
 import edu.cornell.gobii.gdi.forms.FrmProtocol;
 import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.main.Main2;
+//import edu.cornell.gobii.gdi.main.PasswordDialog;
 import edu.cornell.gobii.gdi.utils.Utils;
 
 public class Controller {
 	private static Logger log = Logger.getLogger(Controller.class.getName());
-public static String gobiiVersion = null;
+	public static String gobiiVersion = null;
+	public static String userEmail = "";
+	private static PayloadEnvelope<ContactDTO> resultEnvelope;
 
 	private static List<NameIdDTO> testNameRetrieval(GobiiEntityNameType gobiiEntityNameType,
 			GobiiFilterType gobiiFilterType,
@@ -86,17 +90,17 @@ public static String gobiiVersion = null;
 	}
 
 	public static PayloadEnvelope<ProtocolDTO> getProtocolDetailsByExperimentId(Integer experimentId) throws Exception{
-		 RestUri restUriProtocolsForGetDetailsByExperimentId = ClientContext.getInstance(null, false)
-	                .getUriFactory()
-	                .resourceColl(ServiceRequestId.URL_EXPERIMENTS)
-	                .addUriParam("experimentId")
-	                .setParamValue("experimentId", Integer.toString(experimentId))
-	                .appendSegment(ServiceRequestId.URL_PROTOCOL);
+		RestUri restUriProtocolsForGetDetailsByExperimentId = ClientContext.getInstance(null, false)
+				.getUriFactory()
+				.resourceColl(ServiceRequestId.URL_EXPERIMENTS)
+				.addUriParam("experimentId")
+				.setParamValue("experimentId", Integer.toString(experimentId))
+				.appendSegment(ServiceRequestId.URL_PROTOCOL);
 
 		GobiiEnvelopeRestResource<ProtocolDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriProtocolsForGetDetailsByExperimentId);
 		PayloadEnvelope<ProtocolDTO> resultEnvelope = gobiiEnvelopeRestResource
 				.get(ProtocolDTO.class);
-		
+
 		return resultEnvelope;
 	}
 
@@ -508,15 +512,17 @@ public static String gobiiVersion = null;
 				memo.setText(message);
 			}
 			dialog.open();
-		} else {
+		} else if(showSuccess){
 			dialog = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
 			dialog.setText("Request information");
 			dialog.setMessage("Request processed successfully!");
 			headerStatusIsSuccessful = true;
-			if(showSuccess) dialog.open();
+			dialog.open();
+		} else{
+			headerStatusIsSuccessful = true;
 		}
 		setGobiiVersion(header.getGobiiVersion(), showSuccess);
-		
+
 		return headerStatusIsSuccessful;
 	}
 
@@ -532,13 +538,7 @@ public static String gobiiVersion = null;
 		return returnVal;
 	}
 
-	public static boolean authenticate(Logger log, boolean refresh, boolean isSSH){
-		return authenticate(log, refresh, isSSH, true);
-	}
-
-	public static boolean authenticate(Logger log, boolean refresh, boolean isSSH, boolean showUserDialog) {
-		SystemUsers systemUsers = new SystemUsers();
-		SystemUserDetail userDetail = systemUsers.getDetail(SystemUserNames.USER_READER.toString());
+	public static boolean getCrops(Logger log, boolean refresh, boolean isSSH, boolean showUserDialog){
 		try {
 			if (refresh) {
 				ClientContext.resetConfiguration();
@@ -551,22 +551,38 @@ public static String gobiiVersion = null;
 				if(showUserDialog) App.INSTANCE.setCrop(null);
 			}
 
-			if (App.INSTANCE.getCrop() == null)
+			if (App.INSTANCE.getCrop() == null){
 				ClientContext.getInstance(null, false)
 				.setCurrentClientCrop(ClientContext.getInstance(null, false).getDefaultCropType());
-			else {
+			}else {
 				String crop = App.INSTANCE.getCrop();
 				ClientContext.getInstance(null, false).setCurrentClientCrop(crop);
 			}
 
-			ClientContext.getInstance(null, false).login(userDetail.getUserName(), userDetail.getPassword());
+
+			//			ClientContext.getInstance(null, false).login(uname, pw);
 		} catch (Exception err) {
 			// TODO Auto-generated catch block
-			Utils.log(log, "Error connecting to service", err);
+			Utils.log(log, "Error connecting to service.\n\nCheck your username, password and web service link.", err);
+
+			return false;
+		}
+
+		return true;
+	}
+
+	public static boolean authenticate(String uname, String pw) {
+		try {
+			ClientContext.getInstance(null, false).login(uname, pw);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Utils.log(log, "Error connecting to service.\n\nInvalid your username or password.", e);
+
 			return false;
 		}
 		return true;
 	}
+
 
 	public static boolean isNewContactEmail(String email) {
 		boolean isNewEmail = true;
@@ -595,6 +611,19 @@ public static String gobiiVersion = null;
 		return isNewEmail;
 	}
 
+	public static PayloadEnvelope<ContactDTO> getContactByUsername(String userName) throws Exception {
+		RestUri restUriContact = ClientContext.getInstance(null, false)
+				.getUriFactory()
+				.contactsByQueryParams();
+		restUriContact.setParamValue("userName", userName);
+		GobiiEnvelopeRestResource<ContactDTO> gobiiEnvelopeRestResourceForGet = new GobiiEnvelopeRestResource<>(restUriContact);
+		resultEnvelope = gobiiEnvelopeRestResourceForGet
+				.get(ContactDTO.class);
+
+
+		return resultEnvelope;
+	}
+
 	public static List<NameIdDTO> getOrganizationNames() {
 		// TODO Auto-generated method stub
 
@@ -619,12 +648,12 @@ public static String gobiiVersion = null;
 			// TODO Auto-generated catch block
 			Utils.showLog( log, "Error getting protocol details by experiment id", err);
 		}
-		
-		
+
+
 		return protocolDTO.getPlatformId();
 	}
-	
-	public static PayloadEnvelope<ExperimentDTO> getExperimentDetails(int experimentId) {
+
+	public static PayloadEnvelope<ExperimentDTO> getExperimentDetailsById(int experimentId) {
 		// TODO Auto-generated method stub
 		PayloadEnvelope<ExperimentDTO> resultEnvelope = null;
 		RestUri experimentsUri;
@@ -675,29 +704,32 @@ public static String gobiiVersion = null;
 					.resourceByUriIdParam(ServiceRequestId.URL_PLATFORM);
 			restUriPlatformForGetById.setParamValue("id", Integer.toString(platformId));
 			GobiiEnvelopeRestResource<PlatformDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriPlatformForGetById);
-			
+
 			resultEnvelopeForGetByID = restResourceForGetById
-						.get(PlatformDTO.class);
+					.get(PlatformDTO.class);
 		} catch (Exception err) {
 			// TODO Auto-generated catch block
 
 			Utils.showLog( log, "Error getting platform details by platform id", err);
 		}
-		
+
 		return resultEnvelopeForGetByID;
 	}
 
 	public static String getGobiiVersion() {
 		// TODO Auto-generated method stub
-		 String version = gobiiVersion.split("-")[0];
+		String version = "";
+		if( gobiiVersion != null ) {
+			version = gobiiVersion.split("-")[0];
+		}
 		return version;
 	}
-	
+
 	public static void setGobiiVersion(String gobiiVersion, Boolean showSuccess) {
 		Controller.gobiiVersion = gobiiVersion;
 		checkVersionCompatibility(showSuccess);
 	}
-	
+
 	public static boolean checkVersionCompatibility(Boolean showSuccess) {
 		// TODO Auto-generated method stub
 		boolean isCompatible = true;
@@ -710,5 +742,41 @@ public static String gobiiVersion = null;
 
 		Main2.updateVersionsOnMainWindow();
 		return isCompatible;
+	}
+
+	public static PayloadEnvelope<DataSetDTO> getDatasetDetailsById(int currentDatasetId) {
+		// TODO Auto-generated method stub
+		PayloadEnvelope<DataSetDTO> returnVal = null;
+		RestUri projectsUri;
+		try {
+			projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DATASETS);
+			projectsUri.setParamValue("id", Integer.toString(currentDatasetId));
+			GobiiEnvelopeRestResource<DataSetDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(projectsUri);
+
+			returnVal = gobiiEnvelopeRestResource.get(DataSetDTO.class);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Utils.showLog( log, "Error getting Dataset details by  id", e);
+		}
+
+
+		return returnVal;
+	}
+
+	public static PayloadEnvelope<ProjectDTO> getProjectDetailsById(int projectId){
+		// TODO Auto-generated method stub
+		PayloadEnvelope<ProjectDTO> returnVal = null;
+		try {
+			RestUri projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_PROJECTS);
+			projectsUri.setParamValue("id", Integer.toString(projectId));
+			GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjects = new GobiiEnvelopeRestResource<>(projectsUri);
+			returnVal = restResourceForProjects.get(ProjectDTO.class);
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Utils.showLog( log, "Error getting Project details by  id", e);
+		}
+
+		return returnVal;
 	}
 }

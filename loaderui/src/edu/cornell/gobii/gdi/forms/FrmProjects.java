@@ -12,8 +12,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
 import org.gobiiproject.gobiiapimodel.restresources.RestUri;
@@ -42,10 +44,13 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 
 public class FrmProjects extends AbstractFrm {
 	private static Logger log = Logger.getLogger(FrmProjects.class.getName());
@@ -68,6 +73,8 @@ public class FrmProjects extends AbstractFrm {
 	private Button btnClearFields;
 	private Label label;
 	private Label lblProject;
+	protected int currentProjectId;
+	protected int currentPIid;
 
 	/**
 	 * Create the composite.
@@ -77,7 +84,8 @@ public class FrmProjects extends AbstractFrm {
 	public FrmProjects(final Shell shell, final Composite parent, int style, final String config) {
 		super(shell, parent, style);
 		this.config = config;
-
+		currentProjectId=0;
+		currentPIid=0;
 		listener = new ModifyListener() {
 			/** {@inheritDoc} */
 			public void modifyText(ModifyEvent e) {
@@ -86,6 +94,8 @@ public class FrmProjects extends AbstractFrm {
 			}
 		};
 
+
+		lblCbList.setText("PI Contacts:");
 		cbList.setText("*Select PI contact");
 
 		TableColumn tblColumn = new TableColumn(tbList, SWT.NONE);
@@ -103,7 +113,29 @@ public class FrmProjects extends AbstractFrm {
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		txtName.addModifyListener((ModifyListener) listener);
+		txtName.addFocusListener(new FocusListener() {
+    		ToolTip tip = new ToolTip(shell, SWT.BALLOON);
+    		
+			@Override
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				if(cbList.getSelectionIndex()<0){
+				
+                Point loc = cbList.toDisplay(cbList.getLocation());
 
+        		tip.setMessage("Please select a PI before creating or updating an entry.");
+                tip.setLocation(loc.x + cbList.getSize().x , loc.y-cbList.getSize().y/2);
+                tip.setVisible(true);
+				}
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				 tip.setVisible(false);
+			}
+        });
+		
 		lblCode = new Label(cmpForm, SWT.NONE);
 		lblCode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblCode.setText("Code:");
@@ -229,7 +261,7 @@ public class FrmProjects extends AbstractFrm {
 					projectDTORequest.setProjectCode(cbPIContact.getItem(cbPIContact.getSelectionIndex())+"_"+txtName.getText());
 					projectDTORequest.setProjectStatus(1);
 					projectDTORequest.setModifiedBy(1);
-					projectDTORequest.setPiContact(IDs.PIid);
+					projectDTORequest.setPiContact(FormUtils.getIdFromFormList(cbList));
 
 					for(TableItem item : tbProperties.getItems()){
 						if(item.getText(1).isEmpty()) continue;
@@ -240,12 +272,17 @@ public class FrmProjects extends AbstractFrm {
 						PayloadEnvelope<ProjectDTO> payloadEnvelope = new PayloadEnvelope<>(projectDTORequest, GobiiProcessType.CREATE);
 						resultEnvelope = restResourceForProjects
 								.post(ProjectDTO.class, payloadEnvelope);
+
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error saving Project", err);
 				}
 				
 				if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
 					populateProjectsFromSelectedContact(cbList.getText());
+					currentProjectId = resultEnvelope.getPayload().getData().get(0).getProjectId();
+					populateProjectDetails(currentProjectId);
+					FormUtils.selectRowById(tbList,currentProjectId);
+					
 				};
 			}
 		});
@@ -259,9 +296,9 @@ public class FrmProjects extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Project", IDs.projectName)) return;
+					if(!FormUtils.updateForm(getShell(), "Project", selectedName)) return;
 					ProjectDTO projectDTORequest = new ProjectDTO();
-					projectDTORequest.setProjectId(IDs.projectId);
+					projectDTORequest.setProjectId(currentProjectId);
 					projectDTORequest.setCreatedBy(1);
 					projectDTORequest.setProjectName(txtName.getText());
 					projectDTORequest.setProjectDescription(styledTextDesc.getText());
@@ -269,7 +306,7 @@ public class FrmProjects extends AbstractFrm {
 					projectDTORequest.setProjectStatus(1);
 					projectDTORequest.setCreatedDate(new Date());
 					projectDTORequest.setModifiedBy(1);
-					projectDTORequest.setPiContact(IDs.PIid);
+					projectDTORequest.setPiContact(currentPIid);
 
 					for(TableItem item : tbProperties.getItems()){
 						if(item.getText(1).isEmpty()) continue;
@@ -284,6 +321,7 @@ public class FrmProjects extends AbstractFrm {
 						PayloadEnvelope<ProjectDTO> resultEnvelope = restResourceForProjectGet.put(ProjectDTO.class, requestEnvelope);
 						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
 							populateProjectsFromSelectedContact(cbList.getText());
+							FormUtils.selectRowById(tbList,currentProjectId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error saving Project", err);
@@ -314,14 +352,8 @@ public class FrmProjects extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
-				FrmExperiments frm = new FrmExperiments(shell, parent, SWT.NONE, config);
+				FrmExperiments frm = new FrmExperiments(shell, parent, SWT.NONE, config, currentPIid, currentProjectId);
 				FormUtils.createContentTab(shell, frm, (CTabFolder) parent, "Experiments");
-				//						CTabFolder tabContent = (CTabFolder) parent;
-				//						CTabItem item = new CTabItem(tabContent, SWT.NONE);
-				//						item.setText("Platform Experiments");
-				//						item.setShowClose(true);
-				//						item.setControl(frm);
-				//						tabContent.setSelection(item);
 
 			}
 		});
@@ -334,7 +366,7 @@ public class FrmProjects extends AbstractFrm {
 		btnDnaSampleWiz.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardUtils.createDNASampleWizard(shell, config);
+				WizardUtils.createDNASampleWizard(shell, config, currentPIid, currentProjectId, 0);
 			}
 		});
 		btnDnaSampleWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -360,6 +392,7 @@ public class FrmProjects extends AbstractFrm {
 				cbPIContact.setText(selected);
 				populateProjectsFromSelectedContact(selected);
 				cleanProjectDetails();
+				currentProjectId = 0;
 			}
 		});
 
@@ -367,55 +400,11 @@ public class FrmProjects extends AbstractFrm {
 
 
 			public void handleEvent(Event e) {
-				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.projectName = selected;
-				IDs.projectId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateProjectDetails(IDs.projectId); //retrieve and display projects by contact Id
+				currentProjectId = FormUtils.getIdFromTableList(tbList);
+				populateProjectDetails(currentProjectId); //retrieve and display projects by contact Id
 			}
 
 
-			protected void populateProjectDetails(int projectId) {
-				try{
-					cleanProjectDetails();
-
-					ProjectDTO projectDTO = null;
-					try {
-						RestUri projectsUri = App.INSTANCE.getUriFactory()
-								.resourceByUriIdParam(ServiceRequestId.URL_PROJECTS);
-						projectsUri.setParamValue("id", Integer.toString(projectId));
-						GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjects = new GobiiEnvelopeRestResource<>(projectsUri);
-						PayloadEnvelope<ProjectDTO> resultEnvelope = restResourceForProjects
-								.get(ProjectDTO.class);
-
-						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, false)){
-							projectDTO =  resultEnvelope.getPayload().getData().get(0);
-
-							//displayDetails
-
-							selectedName = projectDTO.getProjectName();
-							textCode.setText(projectDTO.getProjectCode());
-							txtName.setText(projectDTO.getProjectName());
-							styledTextDesc.setText(projectDTO.getProjectDescription());
-							for(int i=0; i<cbPIContact.getItemCount(); i++){
-								Integer piId = Integer.parseInt((String) cbPIContact.getData(cbPIContact.getItem(i)));
-								if(piId == projectDTO.getPiContact()){
-									IDs.PIid = piId;
-									cbPIContact.select(i);
-									break;
-								}
-							}
-
-							populateTableFromStringList(projectDTO.getProperties(), tbProperties);
-						}
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				}catch(Exception err){
-					Utils.log(shell, memInfo, log, "Error retrieving Projects", err);
-				}
-			}
 		});
 		// table
 
@@ -424,11 +413,13 @@ public class FrmProjects extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				Integer id = FormUtils.getIdFromFormList(cbList);
 				String selected = cbList.getText();
-				if(id>0){
+				if(cbList.getSelectionIndex()>-1){
 					FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbList, id);
+					FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbPIContact, id);
 					populateProjectsFromSelectedContact(selected);
 				}
 				else{
+					populateContactsList(cbPIContact);
 					populateContactsList(cbList);
 					populateTableWithAllProjects(tbList);
 				}
@@ -436,6 +427,46 @@ public class FrmProjects extends AbstractFrm {
 			}
 		});
 	}
+	
+
+	private void populateProjectDetails(int projectId) {
+		try{
+			cleanProjectDetails();
+
+			ProjectDTO projectDTO = null;
+			try {
+				PayloadEnvelope<ProjectDTO> resultEnvelope = Controller.getProjectDetailsById(projectId);
+
+				if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, false)){
+					projectDTO =  resultEnvelope.getPayload().getData().get(0);
+
+					//displayDetails
+
+					selectedName = projectDTO.getProjectName();
+					textCode.setText(projectDTO.getProjectCode());
+					txtName.setText(projectDTO.getProjectName());
+					styledTextDesc.setText(projectDTO.getProjectDescription());
+					
+					for(int i=0; i<cbPIContact.getItemCount(); i++){
+						Integer piId = Integer.parseInt((String) cbPIContact.getData(cbPIContact.getItem(i)));
+						if(piId == projectDTO.getPiContact()){
+							cbPIContact.select(i);
+							break;
+						}
+					}
+
+					populateTableFromStringList(projectDTO.getProperties(), tbProperties);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}catch(Exception err){
+			Utils.log(shell, memInfo, log, "Error retrieving Projects", err);
+		}
+	}
+	
 	private void populateTableWithAllProjects(Table table) {
 		if(table.getItemCount()>0) table.removeAll();
 		try{
@@ -467,9 +498,9 @@ public class FrmProjects extends AbstractFrm {
 
 	protected void populateProjectsFromSelectedContact(String selectedContact) {
 		try{
-			IDs.PIid = Integer.parseInt((String) cbList.getData(selectedContact));
+			currentPIid = FormUtils.getIdFromFormList(cbList);
 			tbList.removeAll();
-			FormUtils.entrySetToTable(Controller.getProjectNamesByContactId(IDs.PIid), tbList);
+			FormUtils.entrySetToTable(Controller.getProjectNamesByContactId(currentPIid), tbList);
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error retrieving Porject details", err);
 		}
@@ -505,7 +536,7 @@ public class FrmProjects extends AbstractFrm {
 		}else if(cbList.getSelectionIndex() < 0 && cbPIContact.getSelectionIndex() <0){
 			message = "PI contact field is required!";
 			successful = false;
-		}else if(!isNew && IDs.projectId==0){
+		}else if(!isNew && currentProjectId==0){
 			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
 			successful = false;
 		}else{

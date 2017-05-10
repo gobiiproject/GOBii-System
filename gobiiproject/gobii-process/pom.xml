@@ -5,7 +5,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>org.gobiiproject</groupId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.3.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,19 +19,19 @@
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-model</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.3.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-client</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.3.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-domain</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.3.4-SNAPSHOT</version>
         </dependency>
 
 
@@ -155,6 +155,26 @@
 
                     </execution>
 
+                    <!--gobii test data Execution -->
+                    <execution>
+                        <configuration>
+                            <finalName>gobiitestdata</finalName>
+                            <!-- MainClass in mainfest make a executable jar -->
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.gobiiproject.gobiiprocess.GobiiTestData</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <id>make-gobiitestdata</id>
+                        <!-- bind to the packaging phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+
+                    </execution>
+
                     <!--Digester Execution-->
                     <execution>
                         <configuration>
@@ -191,8 +211,27 @@
                         <goals>
                             <goal>single</goal>
                         </goals>
+                    </execution>
+
+                    <!--User Authentication Execution-->
+                    <execution>
+                        <configuration>
+                            <finalName>UserAuthentication</finalName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.gobiiproject.gobiiprocess.UserAuthentication</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <id>make-userauthentication</id>
+                        <!-- bind to the packaging phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
 
                     </execution>
+
 
                 </executions>
             </plugin>

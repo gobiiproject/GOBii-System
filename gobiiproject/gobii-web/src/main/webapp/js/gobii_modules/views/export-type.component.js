@@ -33,6 +33,7 @@ System.register(["@angular/core", "../model/type-extractor-filter"], function (e
                     }
                 };
                 ExportTypeComponent.prototype.ngOnInit = function () {
+                    //this.handleExportTypeSelected(GobiiExtractFilterType.WHOLE_DATASET);
                 };
                 return ExportTypeComponent;
             }());
@@ -40,7 +41,7 @@ System.register(["@angular/core", "../model/type-extractor-filter"], function (e
                 core_1.Component({
                     selector: 'export-type',
                     outputs: ['onExportTypeSelected'],
-                    template: "<label class=\"the-label\">Extract By:&nbsp;</label>\n                  <input type=\"radio\" (change)=\"handleExportTypeSelected($event)\" name=\"format\" value=\"WHOLE_DATASET\" checked=\"checked\">Data Set&nbsp;\n                  <input type=\"radio\" (change)=\"handleExportTypeSelected($event)\" name=\"format\" value=\"BY_SAMPLE\" disabled>Sample&nbsp;\n                  <input type=\"radio\" (change)=\"handleExportTypeSelected($event)\" name=\"format\" value=\"BY_MARKER\" disabled>Marker&nbsp;" // end template
+                    template: "<fieldset class=\"well the-fieldset\" style=\"width: 350px\">\n                  <div class=\"the-legend\" >\n                      <form>\n                          <label class=\"the-legend\">Extract By:&nbsp;</label>\n                            <input type=\"radio\" (change)=\"handleExportTypeSelected($event)\" name=\"format\" value=\"WHOLE_DATASET\" checked=\"checked\">\n                            <label  for=\"WHOLE_DATASET\" class=\"the-legend\">Datasets</label>\n                            <input type=\"radio\" (change)=\"handleExportTypeSelected($event)\" name=\"format\" value=\"BY_SAMPLE\">\n                            <label for=\"BY_SAMPLE\" class=\"the-legend\">Samples</label>\n                            <input type=\"radio\" (change)=\"handleExportTypeSelected($event)\" name=\"format\" value=\"BY_MARKER\">\n                            <label  for=\"BY_MARKER\" class=\"the-legend\">Markers</label>\n                      </form>\n                  </div>\n                </fieldset>" // end template
                 }),
                 __metadata("design:paramtypes", [])
             ], ExportTypeComponent);

@@ -38,9 +38,11 @@ public class CropRequestAnalyzer {
     }
 
 
-    public static String getCropTypeFromHeaders(HttpServletRequest httpRequest) {
+    private static String getCropTypeFromHeaders(HttpServletRequest httpRequest) throws Exception {
 
         String returnVal = null;
+
+        String errorMessage = null;
 
         if (null != httpRequest) {
 
@@ -48,12 +50,15 @@ public class CropRequestAnalyzer {
 
             if (LineUtils.isNullOrEmpty(returnVal)) {
 
+                // this is not an exception because if we didn't get the crop ID from
+                // the header we'll infer it from uri
                 LOGGER.error("Request did not include the response "
                         + GobiiHttpHeaderNames.HEADER_GOBII_CROP);
             }
 
         } else {
-            LOGGER.error("Unable to retreive servlet request for crop type analysis from response");
+            throw new Exception("Unable to retreive servlet request for crop type analysis from response");
+
         }
 
         return returnVal;
@@ -75,9 +80,11 @@ public class CropRequestAnalyzer {
     }
 
 
-    public static String getCropTypeFromUri(HttpServletRequest httpRequest) throws Exception {
+    private static String getCropTypeFromUri(HttpServletRequest httpRequest) throws Exception {
 
         String returnVal = null;
+
+        String errorMessage = null;
 
         if (null != httpRequest) {
             String requestUrl = httpRequest.getRequestURI();
@@ -94,26 +101,33 @@ public class CropRequestAnalyzer {
                 if (1 == matchedCrops.size()) {
                     returnVal = matchedCrops.get(0);
                 } else {
-                    LOGGER.error("The current url ("
+                    errorMessage = "The current url ("
                             + requestUrl
-                            + ") matched more than one one crop");
+                            + ") matched more than one one crop; the service app root must contain only one crop ID";
                 }
 
             } else {
 
-                LOGGER.error("The current url ("
+                errorMessage = "The current url ("
                         + requestUrl
-                        + ") did not match any crops");
+                        + ") did not match any crops; ; service app root must contain one, and only one, crop ID";
             }
 
         } else {
-            LOGGER.error("Unable to retreive servlet request for crop type analysis from url");
+            errorMessage = "Unable to retreive servlet request for crop type analysis";
+        }
+
+        if (errorMessage != null) {
+            LOGGER.error(errorMessage);
+            throw new Exception(errorMessage);
         }
 
         return returnVal;
     }
 
     public static String getGobiiCropType() throws Exception {
+
+        String returnVal = null;
 
         HttpServletRequest httpRequest = null;
 
@@ -123,13 +137,19 @@ public class CropRequestAnalyzer {
             httpRequest = ((ServletRequestAttributes) requestAttributes).getRequest();
         }
 
+        if (httpRequest != null) {
+            returnVal = CropRequestAnalyzer.getGobiiCropType(httpRequest);
+        } else {
+            // this will be the case when the server is initializing
+            returnVal = CropRequestAnalyzer.getDefaultCropType();
+        }
 
-        return CropRequestAnalyzer.getGobiiCropType(httpRequest);
+        return returnVal;
 
     }
 
 
-    public static String getGobiiCropType(HttpServletRequest httpRequest) throws Exception{
+    public static String getGobiiCropType(HttpServletRequest httpRequest) throws Exception {
 
         String returnVal = CropRequestAnalyzer.getCropTypeFromHeaders(httpRequest);
 

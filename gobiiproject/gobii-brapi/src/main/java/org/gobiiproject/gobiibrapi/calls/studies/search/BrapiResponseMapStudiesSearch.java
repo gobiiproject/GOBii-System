@@ -1,7 +1,5 @@
 package org.gobiiproject.gobiibrapi.calls.studies.search;
 
-import org.gobiiproject.gobiibrapi.core.derived.BrapiListResult;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,12 +8,9 @@ import java.util.List;
  */
 public class BrapiResponseMapStudiesSearch {
 
-    public List<BrapiResponseStudiesSearchItem> getBrapiJsonResponseStudySearchItems(BrapiRequestStudiesSearch brapiRequestStudiesSearch) {
+    private List<BrapiResponseStudiesSearchItem> getBrapiJsonResponseStudySearchItems(BrapiRequestStudiesSearch brapiRequestStudiesSearch) {
 
         List<BrapiResponseStudiesSearchItem> returnVal = new ArrayList<>();
-
-        //when we implement we will do the real query from the DB using these criteria
-        //brapiRequestStudiesSearch
 
         BrapiResponseStudiesSearchItem brapiResponseStudiesSearchItem = new BrapiResponseStudiesSearchItem();
         brapiResponseStudiesSearchItem.setStudyType("genotype");
@@ -27,13 +22,17 @@ public class BrapiResponseMapStudiesSearch {
         return returnVal;
     }
 
-    public BrapiListResult<BrapiResponseStudiesSearchItem> getBrapiResponseStudySearchItems(BrapiRequestStudiesSearch brapiRequestStudiesSearch) {
 
-        BrapiListResult<BrapiResponseStudiesSearchItem> returnVal = new BrapiListResult<>(BrapiResponseStudiesSearchItem.class);
+    public BrapiResponseStudiesSearch getBrapiResponseStudySearch(BrapiRequestStudiesSearch brapiRequestStudiesSearch) {
 
-        returnVal.setData(getBrapiJsonResponseStudySearchItems(brapiRequestStudiesSearch));
+        BrapiResponseStudiesSearch returnVal = new BrapiResponseStudiesSearch();
 
-        return returnVal;
+        List<BrapiResponseStudiesSearchItem> searchItems = getBrapiJsonResponseStudySearchItems(brapiRequestStudiesSearch);
+
+        returnVal.setData(searchItems );
+
+        return returnVal ;
 
     }
+
 }
