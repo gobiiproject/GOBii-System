@@ -11,16 +11,17 @@ public class SpUpdOrganization extends SpDef {
 
     public SpUpdOrganization() {
 
-        super("{call updateorganization(?,?,?,?,?,?,?,?)}",false);
+        super("{call updateorganization(?,?,?,?,?,?,?,?,?)}",false);
 
-        this.addParamDef("manifestId", Integer.class).setNullable(false);
+        this.addParamDef("organizationId", Integer.class).setNullable(false);
+        this.addParamDef("name", String.class).setNullable(false);
         this.addParamDef("address", String.class).setNullable(false);
-        this.addParamDef("website", String.class).setNullable(false);
-        this.addParamDef("filePath", String.class).setNullable(true);
+        this.addParamDef("website", String.class).setNullable(true);
         this.addParamDef("createdBy", Integer.class).setNullable(true);
         this.addParamDef("createdDate", Date.class).setNullable(true);
         this.addParamDef("modifiedBy", Integer.class).setNullable(true);
         this.addParamDef("modifiedDate", Date.class).setNullable(true);
+        this.addParamDef("status", Integer.class).setNullable(false);
 
 
     } // ctor

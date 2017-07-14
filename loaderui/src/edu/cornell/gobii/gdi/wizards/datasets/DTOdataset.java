@@ -3,14 +3,17 @@ package edu.cornell.gobii.gdi.wizards.datasets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFile;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderFilePreviewDTO;
 import org.gobiiproject.gobiimodel.types.DataSetOrientationType;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
 
+import edu.cornell.gobii.gdi.utils.WizardDTO;
 import edu.cornell.gobii.gdi.wizards.dnasamples.DTOsamples;
 import edu.cornell.gobii.gdi.wizards.markers.DTOmarkers;
 
-public class DTOdataset {
+public class DTOdataset implements WizardDTO{
 
 	private DTOsamples dtoSamples = new DTOsamples();
 	private DTOmarkers dtoMarkers = new DTOmarkers();
@@ -18,21 +21,29 @@ public class DTOdataset {
 	private List<String> headerMarkers = new ArrayList<>();
 	private GobiiFile file = new GobiiFile();
 	private GobiiColumnType columnType = GobiiColumnType.CSV_BOTH;
+	private boolean qcCheck = false;
 //	private GobiiColumnType markerColumnType;
 //	private GobiiColumnType sampleColumnType;
 	private List<String> files = new ArrayList<String>();
 	private int rCoord = -1;
 	private int cCoord = -1;
+	private Integer piId;
 	private Integer projectID;
 	private Integer experimentID;
 	private Integer datasetID;
 	private Integer datasetTypeID;
 	private Integer platformID;
 	private Integer mapsetID;
+	private String projectName;
+	private String platformName;
+	private String datasetName;
+	private String experimentName;
+	private String mapsetName;
 	private String datasetType;
 	private String fileExtention;
 	private String template = null;
 	private boolean isRemote = false;
+	private LoaderFilePreviewDTO previewDTO = new LoaderFilePreviewDTO();
 	private DataSetOrientationType orientation = DataSetOrientationType.MARKER_FAST;
 	
 	public DataSetOrientationType getOrientation() {
@@ -181,5 +192,63 @@ public class DTOdataset {
 	}
 	
 	public DTOdataset(){
+	}
+	public String getProjectName() {
+		return projectName;
+	}
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	public String getPlatformName() {
+		return platformName;
+	}
+	public void setPlatformName(String platformName) {
+		this.platformName = platformName;
+	}
+	public String getDatasetName() {
+		return datasetName;
+	}
+	public void setDatasetName(String datasetName) {
+		this.datasetName = datasetName;
+	}
+	public String getExperimentName() {
+		return experimentName;
+	}
+	public void setExperimentName(String experimentName) {
+		this.experimentName = experimentName;
+	}
+	public String getMapsetName() {
+		return mapsetName;
+	}
+	public void setMapsetName(String mapsetName) {
+		this.mapsetName = mapsetName;
+	}
+	public LoaderFilePreviewDTO getPreviewDTO() {
+		return previewDTO;
+	}
+	public void setPreviewDTO(LoaderFilePreviewDTO previewDTO) {
+		this.previewDTO = previewDTO;
+	}
+	@Override
+	public List<String[]> getHeader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void setHeader(List<String[]> header) {
+		// TODO Auto-generated method stub
+		
+	}
+	public boolean isQcCheck() {
+		return qcCheck;
+	}
+	public void setQcCheck(boolean qcCheck) {
+		this.qcCheck = qcCheck;
+	}
+	public Integer getPiId() {
+		return piId;
+	}
+	public void setPiId(Integer piId) {
+		this.piId = piId;
 	}
 }

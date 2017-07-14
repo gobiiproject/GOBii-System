@@ -1,0 +1,283 @@
+[ {
+  "gobiiFile" : {
+    "source" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/files/test_codominant_dataset",
+    "destination" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/loader/digest/test_codominant_dataset",
+    "delimiter" : "\\t",
+    "gobiiFileType" : "GENERIC",
+    "requireDirectoriesToExist" : false,
+    "createSource" : false
+  },
+  "table" : "dataset_marker",
+  "gobiiFileColumns" : [ {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "platform_id",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "23",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "dataset_id",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "2",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 0,
+    "name" : "marker_name",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "AUTOINCREMENT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "marker_idx",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  } ],
+  "vcfParameters" : {
+    "maf" : null,
+    "minQ" : null,
+    "minDp" : null,
+    "removeIndels" : false,
+    "toIupac" : false
+  },
+  "dataSetId" : 2,
+  "gobiiCropType" : "test",
+  "contactId" : 32,
+  "contactEmail" : "yn259@cornell.edu",
+  "project" : {
+    "name" : "sim_codominant",
+    "id" : 2
+  },
+  "platform" : {
+    "name" : "Sim_SSR",
+    "id" : 23
+  },
+  "dataSet" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  },
+  "datasetType" : {
+    "name" : "CO_DOMINANT_NON_NUCLEOTIDE",
+    "id" : 164
+  },
+  "mapset" : {
+    "name" : "Sim_codominant",
+    "id" : 1
+  },
+  "experiment" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  }
+}, {
+  "gobiiFile" : {
+    "source" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/files/test_codominant_dataset",
+    "destination" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/loader/digest/test_codominant_dataset",
+    "delimiter" : "\\t",
+    "gobiiFileType" : "GENERIC",
+    "requireDirectoriesToExist" : false,
+    "createSource" : false
+  },
+  "table" : "dataset_dnarun",
+  "gobiiFileColumns" : [ {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "experiment_id",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "2",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "dataset_id",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "2",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_ROW",
+    "rCoord" : 0,
+    "cCoord" : 1,
+    "name" : "dnarun_name",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "AUTOINCREMENT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "dnarun_idx",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  } ],
+  "vcfParameters" : {
+    "maf" : null,
+    "minQ" : null,
+    "minDp" : null,
+    "removeIndels" : false,
+    "toIupac" : false
+  },
+  "dataSetId" : 2,
+  "gobiiCropType" : "test",
+  "contactId" : 32,
+  "contactEmail" : "yn259@cornell.edu",
+  "project" : {
+    "name" : "sim_codominant",
+    "id" : 2
+  },
+  "platform" : {
+    "name" : "Sim_SSR",
+    "id" : 23
+  },
+  "dataSet" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  },
+  "datasetType" : {
+    "name" : "CO_DOMINANT_NON_NUCLEOTIDE",
+    "id" : 164
+  },
+  "mapset" : {
+    "name" : "Sim_codominant",
+    "id" : 1
+  },
+  "experiment" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  }
+}, {
+  "gobiiFile" : {
+    "source" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/files/test_codominant_dataset",
+    "destination" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/loader/digest/test_codominant_dataset",
+    "delimiter" : "\\t",
+    "gobiiFileType" : "GENERIC",
+    "requireDirectoriesToExist" : false,
+    "createSource" : false
+  },
+  "table" : "matrix",
+  "gobiiFileColumns" : [ {
+    "gobiiColumnType" : "CSV_BOTH",
+    "rCoord" : 1,
+    "cCoord" : 1,
+    "name" : "matrix",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "CO_DOMINANT_NON_NUCLEOTIDE",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  } ],
+  "vcfParameters" : {
+    "maf" : null,
+    "minQ" : null,
+    "minDp" : null,
+    "removeIndels" : false,
+    "toIupac" : false
+  },
+  "dataSetId" : 2,
+  "gobiiCropType" : "test",
+  "contactId" : 32,
+  "contactEmail" : "yn259@cornell.edu",
+  "project" : {
+    "name" : "sim_codominant",
+    "id" : 2
+  },
+  "platform" : {
+    "name" : "Sim_SSR",
+    "id" : 23
+  },
+  "dataSet" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  },
+  "datasetType" : {
+    "name" : "CO_DOMINANT_NON_NUCLEOTIDE",
+    "id" : 164
+  },
+  "mapset" : {
+    "name" : "Sim_codominant",
+    "id" : 1
+  },
+  "experiment" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  }
+} ]

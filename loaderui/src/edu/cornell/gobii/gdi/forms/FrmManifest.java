@@ -10,10 +10,15 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestManifest;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
-import org.gobiiproject.gobiimodel.dto.container.ManifestDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ManifestDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.utils.FormUtils;
@@ -25,12 +30,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class FrmManifest extends AbstractFrm {
 	private static Logger log = Logger.getLogger(FrmManifest.class.getName());
 	private Text txtName;
 	private Text txtCode;
 	private Text txtFilePath;
+	protected Integer currentManifestId;
 
 	/**
 	 * Create the composite.
@@ -45,7 +52,7 @@ public class FrmManifest extends AbstractFrm {
 		
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Manifest Name:");
 		
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -55,6 +62,7 @@ public class FrmManifest extends AbstractFrm {
 		lblCode.setText("Code:");
 		
 		txtCode = new Text(cmpForm, SWT.BORDER | SWT.READ_ONLY);
+		txtCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
@@ -73,18 +81,24 @@ public class FrmManifest extends AbstractFrm {
 				try{
 					if(!validate(true)) return;
 
-					DtoRequestManifest dtoRequestManifest = new DtoRequestManifest();
-					ManifestDTO manifestDTORequest = new ManifestDTO(DtoMetaData.ProcessType.CREATE);
+					ManifestDTO manifestDTORequest = new ManifestDTO();
 					String name = txtName.getText();
 					manifestDTORequest.setName(name);
 					manifestDTORequest.setCode(name);
 					manifestDTORequest.setFilePath(txtFilePath.getText());
 
 					try {
-						ManifestDTO manifestDTOResponse = dtoRequestManifest.process(manifestDTORequest);
-						if(Controller.getDTOResponse(shell, manifestDTOResponse, memInfo)){
-							clearDetails();
+						PayloadEnvelope<ManifestDTO> payloadEnvelope = new PayloadEnvelope<>(manifestDTORequest,
+								GobiiProcessType.CREATE);
+						GobiiEnvelopeRestResource<ManifestDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_MANIFEST));
+						PayloadEnvelope<ManifestDTO> manifestDTOResponse = restResource.post(ManifestDTO.class,
+								payloadEnvelope);
+						
+						if(Controller.getDTOResponse(shell, manifestDTOResponse.getHeader(), memInfo, true)){
+							currentManifestId = manifestDTOResponse.getPayload().getData().get(0).getManifestId();
 							populateManifestTable();
+							FormUtils.selectRowById(tbList,currentManifestId);
+							selectedName = txtName.getText();
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving Manifests", err);
@@ -94,7 +108,7 @@ public class FrmManifest extends AbstractFrm {
 				}
 			}
 		});
-		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -104,20 +118,25 @@ public class FrmManifest extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Manifest", IDs.manifestName)) return;
-					DtoRequestManifest dtoRequestManifest = new DtoRequestManifest();
-					ManifestDTO manifestDTORequest = new ManifestDTO(DtoMetaData.ProcessType.UPDATE);
-					manifestDTORequest.setManifestId(IDs.manifestId);
+					if(!FormUtils.updateForm(getShell(), "Manifest", selectedName)) return;
+					ManifestDTO manifestDTORequest = new ManifestDTO();
+					manifestDTORequest.setManifestId(currentManifestId);
 					String name = txtName.getText();
 					manifestDTORequest.setName(name);
 					manifestDTORequest.setCode(name);
 					manifestDTORequest.setFilePath(txtFilePath.getText());
 
 					try {
-						ManifestDTO manifestDTOResponse = dtoRequestManifest.process(manifestDTORequest);
-						if(Controller.getDTOResponse(shell, manifestDTOResponse, memInfo)){
-							clearDetails();
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MANIFEST);
+						restUri.setParamValue("id", Integer.toString(currentManifestId));
+						GobiiEnvelopeRestResource<ManifestDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
+						restResourceById.setParamValue("id", manifestDTORequest.getManifestId().toString());
+						PayloadEnvelope<ManifestDTO> manifestDTOResponse = restResourceById.put(
+								ManifestDTO.class, new PayloadEnvelope<>(manifestDTORequest, GobiiProcessType.UPDATE));
+						
+						if(Controller.getDTOResponse(shell, manifestDTOResponse.getHeader(), memInfo, true)){
 							populateManifestTable();
+							FormUtils.selectRowById(tbList,currentManifestId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving Manifests", err);
@@ -127,7 +146,7 @@ public class FrmManifest extends AbstractFrm {
 				}
 			}
 		});
-		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnUpdate.setText("Update");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -138,7 +157,7 @@ public class FrmManifest extends AbstractFrm {
 				clearDetails();
 			}
 		});
-		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnClearFields.setText("Clear Fields");
 
 	}
@@ -156,32 +175,47 @@ public class FrmManifest extends AbstractFrm {
 		tblclmnManifests.setText("Manifests:");
 		
 		populateManifestTable();
+		
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				populateManifestTable();
+				clearDetails();
+			}
+		});
+		
 		tbList.addListener (SWT.Selection, new Listener() {
 
 			public void handleEvent(Event e) {
 				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.manifestName = selected;
-				IDs.manifestId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateManifestDetails(IDs.manifestId); 
+				selectedName = selected;
+				currentManifestId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				populateManifestDetails(currentManifestId); 
 			}
 
 
 			protected void populateManifestDetails(int manifestId) {
 				try{
-					DtoRequestManifest dtoRequestManifest = new DtoRequestManifest();
 					ManifestDTO manifestDTO = new ManifestDTO();
 					manifestDTO.setManifestId(manifestId);
 					try {
-						manifestDTO = dtoRequestManifest.process(manifestDTO);
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MANIFEST);
+						restUri.setParamValue("id", Integer.toString(manifestId));
+						GobiiEnvelopeRestResource<ManifestDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
+						PayloadEnvelope<ManifestDTO> dtoRequestManifest = restResource.get(ManifestDTO.class);
+						manifestDTO = dtoRequestManifest.getPayload().getData().get(0);
+						
+						//displayDetails
+						txtName.setText(manifestDTO.getName());
+						txtCode.setText(manifestDTO.getCode());
+						txtFilePath.setText(manifestDTO.getFilePath()==null ? "" : manifestDTO.getFilePath());
+						selectedName = manifestDTO.getName();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
-					//displayDetails
-					txtName.setText(manifestDTO.getName());
-					txtCode.setText(manifestDTO.getCode());
-					txtFilePath.setText(manifestDTO.getFilePath()==null ? "" : manifestDTO.getFilePath());
+				
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving Manifests", err);
 				}
@@ -200,7 +234,7 @@ public class FrmManifest extends AbstractFrm {
 	
 	private void clearDetails(){
 		try{
-			IDs.manifestId=0;
+			currentManifestId=0;
 			txtName.setText("");
 			txtCode.setText("");
 			txtFilePath.setText("");
@@ -215,17 +249,17 @@ public class FrmManifest extends AbstractFrm {
 		if(txtName.getText().isEmpty()){
 			successful = false;
 			message = "Name is required field!";
-		}else if(isNew){
+		}else if(!isNew && currentManifestId==0){
+			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
+			successful = false;
+		}else if(isNew || !txtName.getText().equalsIgnoreCase(selectedName)){
 			for(TableItem item : tbList.getItems()){
-				if(item.getText().equals(txtName.getText())){
+				if(item.getText().equalsIgnoreCase(txtName.getText())){
 					successful = false;
 					message = "Manifest name already exists!";
 					break;
 				}
 			}
-		}else if(!isNew && IDs.manifestId==0){
-			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
-			successful = false;
 		}
 		if(!successful){
 			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);

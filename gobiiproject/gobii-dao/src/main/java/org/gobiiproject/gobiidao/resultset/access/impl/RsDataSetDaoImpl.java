@@ -7,6 +7,7 @@ import org.gobiiproject.gobiidao.resultset.core.StoredProcExec;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsDataSet;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdDataSet;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.*;
+import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,6 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
     @Autowired
     private SpRunnerCallable spRunnerCallable;
 
-
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ResultSet getDatasetNamesByExperimentId(Integer experimentId) throws GobiiDaoException {
@@ -47,10 +47,10 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
 
             returnVal = spGetDatasetNamesByExperimentId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving dataset file names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving dataset names by experiment", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -74,10 +74,10 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
 
             returnVal = spGetDatasetDetailsByExperimentId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving dataset details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving dataset details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -92,20 +92,14 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
 
         try {
 
-            if (spRunnerCallable.run(new SpInsDataSet(), parameters)) {
+            spRunnerCallable.run(new SpInsDataSet(), parameters);
 
-                returnVal = spRunnerCallable.getResult();
+            returnVal = spRunnerCallable.getResult();
 
-            } else {
+        } catch (SQLGrammarException e) {
 
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-
-            }
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error creating dataset", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating dataset with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -117,28 +111,19 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
     public void updateDataSet(Map<String, Object> parameters) throws GobiiDaoException {
         try {
 
-            if (!spRunnerCallable.run(new SpUpdDataSet(), parameters)) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-            }
+            spRunnerCallable.run(new SpUpdDataSet(), parameters);
+        } catch (SQLGrammarException e) {
 
-        } catch (Exception e) {
-
-            LOGGER.error("Error creating dataSet", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating dataSet with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
-        
+
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public Integer createUpdateParameter(Map<String, Object> parameters) throws GobiiDaoException {
-        return null;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-	@Override
-	public ResultSet getDatasetNames() throws GobiiDaoException {
-		// TODO Auto-generated method stub
+    public ResultSet getDatasetNames() throws GobiiDaoException {
+        // TODO Auto-generated method stub
 
         ResultSet returnVal = null;
 
@@ -149,15 +134,42 @@ public class RsDataSetDaoImpl implements RsDataSetDao {
 
             returnVal = spGetDatasetNames.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving dataset file names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving dataset file names with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
         return returnVal;
-	}
+    }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public ResultSet getDataSetsByTypeId(Integer typeId) throws GobiiDaoException {
+
+        ResultSet returnVal = null;
+
+        try {
+
+            Map<String, Object> parameters = new HashMap<>();
+
+            parameters.put("typeId", typeId);
+
+            SpGetDataSetsByTypeId spGetDataSetsByTypeId = new SpGetDataSetsByTypeId(parameters);
+
+            storedProcExec.doWithConnection(spGetDataSetsByTypeId);
+
+            returnVal = spGetDataSetsByTypeId.getResultSet();
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving datasets by type ID with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+
+        }
+
+        return returnVal;
+    }
 
 } // RsProjectDaoImpl

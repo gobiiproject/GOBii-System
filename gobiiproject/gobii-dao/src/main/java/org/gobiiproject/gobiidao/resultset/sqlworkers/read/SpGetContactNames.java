@@ -30,7 +30,7 @@ public class SpGetContactNames implements Work {
                 "\t\t\t\tc.lastname,\n" +
                 "\t\t\t\tc.firstname\n" +
                 "\t\tfrom contact c\n" +
-                "\t\torder by lastname";
+                "\t\torder by lower(c.lastname), lower(c.firstname)";
         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
         resultSet = preparedStatement.executeQuery();
     } // execute()

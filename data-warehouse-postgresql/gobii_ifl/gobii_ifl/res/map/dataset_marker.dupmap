@@ -1,2 +1,3 @@
+#FILE_COLUMN_NAME	TABLE_COLUMN_NAME	COLUMN_DATA_TYPE
 dataset_id	dataset_id	integer
 marker_id	marker_id	integer

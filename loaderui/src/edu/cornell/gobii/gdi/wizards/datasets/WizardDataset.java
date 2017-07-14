@@ -1,18 +1,21 @@
 package edu.cornell.gobii.gdi.wizards.datasets;
 
+import java.io.File;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.Wizard;
-import org.gobiiproject.gobiiclient.core.ClientContext;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestFileLoadInstructions;
-import org.gobiiproject.gobiimodel.dto.container.LoaderInstructionFilesDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFileColumn;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiLoaderInstruction;
-import org.gobiiproject.gobiimodel.types.DataSetOrientationType;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
 import org.gobiiproject.gobiimodel.types.DataSetType;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
-import org.gobiiproject.gobiimodel.types.GobiiFileLocationType;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
@@ -28,15 +31,23 @@ public class WizardDataset extends Wizard {
 	private static Logger log = Logger.getLogger(WizardDataset.class.getName());
 	private String config;
 	private DTOdataset dto = new DTOdataset();
+	private int piID;
+	private int projectID;
+	private int experimentID;
+	private int datasetID;
 
-	public WizardDataset(String config) {
+	public WizardDataset(String config, int piID, int projectID, int experimentID, int datasetID) {
 		setWindowTitle("New Wizard");
 		this.config = config;
+		this.piID=piID;
+		this.projectID = projectID;
+		this.experimentID = experimentID;
+		this.datasetID = datasetID;
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new Page1Datasets(config, dto));
+		addPage(new Page1Datasets(config, dto, piID, projectID, experimentID, datasetID));
 		addPage(new Pg2Markers(config, dto.getDtoMarkers()));
 		addPage(new Pg3Markers(config, dto.getDtoMarkers()));
 		addPage(new Pg2DNAsamples(config, dto.getDtoSamples()));
@@ -47,30 +58,40 @@ public class WizardDataset extends Wizard {
 	@Override
 	public boolean performFinish() {
 		try{
-			String folder = WizardUtils.generateSourceFolder();
-			if(!dto.isRemote()){
-//			if((dto.getFile().getSource() == null || dto.getFile().getSource().isEmpty()) && dto.getFiles().size() > 0){
-				String digesterInputDirectory = ClientContext
-		                .getInstance(null,false)
-		                .getFileLocationOfCurrenCrop(GobiiFileLocationType.RAWUSER_FILES);
-				dto.getFile().setSource(digesterInputDirectory+folder);
-				dto.getFile().setCreateSource(true);
-			}else if(dto.getFile().getSource() != null && !dto.getFile().getSource().isEmpty()){
-				dto.getFile().setCreateSource(false);
-				dto.getFile().setRequireDirectoriesToExist(true);
+			
+//			String folder = WizardUtils.generateSourceFolder();
+//			if(!dto.isRemote()){
+////			if((dto.getFile().getSource() == null || dto.gz`etFile().getSource().isEmpty()) && dto.getFiles().size() > 0){
+//				String digesterInputDirectory = ClientContext
+//		                .getInstance(null,false)
+//		                .getFileLocationOfCurrenCrop(GobiiFileProcessDir.RAW_USER_FILES);
+//				dto.getFile().setSource(digesterInputDirectory+folder);
+//				dto.getFile().setCreateSource(true);
+//			}else if(dto.getFile().getSource() != null && !dto.getFile().getSource().isEmpty()){
+//				
+//				dto.getFile().setCreateSource(false);
+//				dto.getFile().setRequireDirectoriesToExist(true);
+//			}else{
+//				Utils.log(getShell(), null, log, "Error submitting instruction file", new Exception("No source file(s) specified!"));
+//				return false;
+//			}
+//			String digesterOutputDirectory = ClientContext
+//	                .getInstance(null, false)
+//	                .getFileLocationOfCurrenCrop(GobiiFileProcessDir.LOADER_INTERMEDIATE_FILES );
+//			dto.getFile().setDestination(digesterOutputDirectory+folder);
+//			dto.getDtoMarkers().setFile(dto.getFile());
+//			dto.getDtoSamples().setFile(dto.getFile());
+			
+			String folder = new File(dto.getPreviewDTO().getDirectoryName()).getName();
+			if(folder != null || !folder.isEmpty()){
+				WizardUtils.createInstructionsForWizard(folder, dto);
 			}else{
 				Utils.log(getShell(), null, log, "Error submitting instruction file", new Exception("No source file(s) specified!"));
 				return false;
 			}
-			String digesterOutputDirectory = ClientContext
-	                .getInstance(null, false)
-	                .getFileLocationOfCurrenCrop(GobiiFileLocationType.INTERMEDIATE_FILES);
-			dto.getFile().setDestination(digesterOutputDirectory+folder);
-			dto.getDtoMarkers().setFile(dto.getFile());
-			dto.getDtoSamples().setFile(dto.getFile());
-			
 			
 			LoaderInstructionFilesDTO instructions = null;
+			Utils.setMarkerAndSampleDTOfromDSDTO(dto);
 			if(dto.getTemplate() != null){
 				instructions = WizardUtils.loadTemplate(dto.getTemplate());
 				if(!WizardUtils.createMarkerInstructionsFromTemplate(getShell(), instructions, dto.getDtoMarkers(), folder)){
@@ -87,9 +108,16 @@ public class WizardDataset extends Wizard {
 				instructions = new LoaderInstructionFilesDTO();
 
 				// set marker inforation
+				// GSD-55: if you don't set the marker file's file here, the marker file's file is there, 
+				// 		   but has null values. This is because WizardUtils.createInstructionsForWizard() 
+				//         sets the values for the DTOdataset's file, but does not set those of the DTOdataset
+				//         marker. Ideally, this should be done in createInstructionsForWizard(). However, 
+				//         I have no idea what the implications of that kind of change would be. 
+				dto.getDtoMarkers().setFile(dto.getFile());
 				WizardUtils.createMarkerInstructionsFromDTO(getShell(), instructions, dto.getDtoMarkers(), folder, true);
-				if(dto.getDtoMarkers().getDsMarkerFields().size() > 0){
+				if(dto.getDtoMarkers().getDsMarkerFields().size() > 0){	
 					GobiiLoaderInstruction instDSmarker = new GobiiLoaderInstruction();
+					Utils.setDSInstructionFileDetails(instDSmarker, dto);
 					instDSmarker.setTable("dataset_marker");
 					instDSmarker.setGobiiFile(dto.getFile());
 					instDSmarker.setGobiiFile(dto.getFile());
@@ -127,10 +155,13 @@ public class WizardDataset extends Wizard {
 					instDSmarker.setGobiiCropType(ClientContext.getInstance(null, false).getCurrentClientCropType());
 					instructions.getGobiiLoaderInstructions().add(instDSmarker);
 				}
+
 				// set dna sample information
+				dto.getDtoSamples().setFile(dto.getFile());	// See comment above in regard to GSD-55
 				WizardUtils.createSampleInstructionsFromDTO(getShell(), instructions, dto.getDtoSamples(), folder, true);
 				if(dto.getDtoSamples().getRunFields().size() > 0){
 					GobiiLoaderInstruction instDSrun = new GobiiLoaderInstruction();
+					Utils.setDSInstructionFileDetails(instDSrun, dto);
 					instDSrun.setTable("dataset_dnarun");
 					instDSrun.setGobiiFile(dto.getFile());
 					// add platform_id
@@ -195,6 +226,8 @@ public class WizardDataset extends Wizard {
 
 				if(dto.getcCoord() > -1 && dto.getrCoord() > -1){
 					GobiiLoaderInstruction instDataset = new GobiiLoaderInstruction();
+					instDataset.setQcCheck(dto.isQcCheck());
+					Utils.setDSInstructionFileDetails(instDataset, dto);
 					instDataset.setTable("matrix");
 					instDataset.setGobiiFile(dto.getFile());
 					GobiiFileColumn colDataset = new GobiiFileColumn();
@@ -212,14 +245,14 @@ public class WizardDataset extends Wizard {
 					instructions.getGobiiLoaderInstructions().add(instDataset);
 				}
 			}
-			
 			instructions.setInstructionFileName(folder);
-
 			if(WizardUtils.confirm("Do you want to submit Instructions?")){
-				DtoRequestFileLoadInstructions dtoRequestFileLoadInstructions = new DtoRequestFileLoadInstructions();
 				try {
-					LoaderInstructionFilesDTO loaderInstructionFilesDTOResponse = dtoRequestFileLoadInstructions.process(instructions);
-					if(!Controller.getDTOResponse(this.getShell(), loaderInstructionFilesDTOResponse, null)){
+					PayloadEnvelope<LoaderInstructionFilesDTO> payloadEnvelope = new PayloadEnvelope<>(instructions, GobiiProcessType.CREATE);
+					GobiiEnvelopeRestResource<LoaderInstructionFilesDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_FILE_LOAD_INSTRUCTIONS));
+					PayloadEnvelope<LoaderInstructionFilesDTO> loaderInstructionFileDTOResponseEnvelope = restResource.post(LoaderInstructionFilesDTO.class,
+							payloadEnvelope);
+					if(!Controller.getDTOResponse(this.getShell(), loaderInstructionFileDTOResponseEnvelope.getHeader(), null, true)){
 						return false;
 					}else{
 						if(!dto.isRemote() && dto.getFiles().size() > 0)

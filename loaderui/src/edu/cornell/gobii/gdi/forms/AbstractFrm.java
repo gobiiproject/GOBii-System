@@ -20,6 +20,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public abstract class AbstractFrm extends Composite {
 	protected Shell shell;
@@ -28,6 +34,11 @@ public abstract class AbstractFrm extends Composite {
 	protected Composite cmpForm;
 	protected StyledText memInfo;
 	private Button btnExport;
+	protected Button btnRefresh;
+	protected String selectedName;
+	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
+	private SashForm sashForm;
+	protected Label lblCbList;
 
 	/**
 	 * Create the composite.
@@ -37,7 +48,7 @@ public abstract class AbstractFrm extends Composite {
 	public AbstractFrm(Shell shell, Composite parent, int style) {
 		super(parent, style);
 		this.shell = shell;
-		setLayout(new GridLayout(3, false));
+		setLayout(new GridLayout(1, false));
 		createList();
 		createContent();
 	}
@@ -48,12 +59,16 @@ public abstract class AbstractFrm extends Composite {
 	}
 
 	protected void createList(){
-		Group group = new Group(this, SWT.NONE);
+		
+		sashForm = new SashForm(this, SWT.SMOOTH);
+		sashForm.setBackground(SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY));
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		formToolkit.adapt(sashForm);
+		formToolkit.paintBordersFor(sashForm);
+		Group group = new Group(sashForm, SWT.NONE);
 		group.setLayout(new GridLayout(1, false));
-		GridData gd_group = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
-		gd_group.heightHint = 438;
-		gd_group.widthHint = 184;
-		group.setLayoutData(gd_group);
+		
+		lblCbList = new Label(group, SWT.NONE);
 		
 		cbList = new Combo(group, SWT.NONE);
 		cbList.setToolTipText("Select Project");
@@ -79,24 +94,25 @@ public abstract class AbstractFrm extends Composite {
 		btnExport.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FormUtils.exportTableAsTxt(shell, tbList);
+				FormUtils.exportTableAsTxt(shell, tbList, "exportList");
 			}
 		});
-		btnExport.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnExport.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnExport.setText("Export");
 		
-		cmpForm = new Composite(this, SWT.NONE);
-		cmpForm.setLayout(new GridLayout(1, false));
-		GridData gd_cmpForm = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
-		gd_cmpForm.widthHint = 285;
-		cmpForm.setLayoutData(gd_cmpForm);
+		btnRefresh = new Button(group, SWT.NONE);
 		
-		memInfo = new StyledText(this, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.WRAP);
-		memInfo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		btnRefresh.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnRefresh.setText("Refresh");
+		
+		cmpForm = new Composite(sashForm, SWT.BORDER);
+		cmpForm.setLayout(new GridLayout(1, false));
+		
+		memInfo = new StyledText(sashForm, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.WRAP);
+		sashForm.setWeights(new int[] {143, 206, 118});
 		
 		
 	}
 	
 	protected abstract void createContent();
-	
 }

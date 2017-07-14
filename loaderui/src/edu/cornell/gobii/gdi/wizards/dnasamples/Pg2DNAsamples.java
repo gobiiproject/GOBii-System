@@ -77,10 +77,15 @@ public class Pg2DNAsamples extends WizardPage {
 		tblclmnFieldHeaders.setWidth(200);
 		tblclmnFieldHeaders.setText("Field Headers");
 		
-		tbGermplasm = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
+		Composite composite = new Composite(container, SWT.NONE);
+		composite.setLayout(new GridLayout(1, false));
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		tbGermplasm = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION);
+		tbGermplasm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tbGermplasm.setSize(599, 368);
 		tbGermplasm.setLinesVisible(true);
 		tbGermplasm.setHeaderVisible(true);
-		tbGermplasm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		TableColumn tblclmnIndex = new TableColumn(tbGermplasm, SWT.NONE);
 		tblclmnIndex.setWidth(60);
@@ -100,16 +105,16 @@ public class Pg2DNAsamples extends WizardPage {
 		TableColumn tableColumn_3 = new TableColumn(tbGermplasm, SWT.NONE);
 		tableColumn_3.setWidth(100);
 		tableColumn_3.setText("To");
-		new Label(container, SWT.NONE);
 		
-		Utils.unmarshalColumns(tbGermplasm, config+"/xml/Germplasm.xml", dto.getGermplasmFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbGermplasm, dto.getGermplasmFields());
+		Utils.unmarshalColumns(tbGermplasm, config+"/xml/Germplasm.xml", dto.getGermplasmFields(), dto.getSubGermplasmFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbGermplasm, dto.getGermplasmFields(), dto.getSubGermplasmFields());
 		Utils.setTableMouseLister(tbGermplasm, dto.getGermplasmFields());
 		
-		tbGermplasmProp = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
+		tbGermplasmProp = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION);
+		tbGermplasmProp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tbGermplasmProp.setSize(258, 97);
 		tbGermplasmProp.setLinesVisible(true);
 		tbGermplasmProp.setHeaderVisible(true);
-		tbGermplasmProp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		TableColumn tblclmnIndex_1 = new TableColumn(tbGermplasmProp, SWT.NONE);
 		tblclmnIndex_1.setWidth(60);
@@ -122,12 +127,12 @@ public class Pg2DNAsamples extends WizardPage {
 		tableColumn_5.setWidth(200);
 		tableColumn_5.setText("Value");
 		Utils.loadTableProps(tbGermplasmProp, "germplasm_prop", dto.getGermplasmPropFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbGermplasmProp, dto.getGermplasmPropFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbGermplasmProp, dto.getGermplasmPropFields(), null);
+		Utils.setTableMouseLister(tbGermplasmProp, dto.getGermplasmPropFields());
 		
 		TableColumn tblclmnPreview = new TableColumn(tbFieldHeaders, SWT.NONE);
 		tblclmnPreview.setWidth(100);
 		tblclmnPreview.setText("Preview");
-		Utils.setTableMouseLister(tbGermplasmProp, dto.getGermplasmPropFields());
 		
 		container.addListener(SWT.Show, new Listener(){
 

@@ -11,7 +11,7 @@ public class SpUpdContact extends SpDef {
 
     public SpUpdContact() {
 
-        super("{call updatecontact(?,?,?,?,?,?,?,?,?,?,?)}",false);
+        super("{call updatecontact(?,?,?,?,?,?,?,?,?,?,?,?)}",false);
 
         this.addParamDef("contactId", Integer.class).setNullable(false);
         this.addParamDef("lastName", String.class).setNullable(false);
@@ -24,6 +24,7 @@ public class SpUpdContact extends SpDef {
         this.addParamDef("modifiedBy", Integer.class).setNullable(true);
         this.addParamDef("modifiedDate", java.util.Date.class).setNullable(true);
         this.addParamDef("organizationId", Integer.class).setNullable(true);
+        this.addParamDef("username", String.class).setNullable(true);
 
 
     } // ctor

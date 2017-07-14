@@ -1,10 +1,10 @@
-System.register([], function(exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var Experiment;
     return {
-        setters:[],
-        execute: function() {
+        setters: [],
+        execute: function () {
             Experiment = (function () {
                 function Experiment(experimentId, experimentName, experimentCode, experimentDataFile, projectId, platformId, manifestId, createdBy, createdstring, modifiedBy, modifiedstring, status, platformName) {
                     this.experimentId = experimentId;
@@ -25,6 +25,6 @@ System.register([], function(exports_1, context_1) {
             }());
             exports_1("Experiment", Experiment);
         }
-    }
+    };
 });
 //# sourceMappingURL=experiment.js.map

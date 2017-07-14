@@ -1,0 +1,138 @@
+{
+  "processType" : "CREATE",
+  "dtoHeaderAuth" : {
+    "userName" : null,
+    "password" : null,
+    "token" : null,
+    "gobiiCropType" : null
+  },
+  "dtoHeaderResponse" : {
+    "succeeded" : true,
+    "statusMessages" : [ ]
+  },
+  "gobiiCropType" : "TEST",
+  "gobiiLoaderInstructions" : [ {
+    "gobiiFile" : {
+      "source" : "/shared_data/gobii/crops/test/files/yn259_20160628_101718",
+      "destination" : "/shared_data/gobii/crops/test/loader/digest/yn259_20160628_101718",
+      "delimiter" : "\\t",
+      "gobiiFileType" : "VCF",
+      "requireDirectoriesToExist" : false,
+      "createSource" : true
+    },
+    "table" : "dataset_marker",
+    "gobiiFileColumns" : [ {
+      "gobiiColumnType" : "CONSTANT",
+      "name" : "dataset_id",
+      "constantValue" : "11"
+    }, {
+      "gobiiColumnType" : "VCF_MARKER",
+      "name" : "marker_name",
+    }, {
+      "gobiiColumnType" : "AUTOINCREMENT",
+      "name" : "marker_idx",
+    } ],
+    "vcfParameters" : {
+      "maf" : null,
+      "minQ" : null,
+      "minDp" : null,
+      "removeIndels" : false,
+      "toIupac" : false
+    },
+    "dataSetId" : 11,
+    "gobiiCropType" : "TEST",
+    "contactId" : 9,
+    "contactEmail" : "yn259@cornell.edu"
+  }, {
+    "gobiiFile" : {
+      "source" : "/shared_data/gobii/crops/test/files/yn259_20160628_101718",
+      "destination" : "/shared_data/gobii/crops/test/loader/digest/yn259_20160628_101718",
+      "delimiter" : "\\t",
+      "gobiiFileType" : "VCF",
+      "requireDirectoriesToExist" : false,
+      "createSource" : true
+    },
+    "table" : "dnarun",
+    "gobiiFileColumns" : [ {
+      "gobiiColumnType" : "CONSTANT",
+      "name" : "experiment_id",
+      "constantValue" : "13"
+    }, {
+      "gobiiColumnType" : "VCF_VARIANT",
+      "name" : "dnasample_name",
+    }, {
+      "gobiiColumnType" : "VCF_VARIANT",
+      "name" : "dnarun_name",
+    } ],
+    "vcfParameters" : {
+      "maf" : null,
+      "minQ" : null,
+      "minDp" : null,
+      "removeIndels" : false,
+      "toIupac" : false
+    },
+    "dataSetId" : null,
+    "gobiiCropType" : "TEST",
+    "contactId" : 9,
+    "contactEmail" : "yn259@cornell.edu"
+  }, {
+    "gobiiFile" : {
+      "source" : "/shared_data/gobii/crops/test/files/yn259_20160628_101718",
+      "destination" : "/shared_data/gobii/crops/test/loader/digest/yn259_20160628_101718",
+      "delimiter" : "\\t",
+      "gobiiFileType" : "GENERIC",
+      "requireDirectoriesToExist" : false,
+      "createSource" : true
+    },
+    "table" : "dataset_dnarun",
+    "gobiiFileColumns" : [ {
+      "gobiiColumnType" : "CONSTANT",
+      "name" : "dataset_id",
+      "constantValue" : "11",
+    }, {
+      "gobiiColumnType" : "VCF_VARIANT",
+      "name" : "dnarun_name",
+    }, {
+      "gobiiColumnType" : "AUTOINCREMENT",
+      "name" : "dnarun_idx",
+    } ],
+    "vcfParameters" : {
+      "maf" : null,
+      "minQ" : null,
+      "minDp" : null,
+      "removeIndels" : false,
+      "toIupac" : false
+    },
+    "dataSetId" : 11,
+    "gobiiCropType" : "TEST",
+    "contactId" : 9,
+    "contactEmail" : "yn259@cornell.edu"
+  }, {
+    "gobiiFile" : {
+      "source" : "/shared_data/gobii/crops/test/files/yn259_20160628_101718",
+      "destination" : "/shared_data/gobii/crops/test/loader/digest/yn259_20160628_101718",
+      "delimiter" : "\\t",
+      "gobiiFileType" : "GENERIC",
+      "requireDirectoriesToExist" : false,
+      "createSource" : true
+    },
+    "table" : "matrix",
+    "gobiiFileColumns" : [ {
+      "gobiiColumnType" : "VCF_MATRIX",
+      "name" : "matrix",
+      "dataSetType" : "IUPAC"
+    } ],
+    "vcfParameters" : {
+      "maf" : null,
+      "minQ" : null,
+      "minDp" : null,
+      "removeIndels" : false,
+      "toIupac" : false
+    },
+    "dataSetId" : 11,
+    "gobiiCropType" : "TEST",
+    "contactId" : 9,
+    "contactEmail" : "yn259@cornell.edu"
+  } ],
+  "instructionFileName" : "yn259_20160628_101718"
+}

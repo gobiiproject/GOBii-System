@@ -20,10 +20,14 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestMarkerGroup;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
-import org.gobiiproject.gobiimodel.dto.container.MarkerGroupDTO;
-import org.gobiiproject.gobiimodel.dto.container.MarkerGroupMarkerDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.MarkerGroupDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.MarkerGroupMarkerDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
@@ -48,6 +52,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 	private Table table;
 	private TableViewer viewerParameters;
 	private Button btnSelectAll;
+	private int currentMarkerGroupId;
 
 	/**
 	 * Create the composite.
@@ -62,7 +67,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Marker Group Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -72,17 +77,18 @@ public class FrmMarkerGroups extends AbstractFrm {
 		lblCode.setText("Code:");
 
 		txtCode = new Text(cmpForm, SWT.BORDER);
+		txtCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-				Label lblGermplasmGroup = new Label(cmpForm, SWT.NONE);
-				lblGermplasmGroup.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-				lblGermplasmGroup.setText("Germplasm group:");
-		
-				txtGermplasmGroup = new Text(cmpForm, SWT.BORDER);
-				txtGermplasmGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
+		Label lblGermplasmGroup = new Label(cmpForm, SWT.NONE);
+		lblGermplasmGroup.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblGermplasmGroup.setText("Germplasm group:");
+
+		txtGermplasmGroup = new Text(cmpForm, SWT.BORDER);
+		txtGermplasmGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(cmpForm, SWT.NONE);
-		
+
 		btnSelectAll = new Button(cmpForm, SWT.CHECK);
 		btnSelectAll.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -117,7 +123,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 		TableColumn tblclmnRank = tableViewerColumn_1.getColumn();
 		tblclmnRank.setWidth(100);
 		tblclmnRank.setText("Favorable alleles");
-		
+
 		Button btnImportMarkers = new Button(cmpForm, SWT.NONE);
 		btnImportMarkers.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -125,10 +131,10 @@ public class FrmMarkerGroups extends AbstractFrm {
 				if(!txtName.getText().isEmpty()){
 					FileDialog dlg = new FileDialog(shell, SWT.OPEN);
 
-//					dlg.setFilterExtensions(new String[]{".txt"});
+					//					dlg.setFilterExtensions(new String[]{".txt"});
 					dlg.setFilterNames(new String[]{"*.txt"});
 					String fn = dlg.open();
-					
+
 					if(table.getItemCount() > 0){
 						MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 						dialog.setMessage("Marker Group already contains markers. Would you like to replace existing markers with new list?\n\n Click Yes to replace existing list, or No to append to existing list.");
@@ -136,7 +142,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 							cleanMarkerTable();
 						}
 					}
-					
+
 					if (fn != null) {
 						File file = new File(fn);
 						try {
@@ -145,9 +151,9 @@ public class FrmMarkerGroups extends AbstractFrm {
 								String[] row = sc.nextLine().split("\t");
 								TableItem item = new TableItem(table, SWT.NONE);
 								item.setChecked(true);
-//								item.setText(0, row[0]);
-//								item.setText(1, row[1]);
-//								item.setText(2, row[2]);
+								//								item.setText(0, row[0]);
+								//								item.setText(1, row[1]);
+								//								item.setText(2, row[2]);
 								item.setText(row);
 							}
 							sc.close();
@@ -163,30 +169,30 @@ public class FrmMarkerGroups extends AbstractFrm {
 				}
 			}
 		});
-		btnImportMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnImportMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnImportMarkers.setText("Import Markers");
 		new Label(cmpForm, SWT.NONE);
-		
+
 		Button btnExportMarkers = new Button(cmpForm, SWT.NONE);
 		btnExportMarkers.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FormUtils.exportTableAsTxt(shell, table);
+				FormUtils.exportTableAsTxt(shell, table, "Markers");
 			}
 		});
 		btnExportMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnExportMarkers.setText("Export Markers");
 		new Label(cmpForm, SWT.NONE);
 
-//		Button btnUpdateMarkers = new Button(cmpForm, SWT.NONE);
-//		btnUpdateMarkers.addSelectionListener(new SelectionAdapter() {
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//			}
-//		});
-//		btnUpdateMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-//		btnUpdateMarkers.setText("Update Markers");
-//		new Label(cmpForm, SWT.NONE);
+		//		Button btnUpdateMarkers = new Button(cmpForm, SWT.NONE);
+		//		btnUpdateMarkers.addSelectionListener(new SelectionAdapter() {
+		//			@Override
+		//			public void widgetSelected(SelectionEvent e) {
+		//			}
+		//		});
+		//		btnUpdateMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		//		btnUpdateMarkers.setText("Update Markers");
+		//		new Label(cmpForm, SWT.NONE);
 
 		Button btnDeleteMarkers = new Button(cmpForm, SWT.NONE);
 		btnDeleteMarkers.addSelectionListener(new SelectionAdapter() {
@@ -202,10 +208,10 @@ public class FrmMarkerGroups extends AbstractFrm {
 				}
 			}
 		});
-		btnDeleteMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnDeleteMarkers.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnDeleteMarkers.setText("Delete Selected Marker(s)");
 		new Label(cmpForm, SWT.NONE);
-		
+
 		Label label = new Label(cmpForm, SWT.SEPARATOR | SWT.HORIZONTAL);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(cmpForm, SWT.NONE);
@@ -214,14 +220,14 @@ public class FrmMarkerGroups extends AbstractFrm {
 		btnSave.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				boolean isNew = IDs.MarkerGroupId == -1 ? true : false;
-				if(IDs.MarkerGroupId > 0){
+				boolean isNew = currentMarkerGroupId == -1 ? true : false;
+				if(currentMarkerGroupId > 0){
 					MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 					dialog.setMessage("A MarkerGroup seems to be selected, do you want to update this group with information or save as new?\n\n Please click YES to update selected MarkerGrup, or NO to add new MarkerGroup!");
 					isNew = dialog.open() == SWT.YES ? false : true;
 				}
 				if(!validate(isNew)) return;
-				
+
 				try{
 					List<MarkerGroupMarkerDTO> markers = new ArrayList<MarkerGroupMarkerDTO>();
 					for(TableItem item : table.getItems()){
@@ -231,19 +237,41 @@ public class FrmMarkerGroups extends AbstractFrm {
 						marker.setMarkerName(item.getText(1));
 						marker.setFavorableAllele(item.getText(2));
 					}
-					MarkerGroupDTO markerGroupDTORequest = new MarkerGroupDTO(isNew ? DtoMetaData.ProcessType.CREATE : DtoMetaData.ProcessType.UPDATE);
-					if(!isNew) markerGroupDTORequest.setMarkerGroupId(IDs.MarkerGroupId);
+					MarkerGroupDTO markerGroupDTORequest = new MarkerGroupDTO(); //isNew ? Header.ProcessType.CREATE : Header.ProcessType.UPDATE
+					if(!isNew) markerGroupDTORequest.setMarkerGroupId(currentMarkerGroupId);
 					markerGroupDTORequest.setName(txtName.getText());
 					markerGroupDTORequest.setCode(txtName.getText());
 					markerGroupDTORequest.setGermplasmGroup(txtGermplasmGroup.getText());
 					markerGroupDTORequest.setMarkers(markers);
-					markerGroupDTORequest.setStatus(1);
+					markerGroupDTORequest.setStatusId(1);
 					markerGroupDTORequest.setCreatedBy(App.INSTANCE.getUser().getUserId());
 					markerGroupDTORequest.setModifiedBy(App.INSTANCE.getUser().getUserId());
+
+					MarkerGroupDTO markerGroupDTOResponse = new MarkerGroupDTO();
+					PayloadEnvelope<MarkerGroupDTO> markerGroupDTOResponseEnvelope = null;
 					
-					DtoRequestMarkerGroup dtoRequestMarkerGroup = new DtoRequestMarkerGroup();
-					MarkerGroupDTO mgRequest = dtoRequestMarkerGroup.process(markerGroupDTORequest);
-					if(Controller.getDTOResponse(shell, mgRequest, memInfo)){
+					if(isNew){
+						PayloadEnvelope<MarkerGroupDTO> payloadEnvelope = new PayloadEnvelope<>(markerGroupDTORequest, GobiiProcessType.CREATE);
+						GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+								.getUriFactory()
+								.resourceColl(ServiceRequestId.URL_MARKERGROUP));
+						markerGroupDTOResponseEnvelope = gobiiEnvelopeRestResource.post(MarkerGroupDTO.class,
+								payloadEnvelope);
+						markerGroupDTOResponse = markerGroupDTOResponseEnvelope.getPayload().getData().get(0);
+					}
+					else{
+						 RestUri restUriMarkerGroupForGetById = ClientContext.getInstance(null, false)
+					                .getUriFactory()
+					                .resourceByUriIdParam(ServiceRequestId.URL_MARKERGROUP);
+				        restUriMarkerGroupForGetById.setParamValue("id", markerGroupDTORequest.getMarkerGroupId().toString());
+						GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriMarkerGroupForGetById);
+						markerGroupDTOResponseEnvelope = gobiiEnvelopeRestResourceForGetById.put(MarkerGroupDTO.class,
+				                new PayloadEnvelope<>(markerGroupDTORequest, GobiiProcessType.UPDATE));
+						
+					}
+
+
+					if(Controller.getDTOResponse(shell, markerGroupDTOResponseEnvelope.getHeader(), memInfo, true)){
 						cleanDetails();
 						populateMarkerGroupList();
 					}
@@ -252,15 +280,15 @@ public class FrmMarkerGroups extends AbstractFrm {
 				}
 			}
 		});
-		btnSave.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnSave.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnSave.setText("Save MarkerGroup");
 		new Label(cmpForm, SWT.NONE);
 
-//		Button btnUpdate = new Button(cmpForm, SWT.NONE);
-//		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-//		btnUpdate.setText("Update");
-//		new Label(cmpForm, SWT.NONE);
-		
+		//		Button btnUpdate = new Button(cmpForm, SWT.NONE);
+		//		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		//		btnUpdate.setText("Update");
+		//		new Label(cmpForm, SWT.NONE);
+
 		Button btnClearFields = new Button(cmpForm, SWT.NONE);
 		btnClearFields.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -279,7 +307,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 			}
 		});
-		btnMarkerGroupWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnMarkerGroupWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnMarkerGroupWiz.setText("Marker Group Wizard");
 
 	}
@@ -298,10 +326,10 @@ public class FrmMarkerGroups extends AbstractFrm {
 		// TODO Auto-generated method stub
 		tbList.removeAll();
 		FormUtils.entrySetToTable(Controller.getMarkerGroupNames(), tbList);
-		
+
 		TableColumn tblclmnNewColumn = new TableColumn(tbList, SWT.NONE);
 		tblclmnNewColumn.setWidth(300);
-		tblclmnNewColumn.setText("Marker Groups");
+		tblclmnNewColumn.setText("Marker Groups:");
 
 		tbList.addListener (SWT.Selection, new Listener() {
 
@@ -311,22 +339,30 @@ public class FrmMarkerGroups extends AbstractFrm {
 				TableItem item = tbList.getItem(tbList.getSelectionIndex());
 				if(item == null) return;
 				String selected = item.getText(); //single selection
-				IDs.MarkerGroupId = Integer.parseInt((String) item.getData(selected));
-				populateMarkerGroupDetails(IDs.MarkerGroupId); //retrieve and display projects by contact Id
+				currentMarkerGroupId = Integer.parseInt((String) item.getData(selected));
+				populateMarkerGroupDetails(currentMarkerGroupId); //retrieve and display projects by contact Id
 			}
 
-			protected void populateMarkerGroupDetails(int MarkerGroupId) {
+			protected void populateMarkerGroupDetails(int markerGroupId) {
 				try{
-					DtoRequestMarkerGroup dtoRequestMarkerGroup = new DtoRequestMarkerGroup();
 					MarkerGroupDTO MarkerGroupDTORequest = new MarkerGroupDTO();
-					MarkerGroupDTORequest.setMarkerGroupId(MarkerGroupId);
+					MarkerGroupDTORequest.setMarkerGroupId(markerGroupId);
 					try {
-						MarkerGroupDTO MarkerGroupDTOResponse = dtoRequestMarkerGroup.process(MarkerGroupDTORequest);
-						txtName.setText(MarkerGroupDTOResponse.getName());
-						txtCode.setText(MarkerGroupDTOResponse.getCode());
-						txtGermplasmGroup.setText(MarkerGroupDTOResponse.getGermplasmGroup());
+						RestUri restUriMapsetForGetById = ClientContext.getInstance(null, false)
+				                .getUriFactory()
+				                .resourceByUriIdParam(ServiceRequestId.URL_MARKERGROUP);
+				        restUriMapsetForGetById.setParamValue("id", Integer.toString(markerGroupId));
+				        GobiiEnvelopeRestResource<MarkerGroupDTO> gobiiEnvelopeRestResourceForGetById = new GobiiEnvelopeRestResource<>(restUriMapsetForGetById);
+				        PayloadEnvelope<MarkerGroupDTO> markerGroupDTOResponseEnvelope = gobiiEnvelopeRestResourceForGetById
+				                .get(MarkerGroupDTO.class);
+				        
+				        MarkerGroupDTO markerGroupDTOResponse = markerGroupDTOResponseEnvelope.getPayload().getData().get(0);
+				        
+						txtName.setText(markerGroupDTOResponse.getName());
+						txtCode.setText(markerGroupDTOResponse.getCode());
+						txtGermplasmGroup.setText(markerGroupDTOResponse.getGermplasmGroup());
 
-						populateTableFromStringList(MarkerGroupDTOResponse.getMarkers(), table);
+						populateTableFromStringList(markerGroupDTOResponse.getMarkers(), table);
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving MarkerGroups", err);
 					}
@@ -356,7 +392,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 	}
 	protected void cleanDetails() {
 		try{
-			IDs.MarkerGroupId = -1;
+			currentMarkerGroupId = -1;
 			txtName.setText("");
 			txtCode.setText("");
 			txtGermplasmGroup.setText("");
@@ -366,7 +402,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 			Utils.log(shell, memInfo, log, "Error clearing fields", err);
 		}
 	}
-	
+
 	protected void cleanMarkerTable(){
 		for(TableItem item : table.getItems()){
 			item.dispose();
@@ -377,7 +413,7 @@ public class FrmMarkerGroups extends AbstractFrm {
 		for(TableItem item : table.getItems())
 			item.setChecked(check);
 	}
-	
+
 	protected boolean validate(boolean isNew){
 		boolean successful = true;
 		String message = null;
@@ -390,14 +426,14 @@ public class FrmMarkerGroups extends AbstractFrm {
 		}
 		if(isNew){
 			for(TableItem item : tbList.getItems()){
-				if(item.getText(0).equals(txtName.getText())){
+				if(item.getText(0).equalsIgnoreCase(txtName.getText())){
 					successful = false;
 					message = "Marker Group name already exists, kindly change name and try saving again.";
 					break;
 				}
 			}
 		}
-		
+
 		if(!successful){
 			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			dialog.setMessage(message);

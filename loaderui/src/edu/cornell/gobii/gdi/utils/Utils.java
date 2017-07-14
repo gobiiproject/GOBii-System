@@ -1,7 +1,10 @@
 package edu.cornell.gobii.gdi.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,11 +52,18 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.gobiiproject.gobiimodel.dto.instructions.GobiiFilePropNameId;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFileColumn;
+import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiLoaderInstruction;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderFilePreviewDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 
 import edu.cornell.gobii.gdi.objects.xml.Columns;
 import edu.cornell.gobii.gdi.objects.xml.FileFormats;
 import edu.cornell.gobii.gdi.services.Controller;
+import edu.cornell.gobii.gdi.wizards.datasets.DTOdataset;
+import edu.cornell.gobii.gdi.wizards.dnasamples.DTOsamples;
+import edu.cornell.gobii.gdi.wizards.markers.DTOmarkers;
 
 public class Utils {
 	private static Logger log = Logger.getLogger(Utils.class.getName());
@@ -104,7 +114,7 @@ public class Utils {
 		return obj;
 	}
 	
-	public static void unmarshalColumns(Table tb, String xml, final HashMap<String, GobiiFileColumn> columns){
+	public static void unmarshalColumns(Table tb, String xml, final HashMap<String, GobiiFileColumn> columns, final HashMap<String, GobiiFileColumn> subColumns){
 		Columns tableColumns = null;
 		try {
 			JAXBContext jc = JAXBContext.newInstance(Columns.class);
@@ -135,8 +145,8 @@ public class Utils {
 							item.setText(3, "");
 							item.setText(4, "");
 						}
-						if(columns.containsKey(name)) columns.put(name, null);
-						if(columns.containsKey("sub_"+name)) columns.put("sub_"+name, null);
+						if(columns.containsKey(name)) columns.remove(name);
+						if(subColumns.containsKey("sub_"+name)) subColumns.remove("sub_"+name);
 					}
 				});
 				button.pack();
@@ -152,12 +162,12 @@ public class Utils {
 	
 	public static void loadTableProps(Table tb, String props, final HashMap<String, GobiiFileColumn> columns){
 		try{
-			Set<Entry<String, String>> entries = Controller.getCVByGroup(props);
+			List<NameIdDTO> entries = Controller.getCVByGroup(props);
 			tb.removeAll();
-			for(Entry<String, String> entry : entries){
+			for(NameIdDTO entry : entries){
 				TableItem item = new TableItem(tb, SWT.NONE);
-				String id = entry.getKey();
-				String name = entry.getValue();
+				String id = entry.getId().toString();
+				String name = entry.getName();
 				item.setText(1, name);
 				item.setData("id", id);
 				Button button = new Button(tb, SWT.PUSH | SWT.FLAT);
@@ -226,7 +236,7 @@ public class Utils {
 					// NOTE: on unsupported platforms this will return null
 					Object o = textTransfer.nativeToJava(event.currentDataType);
 					String t = (String)o;
-					if (t != null) System.out.println(t);
+//					if (t != null) System.out.println(t);
 				}
 			}
 			public void dragOperationChanged(DropTargetEvent event) {
@@ -298,7 +308,7 @@ public class Utils {
 		});
 	}
 	
-	public static void setDndColumnTarget(final Table sourceTable, Table targetTable, final HashMap<String, GobiiFileColumn> columns){
+	public static void setDndColumnTarget(final Table sourceTable, Table targetTable, final HashMap<String, GobiiFileColumn> columns, final HashMap<String, GobiiFileColumn> subColumns){
 		int operations = DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT;
 		DropTarget target = new DropTarget(targetTable, operations);
 
@@ -324,7 +334,7 @@ public class Utils {
 					// NOTE: on unsupported platforms this will return null
 					Object o = textTransfer.nativeToJava(event.currentDataType);
 					String t = (String)o;
-					if (t != null) System.out.println(t);
+//					if (t != null) System.out.println(t);
 				}
 			}
 			public void dragOperationChanged(DropTargetEvent event) {
@@ -373,7 +383,8 @@ public class Utils {
 								column.setRCoord(index);
 								column.setSubcolumn(true);
 								column.setSubcolumnDelimiter("_");
-								columns.put("sub_"+name, column);
+								if(subColumns != null)
+									subColumns.put("sub_"+name, column);
 							}
 						}
 						
@@ -465,6 +476,25 @@ public class Utils {
 		return index;
 	}
 	
+	public static void previewData(Table tbData, LoaderFilePreviewDTO previewDTO){
+		tbData.removeAll();
+		if(tbData.getColumnCount() < 50){
+			for(int i=0; i<50; i++){
+				TableColumn tc = new TableColumn(tbData, SWT.NONE);
+				tc.setWidth(50);
+				tc.setText(""+(i));
+			}
+		}else{
+			tbData.clearAll();
+		}
+		for(int i=0; i<previewDTO.getFilePreview().size(); i++){
+			TableItem item = new TableItem(tbData, SWT.NONE);
+			for(int j=0; j<previewDTO.getFilePreview().get(i).size(); j++){
+				item.setText(j, previewDTO.getFilePreview().get(i).get(j));
+			}
+		}
+	}
+	
 	public static void loadSampleLocalData(Table tbData, Table tbfiles, String ext, String delim){
 		String filename = null;
 		for(int i=0; i<tbfiles.getItemCount(); i++){
@@ -523,6 +553,12 @@ public class Utils {
 		if(mem != null) mem.setText(e.getMessage());
 	}
 	
+	public static void showLog(Logger logger, String message, Throwable e){
+		Shell shell = Display.getCurrent().getActiveShell();
+		log.error(message, e);
+		MessageDialog.openError(shell, "ERROR in Loader", message);
+	}
+	
 	public static void log(Logger log, String message, Throwable e){
 		log.error(message, e);
 	}
@@ -552,4 +588,192 @@ public class Utils {
 		}
 		return res;
 	}
+
+	public static void setDSInstructionFileDetails(GobiiLoaderInstruction instruction, DTOdataset dto) {
+		// TODO Auto-generated method stub
+		GobiiFilePropNameId projectPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId platformPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId dataSetPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId datasetTypePropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId experimentPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId mapsetPropFile = new GobiiFilePropNameId();
+		
+		projectPropFile.setId(dto.getProjectID());
+		projectPropFile.setName(dto.getProjectName());
+
+		platformPropFile.setId(dto.getPlatformID());
+		platformPropFile.setName(dto.getPlatformName());
+
+		dataSetPropFile.setId(dto.getDatasetID());
+		dataSetPropFile.setName(dto.getDatasetName());
+
+		datasetTypePropFile.setId(dto.getDatasetTypeID());
+		datasetTypePropFile.setName(dto.getDatasetType());
+
+		experimentPropFile.setId(dto.getExperimentID());
+		experimentPropFile.setName(dto.getExperimentName());
+
+		mapsetPropFile.setId(dto.getMapsetID());
+		mapsetPropFile.setName(dto.getMapsetName());
+		
+		instruction.setProject(projectPropFile);
+		instruction.setPlatform(platformPropFile);
+		instruction.setDataSet(dataSetPropFile);
+		instruction.setDatasetType(datasetTypePropFile);
+		instruction.setExperiment(experimentPropFile);
+		instruction.setMapset(mapsetPropFile);
+		
+	}
+
+	public static void setSampleInstructionFileDetails(GobiiLoaderInstruction instruction, DTOsamples dto) {
+		// TODO Auto-generated method stub
+		GobiiFilePropNameId projectPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId platformPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId dataSetPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId datasetTypePropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId experimentPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId mapsetPropFile = new GobiiFilePropNameId();
+		
+		projectPropFile.setId(dto.getProjectID());
+		projectPropFile.setName(dto.getProjectName());
+
+		platformPropFile.setId(dto.getPlatformID());
+		platformPropFile.setName(dto.getPlatformName());
+
+		dataSetPropFile.setId(dto.getDatasetID());
+		dataSetPropFile.setName(dto.getDatasetName());
+
+		datasetTypePropFile.setId(dto.getDatasetTypeID());
+		datasetTypePropFile.setName(dto.getDatasetType());
+
+		experimentPropFile.setId(dto.getExperimentID());
+		experimentPropFile.setName(dto.getExperimentName());
+
+		mapsetPropFile.setId(dto.getMapsetID());
+		mapsetPropFile.setName(dto.getMapsetName());
+		
+		instruction.setProject(projectPropFile);
+		instruction.setPlatform(platformPropFile);
+		instruction.setDataSet(dataSetPropFile);
+		instruction.setDatasetType(datasetTypePropFile);
+		instruction.setExperiment(experimentPropFile);
+		instruction.setMapset(mapsetPropFile);
+	}
+
+	public static void setMarkerInstructionFileDetails(GobiiLoaderInstruction instruction, DTOmarkers dto) {
+		// TODO Auto-generated method stub
+
+		GobiiFilePropNameId projectPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId platformPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId dataSetPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId datasetTypePropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId experimentPropFile = new GobiiFilePropNameId();
+		GobiiFilePropNameId mapsetPropFile = new GobiiFilePropNameId();
+		
+		projectPropFile.setId(dto.getProjectID());
+		projectPropFile.setName(dto.getProjectName());
+
+		platformPropFile.setId(dto.getPlatformID());
+		platformPropFile.setName(dto.getPlatformName());
+
+		dataSetPropFile.setId(dto.getDatasetID());
+		dataSetPropFile.setName(dto.getDatasetName());
+
+		datasetTypePropFile.setId(dto.getDatasetTypeID());
+		datasetTypePropFile.setName(dto.getDatasetType());
+
+		experimentPropFile.setId(dto.getExperimentID());
+		experimentPropFile.setName(dto.getExperimentName());
+
+		mapsetPropFile.setId(dto.getMapsetID());
+		mapsetPropFile.setName(dto.getMapsetName());
+		
+		instruction.setProject(projectPropFile);
+		instruction.setPlatform(platformPropFile);
+		instruction.setDataSet(dataSetPropFile);
+		instruction.setDatasetType(datasetTypePropFile);
+		instruction.setExperiment(experimentPropFile);
+		instruction.setMapset(mapsetPropFile);
+	}
+
+	public static String getAcceptableVersion(String filePath) {
+		// TODO Auto-generated method stub
+		String version = null;
+		try(BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+		    version = br.readLine();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			Utils.log(log, "File not found:"+ filePath, e);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Utils.log(log, "Error reading version.txt", e);
+		}
+		return version;
+	}
+
+	public static void setMarkerAndSampleDTOfromDSDTO(DTOdataset dto) {
+		// TODO Auto-generated method stub
+		
+		//setProject
+	
+		Integer projectID = dto.getProjectID();
+		dto.getDtoMarkers().setProjectID(projectID);
+		dto.getDtoSamples().setProjectID(projectID);
+		
+		String projectName = dto.getProjectName();
+		dto.getDtoMarkers().setProjectName(projectName);
+		dto.getDtoSamples().setProjectName(projectName);
+
+		//Platform
+		Integer platformID = dto.getPlatformID();
+		dto.getDtoMarkers().setPlatformID(platformID);
+		dto.getDtoSamples().setPlatformID(platformID);
+
+		String platformName=dto.getPlatformName();
+		dto.getDtoMarkers().setPlatformName(platformName);
+		dto.getDtoSamples().setPlatformName(platformName);
+		
+		
+		//dataset
+
+		Integer datasetID=dto.getDatasetID();
+		dto.getDtoMarkers().setDatasetID(datasetID);
+		dto.getDtoSamples().setDatasetID(datasetID);
+
+		String datasetName=dto.getDatasetName();
+		dto.getDtoMarkers().setDatasetName(datasetName);
+		dto.getDtoSamples().setDatasetName(datasetName);
+		
+		//datasetType
+
+		Integer datasetTypeID=dto.getDatasetTypeID();
+		dto.getDtoMarkers().setDatasetTypeID(datasetTypeID);
+		dto.getDtoSamples().setDatasetTypeID(datasetTypeID);
+
+		String datasetType = dto.getDatasetType();
+		dto.getDtoMarkers().setDatasetType(datasetType );
+		dto.getDtoSamples().setDatasetType(datasetType);
+		
+		//mapset
+
+		Integer mapsetID=dto.getMapsetID();
+		dto.getDtoMarkers().setMapsetID(mapsetID);
+		dto.getDtoSamples().setMapsetID(mapsetID);
+
+		String mapsetName=dto.getMapsetName();
+		dto.getDtoMarkers().setMapsetName(mapsetName);
+		dto.getDtoSamples().setMapsetName(mapsetName);
+		
+		//experiment
+		
+
+		Integer experimentID = dto.getExperimentID();
+		dto.getDtoMarkers().setExperimentID(experimentID );
+		dto.getDtoSamples().setExperimentID(experimentID);
+
+		String experimentName=dto.getExperimentName();
+		dto.getDtoMarkers().setExperimentName(experimentName);
+		dto.getDtoSamples().setExperimentName(experimentName);
+	}
+
 }

@@ -10,10 +10,15 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestReference;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
-import org.gobiiproject.gobiimodel.dto.container.ReferenceDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ReferenceDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.utils.FormUtils;
@@ -32,6 +37,7 @@ public class FrmReferences extends AbstractFrm {
 	private Text txtVersion;
 	private Text txtLink;
 	private Text txtFilePath;
+	private int currentReferenceId=0;
 
 	/**
 	 * Create the composite.
@@ -50,7 +56,7 @@ public class FrmReferences extends AbstractFrm {
 		
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Reference Name:");
 		
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -84,18 +90,23 @@ public class FrmReferences extends AbstractFrm {
 				try{
 					if(!validate(true)) return;
 
-					DtoRequestReference dtoRequestReference = new DtoRequestReference();
-					ReferenceDTO referenceDTORequest = new ReferenceDTO(DtoMetaData.ProcessType.CREATE);
+					ReferenceDTO referenceDTORequest = new ReferenceDTO();
 					referenceDTORequest.setName(txtName.getText());
 					referenceDTORequest.setVersion(txtVersion.getText());
 					referenceDTORequest.setLink(txtLink.getText());
 					referenceDTORequest.setFilePath(txtFilePath.getText());
 
 					try {
-						ReferenceDTO referenceDTOResponse = dtoRequestReference.process(referenceDTORequest);
-						if(Controller.getDTOResponse(shell, referenceDTOResponse, memInfo)){
-							clearDetails();
+						PayloadEnvelope<ReferenceDTO> payloadEnvelope = new PayloadEnvelope<>(referenceDTORequest,
+								GobiiProcessType.CREATE);
+						GobiiEnvelopeRestResource<ReferenceDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_REFERENCE));
+						PayloadEnvelope<ReferenceDTO> referenceDTOResponse = restResource.post(ReferenceDTO.class,
+								payloadEnvelope);
+
+						if(Controller.getDTOResponse(shell, referenceDTOResponse.getHeader(), memInfo, true)){
 							populateReferenceTable();
+							currentReferenceId = referenceDTOResponse.getPayload().getData().get(0).getReferenceId();
+							FormUtils.selectRowById(tbList,currentReferenceId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving References", err);
@@ -105,7 +116,7 @@ public class FrmReferences extends AbstractFrm {
 				}
 			}
 		});
-		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -115,20 +126,26 @@ public class FrmReferences extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Reference", IDs.referenceName)) return;
-					DtoRequestReference dtoRequestReference = new DtoRequestReference();
-					ReferenceDTO referenceDTORequest = new ReferenceDTO(DtoMetaData.ProcessType.UPDATE);
-					referenceDTORequest.setReferenceId(IDs.referenceId);
+					if(!FormUtils.updateForm(getShell(), "Reference", selectedName)) return;
+					ReferenceDTO referenceDTORequest = new ReferenceDTO();
+					referenceDTORequest.setReferenceId(currentReferenceId);
 					referenceDTORequest.setName(txtName.getText());
 					referenceDTORequest.setVersion(txtVersion.getText());
 					referenceDTORequest.setLink(txtLink.getText());
 					referenceDTORequest.setFilePath(txtFilePath.getText());
 
 					try {
-						ReferenceDTO referenceDTOResponse = dtoRequestReference.process(referenceDTORequest);
-						if(Controller.getDTOResponse(shell, referenceDTOResponse, memInfo)){
-							clearDetails();
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_REFERENCE);
+						restUri.setParamValue("id", Integer.toString(currentReferenceId));
+						GobiiEnvelopeRestResource<ReferenceDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
+						restResourceById.setParamValue("id", referenceDTORequest.getReferenceId().toString());
+						PayloadEnvelope<ReferenceDTO> referenceDTOResponse = restResourceById.put(
+								ReferenceDTO.class, new PayloadEnvelope<>(referenceDTORequest, GobiiProcessType.UPDATE));
+						
+						
+						if(Controller.getDTOResponse(shell, referenceDTOResponse.getHeader(), memInfo, true)){
 							populateReferenceTable();
+							FormUtils.selectRowById(tbList,currentReferenceId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving References", err);
@@ -138,7 +155,7 @@ public class FrmReferences extends AbstractFrm {
 				}
 			}
 		});
-		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnUpdate.setText("Update");
 		new Label(cmpForm, SWT.NONE);
 		
@@ -149,7 +166,7 @@ public class FrmReferences extends AbstractFrm {
 				clearDetails();
 			}
 		});
-		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnClearFields.setText("Clear Fields");
 
 	}
@@ -162,33 +179,51 @@ public class FrmReferences extends AbstractFrm {
 	@Override
 	protected void createContent() {
 		populateReferenceTable();
+		
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				populateReferenceTable();
+				clearDetails();
+			}
+		});
+		
 		tbList.addListener (SWT.Selection, new Listener() {
 
 			public void handleEvent(Event e) {
 				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.referenceName = selected;
-				IDs.referenceId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateReferenceDetails(IDs.referenceId); 
+				selectedName = selected;
+				currentReferenceId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				populateReferenceDetails(currentReferenceId); 
 			}
 
 
 			protected void populateReferenceDetails(int referenceId) {
 				try{
-					DtoRequestReference dtoRequestReference = new DtoRequestReference();
 					ReferenceDTO referenceDTO = new ReferenceDTO();
 					referenceDTO.setReferenceId(referenceId);
 					try {
-						referenceDTO = dtoRequestReference.process(referenceDTO);
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_REFERENCE);
+						restUri.setParamValue("id", Integer.toString(referenceId));
+						GobiiEnvelopeRestResource<ReferenceDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
+						PayloadEnvelope<ReferenceDTO> dtoRequestReferenceEnvelope = restResource.get(ReferenceDTO.class);
+						ReferenceDTO dtoRequestReference = dtoRequestReferenceEnvelope.getPayload().getData().get(0);
+						
+						
+						
+
+						selectedName = dtoRequestReference.getName();
+						txtName.setText(dtoRequestReference.getName());
+						txtVersion.setText(dtoRequestReference.getVersion());
+						txtLink.setText(dtoRequestReference.getLink());
+						txtFilePath.setText(dtoRequestReference.getFilePath()==null ? "" : dtoRequestReference.getFilePath());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
 					//displayDetails
-					txtName.setText(referenceDTO.getName());
-					txtVersion.setText(referenceDTO.getVersion());
-					txtLink.setText(referenceDTO.getLink());
-					txtFilePath.setText(referenceDTO.getFilePath()==null ? "" : referenceDTO.getFilePath());
+
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving References", err);
 				}
@@ -224,9 +259,12 @@ public class FrmReferences extends AbstractFrm {
 		}else if(txtVersion.getText().isEmpty()){
 			successful = false;
 			message = "Version is required field!";
-		}else if(isNew){
+		}else if(!isNew && currentReferenceId==0){
+			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
+			successful = false;
+		}else if(isNew|| !txtName.getText().equalsIgnoreCase(selectedName)){
 			for(TableItem item : tbList.getItems()){
-				if(item.getText().equals(txtName.getText())){
+				if(item.getText().equalsIgnoreCase(txtName.getText())){
 					successful = false;
 					message = "Reference name already exists!";
 					break;

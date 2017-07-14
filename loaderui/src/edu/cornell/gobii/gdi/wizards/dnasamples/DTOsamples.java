@@ -6,29 +6,71 @@ import java.util.List;
 
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFile;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFileColumn;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderFilePreviewDTO;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
 
-public class DTOsamples {
+import edu.cornell.gobii.gdi.utils.WizardDTO;
+
+public class DTOsamples implements WizardDTO{
 
 	private GobiiFile file = new GobiiFile();
-	private List<String> files = new ArrayList<String>();
+//	private List<String> files = new ArrayList<String>();
+	private boolean qcCheck = false;
 	private List<String[]> header = new ArrayList<>();
 	private GobiiColumnType columnType;
 	private int rCoord = -1;
 	private int cCoord = -1;
 	private HashMap<String, GobiiFileColumn> germplasmFields = new HashMap<>();
+	private HashMap<String, GobiiFileColumn> subGermplasmFields = new HashMap<>();
 	private HashMap<String, GobiiFileColumn> germplasmPropFields = new HashMap<>();
 	private HashMap<String, GobiiFileColumn> sampleFields = new HashMap<>();
+	private HashMap<String, GobiiFileColumn> subSampleFields = new HashMap<>();
 	private HashMap<String, GobiiFileColumn> samplePropFields = new HashMap<>();
 	private HashMap<String, GobiiFileColumn> runFields = new HashMap<>();
+	private HashMap<String, GobiiFileColumn> subRunFields = new HashMap<>();
 	private HashMap<String, GobiiFileColumn> runPropFields = new HashMap<>();
-	private Integer projectID = null;
-	private Integer experimentID = null;
-	private Integer datasetID = null;
+	private Integer piID;
+	private Integer projectID;
+	private Integer experimentID;
+	private Integer datasetID;
+	private Integer datasetTypeID;
+	private Integer platformID;
+	private Integer mapsetID;
+	private String projectName;
+	private String platformName;
+	private String datasetName;
+	private String experimentName;
+	private String mapsetName;
+	private String datasetType;
 	private String fileExtention;
 	private String template = null;
 	private boolean isRemote = false;
+	private LoaderFilePreviewDTO previewDTO = new LoaderFilePreviewDTO();
 	
+	public HashMap<String, GobiiFileColumn> getSubGermplasmFields() {
+		return subGermplasmFields;
+	}
+	public void setSubGermplasmFields(HashMap<String, GobiiFileColumn> subGermplasmFields) {
+		this.subGermplasmFields = subGermplasmFields;
+	}
+	public HashMap<String, GobiiFileColumn> getSubSampleFields() {
+		return subSampleFields;
+	}
+	public void setSubSampleFields(HashMap<String, GobiiFileColumn> subSampleFields) {
+		this.subSampleFields = subSampleFields;
+	}
+	public HashMap<String, GobiiFileColumn> getSubRunFields() {
+		return subRunFields;
+	}
+	public void setSubRunFields(HashMap<String, GobiiFileColumn> subRunFields) {
+		this.subRunFields = subRunFields;
+	}
+	public LoaderFilePreviewDTO getPreviewDTO() {
+		return previewDTO;
+	}
+	public void setPreviewDTO(LoaderFilePreviewDTO previewDTO) {
+		this.previewDTO = previewDTO;
+	}
 	public String getTemplate() {
 		return template;
 	}
@@ -78,10 +120,10 @@ public class DTOsamples {
 		this.file = file;
 	}
 	public List<String> getFiles() {
-		return files;
+		return previewDTO.getFileList();
 	}
 	public void setFiles(List<String> files) {
-		this.files = files;
+		previewDTO.setFileList(files);
 	}
 	public GobiiColumnType getColumnType() {
 		return columnType;
@@ -140,5 +182,72 @@ public class DTOsamples {
 	
 	public DTOsamples(){
 		
+	}
+	public String getProjectName() {
+		return projectName;
+	}
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	public String getPlatformName() {
+		return platformName;
+	}
+	public void setPlatformName(String platformName) {
+		this.platformName = platformName;
+	}
+	public String getExperimentName() {
+		return experimentName;
+	}
+	public void setExperimentName(String experimentName) {
+		this.experimentName = experimentName;
+	}
+	public String getDatasetName() {
+		return datasetName;
+	}
+	public void setDatasetName(String datasetName) {
+		this.datasetName = datasetName;
+	}
+	public boolean isQcCheck() {
+		return qcCheck;
+	}
+	public void setQcCheck(boolean qcCheck) {
+		this.qcCheck = qcCheck;
+	}
+	public Integer getPiID() {
+		return piID;
+	}
+	public void setPiID(Integer piID) {
+		this.piID = piID;
+	}
+	
+	public Integer getDatasetTypeID() {
+		return datasetTypeID;
+	}
+	public void setDatasetTypeID(Integer datasetTypeID) {
+		this.datasetTypeID = datasetTypeID;
+	}
+	public Integer getPlatformID() {
+		return platformID;
+	}
+	public void setPlatformID(Integer platformID) {
+		this.platformID = platformID;
+	}
+	public Integer getMapsetID() {
+		return mapsetID;
+	}
+	public void setMapsetID(Integer mapsetID) {
+		this.mapsetID = mapsetID;
+	}
+	public String getMapsetName() {
+		return mapsetName;
+	}
+	public void setMapsetName(String mapsetName) {
+		this.mapsetName = mapsetName;
+	}
+	public String getDatasetType() {
+		return datasetType;
+	}
+	public void setDatasetType(String datasetType) {
+		this.datasetType = datasetType;
 	}
 }

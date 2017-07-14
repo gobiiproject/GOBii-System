@@ -2,6 +2,7 @@ package org.gobiiproject.gobiidao.filesystem;
 
 import org.gobiiproject.gobiidao.GobiiDaoException;
 import org.gobiiproject.gobiimodel.dto.instructions.extractor.GobiiExtractorInstruction;
+import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
 
 import java.util.List;
 
@@ -10,15 +11,19 @@ import java.util.List;
  */
 public interface ExtractorInstructionsDAO {
 
-    String writeInstructions(String instructionFileFqpn,
-                             List<GobiiExtractorInstruction> instructions) throws GobiiDaoException;
+    public void writePlainFile(String fileFqpn, byte[] byteArray) throws GobiiDaoException;
 
-    List<GobiiExtractorInstruction> getInstructions(String instructionFileFqpn) throws GobiiDaoException;
+    boolean writeInstructions(String instructionFileFqpn,
+                              List<GobiiExtractorInstruction> instructions) throws GobiiDaoException;
+
+    List<GobiiExtractorInstruction> getGobiiExtractorInstructionsFromFile(String instructionFileFqpn) throws GobiiDaoException;
 
     boolean doesPathExist(String pathName) throws GobiiDaoException;
 
     void verifyDirectoryPermissions(String pathName) throws GobiiDaoException;
 
     void makeDirectory(String pathName) throws GobiiDaoException;
+
+    List<GobiiExtractorInstruction> setGobiiJobStatus(boolean applyToAll, List<GobiiExtractorInstruction> instructions, GobiiFileProcessDir extractorInstructions) throws GobiiDaoException;
 
 }

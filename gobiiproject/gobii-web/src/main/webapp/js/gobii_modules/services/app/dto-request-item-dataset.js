@@ -1,6 +1,5 @@
-System.register(["@angular/core", "../../model/type-process", "../../model/dataset"], function(exports_1, context_1) {
+System.register(["@angular/core", "../../model/type-process", "../../model/dataset"], function (exports_1, context_1) {
     "use strict";
-    var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -10,10 +9,10 @@ System.register(["@angular/core", "../../model/type-process", "../../model/datas
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, type_process_1, dataset_1;
-    var DtoRequestItemDataSet;
+    var __moduleName = context_1 && context_1.id;
+    var core_1, type_process_1, dataset_1, DtoRequestItemDataSet;
     return {
-        setters:[
+        setters: [
             function (core_1_1) {
                 core_1 = core_1_1;
             },
@@ -22,8 +21,9 @@ System.register(["@angular/core", "../../model/type-process", "../../model/datas
             },
             function (dataset_1_1) {
                 dataset_1 = dataset_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             DtoRequestItemDataSet = (function () {
                 function DtoRequestItemDataSet(dataSetId) {
                     this.dataSetId = dataSetId;
@@ -31,7 +31,12 @@ System.register(["@angular/core", "../../model/type-process", "../../model/datas
                     this.dataSetId = dataSetId;
                 }
                 DtoRequestItemDataSet.prototype.getUrl = function () {
-                    return "load/dataset";
+                    var baseUrl = "gobii/v1/datasets";
+                    var returnVal = baseUrl;
+                    if (this.dataSetId) {
+                        returnVal = baseUrl + "/" + this.dataSetId;
+                    }
+                    return returnVal;
                 }; // getUrl()
                 DtoRequestItemDataSet.prototype.getRequestBody = function () {
                     return JSON.stringify({
@@ -41,9 +46,10 @@ System.register(["@angular/core", "../../model/type-process", "../../model/datas
                 };
                 DtoRequestItemDataSet.prototype.resultFromJson = function (json) {
                     var returnVal;
-                    console.log("*************ENTITY NAME: " + json.entityName);
-                    console.log(json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages);
-                    console.log(json.namesById);
+                    // console.log("*************ENTITY NAME: " + json.entityName);
+                    // console.log(json.dtoHeaderResponse.succeeded ? "succeeded" : "error: " + json.dtoHeaderResponse.statusMessages)
+                    // console.log(json.namesById);
+                    //
                     // let arrayOfIds = Object.keys(json.serverConfigs);
                     // arrayOfIds.forEach(crop => {
                     //     let currentCrop = crop;
@@ -55,18 +61,20 @@ System.register(["@angular/core", "../../model/type-process", "../../model/datas
                     //         currentContextRoot,
                     //         currentPort));
                     // });
-                    returnVal = new dataset_1.DataSet(json.dataSetId, json.name, json.experimentId, json.callingAnalysisId, json.dataTable, json.dataFile, json.qualityTable, json.qualityFile, json.status, json.typeId, json.analysesIds);
+                    if (json.payload.data[0]) {
+                        returnVal = new dataset_1.DataSet(json.payload.data[0].dataSetId, json.payload.data[0].name, json.payload.data[0].experimentId, json.payload.data[0].callingAnalysisId, json.payload.data[0].dataTable, json.payload.data[0].dataFile, json.payload.data[0].qualityTable, json.payload.data[0].qualityFile, json.payload.data[0].status, json.payload.data[0].typeId, json.payload.data[0].analysesIds);
+                    }
                     return returnVal;
                     //return [new NameId(1, 'foo'), new NameId(2, 'bar')];
                 };
-                DtoRequestItemDataSet = __decorate([
-                    core_1.Injectable(), 
-                    __metadata('design:paramtypes', [Number])
-                ], DtoRequestItemDataSet);
                 return DtoRequestItemDataSet;
-            }());
-            exports_1("DtoRequestItemDataSet", DtoRequestItemDataSet); // DtoRequestItemNameIds() 
+            }()); // DtoRequestItemNameIds() 
+            DtoRequestItemDataSet = __decorate([
+                core_1.Injectable(),
+                __metadata("design:paramtypes", [Number])
+            ], DtoRequestItemDataSet);
+            exports_1("DtoRequestItemDataSet", DtoRequestItemDataSet);
         }
-    }
+    };
 });
 //# sourceMappingURL=dto-request-item-dataset.js.map

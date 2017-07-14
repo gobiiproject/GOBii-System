@@ -62,7 +62,11 @@ public class Pg2Markers extends WizardPage {
 		tblclmnFieldHeaders.setText("Field Headers");
 		Utils.setDndColumnSource(tbFieldHeaders);
 		
-		tbMarker = new Table(container, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		Composite composite = new Composite(container, SWT.NONE);
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		composite.setLayout(new GridLayout(1, false));
+		
+		tbMarker = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		tbMarker.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		tbMarker.setHeaderVisible(true);
 		tbMarker.setLinesVisible(true);
@@ -86,9 +90,29 @@ public class Pg2Markers extends WizardPage {
 		tblclmnTo.setWidth(50);
 		tblclmnTo.setText("To");
 		
-		Utils.unmarshalColumns(tbMarker, config+"/xml/Marker.xml", dto.getMarkerFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbMarker, dto.getMarkerFields());
+		Utils.unmarshalColumns(tbMarker, config+"/xml/Marker.xml", dto.getMarkerFields(), dto.getSubMarkerFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbMarker, dto.getMarkerFields(), dto.getSubMarkerFields());
 		Utils.setTableMouseLister(tbMarker, dto.getMarkerFields());
+		
+				tbMarkerProp = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION);
+				tbMarkerProp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+				tbMarkerProp.setHeaderVisible(true);
+				tbMarkerProp.setLinesVisible(true);
+				
+				TableColumn tblclmnIndex_2 = new TableColumn(tbMarkerProp, SWT.NONE);
+				tblclmnIndex_2.setWidth(50);
+				
+				TableColumn tblclmnProperty = new TableColumn(tbMarkerProp, SWT.NONE);
+				tblclmnProperty.setWidth(200);
+				tblclmnProperty.setText("Property");
+				
+				TableColumn tblclmnValue = new TableColumn(tbMarkerProp, SWT.NONE);
+				tblclmnValue.setWidth(100);
+				tblclmnValue.setText("Value");
+				
+				Utils.loadTableProps(tbMarkerProp, "marker_prop", dto.getMarkerPropFields());
+				Utils.setDndColumnTarget(tbFieldHeaders, tbMarkerProp, dto.getMarkerPropFields(), null);
+				Utils.setTableMouseLister(tbMarkerProp, dto.getMarkerFields());
 		
 		tbDSmarker = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
 		tbDSmarker.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -114,35 +138,13 @@ public class Pg2Markers extends WizardPage {
 		tblclmnTo_1.setWidth(50);
 		tblclmnTo_1.setText("To");
 		
-		Utils.unmarshalColumns(tbDSmarker, config+"/xml/DS_marker.xml", dto.getDsMarkerFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbDSmarker, dto.getDsMarkerFields());
+		Utils.unmarshalColumns(tbDSmarker, config+"/xml/DS_marker.xml", dto.getDsMarkerFields(), dto.getSubDsMarkerFields());
+		Utils.setDndColumnTarget(tbFieldHeaders, tbDSmarker, dto.getDsMarkerFields(), dto.getSubDsMarkerFields());
 		Utils.setTableMouseLister(tbDSmarker, dto.getDsMarkerFields());
-		new Label(container, SWT.NONE);
-
-		tbMarkerProp = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
-		tbMarkerProp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		tbMarkerProp.setHeaderVisible(true);
-		tbMarkerProp.setLinesVisible(true);
-		
-		TableColumn tblclmnIndex_2 = new TableColumn(tbMarkerProp, SWT.NONE);
-		tblclmnIndex_2.setWidth(50);
-		
-		TableColumn tblclmnProperty = new TableColumn(tbMarkerProp, SWT.NONE);
-		tblclmnProperty.setWidth(200);
-		tblclmnProperty.setText("Property");
-		
-		TableColumn tblclmnValue = new TableColumn(tbMarkerProp, SWT.NONE);
-		tblclmnValue.setWidth(100);
-		tblclmnValue.setText("Value");
-		
-		Utils.loadTableProps(tbMarkerProp, "marker_prop", dto.getMarkerPropFields());
-		Utils.setDndColumnTarget(tbFieldHeaders, tbMarkerProp, dto.getMarkerPropFields());
 		
 		TableColumn tblclmnPreview = new TableColumn(tbFieldHeaders, SWT.NONE);
 		tblclmnPreview.setWidth(100);
 		tblclmnPreview.setText("Preview");
-		Utils.setTableMouseLister(tbMarkerProp, dto.getMarkerFields());
-		new Label(container, SWT.NONE);
 		
 		container.addListener(SWT.Show, new Listener(){
 

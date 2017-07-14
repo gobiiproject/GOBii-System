@@ -7,6 +7,7 @@ package org.gobiiproject.gobiimodel.types;
 
 import java.util.*;
 
+
 /**
  * Created by MrPhil on 7/3/2015.
  */
@@ -18,11 +19,13 @@ public class SystemUsers {
 
     public SystemUsers() {
 
-        userDetails.put(SystemUserNames.USER_READER.toString(),
-                new SystemUserDetail(SystemUserNames.USER_READER.toString(), "reader", "READER"));
+        String userReaderName = "READER";
+        userDetails.put(userReaderName ,
+                new SystemUserDetail(userReaderName , "password", "READER"));
 
-        userDetails.put(SystemUserNames.USER_IMPORTER.toString(),
-                new SystemUserDetail(SystemUserNames.USER_IMPORTER.toString(), "password2", "ADMIN"));
+        String userImporterName = "IMPORTER";
+        userDetails.put(userImporterName,
+                new SystemUserDetail(userImporterName, "password", "ADMIN"));
 
     } // ctor
 

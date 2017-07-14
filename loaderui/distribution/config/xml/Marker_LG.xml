@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<columns>
+    <column>
+        <name>linkage_group_name</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>marker_name</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>start</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>stop</name>
+    	<required>true</required>    
+    </column>
+</columns>

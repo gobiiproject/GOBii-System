@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<columns>
+    <column>
+        <name>name</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>external Code</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>species_name</name>
+    	<required>false</required>    
+    </column>
+    <column>
+        <name>type_name</name>
+    	<required>false</required>    
+    </column>
+</columns>

@@ -2,45 +2,66 @@ package edu.cornell.gobii.gdi.main;
 
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.GridLayout;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Text;
-import org.gobiiproject.gobiiclient.core.ClientContext;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestContact;
-import org.gobiiproject.gobiimodel.dto.container.ContactDTO;
-import org.gobiiproject.gobiimodel.dto.header.HeaderStatusMessage;
-import org.gobiiproject.gobiimodel.types.GobiiCropType;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO;
+import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderStatusMessage;
 
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.utils.FormUtils;
 import edu.cornell.gobii.gdi.utils.Utils;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.custom.ScrolledComposite;
 
 public class UserDialog extends Dialog {
 	private static Logger log = Logger.getLogger(UserDialog.class.getName());
 	protected int result;
-	protected Shell shell;
-	private Text txtEmail;
-	private Text txtUsername;
-	private Combo cbContact;
+	protected Shell shlUserLogin;
 	private Combo cbCrop;
+	private Button btnCheckSSH;
 	private Text txtServer;
 	private Text txtService;
+	private Text text;
+	private Text textUsername;
+	private Text textPassword;
+	private Text textEmail;
+	private Button btnGetCrops;
+	private Button btnConnect;
+	private Button btnTest;
+	private Button btnOK;
 
 	/**
 	 * Create the dialog.
@@ -58,16 +79,16 @@ public class UserDialog extends Dialog {
 	 */
 	public int open() {
 		createContents();
-		shell.open();
-		shell.layout();
+		shlUserLogin.open();
+		shlUserLogin.layout();
 		Display display = getParent().getDisplay();
-		while (!shell.isDisposed()) {
+		while (!shlUserLogin.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
 		}
-		
-		
+
+
 		return result;
 	}
 
@@ -75,230 +96,383 @@ public class UserDialog extends Dialog {
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shell = new Shell(getParent(), SWT.BORDER | SWT.TITLE | SWT.APPLICATION_MODAL);
-		shell.setSize(450, 350);
-		shell.setText(getText());
-		shell.setLayout(new GridLayout(2, false));
-		
-		Label lblLogo = new Label(shell, SWT.NONE);
-		new Label(shell, SWT.NONE);
-		
-		Label lblWebService = new Label(shell, SWT.NONE);
-		lblWebService.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblWebService.setText("Web service:");
-		
-		Composite composite_1 = new Composite(shell, SWT.NONE);
+		shlUserLogin = new Shell(getParent(), SWT.BORDER | SWT.RESIZE | SWT.TITLE | SWT.APPLICATION_MODAL);
+		shlUserLogin.setSize(562, 393);
+		shlUserLogin.setText("User Login");
+		shlUserLogin.setLayout(new GridLayout(1, false));
+		Rectangle screenSize = Display.getCurrent().getPrimaryMonitor().getBounds();
+		shlUserLogin.setLocation((screenSize.width - shlUserLogin.getBounds().width) / 2, (screenSize.height - shlUserLogin.getBounds().height) / 2);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(shlUserLogin, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+
+		Composite composite_2 = new Composite(scrolledComposite, SWT.NONE);
+		composite_2.setLayout(new GridLayout(3, false));
+
+		Label lblWebService = new Label(composite_2, SWT.RIGHT);
+		lblWebService.setSize(66, 15);
+		lblWebService.setText("Web Service:");
+
+		Composite composite_1 = new Composite(composite_2, SWT.NONE);
+		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		composite_1.setSize(353, 34);
 		composite_1.setLayout(new GridLayout(2, false));
-		GridData gd_composite_1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_composite_1.heightHint = 34;
-		composite_1.setLayoutData(gd_composite_1);
-		
+
 		txtService = new Text(composite_1, SWT.BORDER);
 		txtService.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				App.INSTANCE.setService(txtService.getText());
+				if(txtService.getText().contains("localhost:")) btnCheckSSH.setSelection(false);
+				btnCheckSSH.setEnabled(true);
+				enableUserLogin(false);
+
+			}
+		});
+		txtService.addListener(SWT.Traverse, new Listener() {
+			@Override
+			public void handleEvent(Event event)
+			{
+				if(event.detail == SWT.TRAVERSE_RETURN)
+				{
+					getCrops();
+				}
 			}
 		});
 		txtService.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		Button btnConnect = new Button(composite_1, SWT.NONE);
-		btnConnect.addSelectionListener(new SelectionAdapter() {
+
+		btnGetCrops = new Button(composite_1, SWT.NONE);
+		btnGetCrops.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(App.INSTANCE.getService() == null || App.INSTANCE.getService().isEmpty()) return;
-				if(!App.INSTANCE.getService().endsWith("/")){
-					String service = App.INSTANCE.getService() +"/";
-					txtService.setText(service);
-					App.INSTANCE.setService(service);
-				}
-				App.INSTANCE.setCrop(null);
-				if(Controller.authenticate(log, true)){
-					FormUtils.cropSetToCombo(cbCrop);
-				}else{
-					Utils.log(shell, null, log, "Error connecting to service", null);
-				}
+				getCrops();
 			}
 		});
-		btnConnect.setText("Connect...");
-		
-		Label lblServer = new Label(shell, SWT.NONE);
-		lblServer.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblServer.setText("Server:");
-		
-		txtServer = new Text(shell, SWT.BORDER);
-		txtServer.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent arg0) {
-				App.INSTANCE.setServer(txtServer.getText());
-			}
-		});
-		txtServer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		Label lblCrop = new Label(shell, SWT.NONE);
-		lblCrop.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		btnGetCrops.setText("Get Crops");
+		new Label(composite_2, SWT.NONE);
+
+		btnCheckSSH = new Button(composite_2, SWT.CHECK);
+		btnCheckSSH.setSize(42, 16);
+		btnCheckSSH.setSelection(true);
+		btnCheckSSH.setText("SSH");
+		new Label(composite_2, SWT.NONE);
+
+		Label label = new Label(composite_2, SWT.SEPARATOR | SWT.HORIZONTAL);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+
+		Label lblCrop = new Label(composite_2, SWT.RIGHT);
+		lblCrop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		lblCrop.setSize(29, 15);
 		lblCrop.setText("Crop:");
-		
-		cbCrop = new Combo(shell, SWT.READ_ONLY);
+
+		cbCrop = new Combo(composite_2, SWT.READ_ONLY);
+		cbCrop.setEnabled(false);
+		cbCrop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cbCrop.setSize(353, 23);
 		cbCrop.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String cropName = cbCrop.getItem(cbCrop.getSelectionIndex());
-				GobiiCropType crop = (GobiiCropType) cbCrop.getData(cropName);
-				App.INSTANCE.setCrop(cropName);
-				try {
-					ClientContext.getInstance(null, false).setCurrentClientCrop(crop);
-					if(Controller.authenticate(log, false)){
-						cbContact.setEnabled(true);
-						txtEmail.setEnabled(true);
-						txtUsername.setEnabled(true);
-						FormUtils.entrySetToCombo(Controller.getContactNamesByType("Curator"), cbContact);
+				String cropName = cbCrop.getText();
+				switchToCrop(cropName);
+			}
+		});
+		FormUtils.cropSetToCombo(cbCrop);
+		new Label(composite_2, SWT.NONE);
+
+
+		Label lblUser = new Label(composite_2, SWT.NONE);
+		lblUser.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblUser.setText("Username:");
+
+		textUsername = new Text(composite_2, SWT.BORDER);
+		textUsername.setEnabled(false);
+		textUsername.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		new Label(composite_2, SWT.NONE);
+
+		Label lblPassword = new Label(composite_2, SWT.NONE);
+		GridData gd_lblNewLabel = new GridData(SWT.RIGHT, SWT.CENTER, false,
+				false, 1, 1);
+		gd_lblNewLabel.horizontalIndent = 1;
+		lblPassword.setLayoutData(gd_lblNewLabel);
+		lblPassword.setText("Password:");
+
+		textPassword = new Text(composite_2,  SWT.BORDER| SWT.PASSWORD);
+		textPassword.setEnabled(false);
+		textPassword.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		textPassword.addListener(SWT.Traverse, new Listener() {
+			@Override
+			public void handleEvent(Event event)
+			{
+				if(event.detail == SWT.TRAVERSE_RETURN)
+				{
+					if(textUsername.getText().isEmpty() || textPassword.getText().isEmpty()){
+
+						Utils.log(shlUserLogin, null, log, "Please enter a username and password", null);
+						return;
 					}
-				} catch (Exception err) {
-					Utils.log(shell, null, log, "Error selecting crop", err);
+					connect(false); 
 				}
 			}
 		});
-		cbCrop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		FormUtils.cropSetToCombo(cbCrop);
-		new Label(shell, SWT.NONE);
-		
-		Label label = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		
-		Label lblName = new Label(shell, SWT.NONE);
-		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
-		
-		cbContact = new Combo(shell, SWT.NONE);
-		cbContact.setEnabled(false);
-		cbContact.addSelectionListener(new SelectionAdapter() {
+
+		btnConnect = new Button(composite_2, SWT.NONE);
+		btnConnect.setEnabled(false);
+		btnConnect.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String name = cbContact.getItem(cbContact.getSelectionIndex());
-				Integer id = Integer.parseInt((String) cbContact.getData(name));
-				App.INSTANCE.getUser().setUserName(name);
-				App.INSTANCE.getUser().setUserId(id);
-				populateContactDetails(id);
+				if(textUsername.getText().isEmpty() || textPassword.getText().isEmpty()){
+
+					Utils.log(shlUserLogin, null, log, "Please enter a username and password", null);
+					return;
+				}
+				connect(true);
 			}
 		});
-		cbContact.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-//		FormUtils.entrySetToCombo(Controller.getContactNamesByType("Curator"), cbContact);
-		
-		Label lblEmail = new Label(shell, SWT.NONE);
+		btnConnect.setText("Connect");
+
+		Label lblEmail = new Label(composite_2, SWT.NONE);
 		lblEmail.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblEmail.setText("Email:");
-		
-		txtEmail = new Text(shell, SWT.BORDER);
-		txtEmail.setEnabled(false);
-		txtEmail.addModifyListener(new ModifyListener() {
+
+		textEmail = new Text(composite_2, SWT.BORDER);
+		textEmail.setEnabled(false);
+		textEmail.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		textEmail.setText(Controller.userEmail);
+		App.INSTANCE.getUser().setUserEmail(Controller.userEmail);
+
+		new Label(composite_2, SWT.NONE);
+
+		Label label_1 = new Label(composite_2, SWT.SEPARATOR | SWT.HORIZONTAL);
+		label_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+
+		Label lblServer = new Label(composite_2, SWT.RIGHT);
+		lblServer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		lblServer.setSize(56, 15);
+		lblServer.setText("File Server:");
+
+		Composite composite_3 = new Composite(composite_2, SWT.NONE);
+		composite_3.setLayout(new GridLayout(2, false));
+		GridData gd_composite_3 = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+		gd_composite_3.heightHint = 37;
+		composite_3.setLayoutData(gd_composite_3);
+
+		txtServer = new Text(composite_3, SWT.BORDER);
+		txtServer.setEnabled(false);
+		txtServer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
+		txtServer.setSize(353, 21);
+		txtServer.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
-				App.INSTANCE.getUser().setUserEmail(txtEmail.getText());
+				if(txtServer.getEnabled() || !txtServer.getText().isEmpty()) btnTest.setEnabled(true);
+				App.INSTANCE.setServer(txtServer.getText());
+			}
+
+		});
+
+		btnTest = new Button(composite_3, SWT.NONE);
+		btnTest.setEnabled(false);
+		btnTest.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				InetAddress host;
+				try {
+					host = InetAddress.getByName(txtServer.getText());
+					if(host.isReachable(1000)){
+						MessageBox dialog = new MessageBox(shlUserLogin, SWT.ICON_INFORMATION | SWT.OK);
+						dialog.setText("Connection successful");
+						dialog.setMessage("Connection established successfully!");
+						dialog.open();
+					}
+				} catch (IOException err) {
+					Utils.log(shlUserLogin, null, log, "Error connecting to file server", null);
+				}
 			}
 		});
-		txtEmail.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
-		Label lblUsername = new Label(shell, SWT.NONE);
-		lblUsername.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblUsername.setText("Username:");
-		
-		txtUsername = new Text(shell, SWT.BORDER);
-		txtUsername.setEnabled(false);
-		txtUsername.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent arg0) {
-				App.INSTANCE.getUser().setUserName(txtUsername.getText());
-			}
-		});
-		txtUsername.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		new Label(shell, SWT.NONE);
-		
-		Composite composite = new Composite(shell, SWT.NONE);
+		btnTest.setText("Test");
+		new Label(composite_2, SWT.NONE);
+
+		Composite composite = new Composite(composite_2, SWT.NONE);
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		composite.setSize(353, 49);
 		composite.setLayout(new GridLayout(2, false));
-		GridData gd_composite = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
-		gd_composite.heightHint = 46;
-		composite.setLayoutData(gd_composite);
-		
-		Button btnOK = new Button(composite, SWT.NONE);
+
+		btnOK = new Button(composite, SWT.NONE);
 		btnOK.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(App.INSTANCE.isValid()){
+				if(textEmail.getText().isEmpty() && textEmail.getEnabled()){
+					Utils.log(shlUserLogin, null, log, "It seems that you are not logged in.\n\nPlease enter a username and password then connect to the web service", new Throwable("Not Logged in"));
+
+				}else if(txtServer.getText().isEmpty() && btnTest.isEnabled()){
+					Utils.log(shlUserLogin, null, log, "Please enter a file server.", new Throwable("No server name"));
+
+				}else if(! App.INSTANCE.isValid()){
+					if(!textUsername.getText().isEmpty() && textEmail.getText().isEmpty()) Utils.log(shlUserLogin, null, log, "All fields are required", new Throwable("A field is empty"));
+					else if (btnCheckSSH.isEnabled()) Utils.log(shlUserLogin, null, log, "Please connect to a service", new Throwable("No server name"));
+				}
+				else {
 					App.INSTANCE.save();
 					result = Window.OK;
-					shell.close();
-				}else{
-					Utils.log(shell, null, log, "All fields are required!", new Throwable("Invalid user information"));
-				}
+					shlUserLogin.close();
+
+				} 
 			}
 		});
-		btnOK.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnOK.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnOK.setText("OK");
-		
+
 		Button btnCancel = new Button(composite, SWT.NONE);
 		btnCancel.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				result = Window.CANCEL;
-				shell.close();
+				shlUserLogin.close();
 			}
 		});
-		btnCancel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnCancel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnCancel.setText("Cancel");
-		
+		shlUserLogin.setDefaultButton(btnOK);
+		scrolledComposite.setContent(composite_2);
+		scrolledComposite.setMinSize(composite_2.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
 		createContent();
-		shell.setDefaultButton(btnOK);
-//		try {
-//			List<GobiiCropType> crops = ClientContext.getInstance().getCropTypeTypes();
-//			for(GobiiCropType crop : crops){
-//				cbCrop.add(crop.name());
-//				cbCrop.setData(crop.name(), crop);
-//			}
-//		} catch (Exception e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+
 	}
-	
+
+	protected void switchToCrop(String cropName) {
+		// TODO Auto-generated method stub
+		App.INSTANCE.setCrop(cropName);
+		try {
+			ClientContext.getInstance(null, false).setCurrentClientCrop(cropName);
+
+		} catch (Exception err) {
+			Utils.log(shlUserLogin, null, log, "Error selecting crop", err);
+		}
+	}
+
+	protected void getCrops() {
+		// TODO Auto-generated method stub
+		Controller.userEmail = "";
+
+		if(App.INSTANCE.getService() == null || App.INSTANCE.getService().isEmpty()) return;
+		if(!App.INSTANCE.getService().endsWith("/")){
+			String service = App.INSTANCE.getService() +"/";
+			txtService.setText(service);
+			App.INSTANCE.setService(service);
+		}
+		if(Controller.getCrops(log, true, btnCheckSSH.getSelection(),true)){
+			enableUserLogin(true);
+			 FormUtils.cropSetToCombo(cbCrop);
+			if(cbCrop.getItemCount()>0) cbCrop.select(0);
+			String cropName = cbCrop.getText();
+			if(cropName != null) switchToCrop(cropName);
+			btnCheckSSH.setEnabled(false);
+		}else{
+			enableUserLogin(false);
+			Utils.log(shlUserLogin, null, log, "Error connecting to service.", null);
+
+		}
+	}
+
+	protected void connect(boolean displayErrors) {
+		// TODO Auto-generated method stub
+
+		Controller.userEmail = "";
+		textEmail.setText("");
+
+		if(Controller.authenticate(textUsername.getText(),textPassword.getText())){
+//
+//			String cropName = FormUtils.cropSetToCombo(cbCrop);
+//			if(cropName != null) switchToCrop(cropName);
+			PayloadEnvelope<ContactDTO> resultEnvelope;
+			try {
+				resultEnvelope = Controller.getContactByUsername(textUsername.getText());
+
+				if(Controller.getDTOResponse(Display.getCurrent().getActiveShell(), resultEnvelope.getHeader(), null, false)){
+					ContactDTO contactDTO = resultEnvelope.getPayload().getData().get(0);
+
+					Controller.userEmail = contactDTO.getEmail();
+					textEmail.setText(contactDTO.getEmail());
+
+					App.INSTANCE.getUser().setUserEmail(Controller.userEmail);
+					App.INSTANCE.getUser().setUserName(contactDTO.getUserName());
+					App.INSTANCE.getUser().setUserId(contactDTO.getContactId());
+					App.INSTANCE.getUser().setUserFullname(contactDTO.getLastName() +", "+ contactDTO.getFirstName());
+
+					enableFileServer(true);
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				if (displayErrors)Utils.log(shlUserLogin, null, log, "Invalid user credentials.", e1);
+				else Utils.log(log, "nvalid user credentials. ", e1);
+			}
+
+		}else{
+			if (displayErrors)Utils.log(shlUserLogin, null, log, "Invalid username or password", null);
+		}
+	}
+
+	protected void enableFileServer(boolean b) {
+		// TODO Auto-generated method stub
+		txtServer.setEnabled(b);
+		btnTest.setEnabled(false);
+
+		//		if(!b) txtServer.setText("");
+	}
+
+	protected void enableUserLogin(boolean b) {
+		// TODO Auto-generated method stub
+		cbCrop.setEnabled(b);
+		textUsername.setEnabled(b);
+		textPassword.setEnabled(b);
+		btnConnect.setEnabled(b);
+
+		if(!b){
+			textUsername.setText("");
+			textPassword.setText("");
+			textEmail.setText("");
+
+			App.INSTANCE.getUser().setUserEmail(null);
+			enableFileServer(false);
+		}
+	}
+
 	protected void createContent(){
 		if(App.INSTANCE.getService() != null) txtService.setText(App.INSTANCE.getService());
 		if(App.INSTANCE.getServer() != null) txtServer.setText(App.INSTANCE.getServer());
 		if(App.INSTANCE.getCrop() != null) cbCrop.select(cbCrop.indexOf(App.INSTANCE.getCrop()));
-		if(App.INSTANCE.getUser() != null){
-			for(int i=0; i<cbContact.getItemCount(); i++){
-				String name = cbContact.getItem(i);
-				Integer id = Integer.parseInt((String) cbContact.getData(name));
-				if(name.equals(App.INSTANCE.getUser().getUserFullname()) && (id.equals(App.INSTANCE.getUser().userId))){
-					cbContact.select(i);
-					break;
-				}
-			}
-			if(App.INSTANCE.getUser().userEmail != null) txtEmail.setText(App.INSTANCE.getUser().userEmail);
-			if(App.INSTANCE.getUser().userName != null) txtUsername.setText(App.INSTANCE.getUser().userName);
-		}
+
 	}
-	
+
 	protected void populateContactDetails(int contactId) {
-		DtoRequestContact dtoRequestContact = new DtoRequestContact();
-		ContactDTO contactDTO = new ContactDTO();
-		contactDTO.setContactId(contactId);
+
 		try {
-			contactDTO = dtoRequestContact.process(contactDTO);
-			if(!contactDTO.getDtoHeaderResponse().isSucceeded()){
-				String message = "";
-				for (HeaderStatusMessage currentStatusMesage : contactDTO.getDtoHeaderResponse().getStatusMessages()) {
-	                message += currentStatusMesage.getMessage();
-	            }
-				System.out.println(message);
-//				Utils.log(shell, null, log, "Error getting contact details.", new Throwable(message));
-				return;
+
+			RestUri restUriContact = App
+					.INSTANCE.getUriFactory()
+					.resourceByUriIdParam(ServiceRequestId.URL_CONTACTS);
+			restUriContact.setParamValue("id", Integer.toString(contactId));
+			GobiiEnvelopeRestResource<ContactDTO> restResource = new GobiiEnvelopeRestResource<>(restUriContact);
+			PayloadEnvelope<ContactDTO> resultEnvelope = restResource
+					.get(ContactDTO.class);
+
+			if(Controller.getDTOResponse(shlUserLogin, resultEnvelope.getHeader(), null, false)){
+				ContactDTO contactDTO =  resultEnvelope.getPayload().getData().get(0);
+				String email = contactDTO.getEmail();
+				//				String username = (String)email.subSequence(0, email.indexOf("@"));
+
+				textEmail.setText(email);
+				http://localhost:8282/gobii-dev
+
+					App.INSTANCE.getUser().setUserEmail(email);
+				App.INSTANCE.getUser().setUserName(contactDTO.getUserName());
+				App.INSTANCE.getUser().setUserId(contactDTO.getContactId());
+				App.INSTANCE.getUser().setUserFullname(contactDTO.getLastName() +", "+ contactDTO.getFirstName());
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		String email = contactDTO.getEmail();
-		String username = (String)email.subSequence(0, email.indexOf("@"));
-		App.INSTANCE.getUser().setUserFullname(cbContact.getItem(cbContact.getSelectionIndex()));
-		txtEmail.setText(email); App.INSTANCE.getUser().setUserEmail(email);
-		txtUsername.setText(username); App.INSTANCE.getUser().setUserName(username);
+
 	}
-	
-	
 }

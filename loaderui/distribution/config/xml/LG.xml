@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<columns>
+    <column>
+        <name>name</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>start</name>
+    	<required>false</required>    
+    </column>
+    <column>
+        <name>stop</name>
+    	<required>false</required>    
+    </column>
+</columns>

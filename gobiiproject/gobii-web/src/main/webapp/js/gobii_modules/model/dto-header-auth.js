@@ -1,10 +1,10 @@
-System.register([], function(exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var DtoHeaderAuth;
     return {
-        setters:[],
-        execute: function() {
+        setters: [],
+        execute: function () {
             DtoHeaderAuth = (function () {
                 function DtoHeaderAuth(userName, password, token, gobiiCropType) {
                     this.userName = userName;
@@ -29,6 +29,6 @@ System.register([], function(exports_1, context_1) {
             }());
             exports_1("DtoHeaderAuth", DtoHeaderAuth);
         }
-    }
+    };
 });
 //# sourceMappingURL=dto-header-auth.js.map

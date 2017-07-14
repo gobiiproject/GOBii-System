@@ -6,6 +6,7 @@ import org.gobiiproject.gobiidao.resultset.access.RsRoleDao;
 import org.gobiiproject.gobiidao.resultset.core.StoredProcExec;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPlatformNames;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetRoleNames;
+import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +37,10 @@ public class RsRoleDaoImpl implements RsRoleDao {
             storedProcExec.doWithConnection(spGetRoleNames);
             returnVal = spGetRoleNames.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving role names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving role names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 

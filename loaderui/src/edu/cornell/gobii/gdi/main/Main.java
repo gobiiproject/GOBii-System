@@ -1,11 +1,12 @@
 package edu.cornell.gobii.gdi.main;
 
 import java.util.Set;
+import java.util.List;
 import java.util.Map.Entry;
 
-import org.gobiiproject.gobiiclient.core.ClientContext;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 import org.gobiiproject.gobiimodel.types.SystemUserDetail;
-import org.gobiiproject.gobiimodel.types.SystemUserNames;
 import org.gobiiproject.gobiimodel.types.SystemUsers;
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swt.SWT;
@@ -262,7 +263,7 @@ public class Main {
 		btnMarkerWizard.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardUtils.CreateMarkerWizard(shell, config);
+				WizardUtils.CreateMarkerWizard(shell, config, 0, 0, 0, 0);
 			}
 		});
 		btnMarkerWizard.setText("Marker Wizard");
@@ -272,7 +273,7 @@ public class Main {
 		btnDNAsampleWizard.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardUtils.createDNASampleWizard(shell, config);
+				WizardUtils.createDNASampleWizard(shell, config, 0, 0, 0);
 			}
 		});
 		btnDNAsampleWizard.setText("DNA Sample Wizard");
@@ -282,7 +283,7 @@ public class Main {
 		btnDatasetWizard.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardUtils.CreateDatasetWizard(shell, config);
+				WizardUtils.CreateDatasetWizard(shell, config, 0, 0, 0, 0);
 			}
 		});
 		btnDatasetWizard.setText("Dataset Wizard");
@@ -306,14 +307,12 @@ public class Main {
 				if(dsId != null && dsId > 0){
 					// To nothing
 				}else if(expId != null && expId > 0){
-					FrmDatasets frm = new FrmDatasets(shell, tabContent, SWT.NONE, config);
+					FrmDatasets frm = new FrmDatasets(shell, tabContent, SWT.NONE, config, projId, expId);
 					createContentTab(frm, "Datasets");
-					IDs.experimentId = expId;
 					frm.populateDatasetListFromSelectedExperiment(expId);
 				}else if(projId != null && projId > 0){
-					FrmExperiments frm = new FrmExperiments(shell, tabContent, SWT.NONE, config);
+					FrmExperiments frm = new FrmExperiments(shell, tabContent, SWT.NONE, config, 0,  projId);
 					createContentTab(frm, "Experiments");
-					IDs.projectId = projId;
 					frm.populateExperimentsListFromSelectedProject(projId);
 				}
 			}
@@ -328,24 +327,24 @@ public class Main {
 				if(dsId != null && dsId > 0){
 					// Do nothing
 				}else if(expId != null && expId > 0){
-					Set<Entry<String, String>> itemDS = Controller.getDataSetNamesByExperimentId(expId);
-					for(Entry<String, String> entryDS : itemDS){
+					List<NameIdDTO> itemDS = Controller.getDataSetNamesByExperimentId(expId);
+					for(NameIdDTO entryDS : itemDS){
 						TreeItem ds = new TreeItem(item, 0);
-						ds.setText(entryDS.getValue());
+						ds.setText(entryDS.getName());
 						ds.setData("project", projId);
 						ds.setData("experiment", expId);
-						ds.setData("dataset", entryDS.getKey());
+						ds.setData("dataset", entryDS.getId().toString());
 						ds.setData("clicked", true);
 						ds.setBackground(0, display.getSystemColor(SWT.COLOR_GRAY));
 					}
 					item.setData("clicked", true);
 				}else if(projId != null && projId > 0){
-					Set<Entry<String, String>> itemExps = Controller.getExperimentNamesByProjectId(projId);
-					for(Entry<String, String> entryExp : itemExps){
+					List<NameIdDTO> itemExps = Controller.getExperimentNamesByProjectId(projId);
+					for(NameIdDTO entryExp : itemExps){
 						TreeItem exp = new TreeItem(item, 0);
-						exp.setText(entryExp.getValue());
+						exp.setText(entryExp.getName());
 						exp.setData("project", projId);
-						exp.setData("experiment", entryExp.getKey());
+						exp.setData("experiment", entryExp.getId().toString());
 						exp.setData("clicked", false);
 						exp.setBackground(0, display.getSystemColor(SWT.COLOR_CYAN));
 					}
@@ -359,11 +358,11 @@ public class Main {
 	
 	private void getTreeItems(){
 		tree.removeAll();
-		Set<Entry<String, String>> itemProjs = Controller.getProjectNames();
-		for(Entry<String, String> entryProj : itemProjs){
+		List<NameIdDTO> itemProjs = Controller.getProjectNames();
+		for(NameIdDTO entryProj : itemProjs){
 			TreeItem proj = new TreeItem(tree, 0);
-			proj.setText(entryProj.getValue());
-			proj.setData("project", entryProj.getKey());
+			proj.setText(entryProj.getName());
+			proj.setData("project", entryProj.getId().toString());
 			proj.setData("clicked", false);
 		}
 		

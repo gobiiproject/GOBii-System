@@ -12,12 +12,16 @@ public class SpInsReference extends SpDef {
 
     public SpInsReference() {
 
-        super("{call createreference(?,?,?,?)}");
+        super("{call createreference(?,?,?,?,?,?,?,?)}");
 
         this.addParamDef("name", String.class).setNullable(false);
         this.addParamDef("version", String.class).setNullable(false);
         this.addParamDef("link", String.class).setNullable(true);
         this.addParamDef("filePath", String.class).setNullable(true);
+        this.addParamDef("createdBy", Integer.class).setNullable(true);
+        this.addParamDef("createdDate", java.util.Date.class).setNullable(true);
+        this.addParamDef("modifiedBy", Integer.class).setNullable(true);
+        this.addParamDef("modifiedDate", java.util.Date.class).setNullable(true);
 
 
     } // ctor

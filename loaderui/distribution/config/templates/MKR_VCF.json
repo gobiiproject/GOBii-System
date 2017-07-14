@@ -1,0 +1,89 @@
+{
+  "processType" : "CREATE",
+  "dtoHeaderAuth" : {
+    "userName" : null,
+    "password" : null,
+    "token" : null,
+    "gobiiCropType" : null
+  },
+  "dtoHeaderResponse" : {
+    "succeeded" : true,
+    "statusMessages" : [ ]
+  },
+  "gobiiCropType" : "TEST",
+  "gobiiLoaderInstructions" : [ {
+    "gobiiFile" : {
+      "source" : "/shared_data/gobii/crops/test/files/yn259_20160628_194102",
+      "destination" : "/shared_data/gobii/crops/test/loader/digest/yn259_20160628_194102",
+      "delimiter" : "\\t",
+      "gobiiFileType" : "VCF",
+      "requireDirectoriesToExist" : false,
+      "createSource" : true
+    },
+    "table" : "linkage_group",
+    "gobiiFileColumns" : [ {
+      "gobiiColumnType" : "CONSTANT",
+      "name" : "map_id",
+      "constantValue" : "3"
+    }, {
+      "gobiiColumnType" : "VCF_VARIANT",
+      "name" : "name",
+      "filterFrom" : "Ca_",
+      "filterTo" : "_length",
+     }, {
+      "gobiiColumnType" : "VCF_MARKER_POS",
+      "name" : "start",
+    }, {
+      "gobiiColumnType" : "VCF_MARKER_POS",
+      "name" : "stop",
+    } ],
+    "vcfParameters" : {
+      "maf" : null,
+      "minQ" : null,
+      "minDp" : null,
+      "removeIndels" : false,
+      "toIupac" : false
+    },
+    "dataSetId" : null,
+    "gobiiCropType" : "TEST",
+    "contactId" : 9,
+    "contactEmail" : "yn259@cornell.edu"
+  }, {
+    "gobiiFile" : {
+      "source" : "/shared_data/gobii/crops/test/files/yn259_20160628_194102",
+      "destination" : "/shared_data/gobii/crops/test/loader/digest/yn259_20160628_194102",
+      "delimiter" : "\\t",
+      "gobiiFileType" : "VCF",
+      "requireDirectoriesToExist" : false,
+      "createSource" : true
+    },
+    "table" : "marker_linkage_group",
+    "gobiiFileColumns" : [ {
+      "gobiiColumnType" : "VCF_MARKER_POS",
+      "name" : "stop",
+    }, {
+      "gobiiColumnType" : "VCF_MARKER",
+      "name" : "marker_name"
+    }, {
+      "gobiiColumnType" : "VCF_MARKER_POS",
+      "name" : "start"
+    }, {
+      "gobiiColumnType" : "VCF_VARIANT",
+      "name" : "linkage_group_name",
+      "filterFrom" : "Ca_",
+      "filterTo" : "_length"
+    } ],
+    "vcfParameters" : {
+      "maf" : null,
+      "minQ" : null,
+      "minDp" : null,
+      "removeIndels" : false,
+      "toIupac" : false
+    },
+    "dataSetId" : null,
+    "gobiiCropType" : "TEST",
+    "contactId" : 9,
+    "contactEmail" : "yn259@cornell.edu"
+  } ],
+  "instructionFileName" : "yn259_20160628_194102"
+}

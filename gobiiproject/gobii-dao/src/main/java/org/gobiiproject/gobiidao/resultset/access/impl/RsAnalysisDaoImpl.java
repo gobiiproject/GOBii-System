@@ -18,6 +18,7 @@ import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetCvTermsByGroup;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPlatformNames;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPropertiesForAnalysis;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPropertiesForProject;
+import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +60,10 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
 
             returnVal = spGetDatasetDetailsByExperimentId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving analysis details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving analysis details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -76,13 +77,22 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
 
         ResultSet returnVal = null;
 
-        SpGetAnalysisNames spGetAnalysisNames = new SpGetAnalysisNames();
-        storedProcExec.doWithConnection(spGetAnalysisNames);
-        returnVal = spGetAnalysisNames.getResultSet();
+        try {
+
+            SpGetAnalysisNames spGetAnalysisNames = new SpGetAnalysisNames();
+            storedProcExec.doWithConnection(spGetAnalysisNames);
+            returnVal = spGetAnalysisNames.getResultSet();
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving analysis names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+
+        }
 
         return returnVal;
 
-    }
+    } // getAnalysisNames
 
     @Transactional
     @Override
@@ -92,21 +102,14 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
 
         try {
 
-            if (spRunnerCallable.run(new SpInsAnalysis(), parameters)) {
+            spRunnerCallable.run(new SpInsAnalysis(), parameters);
 
-                returnVal = spRunnerCallable.getResult();
+            returnVal = spRunnerCallable.getResult();
 
-            } else {
+        } catch (SQLGrammarException e) {
 
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-
-            }
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error creating analysis", e);
-            throw (new GobiiDaoException(e));
-
+            LOGGER.error("Error creating analysis with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
 
         return returnVal;
@@ -118,14 +121,12 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
 
         try {
 
-            if (!spRunnerCallable.run(new SpUpdAnalysis(), parameters)) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-            }
+            spRunnerCallable.run(new SpUpdAnalysis(), parameters);
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error updating analysis", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error updating analysis with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
     }
 
@@ -136,13 +137,12 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
         try {
             spRunnerCallable.run(new SpInsAnalysisParameters(), parameters);
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error updating project property", e);
-            throw (new GobiiDaoException(e));
-
+            LOGGER.error("Error updating project property with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
-    } // createUpdateMapSetProperty
+    } //
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
@@ -157,25 +157,25 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
             storedProcExec.doWithConnection(spGetPropertiesForAnalysis);
             returnVal = spGetPropertiesForAnalysis.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving project properties", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving project properties with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
-
 
         return returnVal;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-	@Override
-	public ResultSet getAnalysisNamesByTypeId(int typeId) throws GobiiDaoException {
-		// TODO Auto-generated method stub
+    @Override
+    public ResultSet getAnalysisNamesByTypeId(int typeId) throws GobiiDaoException {
+        // TODO Auto-generated method stub
 
         ResultSet returnVal = null;
 
         try {
+
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("typeId", typeId);
             SpGetAnalysisNamesByTypeId spGetAnalysisNamesByTypeId = new SpGetAnalysisNamesByTypeId(parameters);
@@ -183,14 +183,15 @@ public class RsAnalysisDaoImpl implements RsAnalysisDao {
             storedProcExec.doWithConnection(spGetAnalysisNamesByTypeId);
 
             returnVal = spGetAnalysisNamesByTypeId.getResultSet();
-        } catch (Exception e) {
 
-            LOGGER.error("Error retrieving Analysis Names by type", e);
-            throw (new GobiiDaoException(e));
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving Analysis Names by type with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
 
         return returnVal;
-	}
+    }
 }

@@ -21,6 +21,7 @@ import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetMarkersByMarkerN
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetMarkersForMarkerGroup;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPlatformNames;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPropertiesForAnalysis;
+import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +58,10 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
             storedProcExec.doWithConnection(spGetMarkerGroupNames);
             returnVal = spGetMarkerGroupNames.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving marker group names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving marker group names with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -86,10 +87,10 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
 
             returnVal = spGetMarkerGroupDetailsByMarkerGroupId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException  e) {
 
-            LOGGER.error("Error retrieving marker group details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving marker group details with SQL " + e.getSQL() , e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -104,20 +105,13 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
 
         try {
 
-            if (spRunnerCallable.run(new SpInsMarkerGroup(), parameters)) {
+            spRunnerCallable.run(new SpInsMarkerGroup(), parameters);
+            returnVal = spRunnerCallable.getResult();
 
-                returnVal = spRunnerCallable.getResult();
+        } catch (SQLGrammarException e) {
 
-            } else {
-
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-
-            }
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error creating marker group", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating marker group with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -140,10 +134,10 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
 
             returnVal = spGetMarkersByMarkerName.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException  e) {
 
-            LOGGER.error("Error retrieving markers", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving markers with SQL " + e.getSQL() , e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -165,10 +159,10 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
 
             returnVal = spGetMarkersByMarkerId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException  e) {
 
-            LOGGER.error("Error retrieving markers", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving markers with SQL " + e.getSQL() , e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -181,15 +175,13 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
 
         try {
 
-            if( ! spRunnerCallable.run(new SpInsMarkerGroupMarkers(), parameters) ) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
+            spRunnerCallable.run(new SpInsMarkerGroupMarkers(), parameters);
 
-            }
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException  e) {
 
-            LOGGER.error("Error updating marker group marker", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error updating marker group marker with SQL " + e.getSQL() , e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
 
     } // createUpdateMapSetProperty
@@ -197,17 +189,14 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteMarkerGroupMarker(Map<String, Object> parameters) throws GobiiDaoException {
+
         try {
 
-            if( ! spRunnerCallable.run(new SpDelMarkerGroupMarkerById(), parameters) ) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
+            spRunnerCallable.run(new SpDelMarkerGroupMarkerById(), parameters);
+        } catch (SQLGrammarException  e) {
 
-            }
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error updating marker group marker", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error updating marker group marker with SQL " + e.getSQL() , e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
 
     }
@@ -215,16 +204,14 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void updateMarkerGroup(Map<String, Object> parameters) throws GobiiDaoException {
+
         try {
 
-            if (!spRunnerCallable.run(new SpUpdMarkerGroup(), parameters)) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-            }
+            spRunnerCallable.run(new SpUpdMarkerGroup(), parameters);
+        } catch (SQLGrammarException  e) {
 
-        } catch (Exception e) {
-
-            LOGGER.error("Error updating marker group", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error updating marker group with SQL " + e.getSQL() , e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
 
     }
@@ -242,15 +229,16 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
             storedProcExec.doWithConnection(spGetMarkersForMarkerGroup);
             returnVal = spGetMarkersForMarkerGroup.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException  e) {
 
-            LOGGER.error("Error retrieving marker group markers", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving marker group markers with SQL " + e.getSQL() , e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
 
-        return returnVal;    }
+        return returnVal;
+    }
 
 
 }

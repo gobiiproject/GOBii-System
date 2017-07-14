@@ -1,14 +1,14 @@
-System.register(["./dto-header-status-message"], function(exports_1, context_1) {
+System.register(["./dto-header-status-message"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var dto_header_status_message_1;
-    var DtoHeaderResponse;
+    var dto_header_status_message_1, DtoHeaderResponse;
     return {
-        setters:[
+        setters: [
             function (dto_header_status_message_1_1) {
                 dto_header_status_message_1 = dto_header_status_message_1_1;
-            }],
-        execute: function() {
+            }
+        ],
+        execute: function () {
             DtoHeaderResponse = (function () {
                 function DtoHeaderResponse(succeeded, statusMessages) {
                     this.succeeded = succeeded;
@@ -25,6 +25,6 @@ System.register(["./dto-header-status-message"], function(exports_1, context_1) 
             }());
             exports_1("DtoHeaderResponse", DtoHeaderResponse);
         }
-    }
+    };
 });
 //# sourceMappingURL=dto-header-response.js.map

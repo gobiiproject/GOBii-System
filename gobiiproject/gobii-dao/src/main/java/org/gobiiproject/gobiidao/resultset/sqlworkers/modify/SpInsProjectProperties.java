@@ -2,9 +2,6 @@ package org.gobiiproject.gobiidao.resultset.sqlworkers.modify;
 
 import org.gobiiproject.gobiidao.resultset.core.EntityPropertyParamNames;
 import org.gobiiproject.gobiidao.resultset.core.SpDef;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
-
-import java.sql.Date;
 
 /**
  * Created by Phil on 4/7/2016.

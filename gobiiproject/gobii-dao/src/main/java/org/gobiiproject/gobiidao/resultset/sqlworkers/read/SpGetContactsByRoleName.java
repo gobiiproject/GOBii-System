@@ -35,7 +35,8 @@ public class SpGetContactsByRoleName implements Work {
                 "\t\t\t\t\tr.role_code\n" +
                 "\t\t\tfrom contact c\n" +
                 "\t\t\tjoin role r on (r.role_id=ANY(c.roles))\n" +
-                "\t\t\twhere r.role_name= ? order by lastname";
+                "\t\t\twhere r.role_name= ? " +
+                "\t\torder by lower(c.lastname), lower(c.firstname)";
         PreparedStatement preparedStatement = dbConnection.prepareCall(sql);
         preparedStatement.setString(1, (String) parameters.get("roleName"));
         resultSet = preparedStatement.executeQuery();

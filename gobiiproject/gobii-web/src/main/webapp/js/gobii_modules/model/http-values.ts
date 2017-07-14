@@ -1,13 +1,13 @@
 import {Http, Response, Headers} from "@angular/http";
 import {HeaderNames} from "./header-names";
-import {GobiiCropType} from "./type-crop";
 
 export class HttpValues {
 
-    public static makeTokenHeaders(token:string): Headers {
+    public static makeTokenHeaders(token:string,gobiiCropType:string): Headers {
 
         let returnVal = this.makeContentHeaders();
         returnVal.append(HeaderNames.headerToken, token);
+        returnVal.append(HeaderNames.headerGobiiCrop, gobiiCropType);
         return returnVal;
     }
     

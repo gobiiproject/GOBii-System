@@ -38,6 +38,10 @@ DEBUG includes itself and all others down, but not TRACE-->
         <appender-ref ref="console"/>
     </logger>
 
+    <logger name="org.springframework.web.method.HandlerMethod">
+        <level value="ERROR"/>
+    </logger>
+
     <root level="ERROR">
         <appender-ref ref="console"/>
     </root>

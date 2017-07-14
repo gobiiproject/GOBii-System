@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<columns>
+    <column>
+        <name>name</name>
+    	<required>true</required>    
+    </column>
+    <column>
+        <name>ref</name>
+    	<required>false</required>    
+    </column>
+    <column>
+        <name>alts</name>
+    	<required>false</required>    
+    </column>
+    <column>
+        <name>sequence</name>
+    	<required>false</required>    
+    </column>
+    <column>
+        <name>reference_name</name>
+    	<required>false</required>    
+    </column>
+    <column>
+        <name>strand_name</name>
+    	<required>false</required>    
+    </column>
+</columns>

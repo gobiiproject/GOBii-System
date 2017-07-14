@@ -5,7 +5,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>org.gobiiproject</groupId>
-        <version>1.0.6-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -23,7 +23,19 @@
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-model</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-api-model</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gobiiproject</groupId>
+            <artifactId>gobii-brapi</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <!-- HTTP client -->
@@ -120,6 +132,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons-lang-version}</version>
+        </dependency>
 
 
     </dependencies>

@@ -1,7 +1,5 @@
 package org.gobiiproject.gobiiweb;
 
-import org.gobiiproject.gobiimodel.config.ConfigSettings;
-import org.gobiiproject.gobiimodel.types.GobiiCropType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
@@ -16,6 +14,15 @@ public class DataSourceSelector extends AbstractRoutingDataSource {
     @Override
     protected Object determineCurrentLookupKey() {
 
-        return CropRequestAnalyzer.getGobiiCropType().toString();
+        Object returnVal = null;
+
+        try {
+            returnVal = CropRequestAnalyzer.getGobiiCropType().toString();
+        } catch( Exception e) {
+
+            LOGGER.error("Error looking up lookup key",e);
+        }
+
+        return returnVal;
     }
 }

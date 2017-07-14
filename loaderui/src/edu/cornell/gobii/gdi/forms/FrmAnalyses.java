@@ -9,12 +9,18 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestAnalysis;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
-import org.gobiiproject.gobiimodel.dto.container.AnalysisDTO;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.utils.FormUtils;
@@ -28,6 +34,8 @@ import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -55,6 +63,8 @@ public class FrmAnalyses extends AbstractFrm{
 	private Combo cbReference;
 	private Table tbParameters;
 	private TableViewer viewerParameters;
+	private int currentAnalysisId=0;
+	protected Integer currentAnalysisTypeId=0;
 
 	/**
 	 * Create the composite.
@@ -67,25 +77,53 @@ public class FrmAnalyses extends AbstractFrm{
 		GridLayout gridLayout = (GridLayout) cmpForm.getLayout();
 		gridLayout.numColumns = 2;
 
-		cbList.setText("Select Analysis Type");
+		cbList.setText("*Select Analysis Type");
+		lblCbList.setText("Analysis Types:");
 
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Analysis Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtName.addFocusListener(new FocusListener() {
+    		ToolTip tip = new ToolTip(shell, SWT.BALLOON);
+    		
+			@Override
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				if(cbList.getSelectionIndex()<0){
+				
+				Point loc = cbList.toDisplay(cbList.getLocation());
 
-		Label lblDescription = new Label(cmpForm, SWT.NONE);
-		lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblDescription.setText("Description:");
+        		tip.setMessage("Please select an Analysis Type before creating or updating an entry.");
+        		tip.setLocation(loc.x + cbList.getSize().x , loc.y-cbList.getSize().y/2);
+                tip.setVisible(true);
+				}
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				 tip.setVisible(false);
+			}
+        });
+		Label lblNewLabel = new Label(cmpForm, SWT.NONE);
 
 		memoDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
-		memoDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		memoDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3));
+
+		Label lblAnalysis = new Label(cmpForm, SWT.NONE);
+		lblAnalysis.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, false, false, 1, 1));
+		lblAnalysis.setText("Analysis");
+
+		Label lblDescription = new Label(cmpForm, SWT.NONE);
+		lblDescription.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
+		lblDescription.setText("Description:");
 
 		Label lblType = new Label(cmpForm, SWT.NONE);
 		lblType.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblType.setText("Type:");
+		lblType.setText("*Type:");
 
 		cbType = new Combo(cmpForm, SWT.NONE);
 		cbType.setEnabled(false);
@@ -100,7 +138,7 @@ public class FrmAnalyses extends AbstractFrm{
 
 		Label lblProgramVersion = new Label(cmpForm, SWT.NONE);
 		lblProgramVersion.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblProgramVersion.setText("Program version:");
+		lblProgramVersion.setText("Program Version:");
 
 		txtProgramVersion = new Text(cmpForm, SWT.BORDER);
 		txtProgramVersion.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -149,7 +187,10 @@ public class FrmAnalyses extends AbstractFrm{
 		tbParameters = viewerParameters.getTable();
 		tbParameters.setLinesVisible(true);
 		tbParameters.setHeaderVisible(true);
-		tbParameters.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		GridData gd_tbParameters = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_tbParameters.minimumHeight = 100;
+		gd_tbParameters.heightHint = 115;
+		tbParameters.setLayoutData(gd_tbParameters);
 
 		TableViewerColumn tableViewerColumn = new TableViewerColumn(viewerParameters, SWT.NONE);
 		TableColumn tblclmnParameter = tableViewerColumn.getColumn();
@@ -226,7 +267,7 @@ public class FrmAnalyses extends AbstractFrm{
 		group.setLayoutData(gd_group);
 
 		Button btnNewParameter = new Button(group, SWT.NONE);
-		btnNewParameter.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+		btnNewParameter.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnNewParameter.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -237,7 +278,7 @@ public class FrmAnalyses extends AbstractFrm{
 		btnNewParameter.setText("New Parameter");
 
 		Button btnDeleteParameter = new Button(group, SWT.NONE);
-		btnDeleteParameter.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+		btnDeleteParameter.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnDeleteParameter.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -261,9 +302,9 @@ public class FrmAnalyses extends AbstractFrm{
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(true)) return;
-					AnalysisDTO analysisDTO = new AnalysisDTO(DtoMetaData.ProcessType.CREATE);
+					AnalysisDTO analysisDTO = new AnalysisDTO();
 					analysisDTO.setAnalysisName(txtName.getText());
-					analysisDTO.setAnlaysisTypeId(IDs.analysisTypeId);
+					analysisDTO.setAnlaysisTypeId(currentAnalysisTypeId);
 					analysisDTO.setAnalysisDescription(memoDescription.getText());
 					analysisDTO.setProgram(txtProgram.getText());
 					analysisDTO.setProgramVersion(txtProgramVersion.getText());
@@ -271,7 +312,7 @@ public class FrmAnalyses extends AbstractFrm{
 					analysisDTO.setSourceName(txtSourceName.getText());
 					analysisDTO.setSourceUri(txtSourceURL.getText());
 					analysisDTO.setSourceVersion(txtSourceVersion.getText());
-					analysisDTO.setStatus(1);
+					analysisDTO.setStatusId(1);
 					if(cbReference.getSelectionIndex() > -1){
 						String ref = (String) cbReference.getData(cbReference.getItem(cbReference.getSelectionIndex()));
 						analysisDTO.setReferenceId(Integer.parseInt(ref));
@@ -283,15 +324,19 @@ public class FrmAnalyses extends AbstractFrm{
 						prop.setPropertyValue(item.getText(1));
 						analysisDTO.getParameters().add(prop);
 					}
-					try{
-						DtoRequestAnalysis dtoRequestAnalysis = new DtoRequestAnalysis();
-						AnalysisDTO analysisDTOResponse = dtoRequestAnalysis.process(analysisDTO);
-						if(Controller.getDTOResponse(shell, analysisDTOResponse, memInfo)){
-							populateAnalysisFromSelectedType(IDs.analysisTypeId);
+						PayloadEnvelope<AnalysisDTO> payloadEnvelope = new PayloadEnvelope<>(analysisDTO,
+								GobiiProcessType.CREATE);
+						GobiiEnvelopeRestResource<AnalysisDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_ANALYSIS));
+						PayloadEnvelope<AnalysisDTO> resultEnvelope = restResource.post(AnalysisDTO.class,
+								payloadEnvelope);
+
+						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
+							populateAnalysisFromSelectedType(FormUtils.getIdFromFormList(cbList));
+							currentAnalysisId = resultEnvelope.getPayload().getData().get(0).getAnalysisId();
+							selectedName = txtName.getText();
+							FormUtils.selectRowById(tbList, currentAnalysisId);
 						};
-					}catch(Exception err){
-						Utils.log(shell, memInfo, log, "Error saving analysis", err);
-					}
+					
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error saving analysis", err);
 				}
@@ -307,11 +352,11 @@ public class FrmAnalyses extends AbstractFrm{
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Analysis", IDs.analysisName)) return;
-					AnalysisDTO analysisDTO = new AnalysisDTO(DtoMetaData.ProcessType.UPDATE);
-					analysisDTO.setAnalysisId(IDs.analysisId);
+					if(!FormUtils.updateForm(getShell(), "Analysis", selectedName)) return;
+					AnalysisDTO analysisDTO = new AnalysisDTO();
+					analysisDTO.setAnalysisId(currentAnalysisId);
 					analysisDTO.setAnalysisName(txtName.getText());
-					analysisDTO.setAnlaysisTypeId(IDs.analysisTypeId);
+					analysisDTO.setAnlaysisTypeId(currentAnalysisTypeId);
 					analysisDTO.setAnalysisDescription(memoDescription.getText());
 					analysisDTO.setProgram(txtProgram.getText());
 					analysisDTO.setProgramVersion(txtProgramVersion.getText());
@@ -319,7 +364,7 @@ public class FrmAnalyses extends AbstractFrm{
 					analysisDTO.setSourceName(txtSourceName.getText());
 					analysisDTO.setSourceUri(txtSourceURL.getText());
 					analysisDTO.setSourceVersion(txtSourceVersion.getText());
-					analysisDTO.setStatus(1);
+					analysisDTO.setStatusId(1);
 					if(cbReference.getSelectionIndex() > -1){
 						String ref = (String) cbReference.getData(cbReference.getItem(cbReference.getSelectionIndex()));
 						analysisDTO.setReferenceId(Integer.parseInt(ref));
@@ -331,15 +376,17 @@ public class FrmAnalyses extends AbstractFrm{
 						prop.setPropertyValue(item.getText(1));
 						analysisDTO.getParameters().add(prop);
 					}
-					try{
-						DtoRequestAnalysis dtoRequestAnalysis = new DtoRequestAnalysis();
-						AnalysisDTO analysisDTOResponse = dtoRequestAnalysis.process(analysisDTO);
-						if(Controller.getDTOResponse(shell, analysisDTOResponse, memInfo)){
-							populateAnalysisFromSelectedType(IDs.analysisTypeId);
+						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_ANALYSIS);
+						restUri.setParamValue("id", Integer.toString(currentAnalysisId));
+						GobiiEnvelopeRestResource<AnalysisDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
+						restResourceById.setParamValue("id", analysisDTO.getAnalysisId().toString());
+						PayloadEnvelope<AnalysisDTO> analysisDTOResponse = restResourceById.put(
+								AnalysisDTO.class, new PayloadEnvelope<>(analysisDTO, GobiiProcessType.UPDATE));
+
+						if(Controller.getDTOResponse(shell, analysisDTOResponse.getHeader(), memInfo, true)){
+							populateAnalysisFromSelectedType(currentAnalysisTypeId);
+							FormUtils.selectRowById(tbList, currentAnalysisId); 
 						};
-					}catch(Exception err){
-						Utils.log(shell, memInfo, log, "Error saving analysis", err);
-					}
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error saving analysis", err);
 				}
@@ -361,6 +408,7 @@ public class FrmAnalyses extends AbstractFrm{
 
 	}
 
+
 	@Override
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
@@ -375,33 +423,55 @@ public class FrmAnalyses extends AbstractFrm{
 			public void handleEvent(Event e) {
 				String selected = cbList.getText(); //single selection
 				cbType.setText(selected);
-				IDs.analysisTypeId = Integer.parseInt((String) cbList.getData(selected));
 				cleanAnalysisDetails();
-				populateAnalysisFromSelectedType(IDs.analysisTypeId ); //retrieve and display projects by contact Id
+				currentAnalysisTypeId = FormUtils.getIdFromFormList(cbList);
+				populateAnalysisFromSelectedType(currentAnalysisTypeId); //retrieve and display projects by contact Id
 			}
 
+		});
+
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				tbList.removeAll();
+				Integer id = FormUtils.getIdFromFormList(cbList);
+				if(id>0){
+					FormUtils.entrySetToComboSelectId(Controller.getAnalysisTypes(), cbList, id);
+					populateAnalysisFromSelectedType(id);
+					populateAnalysisTypesComboAndSelect(cbType, id);
+				}
+				else{
+					populateAnalysisTypesCombo();
+					populateAnalysisTable();
+					cbType.removeAll();
+				}
+
+				populateReferenceCombo(cbReference);
+				cleanAnalysisDetails();
+			}
 		});
 
 		tbList.addListener (SWT.Selection, new Listener() {
 
 			public void handleEvent(Event e) {
 				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.analysisName = selected;
-				IDs.analysisId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
+				selectedName = selected;
 				cleanAnalysisDetails();
-				populateAnalysisDetails(IDs.analysisId); //retrieve and display projects by contact Id
+				populateAnalysisDetails(FormUtils.getIdFromTableList(tbList)); //retrieve and display projects by contact Id
 			}
 
 
 			protected void populateAnalysisDetails(int analysisId) {
-				//				cleanAnalysisDetails();
-				DtoRequestAnalysis dtoRequestAnalysis = new DtoRequestAnalysis();
-				AnalysisDTO analysisDTORequest = new AnalysisDTO();
-				analysisDTORequest.setAnalysisId(analysisId);
-				AnalysisDTO analysisDTOResponse;
+					currentAnalysisId = analysisId;
 				try {
-					analysisDTOResponse = dtoRequestAnalysis.process(analysisDTORequest);
+					RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_ANALYSIS);
+					restUri.setParamValue("id", Integer.toString(analysisId));
+					GobiiEnvelopeRestResource<AnalysisDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
+					PayloadEnvelope<AnalysisDTO> dtoRequestAnalysis = restResource.get(AnalysisDTO.class);
+					AnalysisDTO analysisDTOResponse = dtoRequestAnalysis.getPayload().getData().get(0);
+
 					//displayDetails
+					selectedName = analysisDTOResponse.getAnalysisName();
 					txtName.setText(analysisDTOResponse.getAnalysisName());
 					if(analysisDTOResponse.getAnalysisDescription()!=null) memoDescription.setText(analysisDTOResponse.getAnalysisDescription());
 					populateAnalysisTypesComboAndSelect(cbType, analysisDTOResponse.getAnlaysisTypeId());
@@ -506,7 +576,7 @@ public class FrmAnalyses extends AbstractFrm{
 	private void populateAnalysisTable() {
 		try{
 			FormUtils.entrySetToTable(Controller.getAnalysisNames(), tbList);
-			
+
 			TableColumn tblclmnAnalyses = new TableColumn(tbList, SWT.NONE);
 			tblclmnAnalyses.setWidth(300);
 			tblclmnAnalyses.setText("Analyses:");
@@ -533,15 +603,19 @@ public class FrmAnalyses extends AbstractFrm{
 		}else if(cbList.getSelectionIndex() < 0){
 			message = "Analysis Type field is required!";
 			successful = false;
+		}else if(!isNew && currentAnalysisId==0){
+			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
+			successful = false;
 		}else{
-			if(isNew)
+			if(isNew || !txtName.getText().equalsIgnoreCase(selectedName)){
 				for(int i=0; i<tbList.getItemCount(); i++){
-					if(tbList.getItem(i).getText(0).equals(txtName.getText())){
+					if(tbList.getItem(i).getText(0).equalsIgnoreCase(txtName.getText())){
 						successful = false;
 						message = "Name of analysis already exists for this Analysis Type";
 						break;
 					}
 				}
+			}
 		}
 		if(!successful){
 			dialog.setMessage(message);

@@ -1,0 +1,379 @@
+[ {
+  "gobiiFile" : {
+    "source" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/files/test_codominant_sample",
+    "destination" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/loader/digest/test_codominant_sample",
+    "delimiter" : ",",
+    "gobiiFileType" : "GENERIC",
+    "requireDirectoriesToExist" : false,
+    "createSource" : false
+  },
+  "table" : "germplasm",
+  "gobiiFileColumns" : [ {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 6,
+    "name" : "type_name",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 0,
+    "name" : "name",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 1,
+    "name" : "external_code",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "status",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "55",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  } ],
+  "vcfParameters" : {
+    "maf" : null,
+    "minQ" : null,
+    "minDp" : null,
+    "removeIndels" : false,
+    "toIupac" : false
+  },
+  "dataSetId" : null,
+  "gobiiCropType" : "test",
+  "contactId" : 32,
+  "contactEmail" : "yn259@cornell.edu",
+  "project" : {
+    "name" : "sim_codominant",
+    "id" : 2
+  },
+  "platform" : {
+    "name" : null,
+    "id" : null
+  },
+  "dataSet" : {
+    "name" : null,
+    "id" : null
+  },
+  "datasetType" : {
+    "name" : null,
+    "id" : null
+  },
+  "mapset" : {
+    "name" : null,
+    "id" : null
+  },
+  "experiment" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  }
+}, {
+  "gobiiFile" : {
+    "source" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/files/test_codominant_sample",
+    "destination" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/loader/digest/test_codominant_sample",
+    "delimiter" : ",",
+    "gobiiFileType" : "GENERIC",
+    "requireDirectoriesToExist" : false,
+    "createSource" : false
+  },
+  "table" : "dnasample",
+  "gobiiFileColumns" : [ {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "project_id",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "2",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 3,
+    "name" : "platename",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 4,
+    "name" : "num",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 2,
+    "name" : "name",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 1,
+    "name" : "external_code",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "status",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "55",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  } ],
+  "vcfParameters" : {
+    "maf" : null,
+    "minQ" : null,
+    "minDp" : null,
+    "removeIndels" : false,
+    "toIupac" : false
+  },
+  "dataSetId" : null,
+  "gobiiCropType" : "test",
+  "contactId" : 32,
+  "contactEmail" : "yn259@cornell.edu",
+  "project" : {
+    "name" : "sim_codominant",
+    "id" : 2
+  },
+  "platform" : {
+    "name" : null,
+    "id" : null
+  },
+  "dataSet" : {
+    "name" : null,
+    "id" : null
+  },
+  "datasetType" : {
+    "name" : null,
+    "id" : null
+  },
+  "mapset" : {
+    "name" : null,
+    "id" : null
+  },
+  "experiment" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  }
+}, {
+  "gobiiFile" : {
+    "source" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/files/test_codominant_sample",
+    "destination" : "/shared_data/gobii_app_test/gobii_bundle/crops/test/loader/digest/test_codominant_sample",
+    "delimiter" : ",",
+    "gobiiFileType" : "GENERIC",
+    "requireDirectoriesToExist" : false,
+    "createSource" : false
+  },
+  "table" : "dnarun",
+  "gobiiFileColumns" : [ {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "project_id",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "2",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CONSTANT",
+    "rCoord" : null,
+    "cCoord" : null,
+    "name" : "experiment_id",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : "2",
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 2,
+    "name" : "dnasample_name",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 4,
+    "name" : "num",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  }, {
+    "gobiiColumnType" : "CSV_COLUMN",
+    "rCoord" : 1,
+    "cCoord" : 5,
+    "name" : "name",
+    "filterFrom" : null,
+    "filterTo" : null,
+    "findText" : null,
+    "replaceText" : null,
+    "constantValue" : null,
+    "index" : null,
+    "subcolumn" : false,
+    "subcolumnDelimiter" : null,
+    "dataSetType" : "IUPAC",
+    "dataSetOrientationType" : "MARKER_FAST",
+    "metaDataId" : null
+  } ],
+  "vcfParameters" : {
+    "maf" : null,
+    "minQ" : null,
+    "minDp" : null,
+    "removeIndels" : false,
+    "toIupac" : false
+  },
+  "dataSetId" : null,
+  "gobiiCropType" : "test",
+  "contactId" : 32,
+  "contactEmail" : "yn259@cornell.edu",
+  "project" : {
+    "name" : "sim_codominant",
+    "id" : 2
+  },
+  "platform" : {
+    "name" : null,
+    "id" : null
+  },
+  "dataSet" : {
+    "name" : null,
+    "id" : null
+  },
+  "datasetType" : {
+    "name" : null,
+    "id" : null
+  },
+  "mapset" : {
+    "name" : null,
+    "id" : null
+  },
+  "experiment" : {
+    "name" : "Sim_codominant",
+    "id" : 2
+  }
+} ]

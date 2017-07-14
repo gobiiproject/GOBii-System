@@ -1,4 +1,3 @@
-import {RouteParams} from '@angular/router-deprecated';
 import { Component, OnInit } from '@angular/core';
 //import {CORE_DIRECTIVES, FORM_DIRECTIVES, NgClass, NgStyle} from 'angular2/common';
 

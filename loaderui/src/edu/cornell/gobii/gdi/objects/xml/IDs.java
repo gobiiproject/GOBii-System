@@ -9,4 +9,5 @@ public class IDs {
 	public static int mapTypeId		= 0;
 	public static int analysisId	= 0;
 	public static int platformId	= 0;
+	public static int protocolId	= 0;
 }

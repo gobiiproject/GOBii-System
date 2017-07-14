@@ -16,7 +16,7 @@ class ForeignDataManager:
 			- generate the fdw table script
 			- generate the bulk insert script
 		"""
-		fdwOptions = " SERVER %s OPTIONS (FILENAME '%s', format 'csv', delimiter E'%s', header 'true');" % (self.fdwServer, inputFile, self.delim)
+		fdwOptions = " SERVER %s OPTIONS (FILENAME '%s', format 'csv', delimiter E'%s', header 'true', NULL '\N');" % (self.fdwServer, inputFile, self.delim)
 		header = self.getHeader(inputFile)
 		#print("header: ", header)
 		numOfcol = len(header)

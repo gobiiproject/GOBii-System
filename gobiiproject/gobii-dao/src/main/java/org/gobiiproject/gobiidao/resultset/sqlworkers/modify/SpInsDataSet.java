@@ -32,29 +32,4 @@ public class SpInsDataSet extends SpDef {
 
     } // ctor
 
-//    public Integer projectId = null;
-//    public Integer getEntityIdId() {
-//        return projectId;
-//    }
-
-
-//    public void execute(Connection dbConnection) throws SQLException {
-//
-//        CallableStatement callableStatement = dbConnection.prepareCall("{call createproject(?,?,?,?,?,?,?,?,?)}");
-//
-//        callableStatement.setString(1,(String) parameters.get("projectName"));
-//        callableStatement.setString(2,(String) parameters.get("projectCode"));
-//        callableStatement.setString(3,(String) parameters.get("projectDescription"));
-//        callableStatement.setInt(4,(Integer) parameters.get("piContact"));
-//        callableStatement.setInt(5,(Integer) parameters.get("createdBy"));
-//        callableStatement.setDate(6,(Date) parameters.get("createdDate"));
-//        callableStatement.setInt(7,(Integer) parameters.get("modifiedby"));
-//        callableStatement.setDate(8,(Date) parameters.get("modifiedDate"));
-//        callableStatement.setInt(9,(Integer) parameters.get("projectStatus"));
-//
-//        callableStatement.registerOutParameter(10, Types.INTEGER);
-//
-//        projectId = callableStatement.executeUpdate();
-
-//    } // execute()
 }

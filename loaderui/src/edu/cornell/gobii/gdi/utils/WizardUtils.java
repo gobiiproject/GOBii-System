@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +29,25 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.gobiiproject.gobiiclient.core.ClientContext;
-import org.gobiiproject.gobiimodel.dto.container.LoaderInstructionFilesDTO;
+import org.eclipse.swt.widgets.Text;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.dto.instructions.GobiiFilePropNameId;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFile;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFileColumn;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiLoaderInstruction;
+import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ExperimentDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderFilePreviewDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
-import org.gobiiproject.gobiimodel.types.GobiiCropType;
+import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +58,7 @@ import edu.cornell.gobii.gdi.forms.DlgWizTemplate;
 import edu.cornell.gobii.gdi.main.App;
 import edu.cornell.gobii.gdi.objects.xml.Columns.Column;
 import edu.cornell.gobii.gdi.services.Controller;
+import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.wizards.datasets.DTOdataset;
 import edu.cornell.gobii.gdi.wizards.datasets.WizardDataset;
 import edu.cornell.gobii.gdi.wizards.dnasamples.DTOsamples;
@@ -130,9 +144,9 @@ public class WizardUtils {
 		return MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Confirmation", message);
 	}
 
-	public static void CreateMarkerWizard(Shell shell, String config) {
+	public static void CreateMarkerWizard(Shell shell, String config, int piID, int projectID, int experimentID, int datasetID) {
 		// TODO Auto-generated method stub
-		WizardDialog wizardDialog = new WizardDialog(shell, new WizardMarkers(config));
+		WizardDialog wizardDialog = new WizardDialog(shell, new WizardMarkers(config, piID, projectID, experimentID, datasetID));
 		if (wizardDialog.open() == Window.OK) {
 			System.out.println("Ok pressed");
 		} else {
@@ -140,9 +154,9 @@ public class WizardUtils {
 		}
 	}
 
-	public static void createDNASampleWizard(Shell shell, String config) {
+	public static void createDNASampleWizard(Shell shell, String config, int piID, int projectID, int experimentID) {
 		// TODO Auto-generated method stub
-		WizardDialog wizardDialog = new WizardDialog(shell, new WizardDNAsamples(config));
+		WizardDialog wizardDialog = new WizardDialog(shell, new WizardDNAsamples(config, piID, projectID, experimentID));
 		if (wizardDialog.open() == Window.OK) {
 			System.out.println("Ok pressed");
 		} else {
@@ -150,9 +164,9 @@ public class WizardUtils {
 		}
 	}
 
-	public static void CreateDatasetWizard(Shell shell, String config) {
+	public static void CreateDatasetWizard(Shell shell, String config, int piID, int projectID, int experimentID, int datasetID) {
 		// TODO Auto-generated method stub
-		WizardDialog wizardDialog = new WizardDialog(shell, new WizardDataset(config));
+		WizardDialog wizardDialog = new WizardDialog(shell, new WizardDataset(config, piID, projectID, experimentID, datasetID));
 		if (wizardDialog.open() == Window.OK) {
 			System.out.println("Ok pressed");
 		} else {
@@ -191,6 +205,7 @@ public class WizardUtils {
 	public static void setMarkerPropInstructions(LoaderInstructionFilesDTO instructions, DTOmarkers dto, final GobiiFileColumn colId, String name, String propName, HashMap<String, GobiiFileColumn> props, boolean isDataset) throws Exception{
 		if(colId != null && props.size() > 0){
 			GobiiLoaderInstruction instProp = new GobiiLoaderInstruction();
+			instProp.setQcCheck(dto.isQcCheck());
 			instProp.setTable(propName);
 			instProp.setGobiiFile(dto.getFile());
 			GobiiFileColumn col = copyColumn(colId);
@@ -202,7 +217,9 @@ public class WizardUtils {
 			colPlatform.setGobiiColumnType(GobiiColumnType.CONSTANT);
 			colPlatform.setConstantValue(dto.getPlatformID().toString());
 			instProp.getGobiiFileColumns().add(colPlatform);
-			// add open parenthesis
+
+			addJSONprops(instProp, props, dto, isDataset);
+			/*// add open parenthesis
 			GobiiFileColumn colOpenParenthesis = new GobiiFileColumn();
 			colOpenParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
 			colOpenParenthesis.setName("props");
@@ -263,7 +280,7 @@ public class WizardUtils {
 			colCloseParenthesis.setConstantValue("}\"");
 			colCloseParenthesis.setSubcolumn(true);
 			colCloseParenthesis.setSubcolumnDelimiter("");
-			instProp.getGobiiFileColumns().add(colCloseParenthesis);
+			instProp.getGobiiFileColumns().add(colCloseParenthesis);*/
 			// instruction to set
 			instProp.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 			instProp.setContactId(App.INSTANCE.getUser().getUserId());
@@ -272,9 +289,13 @@ public class WizardUtils {
 	}
 	
 	public static boolean createDatasetInstructionsFromTemplate(Shell shell, LoaderInstructionFilesDTO instructions, DTOdataset dto, String folder){
+		GobiiFilePropNameId gobiiFilePropNameId = new GobiiFilePropNameId();
 		try{
 			for(GobiiLoaderInstruction instruction : instructions.getGobiiLoaderInstructions()){
+				Utils.setDSInstructionFileDetails(instruction, dto);
+				instruction.setQcCheck(dto.isQcCheck());
 				instruction.setGobiiFile(dto.getFile());
+				instruction.setDataSetId(dto.getDatasetID());
 				instruction.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 				instruction.setContactId(App.INSTANCE.getUser().getUserId());
 				instruction.setGobiiCropType(ClientContext.getInstance(null, false).getCurrentClientCropType());
@@ -307,7 +328,10 @@ public class WizardUtils {
 	public static boolean createMarkerInstructionsFromTemplate(Shell shell, LoaderInstructionFilesDTO instructions, DTOmarkers dto, String folder){
 		try{
 			for(GobiiLoaderInstruction instruction : instructions.getGobiiLoaderInstructions()){
+				Utils.setMarkerInstructionFileDetails(instruction, dto);
+				instruction.setQcCheck(dto.isQcCheck());
 				instruction.setGobiiFile(dto.getFile());
+				instruction.setDataSetId(dto.getDatasetID());
 				instruction.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 				instruction.setContactId(App.INSTANCE.getUser().getUserId());
 				instruction.setGobiiCropType(ClientContext.getInstance(null, false).getCurrentClientCropType());
@@ -341,7 +365,13 @@ public class WizardUtils {
 								return false;
 							}
 							column.setConstantValue(dto.getPlatformID().toString());
-							break;
+						}
+						if(column.getName().equals("map_id")){
+							if(dto.getMapsetID() == null){
+								Utils.log(shell,  null,  log, "Mapset is required", null);
+								return false;
+							}
+							column.setConstantValue(dto.getMapsetID().toString());
 						}
 					}
 				}else if(instruction.getTable().equals("marker_prop")){
@@ -366,15 +396,15 @@ public class WizardUtils {
 
 	public static boolean createMarkerInstructionsFromDTO(Shell shell, LoaderInstructionFilesDTO instructions, DTOmarkers dto, String folder, boolean isDataset){
 		try{
-			GobiiCropType crop = ClientContext.getInstance(null, false).getCurrentClientCropType();
+			String crop = ClientContext.getInstance(null, false).getCurrentClientCropType();
 			// create status column
 			GobiiFileColumn colStatus = new GobiiFileColumn();
 			colStatus.setName("status");
 			colStatus.setGobiiColumnType(GobiiColumnType.CONSTANT);
 			String status_id = "0";
-			for (Entry<?, ?> entry : Controller.getCVByGroup("status")){
-				String key = (String) entry.getKey();
-				String term = (String) entry.getValue();
+			for (NameIdDTO entry : Controller.getCVByGroup("status")){
+				String key = entry.getId().toString();
+				String term = entry.getName();
 				if(term.toLowerCase().equals("new")){
 					status_id = key;
 					break;
@@ -384,6 +414,8 @@ public class WizardUtils {
 			
 			if(dto.getMarkerFields().size() > 0){
 				GobiiLoaderInstruction instMarker = new GobiiLoaderInstruction();
+				instMarker.setQcCheck(dto.isQcCheck());
+				Utils.setMarkerInstructionFileDetails(instMarker, dto);
 				instMarker.setGobiiFile(dto.getFile());
 				instMarker.setTable("marker");
 				GobiiFileColumn colPlatform = new GobiiFileColumn();
@@ -404,32 +436,33 @@ public class WizardUtils {
 						if(dto.getcCoord() > -1) column.setCCoord(dto.getcCoord());
 						if(dto.getrCoord() > -1) column.setRCoord(dto.getrCoord());
 					}
-					if(column.getName().equals("alts")){
-						// add open parenthesis
-						GobiiFileColumn colOpenParenthesis = new GobiiFileColumn();
-						colOpenParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
-						colOpenParenthesis.setName("alts");
-						colOpenParenthesis.setConstantValue("{\"");
-						instMarker.getGobiiFileColumns().add(colOpenParenthesis);
-						
-						column.setName("alts1");
-						column.setSubcolumn(true);
-						column.setSubcolumnDelimiter("");
+//					if(column.getName().equals("alts")){
+//						// add open parenthesis
+//						GobiiFileColumn colOpenParenthesis = new GobiiFileColumn();
+//						colOpenParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
+//						colOpenParenthesis.setName("alts");
+//						colOpenParenthesis.setConstantValue("{\"");
+//						instMarker.getGobiiFileColumns().add(colOpenParenthesis);
+//						
+//						column.setName("alts1");
+//						column.setSubcolumn(true);
+//						column.setSubcolumnDelimiter("");
+//						column.setGobiiColumnType(dto.getColumnType());
+//						instMarker.getGobiiFileColumns().add(column);
+//						
+//						// add close parenthesis
+//						GobiiFileColumn colCloseParenthesis = new GobiiFileColumn();
+//						colCloseParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
+//						colCloseParenthesis.setName("alts2");
+//						colCloseParenthesis.setConstantValue("\"}");
+//						colCloseParenthesis.setSubcolumn(true);
+//						colCloseParenthesis.setSubcolumnDelimiter("");
+//						instMarker.getGobiiFileColumns().add(colCloseParenthesis);
+//					}else{
 						column.setGobiiColumnType(dto.getColumnType());
 						instMarker.getGobiiFileColumns().add(column);
-						
-						// add close parenthesis
-						GobiiFileColumn colCloseParenthesis = new GobiiFileColumn();
-						colCloseParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
-						colCloseParenthesis.setName("alts2");
-						colCloseParenthesis.setConstantValue("\"}");
-						colCloseParenthesis.setSubcolumn(true);
-						colCloseParenthesis.setSubcolumnDelimiter("");
-						instMarker.getGobiiFileColumns().add(colCloseParenthesis);
-					}else{
-						column.setGobiiColumnType(dto.getColumnType());
-						instMarker.getGobiiFileColumns().add(column);
-					}
+						addSubColumn(instMarker, column.getName(), dto.getMarkerFields(), dto, isDataset);
+//					}
 				}
 				instMarker.getGobiiFileColumns().add(colStatus);
 				instMarker.setContactEmail(App.INSTANCE.getUser().getUserEmail());
@@ -441,6 +474,8 @@ public class WizardUtils {
 
 			if(dto.getLgFields().size() > 0){
 				GobiiLoaderInstruction instLG = new GobiiLoaderInstruction();
+				instLG.setQcCheck(dto.isQcCheck());
+				Utils.setMarkerInstructionFileDetails(instLG, dto);
 				instLG.setTable("linkage_group");
 				instLG.setGobiiFile(dto.getFile());
 				instLG.setGobiiFile(dto.getFile());
@@ -464,6 +499,7 @@ public class WizardUtils {
 					}
 					column.setGobiiColumnType(dto.getColumnType());
 					instLG.getGobiiFileColumns().add(column);
+					addSubColumn(instLG, column.getName(), dto.getSubLgFields(), dto, isDataset);
 				}
 				if(!dto.getLgFields().containsKey("start")){
 //				if(!dto.getLgFields().entrySet().contains("start")){
@@ -491,6 +527,8 @@ public class WizardUtils {
 
 			if(dto.getLgMarkerFields().size() > 0){
 				GobiiLoaderInstruction instLGmarker = new GobiiLoaderInstruction();
+				instLGmarker.setQcCheck(dto.isQcCheck());
+				Utils.setMarkerInstructionFileDetails(instLGmarker, dto);
 				instLGmarker.setTable("marker_linkage_group");
 				instLGmarker.setGobiiFile(dto.getFile());
 				instLGmarker.setGobiiFile(dto.getFile());
@@ -500,6 +538,11 @@ public class WizardUtils {
 				colPlatform.setGobiiColumnType(GobiiColumnType.CONSTANT);
 				colPlatform.setConstantValue(dto.getPlatformID().toString());
 				instLGmarker.getGobiiFileColumns().add(colPlatform);
+				GobiiFileColumn colMap = new GobiiFileColumn();
+				colMap.setGobiiColumnType(GobiiColumnType.CONSTANT);
+				colMap.setConstantValue(dto.getMapsetID().toString());
+				colMap.setName("map_id");
+				instLGmarker.getGobiiFileColumns().add(colMap);
 				for(Entry<String, GobiiFileColumn> entry : dto.getLgMarkerFields().entrySet()){
 					GobiiFileColumn column = entry.getValue();
 					if(column == null) continue;
@@ -515,6 +558,7 @@ public class WizardUtils {
 					}
 					column.setGobiiColumnType(dto.getColumnType());
 					instLGmarker.getGobiiFileColumns().add(column);
+					addSubColumn(instLGmarker, column.getName(), dto.getSubLgMarkerFields(), dto, isDataset);
 				}
 				instLGmarker.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 				instLGmarker.setContactId(App.INSTANCE.getUser().getUserId());
@@ -531,20 +575,14 @@ public class WizardUtils {
 	public static void setSamplePropInstructions(Shell shell, LoaderInstructionFilesDTO instructions, DTOsamples dto, GobiiFileColumn colId, String name, String propName, HashMap<String, GobiiFileColumn> props, boolean isDataset) throws Exception{
 		if(colId != null && props.size() > 0){
 			GobiiLoaderInstruction instProp = new GobiiLoaderInstruction();
+			instProp.setQcCheck(dto.isQcCheck());
 			instProp.setTable(propName);
 			instProp.setGobiiFile(dto.getFile());
 			GobiiFileColumn col = copyColumn(colId);
 			col.setName(name);
 			instProp.getGobiiFileColumns().add(col);
+			addSubColumn(instProp, col.getName(), dto.getSubSampleFields(), dto, isDataset);
 			// add needed fileds
-//			if(propName.equals("germplasm_prop")){
-//				GobiiFileColumn colExtCode = dto.getGermplasmFields().get("external_code");
-//				if(colExtCode == null){
-//					Utils.log(shell, null, log, "external_code is required for Germplasm prop", null);
-//					return;
-//				}
-//				instProp.getGobiiFileColumns().add(colExtCode);
-//			}else 
 			if(propName.equals("dnasample_prop")){
 				GobiiFileColumn colProject = new GobiiFileColumn();
 				colProject.setName("project_id");
@@ -557,7 +595,9 @@ public class WizardUtils {
 					return;
 				}
 				instProp.getGobiiFileColumns().add(colExtCode);
+				addSubColumn(instProp, colExtCode.getName(), dto.getSubSampleFields(), dto, isDataset);
 				instProp.getGobiiFileColumns().add(colNum);
+				addSubColumn(instProp, colNum.getName(), dto.getSubSampleFields(), dto, isDataset);
 				instProp.getGobiiFileColumns().add(colProject);
 			}else if(propName.equals("dnarun_prop")){
 				GobiiFileColumn colExp = new GobiiFileColumn();
@@ -566,68 +606,70 @@ public class WizardUtils {
 				colExp.setConstantValue(dto.getExperimentID().toString());
 				instProp.getGobiiFileColumns().add(colExp);
 			}
-			// add open parenthesis
-			GobiiFileColumn colOpenParenthesis = new GobiiFileColumn();
-			colOpenParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
-			colOpenParenthesis.setName("props");
-			colOpenParenthesis.setConstantValue("\"{");
-			instProp.getGobiiFileColumns().add(colOpenParenthesis);
-			int count = 0;
-			for(Entry<String, GobiiFileColumn> entry : props.entrySet()){
-				count++;
-				GobiiFileColumn colValue = entry.getValue();
-				if(colValue == null) continue;
-				// set key column
-				GobiiFileColumn colKey = new GobiiFileColumn();
-				colKey.setGobiiColumnType(GobiiColumnType.CONSTANT);
-				colKey.setName("key"+count);
-				colKey.setConstantValue("\"\""+entry.getKey()+"\"\":\"\"");
-				colKey.setSubcolumn(true);
-				colKey.setSubcolumnDelimiter("");
-				//set value column
-				colValue.setName("value"+count);
-				if(isDataset){
-					if(dto.getColumnType() == GobiiColumnType.CSV_COLUMN){
-						colValue.setRCoord(dto.getrCoord());
-					}else if(dto.getColumnType() == GobiiColumnType.CSV_ROW ){
-						colValue.setCCoord(dto.getcCoord());
-					}
-				}else{
-					if(dto.getcCoord() > -1) colValue.setCCoord(dto.getcCoord());
-					if(dto.getrCoord() > -1) colValue.setRCoord(dto.getrCoord());
-				}
-				colValue.setGobiiColumnType(dto.getColumnType());
-				colValue.setSubcolumn(true);
-				colValue.setSubcolumnDelimiter("");
-				// set close quotes
-				GobiiFileColumn colEnd = new GobiiFileColumn();
-				colEnd.setGobiiColumnType(GobiiColumnType.CONSTANT);
-				colEnd.setName("end");
-				colEnd.setConstantValue("\"\"");
-				colEnd.setSubcolumn(true);
-				colEnd.setSubcolumnDelimiter("");
-				// add comma
-				GobiiFileColumn colComma = new GobiiFileColumn();
-				colComma.setGobiiColumnType(GobiiColumnType.CONSTANT);
-				colComma.setName("comma");
-				colComma.setConstantValue(",");
-				colComma.setSubcolumn(true);
-				colComma.setSubcolumnDelimiter("");
-				// add columns to instruction object
-				instProp.getGobiiFileColumns().add(colKey);
-				instProp.getGobiiFileColumns().add(colValue);
-				instProp.getGobiiFileColumns().add(colEnd);
-				instProp.getGobiiFileColumns().add(colComma);
-			}
-			instProp.getGobiiFileColumns().remove(instProp.getGobiiFileColumns().size()-1);
-			// add close parenthesis
-			GobiiFileColumn colCloseParenthesis = new GobiiFileColumn();
-			colCloseParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
-			colCloseParenthesis.setName("close");
-			colCloseParenthesis.setConstantValue("}\"");
-			colCloseParenthesis.setSubcolumn(true);
-			colCloseParenthesis.setSubcolumnDelimiter("");
-			instProp.getGobiiFileColumns().add(colCloseParenthesis);
+			addJSONprops(instProp, props, dto, isDataset);
+//			// add open parenthesis
+//			GobiiFileColumn colOpenParenthesis = new GobiiFileColumn();
+//			colOpenParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
+//			colOpenParenthesis.setName("props");
+//			colOpenParenthesis.setConstantValue("\"{");
+//			instProp.getGobiiFileColumns().add(colOpenParenthesis);
+//			int count = 0;
+//			for(Entry<String, GobiiFileColumn> entry : props.entrySet()){
+//				count++;
+//				GobiiFileColumn colValue = entry.getValue();
+//				if(colValue == null) continue;
+//				// set key column
+//				GobiiFileColumn colKey = new GobiiFileColumn();
+//				colKey.setGobiiColumnType(GobiiColumnType.CONSTANT);
+//				colKey.setName("key"+count);
+////				colKey.setConstantValue("\"\""+entry.getKey()+"\"\":\"\"");
+//				colKey.setConstantValue(entry.getKey()+":");
+//				colKey.setSubcolumn(true);
+//				colKey.setSubcolumnDelimiter("");
+//				//set value column
+//				colValue.setName("value"+count);
+//				if(isDataset){
+//					if(dto.getColumnType() == GobiiColumnType.CSV_COLUMN){
+//						colValue.setRCoord(dto.getrCoord());
+//					}else if(dto.getColumnType() == GobiiColumnType.CSV_ROW ){
+//						colValue.setCCoord(dto.getcCoord());
+//					}
+//				}else{
+//					if(dto.getcCoord() > -1) colValue.setCCoord(dto.getcCoord());
+//					if(dto.getrCoord() > -1) colValue.setRCoord(dto.getrCoord());
+//				}
+//				colValue.setGobiiColumnType(dto.getColumnType());
+//				colValue.setSubcolumn(true);
+//				colValue.setSubcolumnDelimiter("");
+////				// set close quotes
+////				GobiiFileColumn colEnd = new GobiiFileColumn();
+////				colEnd.setGobiiColumnType(GobiiColumnType.CONSTANT);
+////				colEnd.setName("end");
+////				colEnd.setConstantValue("\"\"");
+////				colEnd.setSubcolumn(true);
+////				colEnd.setSubcolumnDelimiter("");
+//				// add comma
+//				GobiiFileColumn colComma = new GobiiFileColumn();
+//				colComma.setGobiiColumnType(GobiiColumnType.CONSTANT);
+//				colComma.setName("comma");
+//				colComma.setConstantValue(",");
+//				colComma.setSubcolumn(true);
+//				colComma.setSubcolumnDelimiter("");
+//				// add columns to instruction object
+//				instProp.getGobiiFileColumns().add(colKey);
+//				instProp.getGobiiFileColumns().add(colValue);
+////				instProp.getGobiiFileColumns().add(colEnd);
+//				instProp.getGobiiFileColumns().add(colComma);
+//			}
+//			instProp.getGobiiFileColumns().remove(instProp.getGobiiFileColumns().size()-1);
+//			// add close parenthesis
+//			GobiiFileColumn colCloseParenthesis = new GobiiFileColumn();
+//			colCloseParenthesis.setGobiiColumnType(GobiiColumnType.CONSTANT);
+//			colCloseParenthesis.setName("close");
+//			colCloseParenthesis.setConstantValue("}\"");
+//			colCloseParenthesis.setSubcolumn(true);
+//			colCloseParenthesis.setSubcolumnDelimiter("");
+//			instProp.getGobiiFileColumns().add(colCloseParenthesis);
 			// instruction to set
 			instProp.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 			instProp.setContactId(App.INSTANCE.getUser().getUserId());
@@ -638,7 +680,9 @@ public class WizardUtils {
 	public static boolean createSampleInstructionsFromTemplate(Shell shell, LoaderInstructionFilesDTO instructions, DTOsamples dto, String folder){
 		try{
 			for(GobiiLoaderInstruction instruction : instructions.getGobiiLoaderInstructions()){
+				Utils.setSampleInstructionFileDetails(instruction, dto);
 				instruction.setGobiiFile(dto.getFile());
+				instruction.setDataSetId(dto.getDatasetID());
 				instruction.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 				instruction.setContactId(App.INSTANCE.getUser().getUserId());
 				instruction.setGobiiCropType(ClientContext.getInstance(null, false).getCurrentClientCropType());
@@ -708,9 +752,9 @@ public class WizardUtils {
 			colStatus.setName("status");
 			colStatus.setGobiiColumnType(GobiiColumnType.CONSTANT);
 			String status_id = "0";
-			for (Entry<?, ?> entry : Controller.getCVByGroup("status")){
-				String key = (String) entry.getKey();
-				String term = (String) entry.getValue();
+			for (NameIdDTO entry : Controller.getCVByGroup("status")){
+				String key =  entry.getId().toString();
+				String term = entry.getName();
 				if(term.toLowerCase().equals("new")){
 					status_id = key;
 					break;
@@ -720,6 +764,8 @@ public class WizardUtils {
 						
 			if(dto.getGermplasmFields().size() > 0){
 				GobiiLoaderInstruction instGermplasm = new GobiiLoaderInstruction();
+				Utils.setSampleInstructionFileDetails(instGermplasm, dto);
+				instGermplasm.setQcCheck(dto.isQcCheck());
 				instGermplasm.setTable("germplasm");
 				instGermplasm.setGobiiFile(dto.getFile());
 				for(Entry<String, GobiiFileColumn> entry : dto.getGermplasmFields().entrySet()){
@@ -737,6 +783,12 @@ public class WizardUtils {
 					}
 					column.setGobiiColumnType(dto.getColumnType());
 					instGermplasm.getGobiiFileColumns().add(column);
+					addSubColumn(instGermplasm, column.getName(), dto.getSubGermplasmFields(), dto, isDataset);
+//					if(dto.getSubGermplasmFields().containsKey("sub_"+column.getName())){
+//						GobiiFileColumn subColumn = dto.getSubGermplasmFields().get(column.getName());
+//						subColumn.setGobiiColumnType(dto.getColumnType());
+//						instGermplasm.getGobiiFileColumns().add(subColumn);
+//					}
 				}
 				instGermplasm.getGobiiFileColumns().add(colStatus);
 				instGermplasm.setContactEmail(App.INSTANCE.getUser().getUserEmail());
@@ -748,6 +800,8 @@ public class WizardUtils {
 
 			if(dto.getSampleFields().size() > 0){
 				GobiiLoaderInstruction instSample = new GobiiLoaderInstruction();
+				instSample.setQcCheck(dto.isQcCheck());
+				Utils.setSampleInstructionFileDetails(instSample, dto);
 				instSample.setTable("dnasample");
 				instSample.setGobiiFile(dto.getFile());
 				GobiiFileColumn colProject = new GobiiFileColumn();
@@ -770,6 +824,12 @@ public class WizardUtils {
 					}
 					column.setGobiiColumnType(dto.getColumnType());
 					instSample.getGobiiFileColumns().add(column);
+					addSubColumn(instSample, column.getName(), dto.getSubSampleFields(), dto, isDataset);
+//					if(dto.getSubSampleFields().containsKey("sub_"+column.getName())){
+//						GobiiFileColumn subColumn = dto.getSubSampleFields().get("sub_"+column.getName());
+//						subColumn.setGobiiColumnType(dto.getColumnType());
+//						instSample.getGobiiFileColumns().add(subColumn);
+//					}
 				}
 				instSample.getGobiiFileColumns().add(colStatus);
 				instSample.setContactEmail(App.INSTANCE.getUser().getUserEmail());
@@ -781,6 +841,8 @@ public class WizardUtils {
 			
 			if(dto.getRunFields().size() > 0){
 				GobiiLoaderInstruction instRun = new GobiiLoaderInstruction();
+				instRun.setQcCheck(dto.isQcCheck());
+				Utils.setSampleInstructionFileDetails(instRun, dto);
 				instRun.setTable("dnarun");
 				instRun.setGobiiFile(dto.getFile());
 				// add project_id
@@ -810,6 +872,7 @@ public class WizardUtils {
 					}
 					column.setGobiiColumnType(dto.getColumnType());
 					instRun.getGobiiFileColumns().add(column);
+					addSubColumn(instRun, column.getName(), dto.getSubRunFields(), dto, isDataset);
 				}
 				instRun.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 				instRun.setContactId(App.INSTANCE.getUser().getUserId());
@@ -847,6 +910,205 @@ public class WizardUtils {
 			if(code == null || filename.startsWith(code.name())){
 				combo.add(filename);
 			}
+		}
+	}
+	
+	public static void populateExperimentInformation(Shell shell, int experimentId, Combo cbPlatform, Combo cbVendorProtocol){
+		Integer vendorProtocolId = null;
+		Integer platformId = null;
+		
+		// get experiment details
+		ExperimentDTO experimentDTO = null;
+		try {
+			RestUri experimentsUri = App.INSTANCE.getUriFactory()
+					.resourceByUriIdParam(ServiceRequestId.URL_EXPERIMENTS);
+			experimentsUri.setParamValue("id", Integer.toString(experimentId));
+			GobiiEnvelopeRestResource<ExperimentDTO> restResourceForExperiments = new GobiiEnvelopeRestResource<>(experimentsUri);
+			PayloadEnvelope<ExperimentDTO> resultEnvelope = restResourceForExperiments
+					.get(ExperimentDTO.class);
+
+			if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), null, false)){
+				experimentDTO = resultEnvelope.getPayload().getData().get(0);
+				vendorProtocolId = experimentDTO.getVendorProtocolId();
+			}
+		} catch (Exception e) {
+			Utils.log(shell, null, log, "Error retrieving Experiemnts", e);
+		}
+	}
+	
+	public static void populateDatasetInformation(Shell shell, int datasetId, Text text, DTOdataset dto){
+		try{
+			RestUri projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DATASETS);
+			projectsUri.setParamValue("id", Integer.toString(datasetId));
+			GobiiEnvelopeRestResource<DataSetDTO> restResourceForProjects = new GobiiEnvelopeRestResource<>(projectsUri);
+			PayloadEnvelope<DataSetDTO> resultEnvelope = restResourceForProjects
+					.get(DataSetDTO.class);
+
+			if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), null, false)){
+				DataSetDTO dataSetDTOResponse = resultEnvelope.getPayload().getData().get(0);
+				Integer typeId = dataSetDTOResponse.getTypeId();
+				String typeName = FormUtils.getNameById(Controller.getCVByGroup("dataset_type"), typeId);
+				text.setText(typeName);
+				dto.setDatasetTypeID(typeId);
+				dto.setDatasetType(typeName.toUpperCase());
+			}
+		}catch(Exception err){
+			text.setText(" ");
+			Utils.log(shell, null, log, "Error retrieving Dataset details.\n\n Please use the Analysis Dataset form to specify a type for this dataset.", err);
+		}
+	}
+	
+	public static LoaderFilePreviewDTO previewData(Shell shell, boolean remote, String folder, List<String> files, String fileExtention){
+		
+		LoaderFilePreviewDTO loaderFilePreviewDTO = null;
+		if(!remote){
+			loaderFilePreviewDTO = sendFilesToServer(shell, files, fileExtention);
+			if(loaderFilePreviewDTO==null || loaderFilePreviewDTO.getDirectoryName() == null){
+				return null;
+			}else{
+				folder = new File(loaderFilePreviewDTO.getDirectoryName()).getName();
+			}
+		}
+
+		RestUri previewURI;
+		GobiiEnvelopeRestResource<LoaderFilePreviewDTO> restResource;
+		PayloadEnvelope<LoaderFilePreviewDTO> resultEnvelope;
+		try {
+			previewURI = ClientContext
+			        .getInstance(null,false)
+			        .getUriFactory()
+			        .fileLoaderPreview();
+
+			previewURI.setParamValue("directoryName", folder);
+	        previewURI.setParamValue("fileFormat", fileExtention);
+	        restResource = new GobiiEnvelopeRestResource<>(previewURI);
+	        resultEnvelope = restResource.get(LoaderFilePreviewDTO.class);
+	        
+	        if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), null, false)) {
+	        	loaderFilePreviewDTO = resultEnvelope.getPayload().getData().get(0);
+	        }
+	        
+		} catch (Exception err) {
+			Utils.log(shell, null, log, "Error previewing data", err);
+			Controller.showException(shell,null,err);
+		}
+		return loaderFilePreviewDTO;
+	}
+	
+	private static LoaderFilePreviewDTO sendFilesToServer(Shell shell, List<String> files, String fileExtention){
+		LoaderFilePreviewDTO loaderFilePreviewDTO = new LoaderFilePreviewDTO(); 
+		File dir = new File(WizardUtils.generateSourceFolder());
+
+        RestUri previewTestUri;
+		try {
+			previewTestUri = ClientContext
+			        .getInstance(null,false)
+			        .getUriFactory()
+			        .resourceByUriIdParam(ServiceRequestId.URL_FILE_LOAD);
+			 previewTestUri.setParamValue("id", dir.toString());
+		        GobiiEnvelopeRestResource<LoaderFilePreviewDTO> restResource = new GobiiEnvelopeRestResource<>(previewTestUri);
+		        PayloadEnvelope<LoaderFilePreviewDTO> resultEnvelope = restResource.put(LoaderFilePreviewDTO.class,
+		                new PayloadEnvelope<>(loaderFilePreviewDTO, GobiiProcessType.CREATE));
+		        
+		        if(!Controller.getDTOResponse(shell, resultEnvelope.getHeader(), null, false)) {
+		        	return null; 
+		        }else{
+		        	loaderFilePreviewDTO = resultEnvelope.getPayload().getData().get(0);
+		        }
+		        WizardUtils.sendFilesToServer(shell, loaderFilePreviewDTO.getDirectoryName(), files, fileExtention);
+		        return loaderFilePreviewDTO;
+		} catch (Exception err) {
+			Utils.log(shell, null, log, "Error creating folder on server", err);
+			System.out.println(err.getMessage());
+			return null;
+		}
+	}
+	
+	public static void createInstructionsForWizard(String folder, WizardDTO dto)throws Exception{
+		String digesterInputDirectory = ClientContext
+				.getInstance(null, false)
+				.getFileLocationOfCurrenCrop(GobiiFileProcessDir.RAW_USER_FILES);
+		dto.getFile().setSource(digesterInputDirectory+folder);
+		dto.getFile().setCreateSource(false);
+		dto.getFile().setRequireDirectoriesToExist(false);
+
+		String digesterOutputDirectory = ClientContext
+				.getInstance(null, false)
+				.getFileLocationOfCurrenCrop(GobiiFileProcessDir.LOADER_INTERMEDIATE_FILES);
+		dto.getFile().setDestination(digesterOutputDirectory+folder);
+	}
+	
+	private static void addSubColumn(GobiiLoaderInstruction instruction, String colName, HashMap<String, GobiiFileColumn> subColumns, WizardDTO dto, boolean isDataset){
+		String subName = "sub_"+colName;
+		if(subColumns.containsKey(subName)){
+			GobiiFileColumn subColumn = subColumns.get(subName);
+			subColumn.setName(subName);
+			subColumn.setGobiiColumnType(dto.getColumnType());
+			if(isDataset){
+				if(dto.getColumnType() == GobiiColumnType.CSV_COLUMN){
+					subColumn.setRCoord(dto.getrCoord());
+				}else if(dto.getColumnType() == GobiiColumnType.CSV_ROW ){
+					subColumn.setCCoord(dto.getcCoord());
+				}
+			}else{
+				if(dto.getcCoord() > -1) subColumn.setCCoord(dto.getcCoord());
+				if(dto.getrCoord() > -1) subColumn.setRCoord(dto.getrCoord());
+			}
+			instruction.getGobiiFileColumns().add(subColumn);
+		}
+	}
+
+	private static void addJSONprops(GobiiLoaderInstruction instProp, HashMap<String, GobiiFileColumn> props, WizardDTO dto, boolean isDataset){
+		int count = 0;
+		for(Entry<String, GobiiFileColumn> entry : props.entrySet()){
+			GobiiFileColumn colValue = entry.getValue();
+			if(colValue == null) continue;
+			count++;
+			String keyname = count == 1 ? "props" : "key"+count;
+			boolean isSub = count == 1 ? false : true;
+			// set key column
+			GobiiFileColumn colKey = new GobiiFileColumn();
+			colKey.setGobiiColumnType(GobiiColumnType.CONSTANT);
+			colKey.setName(keyname);
+			colKey.setConstantValue(entry.getKey()+":");
+			colKey.setSubcolumn(isSub);
+			colKey.setSubcolumnDelimiter("");
+			//set value column
+			colValue.setName("value"+count);
+			if(isDataset){
+				if(dto.getColumnType() == GobiiColumnType.CSV_COLUMN){
+					colValue.setRCoord(dto.getrCoord());
+				}else if(dto.getColumnType() == GobiiColumnType.CSV_ROW ){
+					colValue.setCCoord(dto.getcCoord());
+				}
+			}else{
+				if(dto.getcCoord() > -1) colValue.setCCoord(dto.getcCoord());
+				if(dto.getrCoord() > -1) colValue.setRCoord(dto.getrCoord());
+			}
+			colValue.setGobiiColumnType(dto.getColumnType());
+			colValue.setSubcolumn(true);
+			colValue.setSubcolumnDelimiter("");
+			// add comma
+			GobiiFileColumn colComma = new GobiiFileColumn();
+			colComma.setGobiiColumnType(GobiiColumnType.CONSTANT);
+			colComma.setName("comma"+count);
+			colComma.setConstantValue(",");
+			colComma.setSubcolumn(true);
+			colComma.setSubcolumnDelimiter("");
+			// add columns to instruction object
+			instProp.getGobiiFileColumns().add(colKey);
+			instProp.getGobiiFileColumns().add(colValue);
+			instProp.getGobiiFileColumns().add(colComma);
+		}
+		instProp.getGobiiFileColumns().remove(instProp.getGobiiFileColumns().size()-1);
+	}
+
+	public static void populatePlatformText(Shell shell, int platformId, Text textPlatform) {
+		// TODO Auto-generated method stub
+		PayloadEnvelope<PlatformDTO> resultEnvelope = Controller.getPlatformDetails(platformId);
+		if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), null, false)){
+			PlatformDTO platformDTO = resultEnvelope.getPayload().getData().get(0);
+			textPlatform.setText(platformDTO.getPlatformName());
 		}
 	}
 }

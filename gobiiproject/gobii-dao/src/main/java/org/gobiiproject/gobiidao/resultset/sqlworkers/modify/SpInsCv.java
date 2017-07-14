@@ -7,14 +7,17 @@ import org.gobiiproject.gobiidao.resultset.core.SpDef;
  */
 public class SpInsCv extends SpDef {
 
-    public SpInsCv() {
+     public SpInsCv() {
 
-        super("{call createcv(?,?,?,?)}");
+        super("{call createcv(?,?,?,?,?,?,?)}");
 
-        this.addParamDef("group", String.class).setNullable(false);
+        this.addParamDef("groupId", Integer.class).setNullable(false);
         this.addParamDef("term", String.class).setNullable(false);
         this.addParamDef("definition", String.class).setNullable(false);
         this.addParamDef("rank", Integer.class).setNullable(false);
+        this.addParamDef("abbreviation", String.class).setNullable(true);
+        this.addParamDef("xrefId", Integer.class).setNullable(true);
+        this.addParamDef("status", Integer.class).setNullable(false);
 
 
     } // ctor

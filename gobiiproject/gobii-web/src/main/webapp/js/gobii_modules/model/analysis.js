@@ -1,10 +1,10 @@
-System.register([], function(exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var Analysis;
     return {
-        setters:[],
-        execute: function() {
+        setters: [],
+        execute: function () {
             Analysis = (function () {
                 function Analysis(analysisId, analysisName, analysisDescription, anlaysisTypeId, program, programVersion, algorithm, sourceName, sourceVersion, sourceUri, referenceId, timeExecuted, status) {
                     this.analysisId = analysisId;
@@ -25,6 +25,6 @@ System.register([], function(exports_1, context_1) {
             }());
             exports_1("Analysis", Analysis);
         }
-    }
+    };
 });
 //# sourceMappingURL=analysis.js.map

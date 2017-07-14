@@ -2,12 +2,14 @@ package org.gobiiproject.gobiidao.resultset.access.impl;
 
 import org.gobiiproject.gobiidao.GobiiDaoException;
 import org.gobiiproject.gobiidao.resultset.access.RsOrganizationDao;
+import org.gobiiproject.gobiidao.resultset.core.EntityPropertyParamNames;
 import org.gobiiproject.gobiidao.resultset.core.SpRunnerCallable;
 import org.gobiiproject.gobiidao.resultset.core.StoredProcExec;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsOrganization;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdOrganization;
+import org.gobiiproject.gobiidao.resultset.sqlworkers.read.*;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetOrganizationDetailsByOrganizationId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetOrganizationNames;
+import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,8 @@ public class RsOrganizationDaoImpl implements RsOrganizationDao {
 
     @Autowired
     private SpRunnerCallable spRunnerCallable;
-    
+
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public ResultSet getOrganizationNames() throws GobiiDaoException {
@@ -43,16 +46,16 @@ public class RsOrganizationDaoImpl implements RsOrganizationDao {
             storedProcExec.doWithConnection(spGetOrganizationNames);
             returnVal = spGetOrganizationNames.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving organization names", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving organization names", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
         return returnVal;
 
-    }
+    } //
 
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -71,15 +74,16 @@ public class RsOrganizationDaoImpl implements RsOrganizationDao {
 
             returnVal = spGetOrganizationDetailsByOrganizationId.getResultSet();
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error retrieving organization details", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error retrieving organization details", e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
         return returnVal;
-    }
+
+    } //
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
@@ -89,20 +93,13 @@ public class RsOrganizationDaoImpl implements RsOrganizationDao {
 
         try {
 
-            if (spRunnerCallable.run(new SpInsOrganization(), parameters)) {
+            spRunnerCallable.run(new SpInsOrganization(), parameters);
+            returnVal = spRunnerCallable.getResult();
 
-                returnVal = spRunnerCallable.getResult();
+        } catch (SQLGrammarException e) {
 
-            } else {
-
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-
-            }
-
-        } catch (Exception e) {
-
-            LOGGER.error("Error creating organization", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error creating organization with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
 
         }
 
@@ -115,14 +112,13 @@ public class RsOrganizationDaoImpl implements RsOrganizationDao {
 
         try {
 
-            if (!spRunnerCallable.run(new SpUpdOrganization(), parameters)) {
-                throw new GobiiDaoException(spRunnerCallable.getErrorString());
-            }
+            spRunnerCallable.run(new SpUpdOrganization(), parameters);
 
-        } catch (Exception e) {
+        } catch (SQLGrammarException e) {
 
-            LOGGER.error("Error creating organization", e);
-            throw (new GobiiDaoException(e));
+            LOGGER.error("Error updating organization with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
         }
     }
+
 }

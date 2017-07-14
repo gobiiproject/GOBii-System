@@ -21,7 +21,8 @@ import org.springframework.stereotype.Component;
  * It interacts with domain, loads user details and wraps it into {@link UserContext} which implements Spring Security {@link UserDetails}.
  */
 @Component
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class
+UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
 	private UserDao userDao;

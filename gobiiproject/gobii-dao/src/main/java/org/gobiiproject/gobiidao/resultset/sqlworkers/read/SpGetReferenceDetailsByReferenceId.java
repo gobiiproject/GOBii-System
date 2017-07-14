@@ -28,11 +28,7 @@ public class SpGetReferenceDetailsByReferenceId implements Work {
     @Override
     public void execute(Connection dbConnection) throws SQLException {
 
-        String sql = "select r.reference_id,\n" +
-                "r.name,\n" +
-                "r.version,\n" +
-                "r.link,\n" +
-                "r.file_path\n" +
+        String sql = "select * \n" +
                 "from reference r\n" +
                 "where reference_id=?";
 

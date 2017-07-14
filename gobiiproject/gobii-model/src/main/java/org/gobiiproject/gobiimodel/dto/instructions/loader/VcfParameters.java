@@ -1,14 +1,18 @@
 package org.gobiiproject.gobiimodel.dto.instructions.loader;
 
 /**
+ * Mostly unused VCF File parameters.
  * Created by Phil on 4/12/2016.
  */
 public class VcfParameters {
 
+    //As in vcfTools filter parameters
     private Float maf = null;
     private Float minQ = null;
     private Float minDp = null;
     private boolean removeIndels;
+
+    //If true, convert to IUPAC before storing in HDF5. (Should always be true).
     private boolean   toIupac;
 
     public Float getMaf() {

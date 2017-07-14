@@ -12,14 +12,21 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.gobiiproject.gobiiclient.dtorequests.DtoRequestProject;
-import org.gobiiproject.gobiimodel.dto.DtoMetaData;
-import org.gobiiproject.gobiimodel.dto.container.EntityPropertyDTO;
-import org.gobiiproject.gobiimodel.dto.container.ProjectDTO;
+import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
+import org.gobiiproject.gobiiapimodel.restresources.RestUri;
+import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ProjectDTO;
+import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
+import edu.cornell.gobii.gdi.main.App;
+import edu.cornell.gobii.gdi.main.Main2;
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.services.IDs;
 import edu.cornell.gobii.gdi.utils.FormUtils;
@@ -37,10 +44,13 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 
 public class FrmProjects extends AbstractFrm {
 	private static Logger log = Logger.getLogger(FrmProjects.class.getName());
@@ -61,6 +71,10 @@ public class FrmProjects extends AbstractFrm {
 	private TableColumn tblclmnProperty;
 	private TableColumn tblclmnValue;
 	private Button btnClearFields;
+	private Label label;
+	private Label lblProject;
+	protected int currentProjectId;
+	protected int currentPIid;
 
 	/**
 	 * Create the composite.
@@ -70,7 +84,8 @@ public class FrmProjects extends AbstractFrm {
 	public FrmProjects(final Shell shell, final Composite parent, int style, final String config) {
 		super(shell, parent, style);
 		this.config = config;
-
+		currentProjectId=0;
+		currentPIid=0;
 		listener = new ModifyListener() {
 			/** {@inheritDoc} */
 			public void modifyText(ModifyEvent e) {
@@ -78,9 +93,11 @@ public class FrmProjects extends AbstractFrm {
 				if(cbList.getItems().length>0) btnUpdate.setEnabled(true);
 			}
 		};
-		
-		cbList.setText("Select PI contact");
-		
+
+
+		lblCbList.setText("PI Contacts:");
+		cbList.setText("*Select PI contact");
+
 		TableColumn tblColumn = new TableColumn(tbList, SWT.NONE);
 		tblColumn.pack();
 		tblColumn.setText("Projects:");
@@ -88,36 +105,67 @@ public class FrmProjects extends AbstractFrm {
 
 		GridLayout gridLayout = (GridLayout) cmpForm.getLayout();
 		gridLayout.numColumns = 2;
-
+		
 		Label lblName = new Label(cmpForm, SWT.NONE);
 		lblName.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblName.setText("Name:");
+		lblName.setText("*Project Name:");
 
 		txtName = new Text(cmpForm, SWT.BORDER);
 		txtName.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		txtName.addModifyListener((ModifyListener) listener);
+		txtName.addFocusListener(new FocusListener() {
+    		ToolTip tip = new ToolTip(shell, SWT.BALLOON);
+    		
+			@Override
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				if(cbList.getSelectionIndex()<0){
+				
+                Point loc = cbList.toDisplay(cbList.getLocation());
 
+        		tip.setMessage("Please select a PI before creating or updating an entry.");
+                tip.setLocation(loc.x + cbList.getSize().x , loc.y-cbList.getSize().y/2);
+                tip.setVisible(true);
+				}
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				 tip.setVisible(false);
+			}
+        });
+		
 		lblCode = new Label(cmpForm, SWT.NONE);
 		lblCode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblCode.setText("Code:");
 
 		textCode = new Text(cmpForm, SWT.BORDER);
+		textCode.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		textCode.setEditable(false);
 		textCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		textCode.addModifyListener((ModifyListener) listener);
+		
+		label = new Label(cmpForm, SWT.NONE);
+		label.setText(" ");
+		
+				styledTextDesc = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
+				GridData gd_styledTextDesc = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3);
+				gd_styledTextDesc.heightHint = 43;
+				styledTextDesc.setLayoutData(gd_styledTextDesc);
+				styledTextDesc.addModifyListener((ModifyListener) listener);
+		
+		lblProject = new Label(cmpForm, SWT.NONE);
+		lblProject.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, false, false, 1, 1));
+		lblProject.setText("Project");
 
 		Label lblNewLabel = new Label(cmpForm, SWT.NONE);
+		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		lblNewLabel.setText("Description:");
-
-		styledTextDesc = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
-		GridData gd_styledTextDesc = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd_styledTextDesc.heightHint = 43;
-		styledTextDesc.setLayoutData(gd_styledTextDesc);
-		styledTextDesc.addModifyListener((ModifyListener) listener);
 
 		Label lblPiContact = new Label(cmpForm, SWT.NONE);
 		lblPiContact.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblPiContact.setText("PI contact:");
+		lblPiContact.setText("*PI contact:");
 
 		cbPIContact = new Combo(cmpForm, SWT.NONE);
 		cbPIContact.setEnabled(false);
@@ -134,107 +182,111 @@ public class FrmProjects extends AbstractFrm {
 		tbProperties.setLayoutData(gd_tbProperties);
 		tbProperties.setHeaderVisible(true);
 		tbProperties.setLinesVisible(true);
-		
+
 		tblclmnProperty = new TableColumn(tbProperties, SWT.NONE);
 		tblclmnProperty.setWidth(100);
 		tblclmnProperty.setText("Property");
-		
+
 		tblclmnValue = new TableColumn(tbProperties, SWT.NONE);
 		tblclmnValue.setWidth(100);
 		tblclmnValue.setText("Value");
 		tbProperties.addSelectionListener( new SelectionAdapter() {
 
 			@Override
-	         public void widgetSelected(SelectionEvent e) {
-	             // Clean up any previous editor control
-	             editor = new TableEditor(tbProperties);
-	             // The editor must have the same size as the cell and must
-	             // not be any smaller than 50 pixels.
-	             editor.horizontalAlignment = SWT.LEFT;
-	             editor.grabHorizontal = true;
-	             editor.minimumWidth = 50;
-	             Control oldEditor = editor.getEditor();
-	             if (oldEditor != null)
-	                 oldEditor.dispose();                
+			public void widgetSelected(SelectionEvent e) {
+				// Clean up any previous editor control
+				editor = new TableEditor(tbProperties);
+				// The editor must have the same size as the cell and must
+				// not be any smaller than 50 pixels.
+				editor.horizontalAlignment = SWT.LEFT;
+				editor.grabHorizontal = true;
+				editor.minimumWidth = 50;
+				Control oldEditor = editor.getEditor();
+				if (oldEditor != null)
+					oldEditor.dispose();                
 
-	             // Identify the selected row
-	             TableItem item = (TableItem) e.item;
-	             if (item == null)
-	                 return;
+				// Identify the selected row
+				TableItem item = (TableItem) e.item;
+				if (item == null)
+					return;
 
-	             // The control that will be the editor must be a child of the
-	             // Table
-	             Text newEditor = new Text(tbProperties, SWT.NONE);
-	             final int EDITABLECOLUMN=1;
-	             newEditor.setText(item.getText(EDITABLECOLUMN));
-	             Listener textListener = new Listener() {
-	 				public void handleEvent(final Event e) {
-	 					switch (e.type) {
-	 					case SWT.FocusOut:
-	 						item.setText(EDITABLECOLUMN, newEditor.getText());
-	 						newEditor.dispose();
-	 						break;
-	 					case SWT.Traverse:
-	 						switch (e.detail) {
-	 						case SWT.TRAVERSE_RETURN:
-	 							item
-	 							.setText(EDITABLECOLUMN, newEditor.getText());
-	 							// FALL THROUGH
-	 						case SWT.TRAVERSE_ESCAPE:
-	 							newEditor.dispose();
-	 							e.doit = false;
-	 						}
-	 						break;
-	 					}
-	 				}
-	 			};
-	 			newEditor.addListener(SWT.FocusOut, textListener);
-	 			newEditor.addListener(SWT.Traverse, textListener);
-	 			newEditor.selectAll();
-	 			newEditor.setFocus();           
-	 			editor.setEditor(newEditor, item, EDITABLECOLUMN);      
-	         }
-	     });
+				// The control that will be the editor must be a child of the
+				// Table
+				Text newEditor = new Text(tbProperties, SWT.NONE);
+				final int EDITABLECOLUMN=1;
+				newEditor.setText(item.getText(EDITABLECOLUMN));
+				Listener textListener = new Listener() {
+					public void handleEvent(final Event e) {
+						switch (e.type) {
+						case SWT.FocusOut:
+							item.setText(EDITABLECOLUMN, newEditor.getText());
+							newEditor.dispose();
+							break;
+						case SWT.Traverse:
+							switch (e.detail) {
+							case SWT.TRAVERSE_RETURN:
+								item
+								.setText(EDITABLECOLUMN, newEditor.getText());
+								// FALL THROUGH
+							case SWT.TRAVERSE_ESCAPE:
+								newEditor.dispose();
+								e.doit = false;
+							}
+							break;
+						}
+					}
+				};
+				newEditor.addListener(SWT.FocusOut, textListener);
+				newEditor.addListener(SWT.Traverse, textListener);
+				newEditor.selectAll();
+				newEditor.setFocus();           
+				editor.setEditor(newEditor, item, EDITABLECOLUMN);      
+			}
+		});
 		FormUtils.entrySetToTable(Controller.getCVByGroup("project_prop"), tbProperties);
-		
+
 		new Label(cmpForm, SWT.NONE);
 
 		btnAddNew = new Button(cmpForm, SWT.NONE);
 		btnAddNew.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				PayloadEnvelope<ProjectDTO> resultEnvelope = null;
 				try{
 					if(!validate(true)) return;
-
-					DtoRequestProject dtoRequestProject = new DtoRequestProject();
-					ProjectDTO projectDTORequest = new ProjectDTO(DtoMetaData.ProcessType.CREATE);
+					ProjectDTO projectDTORequest = new ProjectDTO();
 					projectDTORequest.setCreatedBy(1);
 					projectDTORequest.setProjectName(txtName.getText());
 					projectDTORequest.setProjectDescription(styledTextDesc.getText());
 					projectDTORequest.setProjectCode(cbPIContact.getItem(cbPIContact.getSelectionIndex())+"_"+txtName.getText());
 					projectDTORequest.setProjectStatus(1);
 					projectDTORequest.setModifiedBy(1);
-					projectDTORequest.setPiContact(IDs.contactId);
+					projectDTORequest.setPiContact(FormUtils.getIdFromFormList(cbList));
 
 					for(TableItem item : tbProperties.getItems()){
 						if(item.getText(1).isEmpty()) continue;
 						projectDTORequest.getProperties().add(new EntityPropertyDTO(null, null, item.getText(0), item.getText(1)));
-						//			        	 System.out.println("Property:" + item.getText(0) +"  Value:"+ item.getText(1));
 					}
-					try {
-						ProjectDTO projectDTOResponse = dtoRequestProject.process(projectDTORequest);
-						if(Controller.getDTOResponse(shell, projectDTOResponse, memInfo)){
-							populateProjectsFromSelectedContact(cbList.getText());
-						};
-					} catch (Exception err) {
-						Utils.log(shell, memInfo, log, "Error saving Project", err);
-					}
+						RestUri projectsUri = App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_PROJECTS);
+						GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjects = new GobiiEnvelopeRestResource<>(projectsUri);
+						PayloadEnvelope<ProjectDTO> payloadEnvelope = new PayloadEnvelope<>(projectDTORequest, GobiiProcessType.CREATE);
+						resultEnvelope = restResourceForProjects
+								.post(ProjectDTO.class, payloadEnvelope);
+
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error saving Project", err);
 				}
+				
+				if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
+					populateProjectsFromSelectedContact(cbList.getText());
+					currentProjectId = resultEnvelope.getPayload().getData().get(0).getProjectId();
+					populateProjectDetails(currentProjectId);
+					FormUtils.selectRowById(tbList,currentProjectId);
+					
+				};
 			}
 		});
-		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
 
@@ -244,10 +296,9 @@ public class FrmProjects extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				try{
 					if(!validate(false)) return;
-					if(!FormUtils.updateForm(getShell(), "Project", IDs.projectName)) return;
-					DtoRequestProject dtoRequestProject = new DtoRequestProject();
-					ProjectDTO projectDTORequest = new ProjectDTO(DtoMetaData.ProcessType.UPDATE);
-					projectDTORequest.setProjectId(IDs.projectId);
+					if(!FormUtils.updateForm(getShell(), "Project", selectedName)) return;
+					ProjectDTO projectDTORequest = new ProjectDTO();
+					projectDTORequest.setProjectId(currentProjectId);
 					projectDTORequest.setCreatedBy(1);
 					projectDTORequest.setProjectName(txtName.getText());
 					projectDTORequest.setProjectDescription(styledTextDesc.getText());
@@ -255,7 +306,7 @@ public class FrmProjects extends AbstractFrm {
 					projectDTORequest.setProjectStatus(1);
 					projectDTORequest.setCreatedDate(new Date());
 					projectDTORequest.setModifiedBy(1);
-					projectDTORequest.setPiContact(IDs.contactId);
+					projectDTORequest.setPiContact(currentPIid);
 
 					for(TableItem item : tbProperties.getItems()){
 						if(item.getText(1).isEmpty()) continue;
@@ -263,9 +314,14 @@ public class FrmProjects extends AbstractFrm {
 						//			        	 System.out.println("Property:" + item.getText(0) +"  Value:"+ item.getText(1));
 					}
 					try {
-						ProjectDTO projectDTOResponse = dtoRequestProject.process(projectDTORequest);
-						if(Controller.getDTOResponse(shell, projectDTOResponse, memInfo)){
+						RestUri projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_PROJECTS);
+						projectsUri.setParamValue("id", Integer.toString(projectDTORequest.getProjectId()));
+						GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjectGet = new GobiiEnvelopeRestResource<>(projectsUri);
+						PayloadEnvelope<ProjectDTO> requestEnvelope =  new PayloadEnvelope<>(projectDTORequest, GobiiProcessType.UPDATE);
+						PayloadEnvelope<ProjectDTO> resultEnvelope = restResourceForProjectGet.put(ProjectDTO.class, requestEnvelope);
+						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
 							populateProjectsFromSelectedContact(cbList.getText());
+							FormUtils.selectRowById(tbList,currentProjectId);
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error saving Project", err);
@@ -276,10 +332,10 @@ public class FrmProjects extends AbstractFrm {
 			}
 		});
 		btnUpdate.setEnabled(false);
-		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnUpdate.setText("Update");
 		new Label(cmpForm, SWT.NONE);
-		
+
 		btnClearFields = new Button(cmpForm, SWT.NONE);
 		btnClearFields.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -287,28 +343,22 @@ public class FrmProjects extends AbstractFrm {
 				cleanProjectDetails();
 			}
 		});
-		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnClearFields.setText("Clear Fields");
 		new Label(cmpForm, SWT.NONE);
-		
-				btnAddPlatformExperiment = new Button(cmpForm, SWT.NONE);
-				btnAddPlatformExperiment.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						
-						FrmExperiments frm = new FrmExperiments(shell, parent, SWT.NONE, config);
-						FormUtils.createContentTab(shell, frm, (CTabFolder) parent, "Platform Experiments");
-//						CTabFolder tabContent = (CTabFolder) parent;
-//						CTabItem item = new CTabItem(tabContent, SWT.NONE);
-//						item.setText("Platform Experiments");
-//						item.setShowClose(true);
-//						item.setControl(frm);
-//						tabContent.setSelection(item);
 
-					}
-				});
-				btnAddPlatformExperiment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-				btnAddPlatformExperiment.setText("Add Platform Experiment");
+		btnAddPlatformExperiment = new Button(cmpForm, SWT.NONE);
+		btnAddPlatformExperiment.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				FrmExperiments frm = new FrmExperiments(shell, parent, SWT.NONE, config, currentPIid, currentProjectId);
+				FormUtils.createContentTab(shell, frm, (CTabFolder) parent, "Experiments");
+
+			}
+		});
+		btnAddPlatformExperiment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnAddPlatformExperiment.setText("Add Experiment");
 		new Label(cmpForm, SWT.NONE);
 
 		btnDnaSampleWiz = new Button(cmpForm, SWT.FLAT);
@@ -316,10 +366,10 @@ public class FrmProjects extends AbstractFrm {
 		btnDnaSampleWiz.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				WizardUtils.createDNASampleWizard(shell, config);
+				WizardUtils.createDNASampleWizard(shell, config, currentPIid, currentProjectId, 0);
 			}
 		});
-		btnDnaSampleWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnDnaSampleWiz.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnDnaSampleWiz.setText("DNA Sample Wizard");
 
 	}
@@ -331,46 +381,72 @@ public class FrmProjects extends AbstractFrm {
 
 	@Override
 	protected void createContent() {
-		//		cbList		
+		//		cbList
+
 		populateContactsList(cbList);
 		populateTableWithAllProjects(tbList);
 		cbList.addListener (SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				String selected = cbList.getText(); //single selection
 				cbPIContact.select(cbPIContact.indexOf(selected));
+				cbPIContact.setText(selected);
 				populateProjectsFromSelectedContact(selected);
+				cleanProjectDetails();
+				currentProjectId = 0;
 			}
 		});
 
 		tbList.addListener (SWT.Selection, new Listener() {
+
+
 			public void handleEvent(Event e) {
-				String selected = tbList.getSelection()[0].getText(); //single selection
-				IDs.projectName = selected;
-				IDs.projectId = Integer.parseInt((String) tbList.getSelection()[0].getData(selected));
-				populateProjectDetails(IDs.projectId); //retrieve and display projects by contact Id
+				currentProjectId = FormUtils.getIdFromTableList(tbList);
+				populateProjectDetails(currentProjectId); //retrieve and display projects by contact Id
 			}
 
 
-			protected void populateProjectDetails(int projectId) {
-				try{
-					cleanProjectDetails();
+		});
+		// table
 
-					DtoRequestProject dtoRequestProject = new DtoRequestProject();
-					ProjectDTO projectDTORequest = new ProjectDTO();
-					projectDTORequest.setProjectId(projectId);
-					ProjectDTO projectDTO = null;
+		btnRefresh.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Integer id = FormUtils.getIdFromFormList(cbList);
+				String selected = cbList.getText();
+				if(cbList.getSelectionIndex()>-1){
+					FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbList, id);
+					FormUtils.entrySetToComboSelectId(Controller.getPIContactNames(), cbPIContact, id);
+					populateProjectsFromSelectedContact(selected);
+				}
+				else{
+					populateContactsList(cbPIContact);
+					populateContactsList(cbList);
+					populateTableWithAllProjects(tbList);
+				}
+				cleanProjectDetails();
+			}
+		});
+	}
+	
 
-					try {
-						projectDTO =  dtoRequestProject.process(projectDTORequest);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+	private void populateProjectDetails(int projectId) {
+		try{
+			cleanProjectDetails();
+
+			ProjectDTO projectDTO = null;
+			try {
+				PayloadEnvelope<ProjectDTO> resultEnvelope = Controller.getProjectDetailsById(projectId);
+
+				if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, false)){
+					projectDTO =  resultEnvelope.getPayload().getData().get(0);
 
 					//displayDetails
+
+					selectedName = projectDTO.getProjectName();
 					textCode.setText(projectDTO.getProjectCode());
 					txtName.setText(projectDTO.getProjectName());
 					styledTextDesc.setText(projectDTO.getProjectDescription());
+					
 					for(int i=0; i<cbPIContact.getItemCount(); i++){
 						Integer piId = Integer.parseInt((String) cbPIContact.getData(cbPIContact.getItem(i)));
 						if(piId == projectDTO.getPiContact()){
@@ -380,15 +456,19 @@ public class FrmProjects extends AbstractFrm {
 					}
 
 					populateTableFromStringList(projectDTO.getProperties(), tbProperties);
-				}catch(Exception err){
-					Utils.log(shell, memInfo, log, "Error retrieving Projects", err);
 				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		});
-		// table
 
+		}catch(Exception err){
+			Utils.log(shell, memInfo, log, "Error retrieving Projects", err);
+		}
 	}
+	
 	private void populateTableWithAllProjects(Table table) {
+		if(table.getItemCount()>0) table.removeAll();
 		try{
 			FormUtils.entrySetToTable(Controller.getProjectNames(), table);
 		}catch(Exception err){
@@ -413,27 +493,19 @@ public class FrmProjects extends AbstractFrm {
 			Utils.log(shell, memInfo, log, "Error retrieving Project properties", err);
 		}
 	}
-	
+
 	//retrieve and display projects by contact Id
-	protected void populateProjectsFromSelectedContact(String selectedContact){
+
+	protected void populateProjectsFromSelectedContact(String selectedContact) {
 		try{
-			IDs.contactId = Integer.parseInt((String) cbList.getData(selectedContact));
-			cleanProjectDetails();
-			populateProjectsFromSelectedContact(IDs.contactId ); //retrieve and display projects by contact Id
-		}catch(Exception err){
-			Utils.log(shell, memInfo, log, "Error retrieving Project details", err);
-		}
-	}
-	
-	protected void populateProjectsFromSelectedContact(Integer selectedContactId) {
-		try{
+			currentPIid = FormUtils.getIdFromFormList(cbList);
 			tbList.removeAll();
-			FormUtils.entrySetToTable(Controller.getProjectNamesByContactId(selectedContactId), tbList);
+			FormUtils.entrySetToTable(Controller.getProjectNamesByContactId(currentPIid), tbList);
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error retrieving Porject details", err);
 		}
 	}
-	
+
 	private void cleanProjectDetails() {
 		try{
 			textCode.setText("");
@@ -461,18 +533,22 @@ public class FrmProjects extends AbstractFrm {
 		if(txtName.getText().isEmpty()){
 			message = "Name field is required!";
 			successful = false;
-		}else if(cbList.getSelectionIndex() < 0){
+		}else if(cbList.getSelectionIndex() < 0 && cbPIContact.getSelectionIndex() <0){
 			message = "PI contact field is required!";
 			successful = false;
+		}else if(!isNew && currentProjectId==0){
+			message = "'"+txtName.getText()+"' is recognized as a new value. Please use Add instead.";
+			successful = false;
 		}else{
-			if(isNew)
+			if(isNew || !txtName.getText().equalsIgnoreCase(selectedName)){
 				for(int i=0; i<tbList.getItemCount(); i++){
-					if(tbList.getItem(i).getText(0).equals(txtName.getText())){
+					if(tbList.getItem(i).getText(0).equalsIgnoreCase(txtName.getText())){
 						successful = false;
 						message = "Name of project already exists for this PI contact!";
 						break;
 					}
 				}
+			}
 		}
 		if(!successful){
 			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);

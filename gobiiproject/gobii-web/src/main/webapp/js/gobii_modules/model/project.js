@@ -1,10 +1,10 @@
-System.register([], function(exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var Project;
     return {
-        setters:[],
-        execute: function() {
+        setters: [],
+        execute: function () {
             Project = (function () {
                 function Project(projectId, projectName, projectCode, projectDescription, piContact, createdBy, createdstring, modifiedBy, modifiedstring, projectStatus) {
                     this.projectId = projectId;
@@ -22,6 +22,6 @@ System.register([], function(exports_1, context_1) {
             }());
             exports_1("Project", Project);
         }
-    }
+    };
 });
 //# sourceMappingURL=project.js.map

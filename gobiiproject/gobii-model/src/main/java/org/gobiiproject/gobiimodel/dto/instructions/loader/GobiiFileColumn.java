@@ -5,22 +5,35 @@ import org.gobiiproject.gobiimodel.types.DataSetType;
 import org.gobiiproject.gobiimodel.types.GobiiColumnType;
 
 /**
+ * The definition of a single column in a single loader instruction. Contains all the relevant information for a column.
  * Created by Phil on 4/12/2016.
  */
 public class GobiiFileColumn {
 
-
+    //Type of column - CSV_ROW/CSV_COLUMN/CSV_BOTH are common options
     private GobiiColumnType gobiiColumnType = null;
+    //Row Coordinate in the input file to begin from
     private Integer rCoord = null;
+    //Column Coordinate in the input file to begin from
     private Integer cCoord = null;
+    //Name of the column (used in header)
     private String name = null;
+    //String to begin substring of entry from
     private String filterFrom = null;
+    //String to end substring of entry at
     private String filterTo = null;
+    //String to find all instances of and replace with replate-text
     private String findText = null;
+    //Text to replace all matches with
     private String replaceText = null;
+    //Constant value used for "CONSTANT" type
     private String constantValue = null;
+    //Name of other digest file to dereference to determine the value of this entry (Unused)
     private String index = null;
+
+    //If true, this column is affixed to the previous column (and header is removed)
     private boolean subcolumn = false;
+    //Delimiter to use to affix this column to the previous column.
     private String subcolumnDelimiter = null;
 
     private DataSetType dataSetType = DataSetType.IUPAC;

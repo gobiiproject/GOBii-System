@@ -1,2 +1,6 @@
-export const ENTITY_FILTER_CONTACT_PRINICPLE_INVESTIGATOR = "PI";
+export enum EntityFilter {
+    NONE,
+    BYTYPEID,
+    BYTYPENAME
+}
 

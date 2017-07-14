@@ -1,289 +1,317 @@
 package org.gobiiproject.gobiimodel.config;
 
-import org.apache.commons.lang.math.NumberUtils;
-import org.gobiiproject.gobiimodel.types.GobiiCropType;
-import org.gobiiproject.gobiimodel.types.GobiiDbType;
-import org.gobiiproject.gobiimodel.utils.LineUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.gobiiproject.gobiimodel.types.GobiiAuthenticationType;
+import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Created by Phil on 5/5/2016.
+ * This class encapsulates all the configuration data with which the rest of the system interacts.
+ * It is intended to eliminate the need for other system components to interact directly with (or
+ * even know the format of the) underlying configuration mechanism. At this time, that maechanism
+ * happens to be a configuration file. In the future, it could be a database. As a general container
+ * for this functionality, it delegates most of its functionality to component classes. In particular,
+ * it consumes:
+ * * A ConfigValues instance, which contains the actual configuration data;
+ * * A ConfigValuesFactory, which knows how to create a ConfigValues instance.
+ * This form of organization enables this class to function as a dependency firewall between the actual
+ * format of the data and the rest of the system.
  */
 public class ConfigSettings {
 
-
-    private final String PROP_NAME_WEB_SVR_DEFAULT_CROP = "websvr.defaultcrop";
-
-    private final String PROP_NAME_MAIL_SVR_TYPE = "mailsvr.type";
-    private final String PROP_NAME_MAIL_SVR_DOMAIN = "mailsvr.domain";
-    private final String PROP_NAME_MAIL_SVR_PORT = "mailsvr.port";
-    private final String PROP_NAME_MAIL_SVR_USER = "mailsvr.user";
-    private final String PROP_NAME_MAIL_SVR_HASHTYPE = "mailsvr.hashtype";
-    private final String PROP_NAME_MAIL_SVR_PWD = "mailsvr.pwd";
-
-    private final String PROP_NAME_IFL_INTEGRITY_CHECK = "ifl.integritycheck";
-
-    private final String PROP_NAME_FILE_SYSTEM_ROOT = "filesys.root";
-
-    private final String DB_PREFX = "db.";
-    private final String DB_SUFFIX_HOST = "host";
-    private final String DB_SUFFIX_PORT = "port";
-    private final String DB_SUFFIX_DBNAME = "dbname";
-    private final String DB_SUFFIX_USER = "username";
-    private final String DB_SUFFIX_PASSWORD = "password";
+    private static Logger LOGGER = LoggerFactory.getLogger(ConfigSettings.class);
 
 
-    private final String CROP_SUFFIX_SERVICE_DOMAIN = "servicedomain";
-    private final String CROP_SUFFIX_SERVICE_APPROOT = "serviceapproot";
-    private final String CROP_SUFFIX_SERVICE_PORT = "serviceport";
-    private final String CROP_SUFFIX_USER_FILE_LOCLOCATION = "usrfloc";
-    private final String CROP_SUFFIX_LOADR_FILE_LOCATION = "ldrfloc";
-    private final String CROP_SUFFIX_EXTRACTOR_FILE_LOCATION = "extrfloc";
-    private final String CROP_SUFFIX_EXTRACTOR_FILE_OUTPUT = "extrout";
-    private final String CROP_SUFFIX_INTERMEDIATE_FILE_LOCATION = "intfloc";
-    private final String CROP_SUFFIX_INTERMEDIATE_FILE_ACTIVE = "active";
+    private String configFileFqpn;
 
-    private final String CROP_PREFIX = "crops.";
-    private final String CROP_PREFIX_DEV = CROP_PREFIX + "dev.";
-    private final String CROP_PREFIX_TEST = CROP_PREFIX + "test.";
-    private final String CROP_PREFIX_CHICKPEA = CROP_PREFIX + "chickpea.";
-    private final String CROP_PREFIX_MAIZE = CROP_PREFIX + "maize.";
-    private final String CROP_PREFIX_RICE = CROP_PREFIX + "rice.";
-    private final String CROP_PREFIX_SORGHUM = CROP_PREFIX + "sorghum.";
-    private final String CROP_PREFIX_WHEAT = CROP_PREFIX + "wheat.";
-
-
-    private String[] cropPrefixes = {
-            CROP_PREFIX_DEV,
-            CROP_PREFIX_TEST,
-            CROP_PREFIX_CHICKPEA,
-            CROP_PREFIX_MAIZE,
-            CROP_PREFIX_RICE,
-            CROP_PREFIX_SORGHUM,
-            CROP_PREFIX_WHEAT
-    };
-
-
-    private Map<GobiiCropType, CropConfig> cropConfigs = new HashMap<>();
-
-    private GobiiCropType currentGobiiCropType = GobiiCropType.TEST;
-    private GobiiCropType defaultGobiiCropType = GobiiCropType.TEST; // default crop
-
-    private String emailSvrType;
-    private String emailSvrDomain;
-    private String emailSvrUser;
-    private String emailSvrHashType;
-    private String emailSvrPassword;
-    private Integer emailServerPort = 0;
-    private boolean iflIntegrityCheck = false;
-    private String fileSystemRoot;
-
-
-    private ConfigFileReader configReader = null;
-
-    public ConfigSettings() throws Exception {
-        this(null);
+    public ConfigSettings() {
+        try {
+            configValues = ConfigValuesFactory.read(null);
+        } catch (Exception e) {
+            LOGGER.error("Error instancing ConfigValues with null fqpn", e);
+        }
     }
 
-    public ConfigSettings(String fqpn) throws Exception {
+    ConfigValues configValues = null;
 
-        this.configReader = new ConfigFileReader(fqpn);
+    public ConfigSettings(String configFileWebPath) {
 
-        String currentPrefix = null;
-
-        String candidateCropName = configReader.getPropValue(PROP_NAME_WEB_SVR_DEFAULT_CROP).toUpperCase();
-        if (!LineUtils.isNullOrEmpty(candidateCropName)) {
-            if (0 == Arrays.asList(GobiiCropType.values())
-                    .stream()
-                    .filter(c -> c.toString().toUpperCase().equals(candidateCropName))
-                    .count()) {
-                throw new Exception("The configuration file specifies an instance type that does not correspond to a crop type: " + candidateCropName);
-            }
-
-            defaultGobiiCropType = GobiiCropType.valueOf(candidateCropName);
-            currentGobiiCropType = defaultGobiiCropType;
-        } else {
-            throw new Exception("The configuration does not specify a default crop");
-        }
-
-        emailSvrType = configReader.getPropValue(PROP_NAME_MAIL_SVR_TYPE);
-        emailSvrDomain = configReader.getPropValue(PROP_NAME_MAIL_SVR_DOMAIN);
-
-        if (null != configReader.getPropValue(PROP_NAME_MAIL_SVR_PORT) && NumberUtils.isNumber(configReader.getPropValue(PROP_NAME_MAIL_SVR_PORT))) {
-            emailServerPort = Integer.parseInt(configReader.getPropValue(PROP_NAME_MAIL_SVR_PORT));
-        }
-
-        emailSvrUser = configReader.getPropValue(PROP_NAME_MAIL_SVR_USER);
-        emailSvrHashType = configReader.getPropValue(PROP_NAME_MAIL_SVR_HASHTYPE);
-        emailSvrPassword = configReader.getPropValue(PROP_NAME_MAIL_SVR_PWD);
-        iflIntegrityCheck = configReader.getPropValue(PROP_NAME_IFL_INTEGRITY_CHECK).equals("true");
-
-        fileSystemRoot = configReader.getPropValue(PROP_NAME_FILE_SYSTEM_ROOT);
-
-
-        for (int idx = 0; idx < cropPrefixes.length; idx++) {
-            currentPrefix = cropPrefixes[idx];
-
-            final String cropTypeFromProp = currentPrefix
-                    .replace(CROP_PREFIX, "")
-                    .replace(".", "")
-                    .toUpperCase();
-
-
-            if (0 == Arrays.asList(GobiiCropType.values())
-                    .stream()
-                    .filter(c -> c.toString().toUpperCase().equals(cropTypeFromProp.toUpperCase()))
-                    .count()) {
-                throw new Exception("The configuration file specifies a non-existent crop type: " + cropTypeFromProp);
-            }
-
-            GobiiCropType currentGobiiCropType = GobiiCropType.valueOf(cropTypeFromProp.toUpperCase());
-
-
-            String serviceDomain = configReader.getPropValue(currentPrefix + CROP_SUFFIX_SERVICE_DOMAIN);
-            String serviceAppRoot = configReader.getPropValue(currentPrefix + CROP_SUFFIX_SERVICE_APPROOT);
-            Integer servicePort = Integer.parseInt(configReader.getPropValue(currentPrefix + CROP_SUFFIX_SERVICE_PORT));
-            String userFilesLocation = configReader.getPropValue(currentPrefix + CROP_SUFFIX_USER_FILE_LOCLOCATION);
-            String loaderFilesLocation = configReader.getPropValue(currentPrefix + CROP_SUFFIX_LOADR_FILE_LOCATION);
-            String extractorFilesLocation = configReader.getPropValue(currentPrefix + CROP_SUFFIX_EXTRACTOR_FILE_LOCATION);
-            String extractorFilesOutputLocation = configReader.getPropValue(currentPrefix + CROP_SUFFIX_EXTRACTOR_FILE_OUTPUT);
-            String intermediateFilesLocation = configReader.getPropValue(currentPrefix + CROP_SUFFIX_INTERMEDIATE_FILE_LOCATION);
-            String isActiveString = configReader.getPropValue(currentPrefix + CROP_SUFFIX_INTERMEDIATE_FILE_ACTIVE);
-            boolean isActive = isActiveString.toLowerCase().equals("true");
-
-            CropConfig currentCropConfig = new CropConfig(currentGobiiCropType,
-                    serviceDomain,
-                    serviceAppRoot,
-                    servicePort,
-                    loaderFilesLocation,
-                    extractorFilesLocation,
-                    extractorFilesOutputLocation,
-                    userFilesLocation,
-                    intermediateFilesLocation,
-                    isActive);
-
-            //crops.rice.db.monetdb.password=appuser
-            for (GobiiDbType currentDbType : GobiiDbType.values()) {
-
-                String currentDbTypeSegment = currentDbType.toString().toLowerCase() + ".";
-                String currentDbPrefix = currentPrefix + DB_PREFX + currentDbTypeSegment;
-                String currentHost = configReader.getPropValue(currentDbPrefix + DB_SUFFIX_HOST);
-                String currentDbName = configReader.getPropValue(currentDbPrefix + DB_SUFFIX_DBNAME);
-                Integer currentPort = Integer.parseInt(configReader.getPropValue(currentDbPrefix + DB_SUFFIX_PORT));
-                String currentUserName = configReader.getPropValue(currentDbPrefix + DB_SUFFIX_USER);
-                String currentPassword = configReader.getPropValue(currentDbPrefix + DB_SUFFIX_PASSWORD);
-
-                CropDbConfig currentCropDbConfig = new CropDbConfig(
-                        currentDbType,
-                        currentHost,
-                        currentDbName,
-                        currentPort,
-                        currentUserName,
-                        currentPassword
-                );
-
-                currentCropConfig.addCropDbConfig(currentDbType, currentCropDbConfig);
-            }
-
-
-            cropConfigs.put(currentGobiiCropType, currentCropConfig);
+        try {
+            configValues = ConfigValuesFactory.read(configFileWebPath);
+            this.configFileFqpn = configFileWebPath;
+        } catch (Exception e) {
+            LOGGER.error("Error instancing ConfigValues with fqpn: " + configFileWebPath, e);
 
         }
-
-        if ( 0 == this.getActiveCropConfigs()
-                .stream()
-                .filter(c -> c.getGobiiCropType().equals(this.getDefaultGobiiCropType()))
-                .collect(Collectors.toList())
-            .size() ) {
-            throw(new Exception("The server for the default crop type " + this.getDefaultGobiiCropType().toString() + " is not marked active!" ));
-        }
-
     } // ctor
 
-
-    public CropConfig getCropConfig(GobiiCropType gobiiCropType) {
-
-        CropConfig returnVal = null;
-        returnVal = cropConfigs.get(gobiiCropType);
-
-        return returnVal;
+    private ConfigSettings(ConfigValues configValues) {
+        this.configValues = configValues;
     }
 
-    public List<CropConfig> getActiveCropConfigs() {
-        return cropConfigs
-                .values()
+    public static ConfigSettings makeNew(String userFqpn) throws Exception {
+
+        ConfigSettings returnVal = null;
+
+        ConfigValues configValues = ConfigValuesFactory.makeNew(userFqpn);
+        if (configValues != null) {
+            returnVal = new ConfigSettings(configValues);
+            returnVal.configFileFqpn = userFqpn;
+        }
+
+        return returnVal;
+
+    } //
+
+    public static ConfigSettings read(String userFqpn) throws Exception {
+
+        ConfigSettings returnVal = null;
+
+        ConfigValues configValues = ConfigValuesFactory.read(userFqpn);
+        if (configValues != null) {
+            returnVal = new ConfigSettings(configValues);
+            returnVal.configFileFqpn = userFqpn;
+        }
+
+        return returnVal;
+
+    } //
+
+    public void commit() throws Exception {
+        ConfigValuesFactory.commitConfigValues(this.configValues, this.configFileFqpn);
+    }
+
+    public String getProcessingPath(String cropType, GobiiFileProcessDir gobiiFileProcessDir) throws Exception {
+        return this.configValues.getProcessingPath(cropType, gobiiFileProcessDir);
+    }
+
+    public void setCrop(String gobiiCropType,
+                        boolean isActive,
+                        String serviceDomain,
+                        String serviceAppRoot,
+                        Integer servicePort) throws Exception {
+
+        this.configValues.setCrop(gobiiCropType, isActive, serviceDomain, serviceAppRoot, servicePort);
+    }
+
+    public void removeCrop(String cropId) throws Exception {
+        this.configValues.removeCrop(cropId);
+    }
+
+    public boolean isCropDefined(String gobiiCropType) {
+        return this.configValues.isCropDefined(gobiiCropType);
+    }
+
+    public CropConfig getCropConfig(String gobiiCropType) throws Exception {
+
+        return (this.configValues.getCropConfig(gobiiCropType));
+    }
+
+    public List<CropConfig> getActiveCropConfigs() throws Exception {
+
+        return (this.configValues.getActiveCropConfigs());
+    }
+
+    public TestExecConfig getTestExecConfig() {
+
+        return this.configValues.getTestExecConfig();
+    }
+
+    public void setTestExecConfig(TestExecConfig testExecConfig) {
+        this.configValues.setTestExecConfig(testExecConfig);
+    }
+
+    public List<String> getActiveCropTypes() throws Exception {
+        return this
+                .configValues
+                .getActiveCropConfigs()
                 .stream()
-                .filter(c -> c.isActive())
+                .filter(c -> c.isActive() == true)
+                .map(CropConfig::getGobiiCropType)
                 .collect(Collectors.toList());
     }
 
-    public CropConfig getCurrentCropConfig() {
-        return getCropConfig(getCurrentGobiiCropType());
+    public CropConfig getCurrentCropConfig() throws Exception {
+
+        return this.configValues.getCurrentCropConfig();
     }
 
 
-    public void setCurrentGobiiCropType(GobiiCropType currentGobiiCropType) {
-        this.currentGobiiCropType = currentGobiiCropType;
+    public void setCurrentGobiiCropType(String currentGobiiCropType) {
+        this.configValues.setCurrentGobiiCropType(currentGobiiCropType);
 
     }
 
-    public GobiiCropType getCurrentGobiiCropType() {
-        return currentGobiiCropType;
+    public String getCurrentGobiiCropType() {
+        return this.configValues.getCurrentGobiiCropType();
     }
 
-    public GobiiCropType getDefaultGobiiCropType() {
-        return defaultGobiiCropType;
+    public String getDefaultGobiiCropType() {
+        return this.configValues.getDefaultGobiiCropType();
     }
 
 
+    public void setDefaultGobiiCropType(String defaultGobiiCropType) throws Exception {
 
-    public void setDefaultGobiiCropType(GobiiCropType defaultGobiiCropType) {
-        this.defaultGobiiCropType = defaultGobiiCropType;
+        this.configValues.setDefaultGobiiCropType(defaultGobiiCropType);
     }
 
     public String getEmailSvrPassword() {
-        return emailSvrPassword;
+
+        return this.configValues.getEmailSvrPassword();
     }
 
     public String getEmailSvrHashType() {
-        return emailSvrHashType;
+        return this.configValues.getEmailSvrHashType();
     }
 
     public String getEmailSvrUser() {
-        return emailSvrUser;
+
+        return this.configValues.getEmailSvrUser();
     }
 
     public String getEmailSvrDomain() {
-        return emailSvrDomain;
+
+        return this.configValues.getEmailSvrDomain();
     }
 
     public String getEmailSvrType() {
-        return emailSvrType;
+
+        return this.configValues.getEmailSvrType();
     }
 
     public Integer getEmailServerPort() {
-        return emailServerPort;
+
+        return this.configValues.getEmailServerPort();
     }
 
-    public void setEmailServerPort(Integer emailServerPort) {
-        this.emailServerPort = emailServerPort;
+    public void setEmailSvrType(String emailSvrType) {
+        this.configValues.setEmailSvrType(emailSvrType);
+    }
+
+    public void setEmailSvrDomain(String emailSvrDomain) {
+        this.configValues.setEmailSvrDomain(emailSvrDomain);
+    }
+
+    public void setEmailSvrUser(String emailSvrUser) {
+        this.configValues.setEmailSvrUser(emailSvrUser);
+    }
+
+    public void setEmailSvrHashType(String emailSvrHashType) {
+        this.configValues.setEmailSvrHashType(emailSvrHashType);
+    }
+
+    public void setEmailSvrPassword(String emailSvrPassword) {
+        this.configValues.setEmailSvrPassword(emailSvrPassword);
+    }
+
+    public void setEmailSvrPort(Integer emailServerPort) {
+        this.configValues.setEmailSvrPort(emailServerPort);
     }
 
     public boolean isIflIntegrityCheck() {
-        return iflIntegrityCheck;
+        return this.configValues.isIflIntegrityCheck();
     }
 
     public void setIflIntegrityCheck(boolean iflIntegrityCheck) {
-        this.iflIntegrityCheck = iflIntegrityCheck;
+        this.configValues.setIflIntegrityCheck(iflIntegrityCheck);
+    }
+
+    public GobiiAuthenticationType getGobiiAuthenticationType() {
+        return this.configValues.getGobiiAuthenticationType();
+    }
+
+    public void setGobiiAuthenticationType(GobiiAuthenticationType gobiiAuthenticationType) {
+        this.configValues.setGobiiAuthenticationType(gobiiAuthenticationType);
+    }
+
+    public String getLdapUrl() {
+        return this.configValues.getLdapUrl();
+    }
+
+    public void setLdapUrl(String ldapSvrDomain) {
+        this.configValues.setLdapUrl(ldapSvrDomain);
+    }
+
+    public String getLdapUserDnPattern() {
+        return this.configValues.getLdapUserDnPattern();
+    }
+
+    public void setLdapUserDnPattern(String ldapUserPath) {
+        this.configValues.setLdapUserDnPattern(ldapUserPath);
+    }
+
+
+    public String getLdapBindUser() {
+        return this.configValues.getLdapBindUser();
+    }
+
+    public void setLdapBindUser(String ldapBindUser) {
+        this.configValues.setLdapBindUser(ldapBindUser);
+    }
+
+    public String getLdapBindPassword() {
+        return this.configValues.getLdapBindPassword();
+    }
+
+    public void setLdapBindPassword(String ldapBindPassword) {
+        this.configValues.setLdapBindPassword(ldapBindPassword);
     }
 
     public String getFileSystemRoot() {
-        return fileSystemRoot;
+
+        return this.configValues.getFileSystemRoot();
     }
+
+    public void setFileSystemRoot(String fileSystemRoot) {
+
+        this.configValues.setFileSystemRoot(fileSystemRoot);
+    }
+
+    public String getFileSystemLog() {
+        return this.configValues.getFileSystemLog();
+    }
+
+    public void setFileSystemLog(String fileSystemLog) {
+        this.configValues.setFileSystemLog(fileSystemLog);
+    }
+
+    public String getFileSysCropsParent() {
+
+        return this.configValues.getFileSysCropsParent();
+    }
+
+    public void setFileSysCropsParent(String fileSysCropsParent) {
+        this.configValues.setFileSysCropsParent(fileSysCropsParent);
+    }
+
+    public boolean isDecrypt() {
+        return this.configValues.isDecrypt();
+    }
+
+    public void setIsDecrypt(boolean isDecrypt) {
+        this.configValues.setDecrypt(isDecrypt);
+    }
+
+    public void setLdapUserForBackendProcs(String ldapUserForBackendProcs) {
+        this.configValues.setLdapUserForBackendProcs(ldapUserForBackendProcs);
+    }
+
+
+    public String getLdapUserForBackendProcs() {
+        return this.configValues.getLdapUserForBackendProcs();
+    }
+
+    public String getLdapPasswordForBackendProcs() {
+        return this.configValues.getLdapPasswordForBackendProcs();
+    }
+
+    public void setLdapPasswordForBackendProcs(String ldapPassworedForBackendProcs) {
+        this.configValues.setLdapPasswordForBackendProcs(ldapPassworedForBackendProcs);
+    }
+    
 }

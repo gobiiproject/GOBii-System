@@ -17,7 +17,7 @@ public class SpInsExperiment extends SpDef {
         this.addParamDef("experimentName", String.class).setNullable(false);
         this.addParamDef("experimentCode", String.class).setNullable(false);
         this.addParamDef("projectId", Integer.class).setNullable(false);
-        this.addParamDef("platformId", Integer.class).setNullable(false);
+        this.addParamDef("vendorProtocolId", Integer.class).setNullable(true);
         this.addParamDef("manifestId", Integer.class).setNullable(true);
         this.addParamDef("experimentDataFile", String.class).setNullable(true);
         this.addParamDef("createdBy", Integer.class).setNullable(false);

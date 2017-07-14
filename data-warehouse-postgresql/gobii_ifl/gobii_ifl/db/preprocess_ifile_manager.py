@@ -5,12 +5,14 @@ from connection_manager import ConnectionManager
 from foreign_data_manager import ForeignDataManager
 
 class PreprocessIfileManager:
+	WORK_MEM = 10240
 
 	def __init__(self, connectionStr):
 		self.connMgr = ConnectionManager()
 		self.conn = self.connMgr.connectToDatabase(connectionStr)
 		self.cur = self.conn.cursor()
 		self.fdm = ForeignDataManager()
+		self.cur.execute("set work_mem to %s", (self.WORK_MEM,))
 		#print("Preprocess IFile Manager Initialized.")
 
 	def getCvIdOfTerm(self, term):
@@ -48,13 +50,21 @@ class PreprocessIfileManager:
 
 	def createForeignTable(self, iFile, fTableName):
 		header, fdwScript = self.fdm.generateFDWScript(iFile, fTableName)
+		#print("fdwScript: %s" % fdwScript)
 		self.cur.execute(fdwScript)
 		return header
 
-	def createFileWithDerivedIds(self, outputFilePath, derivedIdSql):
+	def createFileWithDerivedIdsV1(self, outputFilePath, derivedIdSql):
 		copyStmt = "copy ("+derivedIdSql+") to '"+outputFilePath+"' with delimiter E'\\t'"+" csv header;"
 		#print("copyStmt = "+copyStmt)
 		self.cur.execute(copyStmt)
+
+	def createFileWithDerivedIds(self, outputFilePath, derivedIdSql):
+		copyStmt = "copy ("+derivedIdSql+") to STDOUT with delimiter E'\\t'"+" csv header;"
+		with open(outputFilePath, 'w') as outputFile:
+			#let's try 20MB buffer size for a start, default was 8MB
+			self.cur.copy_expert(copyStmt, outputFile, 20480)
+		outputFile.close()
 
 	def commitTransaction(self):
 		self.conn.commit()
