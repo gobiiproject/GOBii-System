@@ -44,7 +44,7 @@ public class ProcessMessage extends MailMessage {
      */
     public ProcessMessage setBody(String jobName, String type, long time, String shortError,boolean success, String longError){
         this.setStatus(success);
-        this.setSubject(jobName+(success?" Success":" Error"));
+        this.setSubject(jobName+(success?" Success":" Failed"));
         this.errorLine=shortError;
         this.color = (success ? greenColor:redColor);
         if(!entries.isEmpty()) {

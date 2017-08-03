@@ -1,0 +1,22 @@
+Exception in thread "main" java.lang.Exception: Unable to get server configuration from /gobii-dev//gobii/v1/configsettings; the following error occurred: MESSAGE: NullPointerException;
+ EXCEPTION STACK: <no stack trace>org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope::fromJson (22);
+org.gobiiproject.gobiiclient.core.gobii.GobiiPayloadResponse::getPayloadFromResponse (59);
+org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext::initServerConfigsFromAnonymousAccess (245);
+org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext::getInstance (196);
+org.gobiiproject.gobiiclient.core.gobii.GobiiClientContextAuth::authenticate (78);
+org.gobiiproject.gobiiclient.core.gobii.GobiiClientContextAuth::authenticate (45);
+org.gobiiproject.gobiiprocess.GobiiTestData::createEntity (1539);
+org.gobiiproject.gobiiprocess.GobiiTestData::writePkValues (1735);
+org.gobiiproject.gobiiprocess.GobiiTestData::getEntities (1755);
+org.gobiiproject.gobiiprocess.GobiiTestData::main (2005);
+;
+ CAUSED BY: <no cause message>;
+ CAUSED BY STACK: <no cause stack trace>
+	at org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext.initServerConfigsFromAnonymousAccess(GobiiClientContext.java:259)
+	at org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext.getInstance(GobiiClientContext.java:196)
+	at org.gobiiproject.gobiiclient.core.gobii.GobiiClientContextAuth.authenticate(GobiiClientContextAuth.java:78)
+	at org.gobiiproject.gobiiclient.core.gobii.GobiiClientContextAuth.authenticate(GobiiClientContextAuth.java:45)
+	at org.gobiiproject.gobiiprocess.GobiiTestData.createEntity(GobiiTestData.java:1539)
+	at org.gobiiproject.gobiiprocess.GobiiTestData.writePkValues(GobiiTestData.java:1735)
+	at org.gobiiproject.gobiiprocess.GobiiTestData.getEntities(GobiiTestData.java:1755)
+	at org.gobiiproject.gobiiprocess.GobiiTestData.main(GobiiTestData.java:2005)

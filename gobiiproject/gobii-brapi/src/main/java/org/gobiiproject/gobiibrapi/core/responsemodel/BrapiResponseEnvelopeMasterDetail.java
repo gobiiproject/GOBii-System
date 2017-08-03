@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by Phil on 5/1/2017.
  */
-public class BrapiResponseEnvelopeMasterDetail<T_CALL_RESPONSE extends BrapiResponseDataList> extends BrapResponseEnvelope {
+public class BrapiResponseEnvelopeMasterDetail<T_CALL_RESPONSE extends BrapiResponseDataList> extends BrapiResponseEnvelope {
 
     private T_CALL_RESPONSE result;
     @JsonProperty("result")

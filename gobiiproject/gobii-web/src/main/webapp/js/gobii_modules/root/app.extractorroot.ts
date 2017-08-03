@@ -841,7 +841,7 @@ export class ExtractorRoot implements OnInit {
         if (fileItems
                 .filter(fi => {
                     return fi.getExtractorItemType() === extractorItemType
-                    && fi.getEntityType() === entityType
+                        && fi.getEntityType() === entityType
                 })
                 .length == fileItems.length) {
 
@@ -855,7 +855,7 @@ export class ExtractorRoot implements OnInit {
                 } else {
                     let message: string = "A duplicate ";
                     message += ExtractorItemType[extractorItemType];
-                    message += " (" + EntityType[entityType] +") ";
+                    message += " (" + EntityType[entityType] + ") ";
                     message += "item was found; ";
                     if (ifi.getItemName()) {
                         message += "name: " + ifi.getItemName() + "; "
@@ -943,7 +943,7 @@ export class ExtractorRoot implements OnInit {
                         .filter(item => {
                             return item.getEntityType() === EntityType.Mapsets
                         });
-                    mapsetFileItems = this.eliminateDuplicateEntities( ExtractorItemType.ENTITY,
+                    mapsetFileItems = this.eliminateDuplicateEntities(ExtractorItemType.ENTITY,
                         EntityType.Mapsets,
                         mapsetFileItems);
                     mapsetIds = mapsetFileItems
@@ -1003,8 +1003,20 @@ export class ExtractorRoot implements OnInit {
                         EntityType.Platforms,
                         platformFileItems);
 
-                    let platformIds: number[] = platformFileItems.map(item => {
-                        return Number(item.getItemId())
+                    let platforms: NameId[] = platformFileItems.map(item => {
+                        return new NameId(item.getItemId(),item.getItemName(),EntityType.Platforms)
+                    });
+
+                    let markerGroupItems: GobiiFileItem[] = fileItems.filter(item => {
+                        return item.getEntityType() === EntityType.MarkerGroups
+                    });
+
+                    markerGroupItems = this.eliminateDuplicateEntities(ExtractorItemType.ENTITY,
+                        EntityType.MarkerGroups,
+                        markerGroupItems);
+
+                    let markerGroups: NameId[] = markerGroupItems.map(item => {
+                        return new NameId(item.getItemId(),item.getItemName(),EntityType.MarkerGroups)
                     });
 
                     // ******** MARKERS
@@ -1014,7 +1026,7 @@ export class ExtractorRoot implements OnInit {
                                 return fi.getExtractorItemType() === ExtractorItemType.MARKER_LIST_ITEM
                             });
 
-                    markerListItems = this.eliminateDuplicateEntities( ExtractorItemType.MARKER_LIST_ITEM,
+                    markerListItems = this.eliminateDuplicateEntities(ExtractorItemType.MARKER_LIST_ITEM,
                         EntityType.UNKNOWN,
                         markerListItems);
                     let markerList: string[] = markerListItems
@@ -1054,7 +1066,7 @@ export class ExtractorRoot implements OnInit {
                                 return item.getEntityType() === EntityType.DataSets
                             });
 
-                        dataSetItems = this.eliminateDuplicateEntities( ExtractorItemType.ENTITY,
+                        dataSetItems = this.eliminateDuplicateEntities(ExtractorItemType.ENTITY,
                             EntityType.DataSets,
                             dataSetItems);
 
@@ -1073,10 +1085,11 @@ export class ExtractorRoot implements OnInit {
                                 markerFileName,
                                 null,
                                 datasetType,
-                                platformIds,
+                                platforms,
                                 null,
                                 null,
-                                dataSet));
+                                dataSet,
+                                null));
                         });
                     } else if (this.gobiiExtractFilterType === GobiiExtractFilterType.BY_MARKER) {
                         gobiiDataSetExtracts.push(new GobiiDataSetExtract(gobiiFileType,
@@ -1088,10 +1101,11 @@ export class ExtractorRoot implements OnInit {
                             markerFileName,
                             null,
                             datasetType,
-                            platformIds,
+                            platforms,
                             null,
                             null,
-                            null));
+                            null,
+                            markerGroups));
                     } else if (this.gobiiExtractFilterType === GobiiExtractFilterType.BY_SAMPLE) {
                         gobiiDataSetExtracts.push(new GobiiDataSetExtract(gobiiFileType,
                             false,
@@ -1102,9 +1116,10 @@ export class ExtractorRoot implements OnInit {
                             sampleFileName,
                             sampleListType,
                             datasetType,
-                            platformIds,
+                            platforms,
                             principleInvestigator,
                             project,
+                            null,
                             null));
                     } else {
                         this.handleAddMessage("Unhandled extract filter type: " + GobiiExtractFilterType[this.gobiiExtractFilterType]);

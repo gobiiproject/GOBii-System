@@ -13,9 +13,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.OrganizationDTO;
@@ -140,6 +140,8 @@ public class FrmProtocol  extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				cleanDetails();
+				if(currentPlatformId==0)cbPlatform.setText("");
+//				currentProtocolId = 0;
 			}
 		});
 		btnClear.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -311,6 +313,7 @@ public class FrmProtocol  extends AbstractFrm {
 				populatePlatformsAndProtocols();
 				cleanDetails();
 				populateDisabledComboPlatform();
+				currentProtocolId=0;
 			}
 		});
 
@@ -323,6 +326,7 @@ public class FrmProtocol  extends AbstractFrm {
 					currentPlatformId = Integer.parseInt((String) cbList.getData(selected));
 					isNameChanged = false;
 					populateProtocolListFromSelectedPlatform(currentPlatformId ); //retrieve and display projects by contact Id
+					currentProtocolId=0;
 				}catch(Exception err){
 					Utils.log(shell, memInfo, log, "Error retrieving protocols", err);
 				}
@@ -383,13 +387,12 @@ public class FrmProtocol  extends AbstractFrm {
 	
 	private void populatePlatformsAndProtocols() {
 		try{
-			cbList.setText("*Select a Platform");
-//			tbList.removeAll();
 			if(currentPlatformId > 0){
 				FormUtils.entrySetToComboSelectId(Controller.getPlatformNames(), cbList, currentPlatformId);
 				FormUtils.entrySetToTable(Controller.getProtocolNamesByPlatformId(currentPlatformId), tbList);
 			}else{
 				FormUtils.entrySetToCombo(Controller.getPlatformNames(), cbList);
+				cbList.setText("*Select a Platform");
 				FormUtils.entrySetToTable(Controller.getProtocolNames(), tbList);
 			}
 
@@ -410,7 +413,6 @@ public class FrmProtocol  extends AbstractFrm {
 
 	private void cleanDetails(){
 		try{
-			//			currentProtocolId = 0;
 			txtName.setText("");
 			cbPlatform.deselectAll(); cbPlatform.setText("");
 			memDescription.setText("");
@@ -471,18 +473,16 @@ public class FrmProtocol  extends AbstractFrm {
 			
 			if(newProtocol){
 				payloadEnvelope = new PayloadEnvelope<>(newProtocolDto, GobiiProcessType.CREATE);
-				restResource = new GobiiEnvelopeRestResource<>(App
-						.INSTANCE.getUriFactory()
-						.resourceColl(ServiceRequestId.URL_PROTOCOL));
+				restResource = new GobiiEnvelopeRestResource<>( GobiiClientContext.getInstance(null, false).getUriFactory()
+						.resourceColl(GobiiServiceRequestId.URL_PROTOCOL));
 				protocolDTOResponseEnvelope = restResource.post(ProtocolDTO.class,
 						payloadEnvelope);
 			}
 			else{
 				newProtocolDto.setProtocolId(currentProtocolId);
 				payloadEnvelope = new PayloadEnvelope<>(newProtocolDto, GobiiProcessType.UPDATE);
-				RestUri restUriProtocolForGetById = App
-						.INSTANCE.getUriFactory()
-						.resourceByUriIdParam(ServiceRequestId.URL_PROTOCOL);
+				RestUri restUriProtocolForGetById =  GobiiClientContext.getInstance(null, false).getUriFactory()
+						.resourceByUriIdParam(GobiiServiceRequestId.URL_PROTOCOL);
 				restUriProtocolForGetById.setParamValue("id", newProtocolDto.getProtocolId().toString());
 				restResource = new GobiiEnvelopeRestResource<>(restUriProtocolForGetById);
 				protocolDTOResponseEnvelope = restResource.put(ProtocolDTO.class,
@@ -528,9 +528,8 @@ public class FrmProtocol  extends AbstractFrm {
 				// get organization details
 				OrganizationDTO organizationDTO = new OrganizationDTO();
 				organizationDTO.setOrganizationId(organizationId);
-				RestUri restUriOrganizationForGetById = App
-						.INSTANCE.getUriFactory()
-						.resourceByUriIdParam(ServiceRequestId.URL_ORGANIZATION);
+				RestUri restUriOrganizationForGetById = GobiiClientContext.getInstance(null, false).getUriFactory()
+						.resourceByUriIdParam(GobiiServiceRequestId.URL_ORGANIZATION);
 				restUriOrganizationForGetById.setParamValue("id", organizationId.toString());
 				GobiiEnvelopeRestResource<OrganizationDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriOrganizationForGetById);
 				PayloadEnvelope<OrganizationDTO> resultEnvelopeForGetByID = restResourceForGetById
@@ -550,10 +549,10 @@ public class FrmProtocol  extends AbstractFrm {
 				vendorProtocolDTO.setId(vendorProtocolId);
 
 				organizationDTO.getVendorProtocols().add(vendorProtocolDTO);
-				RestUri restUriProtocoLVendor = ClientContext.getInstance(null, false)
+				RestUri restUriProtocoLVendor = GobiiClientContext.getInstance(null, false)
 						.getUriFactory()
-						.childResourceByUriIdParam(ServiceRequestId.URL_PROTOCOL,
-								ServiceRequestId.URL_VENDORS);
+						.childResourceByUriIdParam(GobiiServiceRequestId.URL_PROTOCOL,
+								GobiiServiceRequestId.URL_VENDORS);
 				restUriProtocoLVendor.setParamValue("id", protocolId.toString());
 				GobiiEnvelopeRestResource<OrganizationDTO> protocolVendorResource =
 						new GobiiEnvelopeRestResource<>(restUriProtocoLVendor);

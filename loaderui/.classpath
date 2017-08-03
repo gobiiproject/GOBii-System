@@ -58,8 +58,8 @@
 	<classpathentry kind="lib" path="lib-gobii/waffle-jna-1.7.jar"/>
 	<classpathentry kind="lib" path="lib-gobii/xml-apis-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
-		<classpathentry kind="lib" path="/gobii-api-model/target/gobii-api-model-0.3.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="/gobii-client/target/gobii-client-0.3.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="/gobii-model/target/gobii-model-0.3.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/gobii-client/target/gobii-client-1.0.1-DEV.jar"/>
+	<classpathentry kind="lib" path="/gobii-api-model/target/gobii-api-model-1.0.1-DEV.jar"/>
+	<classpathentry kind="lib" path="/gobii-model/target/gobii-model-1.0.1-DEV.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

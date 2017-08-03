@@ -1,0 +1,195 @@
+
+Checking DbPKeysurrogate (Name) for Organizations......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (Email) for Contacts......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (PlatformName) for Platforms......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (Name) for Protocols......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (Name) for VendorProtocols......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (Name) for Mapsets......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (ProjectName) for Projects......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (ExperimentName) for Experiments......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (AnalysisName) for Analyses......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+Checking DbPKeysurrogate (Name) for Datasets......
+
+
+Record 1....
+
+
+Checking for value....
+
+
+Checking for duplicates...
+
+
+Checking for foreign keys...
+
+
+File passed key checks...
+
+15:31:09.198 [main] INFO  o.g.g.c.g.GobiiTestConfiguration - FQPN of configuration file read from environment variable cfgFqpn: C:\gobii-config\gobii-web.xml
+15:31:09.789 [main] DEBUG o.a.h.c.p.RequestAddCookies - CookieSpec selected: default
+15:31:09.795 [main] DEBUG o.a.h.c.p.RequestAuthCache - Auth cache not set in the context
+15:31:09.796 [main] DEBUG o.a.h.i.c.PoolingHttpClientConnectionManager - Connection request: [route: {}->http://localhost:8282][total kept alive: 0; route allocated: 0 of 2; total allocated: 0 of 20]
+15:31:09.804 [main] DEBUG o.a.h.i.c.PoolingHttpClientConnectionManager - Connection leased: [id: 0][route: {}->http://localhost:8282][total kept alive: 0; route allocated: 1 of 2; total allocated: 1 of 20]
+15:31:09.807 [main] DEBUG o.a.h.i.e.MainClientExec - Opening connection {}->http://localhost:8282
+15:31:09.810 [main] DEBUG o.a.h.i.c.DefaultHttpClientConnectionOperator - Connecting to localhost/127.0.0.1:8282
+15:31:09.813 [main] DEBUG o.a.h.i.c.DefaultHttpClientConnectionOperator - Connection established 127.0.0.1:54801<->127.0.0.1:8282
+15:31:09.813 [main] DEBUG o.a.h.i.e.MainClientExec - Executing request GET /gobii-dev//gobii/v1/configsettings HTTP/1.1
+15:31:09.813 [main] DEBUG o.a.h.i.e.MainClientExec - Target auth state: UNCHALLENGED
+15:31:09.814 [main] DEBUG o.a.h.i.e.MainClientExec - Proxy auth state: UNCHALLENGED
+15:31:09.815 [main] DEBUG o.a.h.headers - http-outgoing-0 >> GET /gobii-dev//gobii/v1/configsettings HTTP/1.1
+15:31:09.815 [main] DEBUG o.a.h.headers - http-outgoing-0 >> X-Auth-Token: 
+15:31:09.815 [main] DEBUG o.a.h.headers - http-outgoing-0 >> Host: localhost:8282
+15:31:09.815 [main] DEBUG o.a.h.headers - http-outgoing-0 >> Connection: Keep-Alive
+15:31:09.815 [main] DEBUG o.a.h.headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/4.4 (Java 1.5 minimum; Java/1.8.0_73)
+15:31:09.815 [main] DEBUG o.a.h.headers - http-outgoing-0 >> Accept-Encoding: gzip,deflate
+15:31:09.815 [main] DEBUG o.a.h.wire - http-outgoing-0 >> "GET /gobii-dev//gobii/v1/configsettings HTTP/1.1[\r][\n]"
+15:31:09.816 [main] DEBUG o.a.h.wire - http-outgoing-0 >> "X-Auth-Token: [\r][\n]"
+15:31:09.816 [main] DEBUG o.a.h.wire - http-outgoing-0 >> "Host: localhost:8282[\r][\n]"
+15:31:09.816 [main] DEBUG o.a.h.wire - http-outgoing-0 >> "Connection: Keep-Alive[\r][\n]"
+15:31:09.816 [main] DEBUG o.a.h.wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/4.4 (Java 1.5 minimum; Java/1.8.0_73)[\r][\n]"
+15:31:09.816 [main] DEBUG o.a.h.wire - http-outgoing-0 >> "Accept-Encoding: gzip,deflate[\r][\n]"
+15:31:09.816 [main] DEBUG o.a.h.wire - http-outgoing-0 >> "[\r][\n]"
+15:31:09.821 [main] DEBUG o.a.h.wire - http-outgoing-0 << "HTTP/1.1 200 OK[\r][\n]"
+15:31:09.822 [main] DEBUG o.a.h.wire - http-outgoing-0 << "Server: Apache-Coyote/1.1[\r][\n]"
+15:31:09.822 [main] DEBUG o.a.h.wire - http-outgoing-0 << "Content-Type: application/json;charset=UTF-8[\r][\n]"
+15:31:09.822 [main] DEBUG o.a.h.wire - http-outgoing-0 << "Transfer-Encoding: chunked[\r][\n]"
+15:31:09.823 [main] DEBUG o.a.h.wire - http-outgoing-0 << "Date: Sun, 21 May 2017 19:31:09 GMT[\r][\n]"
+15:31:09.825 [main] DEBUG o.a.h.wire - http-outgoing-0 << "[\r][\n]"
+15:31:09.828 [main] DEBUG o.a.h.wire - http-outgoing-0 << "995[\r][\n]"
+15:31:09.828 [main] DEBUG o.a.h.wire - http-outgoing-0 << "{"payload":{"linkCollection":{"linksPerDataItem":[{"href":"/gobii-dev//gobii/v1/configsettings/1","description":"Link to class org.gobiiproject.gobiimodel.headerlesscontainer.ConfigSettingsDTO, id 1","methods":["GET"]}],"exploreLinksPerDataItem":[]},"data":[{"allowedProcessTypes":["READ"],"serverConfigs":{"arbitrary-id-0":{"port":8282,"domain":"localhost","contextRoot":"/gobii-dev/","gobiiCropType":"arbitrary-id-0","fileLocations":{"EXTRACTOR_INSTRUCTIONS":"/shared_data/gobii/crops/arbitrary-id-0/extractor/instructions/","LOADER_INTERMEDIATE_FILES":"/shared_data/gobii/crops/arbitrary-id-0/loader/digest/","RAW_USER_FILES":"/shared_data/gobii/crops/arbitrary-id-0/files/","LOADER_INSTRUCTIONS":"/shared_data/gobii/crops/arbitrary-id-0/loader/instructions/"}},"arbitrary-id-1":{"port":8383,"domain":"localhost","contextRoot":"/gobii-test/","gobiiCropType":"arbitrary-id-1","fileLocations":{"EXTRACTOR_INSTRUCTIONS":"/shared_data/gobii/crops/arbitrary-id-1/extractor/instructions/","LOADER_INTERMEDIATE_FILES":"/shared_data/gobii/crops/arbitrary-id-1/loader/digest/","RAW_USER_FILES":"/shared_data/gobii/crops/arbitrary-id-1/files/","LOADER_INSTRUCTIONS":"/shared_data/gobii/crops/arbitrary-id-1/loader/instructions/"}}},"id":1},{"allowedProcessTypes":["READ"],"serverConfigs":{"arbitrary-id-0":{"port":8282,"domain":"localhost","contextRoot":"/gobii-dev/","gobiiCropType":"arbitrary-id-0","fileLocations":{"EXTRACTOR_INSTRUCTIONS":"/shared_data/gobii/crops/arbitrary-id-0/extractor/instructions/","LOADER_INTERMEDIATE_FILES":"/shared_data/gobii/crops/arbitrary-id-0/loader/digest/","RAW_USER_FILES":"/shared_data/gobii/crops/arbitrary-id-0/files/","LOADER_INSTRUCTIONS":"/shared_data/gobii/crops/arbitrary-id-0/loader/instructions/"}},"arbitrary-id-1":{"port":8383,"domain":"localhost","contextRoot":"/gobii-test/","gobiiCropType":"arbitrary-id-1","fileLocations":{"EXTRACTOR_INSTRUCTIONS":"/shared_data/gobii/crops/arbitrary-id-1/extractor/instructions/","LOADER_INTERMEDIATE_FILES":"/shared_data/gobii/crops/arbitrary-id-1/loader/digest/","RAW_USER_FILES":"/shared_data/gobii/crops/arbitrary-id-1/files/","LOADER_INSTRUCTIONS":"/shared_data/gobii/crops/arbitrary-id-1/loader/instructions/"}}},"id":1}]},"header":{"gobiiProcessType":"READ","dtoHeaderAuth":{"userName":null,"password":null,"token":null,"gobiiCropType":null},"status":{"succeeded":true,"statusMessages":[],"statusMessagesByCode":{}},"gobiiVersion":"0.3.4-SNAPSHOT","cropType":null}}[\r][\n]"
+15:31:09.831 [main] DEBUG o.a.h.headers - http-outgoing-0 << HTTP/1.1 200 OK
+15:31:09.831 [main] DEBUG o.a.h.headers - http-outgoing-0 << Server: Apache-Coyote/1.1
+15:31:09.831 [main] DEBUG o.a.h.headers - http-outgoing-0 << Content-Type: application/json;charset=UTF-8
+15:31:09.831 [main] DEBUG o.a.h.headers - http-outgoing-0 << Transfer-Encoding: chunked
+15:31:09.832 [main] DEBUG o.a.h.headers - http-outgoing-0 << Date: Sun, 21 May 2017 19:31:09 GMT
+15:31:09.835 [main] DEBUG o.a.h.i.e.MainClientExec - Connection can be kept alive indefinitely
+15:31:09.839 [main] DEBUG o.a.h.wire - http-outgoing-0 << "0[\r][\n]"
+15:31:09.840 [main] DEBUG o.a.h.wire - http-outgoing-0 << "[\r][\n]"
+15:31:09.840 [main] DEBUG o.a.h.i.c.PoolingHttpClientConnectionManager - Connection [id: 0][route: {}->http://localhost:8282] can be kept alive indefinitely
+15:31:09.840 [main] DEBUG o.a.h.i.c.PoolingHttpClientConnectionManager - Connection released: [id: 0][route: {}->http://localhost:8282][total kept alive: 1; route allocated: 1 of 2; total allocated: 1 of 20]

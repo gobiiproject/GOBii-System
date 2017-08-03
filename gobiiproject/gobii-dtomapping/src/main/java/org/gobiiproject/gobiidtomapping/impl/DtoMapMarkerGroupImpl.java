@@ -1,5 +1,6 @@
 package org.gobiiproject.gobiidtomapping.impl;
 
+import com.google.gson.*;
 import org.gobiiproject.gobiidao.GobiiDaoException;
 import org.gobiiproject.gobiidao.resultset.access.RsMarkerGroupDao;
 import org.gobiiproject.gobiidao.resultset.core.EntityPropertyParamNames;
@@ -57,12 +58,33 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
                 Integer currentMarkerId = markersForMarkerGroupResultSet.getInt("marker_id");
                 String favorableAllele = markersForMarkerGroupResultSet.getString("favorable_allele");
+
+                JsonParser parser = new JsonParser();
+                JsonElement alleleElement = parser.parse(favorableAllele);
+                JsonArray alleleArray = alleleElement.getAsJsonArray();
+
+                String newFavorableAllele = "";
+
+                // parse json string, convert to comma delimited string
+                for (JsonElement allele : alleleArray) {
+
+                    String s = allele.getAsString().replace("\"", "");
+
+                    if (newFavorableAllele != ""){
+                        newFavorableAllele = newFavorableAllele + ",";
+                    }
+
+                    newFavorableAllele = newFavorableAllele + s;
+
+                }
+
+
                 ResultSet markerDetailsResultSet = rsMarkerGroupDao.getMarkerByMarkerId(currentMarkerId);
                 MarkerGroupMarkerDTO currentMarkerGroupMarkerDTO = new MarkerGroupMarkerDTO();
                 if (markerDetailsResultSet.next()) {
                     ResultColumnApplicator.applyColumnValues(markerDetailsResultSet, currentMarkerGroupMarkerDTO);
                     currentMarkerGroupMarkerDTO.setMarkerExists(true);
-                    currentMarkerGroupMarkerDTO.setFavorableAllele(favorableAllele);
+                    currentMarkerGroupMarkerDTO.setFavorableAllele(newFavorableAllele);
                 } else {
                     currentMarkerGroupMarkerDTO.setMarkerId(currentMarkerId);
                     currentMarkerGroupMarkerDTO.setMarkerExists(false);
@@ -91,6 +113,7 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
                 MarkerGroupDTO currentMarkerGroupDTO = new MarkerGroupDTO();
                 currentMarkerGroupDTO.setName(resultSet.getString("name"));
                 currentMarkerGroupDTO.setMarkerGroupId(resultSet.getInt("marker_group_id"));
+
                 returnVal.add(currentMarkerGroupDTO);
             }
 
@@ -118,6 +141,23 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
         return returnVal;
     }
 
+    private List<MarkerGroupMarkerDTO> getMarkerGroupMarkersByMarkerAndPlatformName(String markerName, String platformName) throws SQLException, GobiiDaoException {
+
+        List<MarkerGroupMarkerDTO> returnVal = new ArrayList<>();
+
+        ResultSet markersResultSet = rsMarkerGroupDao.getMarkersByMarkerAndPlatformName(markerName, platformName);
+        while (markersResultSet.next()) {
+
+            MarkerGroupMarkerDTO currentMarkerGroupMarkerDTO = new MarkerGroupMarkerDTO();
+            ResultColumnApplicator.applyColumnValues(markersResultSet, currentMarkerGroupMarkerDTO);
+            returnVal.add(currentMarkerGroupMarkerDTO);
+
+        }
+
+        return returnVal;
+
+    }
+
 
     private void populateMarkers(List<MarkerGroupMarkerDTO> markerGroupMarkers) throws SQLException, GobiiDaoException {
 
@@ -131,7 +171,7 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
             MarkerGroupMarkerDTO currentMarkerGroupMarkerDto = iterator.next();
 
             List<MarkerGroupMarkerDTO> markerDTOsForMarkerName =
-                    getMarkerGroupMarkersByMarkerName(currentMarkerGroupMarkerDto.getMarkerName());
+                    getMarkerGroupMarkersByMarkerAndPlatformName(currentMarkerGroupMarkerDto.getMarkerName(), currentMarkerGroupMarkerDto.getPlatformName());
 
             if (markerDTOsForMarkerName.size() > 0) {
 
@@ -185,6 +225,40 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
     } // upsertMarkers
 
+    private String buildMarkers(List<MarkerGroupMarkerDTO> markerGroupMarkerDTOS) {
+
+        JsonObject returnVal = new JsonObject();
+
+        String returnStr = "";
+
+        Gson gson = new GsonBuilder().create();
+
+        for (MarkerGroupMarkerDTO currentMarkerGroupMarkerDTO : markerGroupMarkerDTOS) {
+
+            String[] alleleStr = currentMarkerGroupMarkerDTO.getFavorableAllele().split(",");
+
+            JsonArray favorableAllele = new JsonArray();
+
+            for (String s : alleleStr) {
+
+                favorableAllele.add(s);
+
+            }
+
+            returnVal.add(currentMarkerGroupMarkerDTO.getMarkerId().toString(), favorableAllele);
+
+        }
+
+
+        returnStr = gson.toJson(returnVal);
+
+
+        return returnStr;
+
+
+
+    }
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED) // if we throw a runtime exception, we'll rollback
     public MarkerGroupDTO createMarkerGroup(MarkerGroupDTO markerGroupDTO) throws GobiiDtoMappingException {
@@ -193,30 +267,51 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
         try {
 
-            Map<String, Object> parameters = ParamExtractor.makeParamVals(markerGroupDTO);
-            Integer markerGroupId = rsMarkerGroupDao.createMarkerGroup(parameters);
-            returnVal.setMarkerGroupId(markerGroupId);
+            // check if MarkerGroupDTO has specified markers
+            // if yes, do validation for the markers
+
+            if ((null != markerGroupDTO.getMarkers()) && (markerGroupDTO.getMarkers().size() > 0)) {
+
+                populateMarkers(markerGroupDTO.getMarkers());
+                List<MarkerGroupMarkerDTO> nonExistingMarkers = returnVal.getMarkers()
+                        .stream()
+                        .filter(m -> !m.isMarkerExists())
+                        .collect(Collectors.toList());
+
+                if (nonExistingMarkers.size() > 0) {
+
+                    throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
+                            GobiiValidationStatusType.NONEXISTENT_FK_ENTITY,
+                            "Some markers don't exist.");
+
+                }
+
+            }
 
             // populate marker DTO's in a way that deals with case of
             // multiple markers with that name
-            if ((null != returnVal.getMarkers()) && (returnVal.getMarkers().size() > 0)) {
 
-                populateMarkers(returnVal.getMarkers());
-                List<MarkerGroupMarkerDTO> existingMarkers = returnVal.getMarkers()
-                        .stream()
-                        .filter(m -> m.isMarkerExists())
-                        .collect(Collectors.toList());
+            List<MarkerGroupMarkerDTO> existingMarkers = returnVal.getMarkers()
+                    .stream()
+                    .filter(m -> m.isMarkerExists())
+                    .collect(Collectors.toList());
+
+            String markers = "";
+
+            if (existingMarkers.size() > 0) {
+
+//                upsertMarkers(returnVal.getMarkerGroupId(), existingMarkers);
+                markers = buildMarkers(existingMarkers);
+
+            }
 
 
-                if (existingMarkers.size() > 1) {
+            Map<String, Object> parameters = ParamExtractor.makeParamVals(markerGroupDTO);
+            parameters.put("markers", markers);
+            Integer markerGroupId = rsMarkerGroupDao.createMarkerGroup(parameters);
+            returnVal.setMarkerGroupId(markerGroupId);
 
-                    upsertMarkers(returnVal.getMarkerGroupId(), existingMarkers);
 
-                } else {
-
-                } // if else at least one marker is valid
-
-            } // if any markers were specified
 
 
         } catch (Exception e) {
@@ -234,16 +329,12 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
 
         try {
 
-            Map<String, Object> parameters = ParamExtractor.makeParamVals(returnVal);
-            parameters.put("markerGroupId", markerGroupId);
-            rsMarkerGroupDao.updateMarkerGroup(parameters);
-
             // *********************************************************************************
             // CREATE NEW MARKERS
             List<MarkerGroupMarkerDTO> markerGroupMarkersToCreate =
                     returnVal.getMarkers()
                             .stream()
-                            .filter(m -> m.getGobiiProcessType() == GobiiProcessType.CREATE)
+                            //.filter(m -> m.getGobiiProcessType() == GobiiProcessType.CREATE)
                             .collect(Collectors.toList());
 
             populateMarkers(markerGroupMarkersToCreate);
@@ -258,50 +349,40 @@ public class DtoMapMarkerGroupImpl implements DtoMapMarkerGroup {
                     .filter(m -> !m.isMarkerExists())
                     .collect(Collectors.toList());
 
-            if (existingMarkers.size() > 0) {
+            // check if there are non existent markers
 
-                upsertMarkers(returnVal.getMarkerGroupId(), existingMarkers);
-
-            } else if (nonExistingMarkers.size() > 0) {
+            if(nonExistingMarkers.size() > 0) {
 
                 throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
                         GobiiValidationStatusType.NONEXISTENT_FK_ENTITY,
-                        "None of the specified markers exists");
+                        "Some of the specified markers doesn't exists");
 
-            } // if else at least one marker is valid
-
-            if (nonExistingMarkers.size() > 0) {
             }
 
-            // *********************************************************************************
-            // MODIFY EXISTING MARKERS
-            List<MarkerGroupMarkerDTO> markerGroupMarkersToUpdate =
-                    returnVal.getMarkers()
-                            .stream()
-                            .filter(m -> m.getGobiiProcessType() == GobiiProcessType.UPDATE)
-                            .collect(Collectors.toList());
+            String markers = "";
+            if (existingMarkers.size() > 0) {
 
-            upsertMarkers(markerGroupId,
-                    markerGroupMarkersToUpdate);
+//                upsertMarkers(returnVal.getMarkerGroupId(), existingMarkers);
+                markers = buildMarkers(existingMarkers);
 
-
-            // *********************************************************************************
-            // DELETE MARKERS TO BE DELETED
-            List<MarkerGroupMarkerDTO> markerGroupMarkersToDelete = returnVal.getMarkers()
-                    .stream()
-                    .filter(m -> m.getGobiiProcessType() == GobiiProcessType.DELETE)
-                    .collect(Collectors.toList());
-
-            for (MarkerGroupMarkerDTO currentMarkerGroupMarkerDTO : markerGroupMarkersToDelete) {
-                Map<String, Object> markerGroupMarkerParameters = new HashMap<>();
-
-                markerGroupMarkerParameters.put(EntityPropertyParamNames.PROPPCOLARAMNAME_ENTITY_ID,
-                        markerGroupId);
-                markerGroupMarkerParameters.put(EntityPropertyParamNames.PROPPCOLARAMNAME_PROP_ID,
-                        currentMarkerGroupMarkerDTO.getMarkerId());
-
-                rsMarkerGroupDao.deleteMarkerGroupMarker(markerGroupMarkerParameters);
             }
+
+            // update marker group name first if marker group name is changed.
+
+            MarkerGroupDTO existingMapsetDTO = getMarkerGroupDetails(markerGroupId);
+
+            if(existingMapsetDTO.getName() != markerGroupDTO.getName()) {
+
+                Map<String, Object> parameters = new HashMap<>();
+                parameters.put("markerGroupId", existingMapsetDTO.getMarkerGroupId());
+                parameters.put("name", markerGroupDTO.getName());
+                rsMarkerGroupDao.updateMarkerGroupName(parameters);
+            }
+
+            Map<String, Object> parameters = ParamExtractor.makeParamVals(returnVal);
+            parameters.put("markerGroupId", markerGroupId);
+            parameters.put("markers", markers);
+            rsMarkerGroupDao.updateMarkerGroup(parameters);
 
 
         } catch (Exception e) {

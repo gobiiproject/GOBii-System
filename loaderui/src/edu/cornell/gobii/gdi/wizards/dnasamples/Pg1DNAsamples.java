@@ -138,14 +138,17 @@ public class Pg1DNAsamples extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					dto.setProjectID(null);
-					dto.setProjectName(null);
+					
 					FormUtils.resetCombo(cbExperiment);	dto.setExperimentID(null);
 					if(cbProject.getSelectionIndex() > -1){
 						String key = (String) cbProject.getData(cbProject.getItem(cbProject.getSelectionIndex()));
 						dto.setProjectID(Integer.parseInt(key));
 						dto.setProjectName(cbProject.getText());
 						FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(dto.getProjectID()), cbExperiment);
+					}
+					else{
+						dto.setProjectID(null);
+						dto.setProjectName(null);
 					}
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error retrieving Experiments", err);
@@ -163,12 +166,13 @@ public class Pg1DNAsamples extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					dto.setExperimentID(null);
-					dto.setExperimentName(null);
 					if(cbExperiment.getSelectionIndex() > -1){
 						String key = (String) cbExperiment.getData(cbExperiment.getItem(cbExperiment.getSelectionIndex()));
 						dto.setExperimentID(Integer.parseInt(key));
 						dto.setExperimentName(cbExperiment.getText());
+					}else{
+						dto.setExperimentID(null);
+						dto.setExperimentName(null);
 					}
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error selecting Experiment", err);
@@ -309,7 +313,7 @@ public class Pg1DNAsamples extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					if(cbFileFormat.getSelectionIndex() == -1) return;
+					if(cbFileFormat.getSelectionIndex() < 0) return;
 					FileFormat ff = fileformats.getFileFormat().get(cbFileFormat.getSelectionIndex());
 					dto.getFile().setGobiiFileType(GobiiFileType.valueOf((ff.getName())));
 					dto.getFile().setDelimiter(ff.getDelim());
@@ -388,7 +392,7 @@ public class Pg1DNAsamples extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String template = null;
-				if(cbTemplates.getSelectionIndex() == -1 || cbTemplates.getText().isEmpty()){
+				if(cbTemplates.getSelectionIndex() < 0 || cbTemplates.getText().isEmpty()){
 					template = null;
 				}else{
 					int index = cbTemplates.getSelectionIndex();

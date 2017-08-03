@@ -588,8 +588,15 @@ System.register(["@angular/core", "../services/core/dto-request.service", "../mo
                                 return item.getEntityType() === type_entity_1.EntityType.Platforms;
                             });
                             platformFileItems = _this.eliminateDuplicateEntities(file_model_node_1.ExtractorItemType.ENTITY, type_entity_1.EntityType.Platforms, platformFileItems);
-                            var platformIds = platformFileItems.map(function (item) {
-                                return Number(item.getItemId());
+                            var platforms = platformFileItems.map(function (item) {
+                                return new name_id_1.NameId(item.getItemId(), item.getItemName(), type_entity_1.EntityType.Platforms);
+                            });
+                            var markerGroupItems = fileItems.filter(function (item) {
+                                return item.getEntityType() === type_entity_1.EntityType.MarkerGroups;
+                            });
+                            markerGroupItems = _this.eliminateDuplicateEntities(file_model_node_1.ExtractorItemType.ENTITY, type_entity_1.EntityType.MarkerGroups, markerGroupItems);
+                            var markerGroups = markerGroupItems.map(function (item) {
+                                return new name_id_1.NameId(item.getItemId(), item.getItemName(), type_entity_1.EntityType.MarkerGroups);
                             });
                             // ******** MARKERS
                             var markerListItems = fileItems
@@ -625,14 +632,14 @@ System.register(["@angular/core", "../services/core/dto-request.service", "../mo
                                 dataSetItems = _this.eliminateDuplicateEntities(file_model_node_1.ExtractorItemType.ENTITY, type_entity_1.EntityType.DataSets, dataSetItems);
                                 dataSetItems.forEach(function (datsetFileItem) {
                                     var dataSet = new name_id_1.NameId(datsetFileItem.getItemId(), datsetFileItem.getItemName(), type_entity_1.EntityType.CvTerms);
-                                    gobiiDataSetExtracts_1.push(new data_set_extract_1.GobiiDataSetExtract(gobiiFileType, false, null, _this.gobiiExtractFilterType, null, null, markerFileName_1, null, datasetType, platformIds, null, null, dataSet));
+                                    gobiiDataSetExtracts_1.push(new data_set_extract_1.GobiiDataSetExtract(gobiiFileType, false, null, _this.gobiiExtractFilterType, null, null, markerFileName_1, null, datasetType, platforms, null, null, dataSet, null));
                                 });
                             }
                             else if (_this.gobiiExtractFilterType === type_extractor_filter_1.GobiiExtractFilterType.BY_MARKER) {
-                                gobiiDataSetExtracts_1.push(new data_set_extract_1.GobiiDataSetExtract(gobiiFileType, false, null, _this.gobiiExtractFilterType, markerList, null, markerFileName_1, null, datasetType, platformIds, null, null, null));
+                                gobiiDataSetExtracts_1.push(new data_set_extract_1.GobiiDataSetExtract(gobiiFileType, false, null, _this.gobiiExtractFilterType, markerList, null, markerFileName_1, null, datasetType, platforms, null, null, null, markerGroups));
                             }
                             else if (_this.gobiiExtractFilterType === type_extractor_filter_1.GobiiExtractFilterType.BY_SAMPLE) {
-                                gobiiDataSetExtracts_1.push(new data_set_extract_1.GobiiDataSetExtract(gobiiFileType, false, null, _this.gobiiExtractFilterType, null, sampleList, sampleFileName_1, sampleListType_1, datasetType, platformIds, principleInvestigator, project, null));
+                                gobiiDataSetExtracts_1.push(new data_set_extract_1.GobiiDataSetExtract(gobiiFileType, false, null, _this.gobiiExtractFilterType, null, sampleList, sampleFileName_1, sampleListType_1, datasetType, platforms, principleInvestigator, project, null, null));
                             }
                             else {
                                 _this.handleAddMessage("Unhandled extract filter type: " + type_extractor_filter_1.GobiiExtractFilterType[_this.gobiiExtractFilterType]);

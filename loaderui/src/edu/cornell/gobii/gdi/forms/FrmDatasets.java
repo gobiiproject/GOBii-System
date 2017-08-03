@@ -15,8 +15,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.GridLayout;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
 //import org.gobiiproject.gobiiclient.dtorequests.DtoRequestMarkers;
@@ -133,6 +134,7 @@ public class FrmDatasets extends AbstractFrm {
 
 				selectedName = null;
 				currentDatasetId = 0;
+				selectedName=null;
 				cleanDetails();
 				
 			}
@@ -145,6 +147,7 @@ public class FrmDatasets extends AbstractFrm {
 				cleanDetails();
 				currentExperimentId= FormUtils.getIdFromFormList(cbList);
 				currentDatasetId = 0;
+				selectedName=null;
 				populateDatasetListFromSelectedExperiment(currentExperimentId); //retrieve and display projects by contact Id
 			}
 
@@ -285,8 +288,10 @@ public class FrmDatasets extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectedName = null;
-				currentDatasetId = 0;
+//				currentDatasetId = 0;
 				cleanDetails();
+				String selected = cbList.getText(); //single selection
+				cbExperiment.setText(selected);
 			}
 		});
 		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -333,6 +338,9 @@ public class FrmDatasets extends AbstractFrm {
 			// get datasets
 			if(currentExperimentId>0) FormUtils.entrySetToTable(Controller.getDataSetNamesByExperimentId(currentExperimentId), tbList);
 			else FormUtils.entrySetToTable(Controller.getDataSetNames(), tbList);
+			
+			currentDatasetId=0;
+			selectedName=null;
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error retrieving Projects and Experiemnts", err);
 		}
@@ -465,7 +473,7 @@ public class FrmDatasets extends AbstractFrm {
 			PayloadEnvelope<DataSetDTO> resultEnvelope = null;
 
 			if(isNew){
-				projectsCollUri = App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_DATASETS);
+				projectsCollUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceColl(GobiiServiceRequestId.URL_DATASETS);
 				restResource = new GobiiEnvelopeRestResource<>(projectsCollUri);
 				setDatasetDetails(dataSetDTORequest);
 				dataSetDTORequest.setDataFile(null);
@@ -473,7 +481,7 @@ public class FrmDatasets extends AbstractFrm {
 				resultEnvelope = restResource.post(DataSetDTO.class, new PayloadEnvelope<>(dataSetDTORequest, GobiiProcessType.CREATE));
 
 			}else{
-				projectsCollUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DATASETS);
+				projectsCollUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_DATASETS);
 				restResource = new GobiiEnvelopeRestResource<>(projectsCollUri);
 				dataSetDTORequest.setDataSetId(currentDatasetId);
 				setDatasetDetails(dataSetDTORequest);

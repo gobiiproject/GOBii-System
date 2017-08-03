@@ -22,8 +22,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ExperimentDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
@@ -156,6 +157,7 @@ public class FrmExperiments extends AbstractFrm {
 				FormUtils.entrySetToCombo(Controller.getVendorProtocolNames(), cbVendorProtocol);
 				FormUtils.entrySetToCombo(Controller.getManifestNames(), comboManifest);
 				cleanExperimentDetails();
+				currentExperimentId = 0;
 			}
 		});
 		
@@ -277,7 +279,7 @@ public class FrmExperiments extends AbstractFrm {
 					if(!txtDatafile.getText().isEmpty()) experimentDTO.setExperimentDataFile(txtDatafile.getText());
 
 					try{
-						RestUri experimentsUri = App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_EXPERIMENTS);
+						RestUri experimentsUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceColl(GobiiServiceRequestId.URL_EXPERIMENTS);
 						GobiiEnvelopeRestResource<ExperimentDTO> restResourceForExperiments = new GobiiEnvelopeRestResource<>(experimentsUri);
 						PayloadEnvelope<ExperimentDTO> payloadEnvelope = new PayloadEnvelope<>(experimentDTO, GobiiProcessType.CREATE);
 						PayloadEnvelope<ExperimentDTO> resultEnvelope = restResourceForExperiments
@@ -331,8 +333,8 @@ public class FrmExperiments extends AbstractFrm {
 					if(!txtDatafile.getText().isEmpty()) experimentDTO.setExperimentDataFile(txtDatafile.getText());
 
 					try{
-						RestUri experimentsUriById = App.INSTANCE.getUriFactory()
-								.resourceByUriIdParam(ServiceRequestId.URL_EXPERIMENTS);
+						RestUri experimentsUriById = GobiiClientContext.getInstance(null, false).getUriFactory()
+								.resourceByUriIdParam(GobiiServiceRequestId.URL_EXPERIMENTS);
 						experimentsUriById.setParamValue("id", Integer.toString(currentExperimentId));
 						GobiiEnvelopeRestResource<ExperimentDTO> restResourceForExperimentsById = new GobiiEnvelopeRestResource<>(experimentsUriById);
 						PayloadEnvelope<ExperimentDTO> postRequestEnvelope = new PayloadEnvelope<>(experimentDTO,GobiiProcessType.UPDATE);
@@ -342,6 +344,7 @@ public class FrmExperiments extends AbstractFrm {
 						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
 							populateExperimentsListFromSelectedProject(currentProjectId);
 							FormUtils.selectRowById(tbList,currentExperimentId);
+							txtCode.setText(resultEnvelope.getPayload().getData().get(0).getExperimentCode());
 						};
 					}catch(Exception err){
 						Utils.log(shell, memInfo, log, "Error saving Experiemnts", err);
@@ -360,6 +363,8 @@ public class FrmExperiments extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				cleanExperimentDetails();
+				if(currentProjectId==0)comboProject.setText("");
+//				currentExperimentId = 0;
 			}
 		});
 		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -434,6 +439,7 @@ public class FrmExperiments extends AbstractFrm {
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error retrieving Projects and Experiemnts", err);
 		}
+		currentExperimentId = 0;
 	}
 
 	protected void populateExperimentDetails(int experimentId) {
@@ -524,6 +530,7 @@ public class FrmExperiments extends AbstractFrm {
 			cbVendorProtocol.deselectAll(); cbVendorProtocol.setText("");
 			comboManifest.deselectAll(); comboManifest.setText("");
 			txtDatafile.setText("");
+			
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error clearing fields", err);
 		}

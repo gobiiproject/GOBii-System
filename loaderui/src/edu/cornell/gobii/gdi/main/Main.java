@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
 import org.gobiiproject.gobiimodel.headerlesscontainer.NameIdDTO;
 import org.gobiiproject.gobiimodel.types.SystemUserDetail;
 import org.gobiiproject.gobiimodel.types.SystemUsers;

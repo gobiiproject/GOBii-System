@@ -14,5 +14,5 @@ public enum GobiiFileProcessDir {
     EXTRACTOR_DONE,
     EXTRACTOR_OUTPUT,
     EXTRACTOR_INPROGRESS,
-    QC_NOTIFICATIONS
+    QC_OUTPUT
 }

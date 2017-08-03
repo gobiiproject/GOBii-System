@@ -1,6 +1,7 @@
 package org.gobiiproject.gobiibrapi.core.common;
 
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Pagination;
+import org.gobiiproject.gobiiapimodel.payload.Pagination;
+import org.gobiiproject.gobiiapimodel.payload.Status;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,14 +17,14 @@ public class BrapiMetaData {
 
     }
 
-    public BrapiMetaData(Pagination pagination, List<Map<String, String>> status, List<String> datafiles) {
+    public BrapiMetaData(Pagination pagination, List<BrapiStatus> status, List<String> datafiles) {
         this.pagination = pagination;
         this.status = status;
         this.datafiles = datafiles;
     }
 
     Pagination pagination = new Pagination(0,0,0,0);
-    List<Map<String,String>> status = new ArrayList<>();
+    List<BrapiStatus> status = new ArrayList<>();
     List<String> datafiles = new ArrayList<>();
 
     public Pagination getPagination() {
@@ -34,21 +35,23 @@ public class BrapiMetaData {
         this.pagination = pagination;
     }
 
+
+    // [{code: <code>, message: <message>}]
     public void addStatusMessage(String code, String message) {
         if( this.status == null ) {
             this.status = new ArrayList<>();
         }
 
-        Map<String,String> statusItem = new HashMap<>();
-        statusItem.put(code,message);
-        this.status.add(statusItem);
+        BrapiStatus brapiStatus = new BrapiStatus(code,message);
+
+        this.status.add(brapiStatus);
     }
 
-    public List<Map<String, String>> getStatus() {
+    public List<BrapiStatus> getStatus() {
         return status;
     }
 
-    public void setStatus(List<Map<String, String>> status) {
+    public void setStatus(List<BrapiStatus> status) {
         this.status = status;
     }
 

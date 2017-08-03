@@ -1,14 +1,7 @@
 package org.gobiiproject.gobiimodel.headerlesscontainer;
 
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityColumn;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityParam;
-import org.gobiiproject.gobiimodel.entity.CvItem;
-import org.gobiiproject.gobiimodel.types.GobiiProcessType;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Angel on 4/29/2016.

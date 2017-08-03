@@ -1,7 +1,7 @@
 package org.gobiiproject.gobiidtomapping.impl;
 
 import org.gobiiproject.gobiidao.GobiiDaoException;
-import org.gobiiproject.gobiidao.filesystem.ExtractorInstructionsDAO;
+import org.gobiiproject.gobiidao.filesystem.access.InstructionFileAccess;
 import org.gobiiproject.gobiidtomapping.DtoMapContact;
 import org.gobiiproject.gobiidtomapping.DtoMapExtractorInstructions;
 import org.gobiiproject.gobiidtomapping.GobiiDtoMappingException;
@@ -14,14 +14,15 @@ import org.gobiiproject.gobiimodel.dto.instructions.extractor.GobiiExtractorInst
 import org.gobiiproject.gobiimodel.types.GobiiExtractFilterType;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
 import org.gobiiproject.gobiimodel.types.GobiiFileType;
+import org.gobiiproject.gobiimodel.types.GobiiJobStatus;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
 import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
-import org.gobiiproject.gobiimodel.utils.DateUtils;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,55 +37,8 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
     private final String DATA_FILE_EXT = ".txt";
 
     @Autowired
-    private ExtractorInstructionsDAO extractorInstructionsDAO;
-
-    @Autowired
     DtoMapContact dtoMapContact;
-
-
-    @Override
-    public void writeDataFile(String cropType, GobiiExtractFilterType gobiiExtractFilterType, String jobId, byte[] byteArray) throws GobiiException {
-        ConfigSettings configSettings = new ConfigSettings();
-
-        try {
-
-            String instructionFileDirectory = configSettings.getProcessingPath(cropType,
-                    GobiiFileProcessDir.EXTRACTOR_INSTRUCTIONS);
-
-            this.createDirectories(instructionFileDirectory);
-
-            String fqpn = instructionFileDirectory + jobId;
-
-
-            fqpn += DATA_FILE_EXT;
-
-            this.extractorInstructionsDAO.writePlainFile(fqpn, byteArray);
-
-
-        } catch (GobiiException e) {
-            LOGGER.error("Gobii Maping Error", e);
-            throw e;
-        } catch (Exception e) {
-            LOGGER.error("Gobii Maping Error", e);
-            throw new GobiiException(e);
-        }
-    }
-
-    private void createDirectories(String instructionFileDirectory) throws GobiiDaoException {
-
-
-        if (null != instructionFileDirectory) {
-
-            if (!extractorInstructionsDAO.doesPathExist(instructionFileDirectory)) {
-
-                extractorInstructionsDAO.makeDirectory(instructionFileDirectory);
-
-            } else {
-                extractorInstructionsDAO.verifyDirectoryPermissions(instructionFileDirectory);
-            }
-        }
-
-    } // createDirectories()
+    private InstructionFileAccess<GobiiExtractorInstruction> instructionFileAccess = new InstructionFileAccess<>(GobiiExtractorInstruction.class);
 
 
     private String makeDestinationDirectoryName(String userEmail,
@@ -122,15 +76,10 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
 
             ConfigSettings configSettings = new ConfigSettings();
 
-//            String currentGobiiCropType = extractorInstructionFilesDTO.getCropType();
-//            if (null == currentGobiiCropType) {
-//                throw new Exception("Extractor instruction request does not specify a crop");
-//            }
-
             String instructionFileDirectory = configSettings.getProcessingPath(cropType,
                     GobiiFileProcessDir.EXTRACTOR_INSTRUCTIONS);
 
-            createDirectories(instructionFileDirectory);
+            instructionFileAccess.createDirectory(instructionFileDirectory);
 
             String instructionFileFqpn = instructionFileDirectory
                     + extractorInstructionFilesDTO.getInstructionFileName()
@@ -187,9 +136,9 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
 
                     if (currentGobiiDataSetExtract.getListFileName() != null) {
 
-                        String presumptiveListFileFqpn = instructionFileDirectory + currentGobiiDataSetExtract.getListFileName() + DATA_FILE_EXT;
+                        String presumptiveListFileFqpn = instructionFileDirectory + currentGobiiDataSetExtract.getListFileName();
 
-                        if (this.extractorInstructionsDAO.doesPathExist(presumptiveListFileFqpn)) {
+                        if (this.instructionFileAccess.doesPathExist(presumptiveListFileFqpn)) {
                             currentGobiiDataSetExtract.setListFileName(presumptiveListFileFqpn);
                         } else {
 
@@ -211,17 +160,17 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
                     } else if (currentGobiiDataSetExtract.getGobiiExtractFilterType()
                             .equals(GobiiExtractFilterType.BY_SAMPLE)) {
 
-                        if((currentGobiiDataSetExtract.getProject() == null)
+                        if ((currentGobiiDataSetExtract.getProject() == null)
                                 && (currentGobiiDataSetExtract.getPrincipleInvestigator() == null)
                                 && (currentGobiiDataSetExtract.getListFileName() == null)
                                 && ((currentGobiiDataSetExtract.getSampleList() == null) ||
-                                    (currentGobiiDataSetExtract.getSampleList().size() <= 0 ))){
+                                (currentGobiiDataSetExtract.getSampleList().size() <= 0))) {
 
                             throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
                                     GobiiValidationStatusType.MISSING_REQUIRED_VALUE,
                                     "The specified extract type is "
-                                        + currentGobiiDataSetExtract.getGobiiExtractFilterType()
-                                        + ". Please provide at least one of the following: " +
+                                            + currentGobiiDataSetExtract.getGobiiExtractFilterType()
+                                            + ". Please provide at least one of the following: " +
                                             "Principle Investigator, Project, Sample list, or sample file.");
 
 
@@ -232,16 +181,18 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
 
                         if ((currentGobiiDataSetExtract.getListFileName() == null)
                                 && ((currentGobiiDataSetExtract.getMarkerList() == null) ||
-                                (currentGobiiDataSetExtract.getMarkerList().size() <= 0))) {
+                                (currentGobiiDataSetExtract.getMarkerList().size() <= 0))
+                                && ((currentGobiiDataSetExtract.getMarkerGroups() == null)
+                                || (currentGobiiDataSetExtract.getMarkerGroups().size() <= 0))) {
 
-                            if( currentGobiiDataSetExtract.getPlatformIds() == null ||
-                                    currentGobiiDataSetExtract.getPlatformIds().size() <= 0 ) {
+                            if (currentGobiiDataSetExtract.getPlatforms() == null ||
+                                    currentGobiiDataSetExtract.getPlatforms().size() <= 0) {
 
                                 throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
                                         GobiiValidationStatusType.MISSING_REQUIRED_VALUE,
                                         "The specified extract type is "
                                                 + currentGobiiDataSetExtract.getGobiiExtractFilterType()
-                                                + " but no marker list is specified and no platforms are specified");
+                                                + " but no markers and no platforms are specified");
                             }
                         }
 
@@ -252,7 +203,14 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
                                         + currentGobiiDataSetExtract.getGobiiExtractFilterType());
                     }
 
-                    String extractionFileDestinationPath = configSettings.getProcessingPath(cropType, GobiiFileProcessDir.EXTRACTOR_OUTPUT);
+                    String extractionFileDestinationPath;
+
+                    if(!currentExtractorInstruction.isQcCheck()) {
+                        extractionFileDestinationPath = configSettings.getProcessingPath(cropType, GobiiFileProcessDir.EXTRACTOR_OUTPUT);
+                    } else {
+                        extractionFileDestinationPath = configSettings.getProcessingPath(cropType,GobiiFileProcessDir.QC_OUTPUT);
+                    }
+
                     extractorFileDestinationLocation = this.makeDestinationDirectoryName(currentExtractorInstruction.getContactEmail(),
                             currentGobiiDataSetExtract.getGobiiExtractFilterType(),
                             currentGobiiDataSetExtract.getGobiiFileType(),
@@ -263,23 +221,24 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
                         extractorFileDestinationLocation += "/" + idx.toString();
                     }
 
-                    if (!extractorInstructionsDAO.doesPathExist(extractorFileDestinationLocation)) {
 
-                        extractorInstructionsDAO.makeDirectory(extractorFileDestinationLocation);
+                    if (!instructionFileAccess.doesPathExist(extractorFileDestinationLocation)) {
+
+                        instructionFileAccess.makeDirectory(extractorFileDestinationLocation);
 
                     } else {
-                        extractorInstructionsDAO.verifyDirectoryPermissions(extractorFileDestinationLocation);
+                        instructionFileAccess.verifyDirectoryPermissions(extractorFileDestinationLocation);
                     }
-
-
+                    
                     currentGobiiDataSetExtract.setExtractDestinationDirectory(extractorFileDestinationLocation);
 
                 }
             } // iterate instructions/files
 
-            if (!extractorInstructionsDAO.doesPathExist(instructionFileFqpn)) {
+            if (!instructionFileAccess.doesPathExist(instructionFileFqpn)) {
+                InstructionFileAccess<List<GobiiExtractorInstruction>> instructionFileAccess = new InstructionFileAccess<>(GobiiExtractorInstruction.class);
 
-                if (extractorInstructionsDAO.writeInstructions(instructionFileFqpn,
+                if (instructionFileAccess.writeInstructions(instructionFileFqpn,
                         returnVal.getGobiiExtractorInstructions())) {
 
                     returnVal.setJobId(extractorInstructionFilesDTO.getInstructionFileName());
@@ -328,12 +287,24 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
 
             returnVal.setInstructionFileName(instructionFileName);
 
+
             List<GobiiExtractorInstruction> gobiiExtractorInstructionsWithStatus;
-            if (extractorInstructionsDAO.doesPathExist(fileDirExtractorInProgressFqpn)) {
+            if (instructionFileAccess.doesPathExist(fileDirExtractorDoneFqpn)) {
+                //check if file  is already done
+
+                List<GobiiExtractorInstruction> gobiiExtractorInstructionsFromFile = instructionFileAccess.
+                        getInstructions(fileDirExtractorDoneFqpn, GobiiExtractorInstruction[].class);
+
+                gobiiExtractorInstructionsWithStatus = setGobiiExtractorInstructionsStatus(gobiiExtractorInstructionsFromFile,
+                        GobiiFileProcessDir.EXTRACTOR_DONE);
+
+                returnVal.setGobiiExtractorInstructions(gobiiExtractorInstructionsWithStatus);
+
+            } else if (instructionFileAccess.doesPathExist(fileDirExtractorInProgressFqpn)) {
                 //check if file  is in InProgress
 
-                List<GobiiExtractorInstruction> gobiiExtractorInstructionsFromFile = extractorInstructionsDAO
-                        .getGobiiExtractorInstructionsFromFile(fileDirExtractorInProgressFqpn);
+                List<GobiiExtractorInstruction> gobiiExtractorInstructionsFromFile = instructionFileAccess.
+                        getInstructions(fileDirExtractorInProgressFqpn, GobiiExtractorInstruction[].class);
 
                 gobiiExtractorInstructionsWithStatus = setGobiiExtractorInstructionsStatus(gobiiExtractorInstructionsFromFile,
                         GobiiFileProcessDir.EXTRACTOR_INPROGRESS);
@@ -341,29 +312,18 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
                 returnVal.setGobiiExtractorInstructions(gobiiExtractorInstructionsWithStatus);
 
 
-            } else if (extractorInstructionsDAO.doesPathExist(fileDirExtractorInstructionsFqpn)) {
+            } else if (instructionFileAccess.doesPathExist(fileDirExtractorInstructionsFqpn)) {
                 //check if file just started
 
-                List<GobiiExtractorInstruction> gobiiExtractorInstructionsFromFile = extractorInstructionsDAO
-                        .getGobiiExtractorInstructionsFromFile(fileDirExtractorInstructionsFqpn);
+                List<GobiiExtractorInstruction> gobiiExtractorInstructionsFromFile = instructionFileAccess.
+                        getInstructions(fileDirExtractorInstructionsFqpn, GobiiExtractorInstruction[].class);
 
                 gobiiExtractorInstructionsWithStatus = setGobiiExtractorInstructionsStatus(gobiiExtractorInstructionsFromFile,
                         GobiiFileProcessDir.EXTRACTOR_INSTRUCTIONS);
 
                 returnVal.setGobiiExtractorInstructions(gobiiExtractorInstructionsWithStatus);
 
-            } else if (extractorInstructionsDAO.doesPathExist(fileDirExtractorDoneFqpn)) {
-                //check if file  is already done
-
-                List<GobiiExtractorInstruction> gobiiExtractorInstructionsFromFile = extractorInstructionsDAO
-                        .getGobiiExtractorInstructionsFromFile(fileDirExtractorDoneFqpn);
-
-                gobiiExtractorInstructionsWithStatus = setGobiiExtractorInstructionsStatus(gobiiExtractorInstructionsFromFile,
-                        GobiiFileProcessDir.EXTRACTOR_DONE);
-
-                returnVal.setGobiiExtractorInstructions(gobiiExtractorInstructionsWithStatus);
-
-            } else {
+            }  else {
                 throw new GobiiDtoMappingException(GobiiStatusLevel.ERROR,
                         GobiiValidationStatusType.ENTITY_DOES_NOT_EXIST,
                         "The specified instruction file does not exist: " +
@@ -389,11 +349,11 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
 
         if (null != instructions) {
 
-            if (gobiiFileDir.toString().equals("EXTRACTOR_DONE")) {
+            if (gobiiFileDir.equals(GobiiFileProcessDir.EXTRACTOR_DONE)) {
 
-                returnVal = extractorInstructionsDAO.setGobiiJobStatus(false, instructions, gobiiFileDir); //individually check and set status of files based on if written in the output directories
+                returnVal = this.setGobiiJobStatus(false, instructions, gobiiFileDir); //individually check and set status of files based on if written in the output directories
             } else {
-                returnVal = extractorInstructionsDAO.setGobiiJobStatus(true, instructions, gobiiFileDir);
+                returnVal = this.setGobiiJobStatus(true, instructions, gobiiFileDir);
             }
 
         } else {
@@ -405,4 +365,88 @@ public class DtoMapExtractorInstructionsImpl implements DtoMapExtractorInstructi
 
         return returnVal;
     }
+
+    private List<GobiiExtractorInstruction> setGobiiJobStatus(boolean applyToAll, List<GobiiExtractorInstruction> instructions, GobiiFileProcessDir gobiiFileProcessDir) throws GobiiDaoException {
+        List<GobiiExtractorInstruction> returnVal = instructions;
+
+        GobiiJobStatus gobiiJobStatus;
+
+        switch (gobiiFileProcessDir) {
+
+            case EXTRACTOR_INPROGRESS:
+                gobiiJobStatus = GobiiJobStatus.IN_PROGRESS;
+                break;
+
+            case EXTRACTOR_INSTRUCTIONS:
+                gobiiJobStatus = GobiiJobStatus.STARTED;
+                break;
+
+            case EXTRACTOR_DONE:
+                gobiiJobStatus = GobiiJobStatus.COMPLETED;
+                break;
+
+            default:
+                gobiiJobStatus = GobiiJobStatus.FAILED;
+        }
+
+        if (applyToAll) {
+
+            for (GobiiExtractorInstruction instruction : returnVal) {
+
+                for (GobiiDataSetExtract dataSetExtract : instruction.getDataSetExtracts()) {
+
+                    dataSetExtract.setGobiiJobStatus(gobiiJobStatus);
+                }
+            }
+        } else { //check if the output file(s) exist in the directory specified by the *extractDestinationDirectory* field of the *DataSetExtract* item in the instruction file;
+            GobiiJobStatus statusFailed = GobiiJobStatus.FAILED;
+
+            for (GobiiExtractorInstruction instruction : returnVal) {
+
+                for (GobiiDataSetExtract dataSetExtract : instruction.getDataSetExtracts()) {
+
+                    String extractDestinationDirectory = dataSetExtract.getExtractDestinationDirectory();
+
+                    List<String> datasetExtractFiles = new ArrayList<String>();
+
+                    String fileName = "DS" + Integer.toString(dataSetExtract.getDataSet().getId());
+
+                    switch (dataSetExtract.getGobiiFileType()) {
+                        case GENERIC:
+                            //fileNames.add(fileName+".txt"); to be added
+                            break;
+
+                        case HAPMAP:
+                            datasetExtractFiles.add(fileName + ".hmp.txt");
+                            break;
+
+                        case FLAPJACK:
+                            datasetExtractFiles.add(fileName + ".map");
+                            datasetExtractFiles.add(fileName + ".genotype");
+
+                            break;
+
+                        case VCF:
+                            //fileNames.add(fileName+"hmp.txt"); to be added
+                            break;
+
+                        default:
+                            throw new GobiiDaoException("Noe extension assigned for GobiiFileType: " + dataSetExtract.getGobiiFileType().toString());
+                    }
+
+
+                    for (String currentFileName : datasetExtractFiles) {
+
+                        String currentExtractFile = extractDestinationDirectory + "/" + currentFileName;
+
+                        if (instructionFileAccess.doesPathExist(currentExtractFile)) dataSetExtract.setGobiiJobStatus(gobiiJobStatus);
+
+                        else dataSetExtract.setGobiiJobStatus(statusFailed);
+                    }
+                }
+            }
+        }
+        return returnVal;
+    }
+
 }

@@ -11,8 +11,9 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ManifestDTO;
@@ -37,7 +38,7 @@ public class FrmManifest extends AbstractFrm {
 	private Text txtName;
 	private Text txtCode;
 	private Text txtFilePath;
-	protected Integer currentManifestId;
+	protected Integer currentManifestId=0;
 
 	/**
 	 * Create the composite.
@@ -90,7 +91,7 @@ public class FrmManifest extends AbstractFrm {
 					try {
 						PayloadEnvelope<ManifestDTO> payloadEnvelope = new PayloadEnvelope<>(manifestDTORequest,
 								GobiiProcessType.CREATE);
-						GobiiEnvelopeRestResource<ManifestDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_MANIFEST));
+						GobiiEnvelopeRestResource<ManifestDTO> restResource = new GobiiEnvelopeRestResource<>( GobiiClientContext.getInstance(null, false).getUriFactory().resourceColl(GobiiServiceRequestId.URL_MANIFEST));
 						PayloadEnvelope<ManifestDTO> manifestDTOResponse = restResource.post(ManifestDTO.class,
 								payloadEnvelope);
 						
@@ -99,6 +100,8 @@ public class FrmManifest extends AbstractFrm {
 							populateManifestTable();
 							FormUtils.selectRowById(tbList,currentManifestId);
 							selectedName = txtName.getText();
+
+							txtCode.setText(manifestDTOResponse.getPayload().getData().get(0).getCode());
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving Manifests", err);
@@ -127,7 +130,7 @@ public class FrmManifest extends AbstractFrm {
 					manifestDTORequest.setFilePath(txtFilePath.getText());
 
 					try {
-						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MANIFEST);
+						RestUri restUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_MANIFEST);
 						restUri.setParamValue("id", Integer.toString(currentManifestId));
 						GobiiEnvelopeRestResource<ManifestDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
 						restResourceById.setParamValue("id", manifestDTORequest.getManifestId().toString());
@@ -137,6 +140,7 @@ public class FrmManifest extends AbstractFrm {
 						if(Controller.getDTOResponse(shell, manifestDTOResponse.getHeader(), memInfo, true)){
 							populateManifestTable();
 							FormUtils.selectRowById(tbList,currentManifestId);
+							txtCode.setText(manifestDTOResponse.getPayload().getData().get(0).getCode());
 						};
 					} catch (Exception err) {
 						Utils.log(shell, memInfo, log, "Error retrieving Manifests", err);
@@ -181,6 +185,7 @@ public class FrmManifest extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				populateManifestTable();
 				clearDetails();
+				currentManifestId=0;
 			}
 		});
 		
@@ -199,7 +204,7 @@ public class FrmManifest extends AbstractFrm {
 					ManifestDTO manifestDTO = new ManifestDTO();
 					manifestDTO.setManifestId(manifestId);
 					try {
-						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MANIFEST);
+						RestUri restUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_MANIFEST);
 						restUri.setParamValue("id", Integer.toString(manifestId));
 						GobiiEnvelopeRestResource<ManifestDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
 						PayloadEnvelope<ManifestDTO> dtoRequestManifest = restResource.get(ManifestDTO.class);
@@ -234,7 +239,6 @@ public class FrmManifest extends AbstractFrm {
 	
 	private void clearDetails(){
 		try{
-			currentManifestId=0;
 			txtName.setText("");
 			txtCode.setText("");
 			txtFilePath.setText("");

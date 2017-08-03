@@ -1,4 +1,4 @@
-import {Component, OnInit, SimpleChange, EventEmitter} from "@angular/core";
+import {Component, OnInit, SimpleChange, EventEmitter, OnChanges} from "@angular/core";
 import {SampleMarkerList} from "../model/sample-marker-list";
 import {HeaderStatusMessage} from "../model/dto-header-status-message";
 import {GobiiExtractFilterType} from "../model/type-extractor-filter";
@@ -7,6 +7,8 @@ import {GobiiFileItem} from "../model/gobii-file-item";
 import {ProcessType} from "../model/type-process";
 import {ExtractorItemType} from "../model/file-model-node";
 import {Labels} from "./entity-labels";
+import {NameIdRequestParams} from "../model/name-id-request-params";
+import {EntityType} from "../model/type-entity";
 
 @Component({
     selector: 'sample-marker-box',
@@ -21,13 +23,22 @@ import {Labels} from "./entity-labels";
                                 name="listType" 
                                 value="itemFile"
                                 [(ngModel)]="selectedListType">
-                          <label class="the-legend">File:&nbsp;</label>
-                            <input type="radio" 
+                          <label class="the-legend">File&nbsp;</label>
+                          <input type="radio" 
                                 (click)="handleTextBoxChanged($event)" 
                                 name="listType" 
                                 value="itemArray"
                                 [(ngModel)]="selectedListType">
-                          <label class="the-legend">List:&nbsp;</label>
+                          <label class="the-legend">List&nbsp;</label>
+                              <input *ngIf="displayMarkerGroupRadio" 
+                                    type="radio" 
+                                    (click)="handleMarkerGroupChanged($event)" 
+                                    name="listType" 
+                                    value="markerGroupsType"
+                                    [(ngModel)]="selectedListType">
+                              <label *ngIf="displayMarkerGroupRadio" 
+                                class="the-legend">Marker Groups&nbsp;</label>
+
                  </div>
                  
                 <div class="row">
@@ -44,6 +55,15 @@ import {Labels} from "./entity-labels";
                     </div> 
                     <div *ngIf="displayListBox" class="col-md-4">
                           <p class="text-warning">{{maxListItems}} maximum</p>
+                    </div> 
+                    
+                    <div *ngIf="selectedListType == 'markerGroupsType'" class="col-md-8">
+                            <checklist-box
+                                [nameIdRequestParams] = "nameIdRequestParamsMarkerGroups"
+                                [gobiiExtractFilterType] = "gobiiExtractFilterType"
+                                [retainHistory] = "false"
+                                (onAddStatusMessage) = "handleHeaderStatusMessage($event)">
+                            </checklist-box>
                     </div> 
                     
                  </div>
@@ -67,9 +87,15 @@ import {Labels} from "./entity-labels";
 
 })
 
-export class SampleMarkerBoxComponent implements OnInit {
+export class SampleMarkerBoxComponent implements OnInit, OnChanges {
 
+    private nameIdRequestParamsMarkerGroups: NameIdRequestParams;
     public constructor(private _fileModelTreeService: FileModelTreeService) {
+
+        this.nameIdRequestParamsMarkerGroups= NameIdRequestParams
+            .build("Marker Groups",
+                this.gobiiExtractFilterType,
+                EntityType.MarkerGroups);
 
     }
 
@@ -82,6 +108,7 @@ export class SampleMarkerBoxComponent implements OnInit {
 
     private displayUploader: boolean = true;
     private displayListBox: boolean = false;
+    private displayMarkerGroupRadio: boolean = false;
 
     private gobiiExtractFilterType: GobiiExtractFilterType = GobiiExtractFilterType.UNKNOWN;
     private onSampleMarkerError: EventEmitter<HeaderStatusMessage> = new EventEmitter();
@@ -89,6 +116,8 @@ export class SampleMarkerBoxComponent implements OnInit {
 
     private extractTypeLabelExisting: string;
     private extractTypeLabelProposed: string;
+
+
 
     // private handleUserSelected(arg) {
     //     this.onUserSelected.emit(this.nameIdList[arg.srcElement.selectedIndex].id);
@@ -246,8 +275,8 @@ export class SampleMarkerBoxComponent implements OnInit {
                     });
             });
         } else {
-            // we leave things as they are; hwoever, because the user clicked a radio button,
-            // we have to reset it to match the currently diusplayed list selector
+            // we leave things as they are; however, because the user clicked a radio button,
+            // we have to reset it to match the currently displayed list selector
             if (this.selectedListType === "itemFile") {
 
                 this.displayListBox = true;
@@ -294,15 +323,49 @@ export class SampleMarkerBoxComponent implements OnInit {
         }
     }
 
+    handleMarkerGroupChanged($event) {
+        if (this.handleSampleMarkerChoicesExist() === false) {
+
+            this.displayListBox = false;
+            this.displayUploader = false;
+        }
+    }
+
     private handleStatusHeaderMessage(statusMessage: HeaderStatusMessage) {
 
         this.onSampleMarkerError.emit(statusMessage);
     }
+
+
 
     ngOnInit(): any {
 
 //        this.extractTypeLabel = Labels.instance().extractorFilterTypeLabels[this.gobiiExtractFilterType];
         return null;
     }
+
+
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+
+        if (changes['gobiiExtractFilterType']
+            && ( changes['gobiiExtractFilterType'].currentValue != null )
+            && ( changes['gobiiExtractFilterType'].currentValue != undefined )) {
+
+            if (changes['gobiiExtractFilterType'].currentValue != changes['gobiiExtractFilterType'].previousValue) {
+
+                //this.notificationSent = false;
+
+                if( this.gobiiExtractFilterType == GobiiExtractFilterType.BY_MARKER ) {
+                    this.displayMarkerGroupRadio = true;
+                } else {
+                    this.displayMarkerGroupRadio = false
+                }
+
+            } // if we have a new filter type
+
+        } // if filter type changed
+
+
+    } // ngonChanges
 
 }

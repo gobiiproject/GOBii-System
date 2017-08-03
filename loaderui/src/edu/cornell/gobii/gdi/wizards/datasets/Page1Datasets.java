@@ -184,8 +184,7 @@ public class Page1Datasets extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					dto.setExperimentID(null);
-					dto.setExperimentName(null);
+				
 					FormUtils.resetCombo(cbDataset);	dto.setDatasetID(null);
 					if(cbExperiment.getSelectionIndex() > -1){
 						String key = (String) cbExperiment.getData(cbExperiment.getItem(cbExperiment.getSelectionIndex()));
@@ -196,6 +195,9 @@ public class Page1Datasets extends WizardPage {
 						dto.setPlatformID(platformId);
 						WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
 						dto.setPlatformName(textPlatform.getText());
+					}else{
+						dto.setExperimentID(null);
+						dto.setExperimentName(null);
 					}
 					textDatasetType.setText("");
 				}catch(Exception err){
@@ -214,14 +216,16 @@ public class Page1Datasets extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					dto.setDatasetName(null);
-					dto.setDatasetID(null);
+					
 					if(cbDataset.getSelectionIndex() > -1){
 						String key = (String) cbDataset.getData(cbDataset.getItem(cbDataset.getSelectionIndex()));
 						dto.setDatasetName(cbDataset.getText());
 						Integer datasetId = Integer.parseInt(key);
 						dto.setDatasetID(datasetId);
 						WizardUtils.populateDatasetInformation(getShell(), datasetId, textDatasetType, dto);
+					}else{
+						dto.setDatasetName(null);
+						dto.setDatasetID(null);
 					}
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error selecting Datasets", err);
@@ -256,7 +260,7 @@ public class Page1Datasets extends WizardPage {
 		cbMapset.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(cbMapset.getSelectionIndex() == -1){
+				if(cbMapset.getSelectionIndex() < 0){
 					dto.setMapsetID(null);
 					dto.setMapsetName(null);
 				}else{
@@ -392,7 +396,7 @@ public class Page1Datasets extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					if(cbFileFormat.getSelectionIndex() == -1) return;
+					if(cbFileFormat.getSelectionIndex() < 0 ) return;
 					FileFormat ff = fileformats.getFileFormat().get(cbFileFormat.getSelectionIndex());
 					dto.getFile().setGobiiFileType(GobiiFileType.valueOf((ff.getName())));
 					dto.getFile().setDelimiter(ff.getDelim());
@@ -474,7 +478,7 @@ public class Page1Datasets extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String template = null;
-				if(cbTemplates.getSelectionIndex() == -1 || cbTemplates.getText().isEmpty()){
+				if(cbTemplates.getSelectionIndex() < 0 || cbTemplates.getText().isEmpty()){
 					template = null;
 				}else{
 					int index = cbTemplates.getSelectionIndex();
@@ -547,6 +551,7 @@ public class Page1Datasets extends WizardPage {
 		btnQcCheckButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		formToolkit.adapt(btnQcCheckButton, true, true);
 		btnQcCheckButton.setText("QC Check");
+		btnQcCheckButton.setEnabled(Controller.getIsKDActive());
 
 		Label lblFirstSnpCoordinate = new Label(grpInformation, SWT.NONE);
 		lblFirstSnpCoordinate.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

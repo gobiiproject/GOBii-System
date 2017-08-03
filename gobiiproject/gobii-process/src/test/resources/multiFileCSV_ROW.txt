@@ -1,0 +1,11 @@
+constantName	AutoIncrement	csvRow
+0	0	marker_name
+0	1	dnarunname_dom_1
+0	2	dnarunname_dom_2
+0	3	dnarunname_dom_3
+0	4	dnarunname_dom_4
+0	5	marker_name
+0	6	dnarunname_dom_1
+0	7	dnarunname_dom_2
+0	8	dnarunname_dom_3
+0	9	dnarunname_dom_4

@@ -284,6 +284,12 @@ export class FileModelTreeService {
                         .setCategoryName(Labels.instance().treeExtractorTypeLabels[ExtractorItemType.MARKER_LIST_ITEM])
                         .setCardinality(CardinalityType.ONE_OR_MORE)
                         .setRequired(false)
+                    ).addChild(FileModelNode.build(ExtractorItemType.ENTITY, currentParent)
+                        .setCategoryType(ExtractorCategoryType.CONTAINER)
+                        .setEntityType(EntityType.MarkerGroups)
+                        .setEntityName(Labels.instance().entityNodeLabels[EntityType.MarkerGroups])
+                        .setCardinality(CardinalityType.ONE_OR_MORE)
+                        .setRequired(false)
                     )
                 );
 

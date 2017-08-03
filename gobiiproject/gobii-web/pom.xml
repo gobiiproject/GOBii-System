@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.gobiiproject</groupId>
         <artifactId>parent</artifactId>
-        <version>0.3.4-SNAPSHOT</version>
+        <version>1.0.1-DEV</version>
     </parent>
 
     <groupId>org.gobiiproject</groupId>
@@ -50,26 +50,26 @@
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-api-model</artifactId>
-            <version>0.3.4-SNAPSHOT</version>
+            <version>1.0.1-DEV</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-brapi</artifactId>
-            <version>0.3.4-SNAPSHOT</version>
+            <version>1.0.1-DEV</version>
         </dependency>
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-model</artifactId>
-            <version>0.3.4-SNAPSHOT</version>
+            <version>1.0.1-DEV</version>
         </dependency>
 
 
         <dependency>
             <groupId>org.gobiiproject</groupId>
             <artifactId>gobii-domain</artifactId>
-            <version>0.3.4-SNAPSHOT</version>
+            <version>1.0.1-DEV</version>
 
             <!--
             **** Ideally we would want to prevent the transitive dependency of gobii-domain on gobii-dao from bringing
@@ -477,8 +477,12 @@
                                         <include>@angular/router/bundles/router.umd.js</include>
                                         <include>@angular/http/bundles/http.umd.js</include>
                                         <include>@angular/platform-browser/bundles/platform-browser.umd.js</include>
+                                        <include>@angular/platform-browser/bundles/platform-browser-animations.umd.js</include>
                                         <include>@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js</include>
                                         <include>@angular/forms/bundles/forms.umd.js</include>
+                                        <include>@angular/animations/bundles/animations.umd.js</include>
+                                        <include>@angular/animations/bundles/animations-browser.umd.js</include>
+                                        <include>@angular/animations/bundles/animations-browser.umd.js</include>
 
                                     </includes>
                                     <filtering>false</filtering>

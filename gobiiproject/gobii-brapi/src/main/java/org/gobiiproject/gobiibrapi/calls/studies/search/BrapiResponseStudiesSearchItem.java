@@ -8,26 +8,26 @@ import java.util.Map;
  */
 public class BrapiResponseStudiesSearchItem {
 
-    private Integer studyDbId;
+    private String studyDbId;
     private String name;
-    private Integer trialDbId1;
+    private String trialDbId1;
     private String trialName;
     private String studyType;
     private List<String> seasons;
-    private Integer locationDbId;
+    private String locationDbId;
     private String locationName;
-    private Integer programDbId;
+    private String programDbId;
     private String programName;
     private String startDate;
     private String endDate;
     boolean active;
     private Map<String, String> additionalInfo;
 
-    public Integer getStudyDbId() {
+    public String getStudyDbId() {
         return studyDbId;
     }
 
-    public void setStudyDbId(Integer studyDbId) {
+    public void setStudyDbId(String studyDbId) {
         this.studyDbId = studyDbId;
     }
 
@@ -39,11 +39,11 @@ public class BrapiResponseStudiesSearchItem {
         this.name = name;
     }
 
-    public Integer getTrialDbId1() {
+    public String getTrialDbId1() {
         return trialDbId1;
     }
 
-    public void setTrialDbId1(Integer trialDbId1) {
+    public void setTrialDbId1(String trialDbId1) {
         this.trialDbId1 = trialDbId1;
     }
 
@@ -87,11 +87,11 @@ public class BrapiResponseStudiesSearchItem {
         this.seasons = seasons;
     }
 
-    public Integer getLocationDbId() {
+    public String getLocationDbId() {
         return locationDbId;
     }
 
-    public void setLocationDbId(Integer locationDbId) {
+    public void setLocationDbId(String locationDbId) {
         this.locationDbId = locationDbId;
     }
 
@@ -103,11 +103,11 @@ public class BrapiResponseStudiesSearchItem {
         this.locationName = locationName;
     }
 
-    public Integer getProgramDbId() {
+    public String getProgramDbId() {
         return programDbId;
     }
 
-    public void setProgramDbId(Integer programDbId) {
+    public void setProgramDbId(String programDbId) {
         this.programDbId = programDbId;
     }
 

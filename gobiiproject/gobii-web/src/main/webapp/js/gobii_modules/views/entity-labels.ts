@@ -23,6 +23,8 @@ export class Labels {
         this.entityNodeLabels[EntityType.Platforms] = "Platform";
         this.entityNodeLabels[EntityType.Mapsets] = "Mapset";
         this.entityNodeLabels[EntityType.Projects] = "Project";
+        this.entityNodeLabels[EntityType.MarkerGroups] = "Marker Groups";
+
 
         this.cvFilterNodeLabels[CvFilterType.DATASET_TYPE] = "Dataset Type";
 

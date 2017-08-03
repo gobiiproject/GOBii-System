@@ -190,37 +190,27 @@
           class="org.gobiiproject.gobidomain.services.impl.NameIdListServiceImpl"/>
 
     <!-- **** Loader File Beans *************************************** -->
-    <bean id="loaderFilesDAO"
-          class="org.gobiiproject.gobiidao.filesystem.impl.LoaderFilesDAOImpl"/>
+
+    <bean id="filesService"
+          class="org.gobiiproject.gobidomain.services.impl.FileServiceImpl"/>
+
     <bean id="dtoMapLoaderFiles"
           class="org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapLoaderFilesImpl"/>
     <bean id="loaderFilesService"
           class="org.gobiiproject.gobidomain.services.impl.LoaderFilesServiceImpl"/>
 
     <!-- **** Loader Instruction File Beans *************************************** -->
-    <bean id="loaderFileDAO"
-          class="org.gobiiproject.gobiidao.filesystem.impl.LoaderInstructionsDAOImpl"/>
     <bean id="dtoMapLoaderInstructions"
           class="org.gobiiproject.gobiidtomapping.impl.DtoMapLoaderInstructionsImpl"/>
     <bean id="loaderInstructionFilesService"
           class="org.gobiiproject.gobidomain.services.impl.LoaderInstructionFileServiceImpl"/>
 
     <!-- **** Extractor File Beans *************************************** -->
-    <bean id="extractorFileDAO"
-          class="org.gobiiproject.gobiidao.filesystem.impl.ExtractorInstructionsDAOImpl"/>
     <bean id="dtoMapExtractorInstructions"
           class="org.gobiiproject.gobiidtomapping.impl.DtoMapExtractorInstructionsImpl"/>
     <bean id="ExtractorInstructionFilesService"
           class="org.gobiiproject.gobidomain.services.impl.ExtractorInstructionFileServiceImpl"/>
 
-
-    <!-- **** QC Check Beans *************************************** -->
-    <bean id="qcInstructionsDAO"
-          class="org.gobiiproject.gobiidao.filesystem.impl.QCInstructionsDAOImpl"/>
-    <bean id="dtoMapQCInstructions"
-          class="org.gobiiproject.gobiidtomapping.impl.DtoMapQCInstructionsImpl"/>
-    <bean id="QCInstuctionFilesService"
-          class="org.gobiiproject.gobidomain.services.impl.QCInstructionFilesServiceImpl"/>
 
     <!-- **** Contact Beans *************************************** -->
     <bean id="dtoMapContact" class="org.gobiiproject.gobiidtomapping.impl.DtoMapContactImpl"/>
@@ -445,20 +435,25 @@
         </property>
     </bean>
 
+    <!-- ********************** BrAPI Beans ******************************* -->
+
+    <bean id="brapiResponseMapStudiesSearch" class="org.gobiiproject.gobiibrapi.calls.studies.search.BrapiResponseMapStudiesSearch"/>
+    <bean id="brapiResponseMapAlleleMatrixSearch" class="org.gobiiproject.gobiibrapi.calls.markerprofiles.allelematrixsearch.BrapiResponseMapAlleleMatrixSearch"/>
+    <bean id="brapiResponseMapAlleleMatrices" class="org.gobiiproject.gobiibrapi.calls.markerprofiles.allelematrices.BrapiResponseMapAlleleMatrices"/>
     <!-- ************************ DATA ACCESS BEANS ************************* -->
 
     <!--&lt;!&ndash;************************** SET UP CONFIGURAITON FOR JDBC settings&ndash;&gt;-->
     <!--<bean id="configSettings" class="org.gobiiproject.gobiimodel.config.ConfigSettings"/>-->
     <!--&lt;!&ndash;**************** JDBC Configuraiton: RICE *********************************&ndash;&gt;-->
     <!--<bean id="cropConfigRice"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropConfigonfig"-->
     <!--factory-bean="configSettings"-->
     <!--factory-method="getCropConfig">-->
     <!--<constructor-arg value="RICE"/>-->
     <!--</bean>-->
 
     <!--<bean id="cropDbConfigRice"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropDbConfigonfig"-->
     <!--factory-bean="cropConfigRice"-->
     <!--factory-method="getCropDbConfig">-->
     <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
@@ -475,14 +470,14 @@
 
     <!--&lt;!&ndash;**************** JDBC Configuraiton: WHEAT *********************************&ndash;&gt;-->
     <!--<bean id="cropConfigWheat"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropConfigonfig"-->
     <!--factory-bean="configSettings"-->
     <!--factory-method="getCropConfig">-->
     <!--<constructor-arg value="WHEAT"/>-->
     <!--</bean>-->
 
     <!--<bean id="cropDbConfigWheat"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropDbConfigonfig"-->
     <!--factory-bean="cropConfigWheat"-->
     <!--factory-method="getCropDbConfig">-->
     <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
@@ -498,14 +493,14 @@
 
     <!--&lt;!&ndash;**************** JDBC Configuraiton: MAIZE *********************************&ndash;&gt;-->
     <!--<bean id="cropConfigMaize"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropConfigonfig"-->
     <!--factory-bean="configSettings"-->
     <!--factory-method="getCropConfig">-->
     <!--<constructor-arg value="MAIZE"/>-->
     <!--</bean>-->
 
     <!--<bean id="cropDbConfigMaize"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropDbConfigonfig"-->
     <!--factory-bean="cropConfigMaize"-->
     <!--factory-method="getCropDbConfig">-->
     <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
@@ -521,14 +516,14 @@
 
     <!--&lt;!&ndash;**************** JDBC Configuraiton: DEV *********************************&ndash;&gt;-->
     <!--<bean id="cropConfigDev"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropConfigonfig"-->
     <!--factory-bean="configSettings"-->
     <!--factory-method="getCropConfig">-->
     <!--<constructor-arg value="DEV"/>-->
     <!--</bean>-->
 
     <!--<bean id="cropDbConfigDev"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropDbConfigonfig"-->
     <!--factory-bean="cropConfigDev"-->
     <!--factory-method="getCropDbConfig">-->
     <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
@@ -544,14 +539,14 @@
 
     <!--&lt;!&ndash;**************** JDBC Configuraiton: TEST *********************************&ndash;&gt;-->
     <!--<bean id="cropConfigTest"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropConfigonfig"-->
     <!--factory-bean="configSettings"-->
     <!--factory-method="getCropConfig">-->
     <!--<constructor-arg value="TEST"/>-->
     <!--</bean>-->
 
     <!--<bean id="cropDbConfigTest"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropDbConfigonfig"-->
     <!--factory-bean="cropConfigTest"-->
     <!--factory-method="getCropDbConfig">-->
     <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
@@ -568,14 +563,14 @@
 
     <!--&lt;!&ndash;**************** JDBC Configuraiton: SORGHUM *********************************&ndash;&gt;-->
     <!--<bean id="cropConfigSorghum"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropConfigonfig"-->
     <!--factory-bean="configSettings"-->
     <!--factory-method="getCropConfig">-->
     <!--<constructor-arg value="SORGHUM"/>-->
     <!--</bean>-->
 
     <!--<bean id="cropDbConfigSorghum"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropDbConfigonfig"-->
     <!--factory-bean="cropConfigSorghum"-->
     <!--factory-method="getCropDbConfig">-->
     <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->
@@ -591,14 +586,14 @@
 
     <!--&lt;!&ndash;**************** JDBC Configuraiton: CHICKPEA *********************************&ndash;&gt;-->
     <!--<bean id="cropConfigChickpea"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropConfigonfig"-->
     <!--factory-bean="configSettings"-->
     <!--factory-method="getCropConfig">-->
     <!--<constructor-arg value="CHICKPEA"/>-->
     <!--</bean>-->
 
     <!--<bean id="cropDbConfigChickpea"-->
-    <!--class="org.gobiiproject.gobiimodel.config.CropDbConfig"-->
+    <!--class="org.gobiiproject.gobiimodel.config.GobiiCropDbConfigonfig"-->
     <!--factory-bean="cropConfigChickpea"-->
     <!--factory-method="getCropDbConfig">-->
     <!--<constructor-arg value="#{T(org.gobiiproject.gobiimodel.types.GobiiDbType).POSTGRESQL}"/>-->

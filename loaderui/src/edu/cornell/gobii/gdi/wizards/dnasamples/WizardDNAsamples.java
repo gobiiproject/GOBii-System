@@ -5,8 +5,8 @@ import java.io.File;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.wizard.Wizard;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
@@ -24,19 +24,21 @@ public class WizardDNAsamples extends Wizard {
 	private static Logger log = Logger.getLogger(WizardDNAsamples.class.getName());
 	private String config;
 	private DTOsamples dto = new DTOsamples();
+	private int piID;
+	private int projectID;
+	private int experimentID;
 
 	public WizardDNAsamples(String config, int piID, int projectID, int experimentID) {
 		setWindowTitle("DNA Sample Data Loading Wizard");
 		this.config = config;
-		dto.setPiID(piID);
-		dto.setProjectID(projectID);
-		dto.setExperimentID(experimentID);
-		
+		this.piID = piID;
+		this.projectID = projectID;
+		this.experimentID = experimentID;
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new Pg1DNAsamples(config, dto, dto.getPiID(), dto.getProjectID(), dto.getExperimentID()));
+		addPage(new Pg1DNAsamples(config, dto, piID, projectID, experimentID));
 		addPage(new Pg2DNAsamples(config, dto));
 		addPage(new Pg3DNAsamples(config, dto));
 	}
@@ -107,7 +109,7 @@ public class WizardDNAsamples extends Wizard {
 					PayloadEnvelope<LoaderInstructionFilesDTO> payloadEnvelope = new PayloadEnvelope<>(instructions,
 							GobiiProcessType.CREATE);
 					GobiiEnvelopeRestResource<LoaderInstructionFilesDTO> restResource = new GobiiEnvelopeRestResource<>(
-							App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_FILE_LOAD_INSTRUCTIONS));
+							GobiiClientContext.getInstance(null, false).getUriFactory().resourceColl(GobiiServiceRequestId.URL_FILE_LOAD_INSTRUCTIONS));
 					PayloadEnvelope<LoaderInstructionFilesDTO> loaderInstructionFileDTOResponseEnvelope = restResource
 							.post(LoaderInstructionFilesDTO.class, payloadEnvelope);
 					if (!Controller.getDTOResponse(this.getShell(),

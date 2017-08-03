@@ -11,11 +11,12 @@ public class SpUpdMarkerGroup extends SpDef {
 
     public SpUpdMarkerGroup() {
 
-        super("{call updatemarkergroup(?,?,?,?,?,?,?,?,?)}",false);
+        super("{call upsertmarkergroup(?,?,?,?,?,?,?,?,?)}",false);
 
-        this.addParamDef("markerGroupId",Integer.class).setNullable(false);
+//        this.addParamDef("markerGroupId",Integer.class).setNullable(false);
         this.addParamDef("name",String.class).setNullable(false);
         this.addParamDef("code",String.class).setNullable(false);
+        this.addParamDef("markers",String.class).setNullable(true);
         this.addParamDef("germplasmGroup",String.class).setNullable(true);
         this.addParamDef("createdBy", Integer.class).setNullable(true);
         this.addParamDef("createdDate", Date.class).setNullable(true);

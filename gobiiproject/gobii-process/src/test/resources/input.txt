@@ -1,0 +1,9 @@
+marker_name	dnarunname_dom_1	dnarunname_dom_2	dnarunname_dom_3	dnarunname_dom_4
+dommarker1	1	0	1	1
+dommarker2	1	0	1	0
+dommarker3	1	0	1	0
+dommarker4	1	0	1	1
+dommarker5	1	0	1	1
+dommarker6	1	0	1	0
+dommarker7	1	0	1	1
+dommarker8	1	0	1	1

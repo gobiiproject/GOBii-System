@@ -7,9 +7,10 @@ public enum BrapiDataTypes {
     /**
      * Created by Phil on 5/18/2016.
      */
-        JSON,
-        TSV,
-        PNG,
-        JPG
+    JSON,
+    TSV,
+    PNG,
+    JPG,
+    FLAPJACK
 
 }

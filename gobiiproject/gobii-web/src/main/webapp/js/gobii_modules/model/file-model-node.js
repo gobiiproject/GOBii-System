@@ -29,6 +29,7 @@ System.register(["./type-entity", "./cv-filter-type", "./guid"], function (expor
                 ExtractorItemType[ExtractorItemType["SAMPLE_LIST_TYPE"] = 10] = "SAMPLE_LIST_TYPE";
                 ExtractorItemType[ExtractorItemType["LABEL"] = 11] = "LABEL";
                 ExtractorItemType[ExtractorItemType["CLEAR_TREE"] = 12] = "CLEAR_TREE";
+                ExtractorItemType[ExtractorItemType["MARKER_GROUP_LIST_ITEM"] = 13] = "MARKER_GROUP_LIST_ITEM";
             })(ExtractorItemType || (ExtractorItemType = {}));
             exports_1("ExtractorItemType", ExtractorItemType);
             (function (ExtractorCategoryType) {

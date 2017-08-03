@@ -387,6 +387,12 @@ System.register(["@angular/core", "../model/gobii-file-item", "../model/GobiiTre
                             treeNode.collapsedIcon = "fa-file-excel-o";
                         }
                     }
+                    else if (entityType === type_entity_1.EntityType.MarkerGroups) {
+                        // if (isParent) {
+                        treeNode.icon = "fa-pencil";
+                        treeNode.expandedIcon = "fa-pencil";
+                        treeNode.collapsedIcon = "fa-pencil";
+                    }
                 };
                 StatusDisplayTreeComponent.prototype.addIconsToNode = function (statusTreeTemplate, treeNode, isParent) {
                     // if( fileModelNode.getItemType() == ExtractorItemType.ENTITY ) {

@@ -35,6 +35,7 @@ System.register(["@angular/http", "./header-names"], function (exports_1, contex
                 };
                 return HttpValues;
             }());
+            HttpValues.S_FORBIDDEN = 403;
             exports_1("HttpValues", HttpValues);
         }
     };

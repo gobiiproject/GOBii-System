@@ -1,9 +1,10 @@
 package org.gobiiproject.gobiimodel.headerlesscontainer;
 
 import org.gobiiproject.gobiimodel.config.ServerConfig;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
+import org.gobiiproject.gobiimodel.types.ServerCapabilityType;
 
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -33,13 +34,13 @@ public class ConfigSettingsDTO extends DTOBase {
         this.serverConfigs = serverConfigs;
     }
 
-    String defaultCrop;
+    private Map<ServerCapabilityType,Boolean> serverCapabilities = new HashMap<>();
 
-    public String getDefaultCrop() {
-        return defaultCrop;
+    public Map<ServerCapabilityType, Boolean> getServerCapabilities() {
+        return serverCapabilities;
     }
 
-    public void setDefaultCrop(String defaultCrop) {
-        this.defaultCrop = defaultCrop;
+    public void setServerCapabilities(Map<ServerCapabilityType, Boolean> serverCapabilities) {
+        this.serverCapabilities = serverCapabilities;
     }
 }

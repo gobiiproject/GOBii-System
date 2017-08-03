@@ -3,49 +3,49 @@ import {Http, Response, Headers} from "@angular/http";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/map";
 
+
 import {DtoHeaderAuth} from "../../model/dto-header-auth";
 import {HttpValues} from "../../model/http-values";
-import {PayloadEnvelope} from "../../model/payload/payload-envelope";
 
 @Injectable()
 export class AuthenticationService {
 
 
-    constructor(private _http:Http) {
+    constructor(private _http: Http) {
     }
 
-    private defaultUser:string = 'USER_READER';
-    private defaultPassword:string = 'reader';
-    private token:string = null;
-    private userName:string =  null;
-    private _gobiiCropType:string;
-    private authUrl:string = "gobii/v1/auth";
+    private defaultUser: string = 'USER_READER';
+    private defaultPassword: string = 'reader';
+    private token: string = null;
+    private userName: string = null;
+    private _gobiiCropType: string;
+    private authUrl: string = "gobii/v1/auth";
 
 
-    public getToken():string {
+    public getToken(): string {
 
         return this.token;
 
     } // getToken()
 
-    private setToken(token:string) {
+    private setToken(token: string) {
         this.token = token;
     }
 
 
-    public getGobiiCropType():string {
+    public getGobiiCropType(): string {
         return this._gobiiCropType;
     }
 
-    private setGobiiCropType(gobiiCropType:string){
-        this._gobiiCropType =  gobiiCropType;
+    private setGobiiCropType(gobiiCropType: string) {
+        this._gobiiCropType = gobiiCropType;
     }
 
     public getUserName(): string {
         return this.userName;
     }
-    
-    public authenticate(userName:string, password:string):Observable<DtoHeaderAuth> {
+
+    public authenticate(userName: string, password: string): Observable<DtoHeaderAuth> {
 
         let loginUser = userName ? userName : this.defaultUser;
         let loginPassword = password ? password : this.defaultPassword;
@@ -60,21 +60,30 @@ export class AuthenticationService {
                     .post(scope$.authUrl, requestBody, {headers: headers})
                     .map(response => response.json())
                     .subscribe(json => {
-                        let dtoHeaderAuth:DtoHeaderAuth = DtoHeaderAuth
-                            .fromJSON(json);
-                        if (dtoHeaderAuth.getToken()) {
-                            scope$.userName = userName;
-                            scope$.setToken(dtoHeaderAuth.getToken())
-                            scope$.setGobiiCropType( dtoHeaderAuth.getGobiiCropType() );
-                            observer.next(dtoHeaderAuth);
-                            observer.complete();
-                        } else {
-                            observer.error("No token was provided by server");
-                        }
-                    },
+                            let dtoHeaderAuth: DtoHeaderAuth = DtoHeaderAuth
+                                .fromJSON(json);
+                            if (dtoHeaderAuth.getToken()) {
+                                scope$.userName = userName;
+                                scope$.setToken(dtoHeaderAuth.getToken())
+                                scope$.setGobiiCropType(dtoHeaderAuth.getGobiiCropType());
+                                observer.next(dtoHeaderAuth);
+                                observer.complete();
+                            } else {
+                                observer.error("No token was provided by server");
+                            }
+                        },
                         json => {
-                            let message:string = json.status + ": " + json.statusText;
+
+                            let message: string = json.status
+                                + ": "
+                                + json.statusText;
+
+                            if (Number(json.status) == HttpValues.S_FORBIDDEN) {
+                                message += ": " + json._body;
+                            }
+
                             observer.error(message);
+
                         }); // subscribe
             } // observer callback
         ); // Observer.create() 

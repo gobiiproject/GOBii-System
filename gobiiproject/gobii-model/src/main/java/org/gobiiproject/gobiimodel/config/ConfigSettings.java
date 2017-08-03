@@ -1,11 +1,15 @@
 package org.gobiiproject.gobiimodel.config;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.gobiiproject.gobiimodel.types.GobiiAuthenticationType;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
+import org.gobiiproject.gobiimodel.types.ServerCapabilityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +85,30 @@ public class ConfigSettings {
 
     } //
 
+
+    /***
+     * Creates a map of server capability settings that are derived from various
+     * configuration values. This map could itself have been stored in the configuration.
+     * However, that would have resulted in reduntant values.
+     * @return
+     */
+    public Map<ServerCapabilityType,Boolean> getServerCapabilities() {
+
+        Map<ServerCapabilityType,Boolean> returnVal = new HashMap<>();
+
+        if( this.configValues.getKDCConfig() != null ) {
+            returnVal.put(ServerCapabilityType.KDC, this.configValues.getKDCConfig().isActive());
+        } else {
+            returnVal.put(ServerCapabilityType.KDC, false);
+        }
+
+        // for now we are not controlling this value though configuraiton
+        returnVal.put(ServerCapabilityType.BRAPI,true);
+
+        return returnVal;
+    }
+
+
     public void commit() throws Exception {
         ConfigValuesFactory.commitConfigValues(this.configValues, this.configFileFqpn);
     }
@@ -106,14 +134,21 @@ public class ConfigSettings {
         return this.configValues.isCropDefined(gobiiCropType);
     }
 
-    public CropConfig getCropConfig(String gobiiCropType) throws Exception {
+    public GobiiCropConfig getCropConfig(String gobiiCropType) throws Exception {
 
         return (this.configValues.getCropConfig(gobiiCropType));
     }
 
-    public List<CropConfig> getActiveCropConfigs() throws Exception {
+    public List<GobiiCropConfig> getActiveCropConfigs() throws Exception {
 
         return (this.configValues.getActiveCropConfigs());
+    }
+
+    public List<GobiiCropConfig> getAllCropConfigs() throws Exception {
+
+        return (new ArrayList<>(this.configValues
+                .getCropConfigs()
+                .values()));
     }
 
     public TestExecConfig getTestExecConfig() {
@@ -125,17 +160,23 @@ public class ConfigSettings {
         this.configValues.setTestExecConfig(testExecConfig);
     }
 
+    public ServerConfigKDC getKDCConfig() {
+
+        return this.configValues.getKDCConfig();
+    }
+
+
     public List<String> getActiveCropTypes() throws Exception {
         return this
                 .configValues
                 .getActiveCropConfigs()
                 .stream()
                 .filter(c -> c.isActive() == true)
-                .map(CropConfig::getGobiiCropType)
+                .map(GobiiCropConfig::getGobiiCropType)
                 .collect(Collectors.toList());
     }
 
-    public CropConfig getCurrentCropConfig() throws Exception {
+    public GobiiCropConfig getCurrentCropConfig() throws Exception {
 
         return this.configValues.getCurrentCropConfig();
     }
@@ -148,16 +189,6 @@ public class ConfigSettings {
 
     public String getCurrentGobiiCropType() {
         return this.configValues.getCurrentGobiiCropType();
-    }
-
-    public String getDefaultGobiiCropType() {
-        return this.configValues.getDefaultGobiiCropType();
-    }
-
-
-    public void setDefaultGobiiCropType(String defaultGobiiCropType) throws Exception {
-
-        this.configValues.setDefaultGobiiCropType(defaultGobiiCropType);
     }
 
     public String getEmailSvrPassword() {

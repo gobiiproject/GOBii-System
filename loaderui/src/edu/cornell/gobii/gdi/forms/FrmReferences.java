@@ -11,8 +11,9 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ReferenceDTO;
@@ -38,6 +39,7 @@ public class FrmReferences extends AbstractFrm {
 	private Text txtLink;
 	private Text txtFilePath;
 	private int currentReferenceId=0;
+	private Button btnClearFields;
 
 	/**
 	 * Create the composite.
@@ -99,7 +101,7 @@ public class FrmReferences extends AbstractFrm {
 					try {
 						PayloadEnvelope<ReferenceDTO> payloadEnvelope = new PayloadEnvelope<>(referenceDTORequest,
 								GobiiProcessType.CREATE);
-						GobiiEnvelopeRestResource<ReferenceDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_REFERENCE));
+						GobiiEnvelopeRestResource<ReferenceDTO> restResource = new GobiiEnvelopeRestResource<>( GobiiClientContext.getInstance(null, false).getUriFactory().resourceColl(GobiiServiceRequestId.URL_REFERENCE));
 						PayloadEnvelope<ReferenceDTO> referenceDTOResponse = restResource.post(ReferenceDTO.class,
 								payloadEnvelope);
 
@@ -135,7 +137,7 @@ public class FrmReferences extends AbstractFrm {
 					referenceDTORequest.setFilePath(txtFilePath.getText());
 
 					try {
-						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_REFERENCE);
+						RestUri restUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_REFERENCE);
 						restUri.setParamValue("id", Integer.toString(currentReferenceId));
 						GobiiEnvelopeRestResource<ReferenceDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
 						restResourceById.setParamValue("id", referenceDTORequest.getReferenceId().toString());
@@ -159,11 +161,12 @@ public class FrmReferences extends AbstractFrm {
 		btnUpdate.setText("Update");
 		new Label(cmpForm, SWT.NONE);
 		
-		Button btnClearFields = new Button(cmpForm, SWT.NONE);
+		btnClearFields = new Button(cmpForm, SWT.NONE);
 		btnClearFields.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				clearDetails();
+//				currentReferenceId=0;
 			}
 		});
 		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -185,6 +188,7 @@ public class FrmReferences extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				populateReferenceTable();
 				clearDetails();
+				currentReferenceId=0;
 			}
 		});
 		
@@ -203,7 +207,7 @@ public class FrmReferences extends AbstractFrm {
 					ReferenceDTO referenceDTO = new ReferenceDTO();
 					referenceDTO.setReferenceId(referenceId);
 					try {
-						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_REFERENCE);
+						RestUri restUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_REFERENCE);
 						restUri.setParamValue("id", Integer.toString(referenceId));
 						GobiiEnvelopeRestResource<ReferenceDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
 						PayloadEnvelope<ReferenceDTO> dtoRequestReferenceEnvelope = restResource.get(ReferenceDTO.class);

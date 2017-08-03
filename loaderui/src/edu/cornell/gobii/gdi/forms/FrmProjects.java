@@ -18,8 +18,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ProjectDTO;
@@ -267,7 +268,7 @@ public class FrmProjects extends AbstractFrm {
 						if(item.getText(1).isEmpty()) continue;
 						projectDTORequest.getProperties().add(new EntityPropertyDTO(null, null, item.getText(0), item.getText(1)));
 					}
-						RestUri projectsUri = App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_PROJECTS);
+						RestUri projectsUri = GobiiClientContext.getInstance(null, false).getUriFactory().resourceColl(GobiiServiceRequestId.URL_PROJECTS);
 						GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjects = new GobiiEnvelopeRestResource<>(projectsUri);
 						PayloadEnvelope<ProjectDTO> payloadEnvelope = new PayloadEnvelope<>(projectDTORequest, GobiiProcessType.CREATE);
 						resultEnvelope = restResourceForProjects
@@ -281,7 +282,7 @@ public class FrmProjects extends AbstractFrm {
 					populateProjectsFromSelectedContact(cbList.getText());
 					currentProjectId = resultEnvelope.getPayload().getData().get(0).getProjectId();
 					populateProjectDetails(currentProjectId);
-					FormUtils.selectRowById(tbList,currentProjectId);
+					FormUtils.selectRowById(tbList, currentProjectId);
 					
 				};
 			}
@@ -302,7 +303,7 @@ public class FrmProjects extends AbstractFrm {
 					projectDTORequest.setCreatedBy(1);
 					projectDTORequest.setProjectName(txtName.getText());
 					projectDTORequest.setProjectDescription(styledTextDesc.getText());
-					projectDTORequest.setProjectCode(textCode.getText());
+					projectDTORequest.setProjectCode(cbPIContact.getItem(cbPIContact.getSelectionIndex())+"_"+txtName.getText());
 					projectDTORequest.setProjectStatus(1);
 					projectDTORequest.setCreatedDate(new Date());
 					projectDTORequest.setModifiedBy(1);
@@ -314,13 +315,15 @@ public class FrmProjects extends AbstractFrm {
 						//			        	 System.out.println("Property:" + item.getText(0) +"  Value:"+ item.getText(1));
 					}
 					try {
-						RestUri projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_PROJECTS);
+						RestUri projectsUri = GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_PROJECTS);
 						projectsUri.setParamValue("id", Integer.toString(projectDTORequest.getProjectId()));
 						GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjectGet = new GobiiEnvelopeRestResource<>(projectsUri);
 						PayloadEnvelope<ProjectDTO> requestEnvelope =  new PayloadEnvelope<>(projectDTORequest, GobiiProcessType.UPDATE);
 						PayloadEnvelope<ProjectDTO> resultEnvelope = restResourceForProjectGet.put(ProjectDTO.class, requestEnvelope);
+						
 						if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), memInfo, true)){
 							populateProjectsFromSelectedContact(cbList.getText());
+							textCode.setText(resultEnvelope.getPayload().getData().get(0).getProjectCode());
 							FormUtils.selectRowById(tbList,currentProjectId);
 						};
 					} catch (Exception err) {
@@ -341,6 +344,8 @@ public class FrmProjects extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				cleanProjectDetails();
+				if(currentPIid==0)cbPIContact.setText("");
+//				currentProjectId=0;
 			}
 		});
 		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -351,7 +356,6 @@ public class FrmProjects extends AbstractFrm {
 		btnAddPlatformExperiment.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
 				FrmExperiments frm = new FrmExperiments(shell, parent, SWT.NONE, config, currentPIid, currentProjectId);
 				FormUtils.createContentTab(shell, frm, (CTabFolder) parent, "Experiments");
 
@@ -422,8 +426,11 @@ public class FrmProjects extends AbstractFrm {
 					populateContactsList(cbPIContact);
 					populateContactsList(cbList);
 					populateTableWithAllProjects(tbList);
+					cbList.setText("*Select PI contact");
 				}
 				cleanProjectDetails();
+
+				currentProjectId=0;
 			}
 		});
 	}

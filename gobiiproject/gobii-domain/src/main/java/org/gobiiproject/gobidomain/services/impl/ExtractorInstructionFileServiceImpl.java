@@ -25,11 +25,6 @@ public class ExtractorInstructionFileServiceImpl implements ExtractorInstruction
 
 
     @Override
-    public void writeDataFile(String cropType, GobiiExtractFilterType gobiiExtractFilterType, String jobId, byte[] byteArray) throws GobiiException {
-        dtoMapExtractorInstructions.writeDataFile(cropType,gobiiExtractFilterType,jobId,byteArray);
-    }
-
-    @Override
     public ExtractorInstructionFilesDTO createInstruction(String cropType, ExtractorInstructionFilesDTO ExtractorInstructionFilesDTO)
             throws GobiiException {
         ExtractorInstructionFilesDTO returnVal;

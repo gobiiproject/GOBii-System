@@ -6,21 +6,8 @@ import org.gobiiproject.gobiidao.resultset.access.RsPlatformDao;
 import org.gobiiproject.gobiidao.resultset.core.EntityPropertyParamNames;
 import org.gobiiproject.gobiidao.resultset.core.SpRunnerCallable;
 import org.gobiiproject.gobiidao.resultset.core.StoredProcExec;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpDelMarkerGroupMarkerById;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsAnalysis;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsAnalysisParameters;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsMarkerGroup;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsMarkerGroupMarkers;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdAnalysis;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdMarkerGroup;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetAnalysisDetailsByAnalysisId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetMarkerGroupDetailsByMarkerGroupId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetMarkerGroupNames;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetMarkersByMarkerId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetMarkersByMarkerName;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetMarkersForMarkerGroup;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPlatformNames;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetPropertiesForAnalysis;
+import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.*;
+import org.gobiiproject.gobiidao.resultset.sqlworkers.read.*;
 import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,6 +133,35 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
+    public ResultSet getMarkersByMarkerAndPlatformName(String markerName, String platformName) throws GobiiDaoException {
+
+        ResultSet returnVal = null;
+
+        try {
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("markerName", markerName);
+            parameters.put("platformName", platformName);
+
+            SpGetMarkersByMarkerAndPlatformName spGetMarkersByMarkerAndPlatformName = new SpGetMarkersByMarkerAndPlatformName(parameters);
+
+            storedProcExec.doWithConnection(spGetMarkersByMarkerAndPlatformName);
+
+            returnVal = spGetMarkersByMarkerAndPlatformName.getResultSet();
+
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving markers with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+        }
+
+
+        return returnVal;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
     public ResultSet getMarkerByMarkerId(Integer markerId) throws GobiiDaoException {
         ResultSet returnVal = null;
 
@@ -211,6 +227,23 @@ public class RsMarkerGroupDaoImpl implements RsMarkerGroupDao {
         } catch (SQLGrammarException  e) {
 
             LOGGER.error("Error updating marker group with SQL " + e.getSQL() , e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+        }
+
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void updateMarkerGroupName(Map<String, Object> parameters) throws GobiiDaoException {
+
+        try {
+
+            spRunnerCallable.run(new SpUpdMarkerGroupName(), parameters);
+
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error update marker group name with SQL " + e.getSQL(), e.getSQLException());
             throw (new GobiiDaoException(e.getSQLException()));
         }
 

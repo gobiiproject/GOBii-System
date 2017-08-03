@@ -6,10 +6,7 @@ import org.gobiiproject.gobiidao.resultset.core.SpRunnerCallable;
 import org.gobiiproject.gobiidao.resultset.core.StoredProcExec;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpInsExperiment;
 import org.gobiiproject.gobiidao.resultset.sqlworkers.modify.SpUpdExperiment;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetExperimentByNameProjectId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetExperimentDetailsByExperimentId;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetExperimentNames;
-import org.gobiiproject.gobiidao.resultset.sqlworkers.read.SpGetExperimentNamesByProjectId;
+import org.gobiiproject.gobiidao.resultset.sqlworkers.read.*;
 import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by Angel on 4/19/2016.
@@ -160,6 +158,46 @@ public class RsExperimentDaoImpl implements RsExperimentDao {
         }
 
         return returnVal;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public ResultSet getAlleleMatrices(Integer projectId) throws GobiiDaoException {
+
+        ResultSet returnVal = null;
+
+        try {
+
+            if (projectId != null) {
+
+                Map<String, Object> parameters = new HashMap<>();
+                parameters.put("projectId", projectId);
+
+                SpGetAlleleMatricesByStudyId spGetAlleleMatricesByStudyId = new SpGetAlleleMatricesByStudyId(parameters);
+
+                storedProcExec.doWithConnection(spGetAlleleMatricesByStudyId);
+
+                returnVal = spGetAlleleMatricesByStudyId.getResultSet();
+
+            } else {
+
+                SpGetAlleleMatrices spGetAlleleMatrices = new SpGetAlleleMatrices();
+
+                storedProcExec.doWithConnection(spGetAlleleMatrices);
+
+                returnVal = spGetAlleleMatrices.getResultSet();
+            }
+
+
+        } catch (SQLGrammarException e) {
+
+            LOGGER.error("Error retrieving allele matrices with SQL " + e.getSQL(), e.getSQLException());
+            throw (new GobiiDaoException(e.getSQLException()));
+        }
+
+
+        return returnVal;
+
     }
 
 

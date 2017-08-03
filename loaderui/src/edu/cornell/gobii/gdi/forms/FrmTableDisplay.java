@@ -27,8 +27,9 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
 import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
@@ -170,7 +171,7 @@ public class FrmTableDisplay extends AbstractFrm{
 					displayDTO.setTableName(textName.getText());
 					displayDTO.setDisplayRank(0);
 					try{
-						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DISPLAY);
+						RestUri restUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_DISPLAY);
 						restUri.setParamValue("id", displayDTO.getDisplayId().toString());
 						GobiiEnvelopeRestResource<DisplayDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
 						restResourceById.setParamValue("id", displayDTO.getDisplayId().toString());

@@ -17,7 +17,8 @@ export enum ExtractorItemType {
     JOB_ID,
     SAMPLE_LIST_TYPE,
     LABEL,
-    CLEAR_TREE}
+    CLEAR_TREE,
+    MARKER_GROUP_LIST_ITEM}
 
 export enum ExtractorCategoryType {CONTAINER, LEAF }
 export enum CardinalityType {ZERO_OR_ONE,

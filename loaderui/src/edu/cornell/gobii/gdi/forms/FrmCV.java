@@ -18,9 +18,9 @@ import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.entity.CvItem;
 import org.gobiiproject.gobiimodel.headerlesscontainer.CvDTO;
@@ -201,15 +201,15 @@ public class FrmCV extends AbstractFrm {
 							saveCtr++;
 							if(isNew){
 								PayloadEnvelope<CvDTO> payloadEnvelope = new PayloadEnvelope<>(cvDTO, GobiiProcessType.CREATE);
-								GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(ClientContext.getInstance(null, false)
+								GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(GobiiClientContext.getInstance(null, false)
 										.getUriFactory()
-										.resourceColl(ServiceRequestId.URL_CV));
+										.resourceColl(GobiiServiceRequestId.URL_CV));
 								cvDTOResponseEnvelope = gobiiEnvelopeRestResource.post(CvDTO.class,
 										payloadEnvelope);
 							}else{
-								RestUri restUriCvForGetById = ClientContext.getInstance(null, false)
+								RestUri restUriCvForGetById = GobiiClientContext.getInstance(null, false)
 										.getUriFactory()
-										.resourceByUriIdParam(ServiceRequestId.URL_CV);
+										.resourceByUriIdParam(GobiiServiceRequestId.URL_CV);
 								restUriCvForGetById.setParamValue("id", cvDTO.getCvId().toString());
 								GobiiEnvelopeRestResource<CvDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriCvForGetById);
 								restResourceForGetById.setParamValue("id", cvDTO.getCvId().toString());
@@ -262,9 +262,9 @@ public class FrmCV extends AbstractFrm {
 							try{
 								if(!cvDTO.getCvId().equals(null)){
 									try{
-										RestUri restUriCvForGetById = ClientContext.getInstance(null, false)
+										RestUri restUriCvForGetById = GobiiClientContext.getInstance(null, false)
 												.getUriFactory()
-												.resourceByUriIdParam(ServiceRequestId.URL_CV);
+												.resourceByUriIdParam(GobiiServiceRequestId.URL_CV);
 
 										GobiiEnvelopeRestResource<CvDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriCvForGetById);
 										restResourceForGetById.setParamValue("id", cvDTO.getCvId().toString());
@@ -381,9 +381,9 @@ public class FrmCV extends AbstractFrm {
 
 			List<CvDTO> cvDTOResponse = null;
 			try {
-				RestUri restUriCvForGetByGroupName = ClientContext.getInstance(null, false)
+				RestUri restUriCvForGetByGroupName = GobiiClientContext.getInstance(null, false)
 						.getUriFactory()
-						.resourceByUriIdParamName("groupName",ServiceRequestId.URL_CV);
+						.resourceByUriIdParamName("groupName",GobiiServiceRequestId.URL_CV);
 				restUriCvForGetByGroupName.setParamValue("groupName", selected);
 				GobiiEnvelopeRestResource<CvDTO> gobiiEnvelopeRestResourceForGetByGroupName = new GobiiEnvelopeRestResource<>(restUriCvForGetByGroupName);
 				PayloadEnvelope<CvDTO> resultEnvelope = gobiiEnvelopeRestResourceForGetByGroupName

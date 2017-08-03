@@ -34,6 +34,7 @@ public class DTOmarkers implements WizardDTO{
 	private Integer projectID;
 	private Integer experimentID;
 	private Integer datasetID;
+	private Integer datasetTypeID;
 	private Integer platformID;
 	private Integer mapsetID;
 	private String projectName;
@@ -41,6 +42,7 @@ public class DTOmarkers implements WizardDTO{
 	private String datasetName;
 	private String experimentName;
 	private String mapsetName;
+	private String datasetType;
 	private String template = null;
 	private boolean isRemote = false;
 	private LoaderFilePreviewDTO previewDTO = new LoaderFilePreviewDTO();
@@ -294,5 +296,21 @@ public class DTOmarkers implements WizardDTO{
 
 	public void setPiID(Integer piID) {
 		this.piID = piID;
+	}
+
+	public Integer getDatasetTypeID() {
+		return datasetTypeID;
+	}
+
+	public void setDatasetTypeID(Integer datasetTypeID) {
+		this.datasetTypeID = datasetTypeID;
+	}
+
+	public String getDatasetType() {
+		return datasetType;
+	}
+
+	public void setDatasetType(String datasetType) {
+		this.datasetType = datasetType;
 	}
 }

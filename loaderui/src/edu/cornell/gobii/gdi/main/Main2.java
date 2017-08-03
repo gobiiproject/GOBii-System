@@ -78,7 +78,7 @@ public class Main2 {
 	private static Label lblGlyph;
 	private static String titleBarName = "GOBII: Genomic Data Integration ";
 	private static String gdiLabel = "GOBII Data Loader ";
-	private static String version = "0.3.0-SNAPSHOT";
+	private static String version = "1.0.1-DEV";
 	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 
 	/**
@@ -87,23 +87,23 @@ public class Main2 {
 	 */
 	public static void main(String[] args) {
 		try {
-			
-				String config = System.getProperty("user.dir")+"/config";
-				App.INSTANCE.load(config+"/App.xml");
-				App.INSTANCE.setConfigDir(config);
-				App.INSTANCE.setLogFile(config+"/log.txt");
-				App.INSTANCE.setLogFile(config+"/log.txt");
-				System.setProperty("log.dir", App.INSTANCE.getConfigDir());
-				Properties logProperties = new Properties();
-				System.out.println(App.INSTANCE.getConfigDir()+"/log.properties");
-				logProperties.load(new FileInputStream(App.INSTANCE.getConfigDir()+"/log.properties"));
-				PropertyConfigurator.configure(logProperties);
-				log = Logger.getLogger(Main2.class.getName());
-				//repeat with all other desired appenders
-				//			BasicConfigurator.configure();
-//				Controller.authenticate(log, true, false, !App.INSTANCE.isValid());
-				Main2 window = new Main2();
-				window.open();
+
+			String config = System.getProperty("user.dir")+"/config";
+			App.INSTANCE.load(config+"/App.xml");
+			App.INSTANCE.setConfigDir(config);
+			App.INSTANCE.setLogFile(config+"/log.txt");
+			App.INSTANCE.setLogFile(config+"/log.txt");
+			System.setProperty("log.dir", App.INSTANCE.getConfigDir());
+			Properties logProperties = new Properties();
+			System.out.println(App.INSTANCE.getConfigDir()+"/log.properties");
+			logProperties.load(new FileInputStream(App.INSTANCE.getConfigDir()+"/log.properties"));
+			PropertyConfigurator.configure(logProperties);
+			log = Logger.getLogger(Main2.class.getName());
+			//repeat with all other desired appenders
+			//			BasicConfigurator.configure();
+			//				Controller.authenticate(log, true, false, !App.INSTANCE.isValid());
+			Main2 window = new Main2();
+			window.open();
 		} catch (Exception e) {
 			Utils.log(log, "Error starting application", e);
 		}
@@ -118,33 +118,22 @@ public class Main2 {
 		createContents();
 		shell.open();
 		shell.layout();
-//		if(!App.INSTANCE.isValid()){
-			UserDialog userDialog = new UserDialog(shell);
-			
-			if(userDialog.open() == Window.OK){
-				for(String item : cbCrop.getItems()){
-					if(item.equals(App.INSTANCE.crop)){
-						cbCrop.select(cbCrop.indexOf(item));
-						App.INSTANCE.setCrop(App.INSTANCE.crop);
-						//						displayCropTree();
-					}
-				}
-				displayCropTree();
-			}else{
-				System.exit(1);
-			}
-//		}else{
-//			
+		UserDialog userDialog = new UserDialog(shell);
+
+		if(userDialog.open() == Window.OK){
 //			for(String item : cbCrop.getItems()){
 //				if(item.equals(App.INSTANCE.crop)){
 //					cbCrop.select(cbCrop.indexOf(item));
 //					App.INSTANCE.setCrop(App.INSTANCE.crop);
-//					//					displayCropTree();
 //				}
 //			}
-//			displayCropTree();
-//		}
+			btnCrop.setText(App.INSTANCE.getCrop());
+			displayCropTree();
+		}else{
+			System.exit(1);
+		}
 		Controller.checkVersionCompatibility(true);
+
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
@@ -198,7 +187,7 @@ public class Main2 {
 				UserDialog userDialog = new UserDialog(shell);
 				if(userDialog.open() == Window.OK){
 					btnCrop.setText(App.INSTANCE.crop);
-					App.INSTANCE.setCrop(App.INSTANCE.crop);
+//					App.INSTANCE.setCrop(App.INSTANCE.crop);
 					displayCropTree();
 				}
 			}
@@ -231,7 +220,7 @@ public class Main2 {
 				if(msg == SWT.YES){
 					String cropName = cbCrop.getItem(cbCrop.getSelectionIndex());
 					//					GobiiCropType crop = (GobiiCropType) cbCrop.getData(cropName);
-					App.INSTANCE.setCrop(cropName);
+//					App.INSTANCE.setCrop(cropName);
 					if(App.INSTANCE.isValid()){
 						App.INSTANCE.save();
 					}
@@ -314,8 +303,7 @@ public class Main2 {
 		btnMapsets.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnMapsets.setText("Mapsets");
 
-		/*Button btnMarkerGroups = new Button(composite, SWT.NONE);
-		btnMarkerGroups.setEnabled(false);
+		Button btnMarkerGroups = new Button(composite, SWT.NONE);
 		btnMarkerGroups.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -324,7 +312,7 @@ public class Main2 {
 			}
 		});
 		btnMarkerGroups.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		btnMarkerGroups.setText("Marker Groups");*/
+		btnMarkerGroups.setText("Marker Groups");
 
 		ExpandItem xpndtmManage = new ExpandItem(expandBar, SWT.NONE);
 		xpndtmManage.setText("Define");
@@ -653,9 +641,9 @@ public class Main2 {
 
 		removeAllTabs();
 
-//		if(Controller.authenticate(log, false, false)){
-			getTreeItems();
-//		}
+		//		if(Controller.authenticate(log, false, false)){
+		getTreeItems();
+		//		}
 	}
 
 	//	private void createContentTab(Composite frm, String title){

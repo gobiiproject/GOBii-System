@@ -33,7 +33,7 @@ export class FileName {
             suffix = "_samples";
         }
 
-        returnVal = jobId + suffix;
+        returnVal = jobId + suffix + ".txt";
 
         return returnVal;
     }

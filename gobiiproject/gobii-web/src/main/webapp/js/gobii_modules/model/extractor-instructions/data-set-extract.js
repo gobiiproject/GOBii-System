@@ -6,7 +6,7 @@ System.register([], function (exports_1, context_1) {
         setters: [],
         execute: function () {
             GobiiDataSetExtract = (function () {
-                function GobiiDataSetExtract(gobiiFileType, accolate, extractDestinationDirectory, gobiiExtractFilterType, markerList, sampleList, listFileName, gobiiSampleListType, gobiiDatasetType, platformIds, principleInvestigator, project, dataSet) {
+                function GobiiDataSetExtract(gobiiFileType, accolate, extractDestinationDirectory, gobiiExtractFilterType, markerList, sampleList, listFileName, gobiiSampleListType, gobiiDatasetType, platforms, principleInvestigator, project, dataSet, markerGroups) {
                     // this.setGobiiFileType(gobiiFileType);
                     // this.setAccolate(accolate);
                     // this.setDataSetId(dataSetId);
@@ -23,10 +23,11 @@ System.register([], function (exports_1, context_1) {
                     this.listFileName = listFileName;
                     this.gobiiSampleListType = gobiiSampleListType;
                     this.gobiiDatasetType = gobiiDatasetType;
-                    this.platformIds = platformIds;
+                    this.platforms = platforms;
                     this.principleInvestigator = principleInvestigator;
                     this.project = project;
                     this.dataSet = dataSet;
+                    this.markerGroups = markerGroups;
                 } // ctor 
                 GobiiDataSetExtract.prototype.getgobiiFileType = function () {
                     return this.gobiiFileType;
@@ -82,11 +83,11 @@ System.register([], function (exports_1, context_1) {
                 GobiiDataSetExtract.prototype.setgobiiDatasetType = function (value) {
                     this.gobiiDatasetType = value;
                 };
-                GobiiDataSetExtract.prototype.getplatformIds = function () {
-                    return this.platformIds;
+                GobiiDataSetExtract.prototype.getplatforms = function () {
+                    return this.platforms;
                 };
-                GobiiDataSetExtract.prototype.setplatformIds = function (value) {
-                    this.platformIds = value;
+                GobiiDataSetExtract.prototype.setplatforms = function (value) {
+                    this.platforms = value;
                 };
                 GobiiDataSetExtract.prototype.getJson = function () {
                     var returnVal = {};
@@ -99,14 +100,15 @@ System.register([], function (exports_1, context_1) {
                     returnVal.listFileName = this.listFileName;
                     returnVal.gobiiSampleListType = this.gobiiSampleListType;
                     returnVal.gobiiDatasetType = this.gobiiDatasetType;
-                    returnVal.platformIds = this.platformIds;
+                    returnVal.platforms = this.platforms;
                     returnVal.principleInvestigator = this.principleInvestigator;
                     returnVal.project = this.project;
                     returnVal.dataSet = this.dataSet;
+                    returnVal.markerGroups = this.markerGroups;
                     return returnVal;
                 };
                 GobiiDataSetExtract.fromJson = function (json) {
-                    var returnVal = new GobiiDataSetExtract(json.gobiiFileType, json.accolate, json.extractDestinationDirectory, json.gobiiExtractFilterType, json.markerList, json.sampleList, json.listFileName, json.gobiiSampleListType, json.gobiiDatasetType, json.platformIds, json.principleInvestigator, json.project, json.dataSet);
+                    var returnVal = new GobiiDataSetExtract(json.gobiiFileType, json.accolate, json.extractDestinationDirectory, json.gobiiExtractFilterType, json.markerList, json.sampleList, json.listFileName, json.gobiiSampleListType, json.gobiiDatasetType, json.platforms, json.principleInvestigator, json.project, json.dataSet, json.markerGroups);
                     return returnVal;
                 };
                 return GobiiDataSetExtract;

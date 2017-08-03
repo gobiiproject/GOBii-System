@@ -14,6 +14,7 @@ System.register([], function (exports_1, context_1) {
                 EntityType[EntityType["CvTerms"] = 5] = "CvTerms";
                 EntityType[EntityType["Mapsets"] = 6] = "Mapsets";
                 EntityType[EntityType["Platforms"] = 7] = "Platforms";
+                EntityType[EntityType["MarkerGroups"] = 8] = "MarkerGroups";
             })(EntityType || (EntityType = {}));
             exports_1("EntityType", EntityType);
             (function (EntitySubType) {

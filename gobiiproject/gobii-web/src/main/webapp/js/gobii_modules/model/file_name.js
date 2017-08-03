@@ -37,7 +37,7 @@ System.register(["./type-extractor-filter"], function (exports_1, context_1) {
                     else {
                         suffix = "_samples";
                     }
-                    returnVal = jobId + suffix;
+                    returnVal = jobId + suffix + ".txt";
                     return returnVal;
                 };
                 return FileName;

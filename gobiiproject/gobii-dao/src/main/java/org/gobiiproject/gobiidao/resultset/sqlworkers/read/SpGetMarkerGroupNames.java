@@ -28,7 +28,7 @@ public class SpGetMarkerGroupNames implements Work {
     @Override
     public void execute(Connection dbConnection) throws SQLException {
 
-        String sql = "select marker_group_id, name from marker_group order by lower(name)";
+        String sql = "select marker_group_id, name, markers from marker_group order by lower(name)";
 
         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
 

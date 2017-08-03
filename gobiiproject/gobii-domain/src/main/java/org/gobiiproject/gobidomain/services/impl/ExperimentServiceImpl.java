@@ -2,6 +2,7 @@ package org.gobiiproject.gobidomain.services.impl;
 
 import org.gobiiproject.gobidomain.GobiiDomainException;
 import org.gobiiproject.gobidomain.services.ExperimentService;
+import org.gobiiproject.gobiidao.entity.pojos.Experiment;
 import org.gobiiproject.gobiidtomapping.DtoMapExperiment;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ExperimentDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Angel on 4/19/2016.
@@ -128,6 +130,42 @@ public class ExperimentServiceImpl implements ExperimentService {
 
 
         return returnVal;
+    }
+
+    @Override
+    public List<ExperimentDTO> getAlleleMatrices(Integer projectId) throws GobiiDomainException {
+
+
+        List<ExperimentDTO> returnVal = null;
+
+        try {
+
+            returnVal = dtoMapExperiment.getAlleleMatrices(projectId);
+
+            for (ExperimentDTO currentExperimentDTO : returnVal) {
+
+                currentExperimentDTO.getAllowedProcessTypes().add(GobiiProcessType.READ);
+                currentExperimentDTO.getAllowedProcessTypes().add(GobiiProcessType.UPDATE);
+
+            }
+
+            if (null == returnVal) {
+                returnVal = new ArrayList<>();
+            }
+
+
+
+        } catch (Exception e) {
+
+            LOGGER.error("Gobii service error", e);
+            throw new GobiiDomainException(e);
+
+        }
+
+
+        return returnVal;
+
+
     }
 
 

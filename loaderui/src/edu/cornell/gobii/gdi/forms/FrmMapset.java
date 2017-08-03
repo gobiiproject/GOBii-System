@@ -16,8 +16,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.AnalysisDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
@@ -67,7 +68,7 @@ public class FrmMapset extends AbstractFrm {
 	public FrmMapset(final Shell shell, Composite parent, int style, final String config) {
 		super(shell, parent, style);
 		this.config = config;
-
+		currentMapsetId = 0; 
 		lblCbList.setText("Mapset Types:");
 		GridLayout gridLayout = (GridLayout) cmpForm.getLayout();
 		gridLayout.numColumns = 2;
@@ -248,7 +249,7 @@ public class FrmMapset extends AbstractFrm {
 					try{
 					PayloadEnvelope<MapsetDTO> payloadEnvelope = new PayloadEnvelope<>(mapsetDTO,
 							GobiiProcessType.CREATE);
-					GobiiEnvelopeRestResource<MapsetDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_MAPSET));
+					GobiiEnvelopeRestResource<MapsetDTO> restResource = new GobiiEnvelopeRestResource<>(GobiiClientContext.getInstance(null, false).getUriFactory().resourceColl(GobiiServiceRequestId.URL_MAPSET));
 					PayloadEnvelope<MapsetDTO> mapsetDTOResponse = restResource.post(MapsetDTO.class,
 							payloadEnvelope);
 
@@ -302,7 +303,7 @@ public class FrmMapset extends AbstractFrm {
 					mapsetDTO.setModifiedDate(new Date());
 					mapsetDTO.setStatusId(1);
 					try{
-						RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MAPSET);
+						RestUri restUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_MAPSET);
 						restUri.setParamValue("id", Integer.toString(currentMapsetId));
 						GobiiEnvelopeRestResource<MapsetDTO> restResourceById = new GobiiEnvelopeRestResource<>(restUri);
 						restResourceById.setParamValue("id", mapsetDTO.getMapsetId().toString());
@@ -312,6 +313,7 @@ public class FrmMapset extends AbstractFrm {
 						if(Controller.getDTOResponse(shell, mapsetDTOResponseEnvelope.getHeader(), memInfo, true)){
 							populateMapsetFromSelectedMapType(cbList.getText());
 							selectedName = mapsetDTOResponseEnvelope.getPayload().getData().get(0).getName();
+							txtCode.setText( mapsetDTOResponseEnvelope.getPayload().getData().get(0).getCode());
 							FormUtils.selectRowById(tbList,currentMapsetId);
 						};
 					}catch(Exception err){
@@ -331,6 +333,8 @@ public class FrmMapset extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				cleanDetails();
+//				currentMapsetId = 0;
+				if(currentMapTypeId==0) cbMapType.setText("");
 			}
 		});
 		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -371,6 +375,7 @@ public class FrmMapset extends AbstractFrm {
 					cbMapType.select(cbMapType.indexOf(selected));
 					cleanDetails();
 					populateMapsetFromSelectedMapType(selected);
+					currentMapsetId = 0; 
 				}
 			});
 			tbList.addListener (SWT.Selection, new Listener() {
@@ -396,11 +401,13 @@ public class FrmMapset extends AbstractFrm {
 					}
 					else{
 						FormUtils.entrySetToCombo(Controller.getMapTypes(), cbList);
+						cbList.setText("*Select a Mapset Type");
 						FormUtils.entrySetToTable(Controller.getMapNames(), tbList);
 					}
 
 					FormUtils.entrySetToCombo(Controller.getReferenceNames(), cbReference);
 					cleanDetails();
+					currentMapsetId = 0; 
 				}
 			});
 		}catch (Exception err) {
@@ -446,7 +453,7 @@ public class FrmMapset extends AbstractFrm {
 		MapsetDTORequest.setMapsetId(currentMapsetId);
 		try {
 			
-			RestUri restUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_MAPSET);
+			RestUri restUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_MAPSET);
 			restUri.setParamValue("id", Integer.toString(mapsetId));
 			GobiiEnvelopeRestResource<MapsetDTO> restResource = new GobiiEnvelopeRestResource<>(restUri);
 			PayloadEnvelope<MapsetDTO> dtoRequestMapset = restResource.get(MapsetDTO.class);
@@ -468,7 +475,6 @@ public class FrmMapset extends AbstractFrm {
 					}
 				}
 			}
-//			}
 		} catch (Exception err) {
 			Utils.log(shell, memInfo, log, "Error retrieving Mapset details", err);
 		}

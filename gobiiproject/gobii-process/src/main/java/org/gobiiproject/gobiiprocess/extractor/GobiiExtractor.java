@@ -1,24 +1,29 @@
-package org.gobiiproject.gobiiprocess.extractor;
-
+//package org.gobiiproject.gobiiprocess.extractor;
 import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.commons.cli.*;
-import org.apache.commons.lang.exception.*;
+import org.apache.http.HttpStatus;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.restresources.gobii.GobiiUriFactory;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.common.GenericClientContext;
+import org.gobiiproject.gobiiclient.core.common.HttpMethodResult;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
+import org.gobiiproject.gobiimodel.config.GobiiCropConfig;
+import org.gobiiproject.gobiimodel.config.ServerBase;
+import org.gobiiproject.gobiimodel.config.ServerConfigKDC;
 import org.gobiiproject.gobiimodel.dto.instructions.GobiiFilePropNameId;
 import org.gobiiproject.gobiimodel.headerlesscontainer.QCInstructionsDTO;
 import org.gobiiproject.gobiimodel.types.*;
@@ -26,69 +31,72 @@ import org.gobiiproject.gobiimodel.utils.*;
 import org.gobiiproject.gobiimodel.utils.email.MailInterface;
 import org.gobiiproject.gobiimodel.utils.email.ProcessMessage;
 import org.gobiiproject.gobiimodel.utils.error.ErrorLogger;
+import org.gobiiproject.gobiiprocess.HDF5Interface;
+import org.gobiiproject.gobiiprocess.extractor.ExtractorGlobalConfigs;
 import org.gobiiproject.gobiiprocess.extractor.flapjack.FlapjackTransformer;
 import org.gobiiproject.gobiiprocess.extractor.hapmap.HapmapTransformer;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
-import org.gobiiproject.gobiimodel.config.CropConfig;
 import org.gobiiproject.gobiimodel.dto.instructions.extractor.GobiiDataSetExtract;
 import org.gobiiproject.gobiimodel.dto.instructions.extractor.GobiiExtractorInstruction;
 
+import javax.ws.rs.core.MediaType;
+
 import static org.gobiiproject.gobiimodel.utils.FileSystemInterface.mv;
-import static org.gobiiproject.gobiimodel.utils.FileSystemInterface.rm;
 import static org.gobiiproject.gobiimodel.utils.FileSystemInterface.rmIfExist;
 import static org.gobiiproject.gobiimodel.utils.HelperFunctions.*;
 import static org.gobiiproject.gobiimodel.utils.error.ErrorLogger.*;
 
+/**
+ * Core class for Extraction. Contains the main method for extraction, as well as the overall workflow.
+ * @author jdl232
+ */
 public class GobiiExtractor {
-	//Paths
-	private static String  pathToHDF5, propertiesFile,pathToHDF5Files;
-	private static UriFactory uriFactory;
-	private static String lastErrorFile=null;
-	private static String errorLogOverride;
+	private static String propertiesFile;
+	private static GobiiUriFactory gobiiUriFactory;
 	private static boolean verbose;
 	private static String rootDir="../";
 	private static String markerListOverrideLocation=null;
-	//To calculate RunTime of Extraction
-	private static long startTime;
-	private static long endTime;
-	private static long duration;
 
+	/**
+	 * Main class of Extractor. Takes optional arguments + location of a json-based instruction file
+	 * @param args Command line arguments
+	 * @throws Exception If a critical exception occurs.
+	 */
 	public static void main(String[] args) throws Exception {
 
 		Options o = new Options()
-         		.addOption("v", "verbose", false, "Verbose output")
-         		.addOption("e", "errlog", true, "Error log override location")
-         		.addOption("r", "rootDir", true, "Fully qualified path to gobii root directory")
-         		.addOption("c","config",true,"Fully qualified path to gobii configuration file")
-         		.addOption("h", "hdfFiles", true, "Fully qualified path to hdf files")
+				.addOption("v", "verbose", false, "Verbose output")
+				.addOption("e", "errlog", true, "Error log override location")
+				.addOption("r", "rootDir", true, "Fully qualified path to gobii root directory")
+				.addOption("c","config",true,"Fully qualified path to gobii configuration file")
+				.addOption("h", "hdfFiles", true, "Fully qualified path to hdf files")
 				.addOption("m", "markerList", true, "Fully qualified path to marker list files - (Debugging, forces marker list extract)");
-			o.addOption("kaf","keepAllFiles", false, "keep all temporary files");
-        
-        CommandLineParser parser = new DefaultParser();
-        try{
-            CommandLine cli = parser.parse( o, args );
-            if(cli.hasOption("verbose")) verbose=true;
-            if(cli.hasOption("errLog")) errorLogOverride = cli.getOptionValue("errLog");
-            if(cli.hasOption("config")) propertiesFile = cli.getOptionValue("config");
-            if(cli.hasOption("rootDir")){
-                rootDir = cli.getOptionValue("rootDir");
-            }
-            if(cli.hasOption("hdfFiles")) pathToHDF5Files = cli.getOptionValue("hdfFiles");
-            if(cli.hasOption("markerList")) markerListOverrideLocation=cli.getOptionValue("markerList");
-			if(cli.hasOption("keepAllFiles")) FileSystemInterface.keepAllFiles(true);
-            args=cli.getArgs();//Remaining args passed through
+		ExtractorGlobalConfigs.addOptions(o);
 
-        }catch(org.apache.commons.cli.ParseException exp ) {
-            new HelpFormatter().printHelp("java -jar Extractor.jar ","Also accepts input file directly after arguments\n"
-                    + "Example: java -jar Extractor.jar -c /home/jdl232/customConfig.properties -v /home/jdl232/testLoad.json",o,null,true);
+		CommandLineParser parser = new DefaultParser();
+		try{
+			CommandLine cli = parser.parse( o, args );
+			if(cli.hasOption("verbose")) verbose=true;
+			if(cli.hasOption("config")) propertiesFile = cli.getOptionValue("config");
+			if(cli.hasOption("rootDir")){
+				rootDir = cli.getOptionValue("rootDir");
+			}
+			if(cli.hasOption("hdfFiles")) HDF5Interface.setPathToHDF5Files(cli.getOptionValue("hdfFiles"));
+			if(cli.hasOption("markerList")) markerListOverrideLocation=cli.getOptionValue("markerList");
+			ExtractorGlobalConfigs.setFromFlags(cli);
+			args=cli.getArgs();//Remaining args passed through
 
-            System.exit(2);
-        }
+		}catch(org.apache.commons.cli.ParseException exp ) {
+			new HelpFormatter().printHelp("java -jar Extractor.jar ","Also accepts input file directly after arguments\n"
+					+ "Example: java -jar Extractor.jar -c /home/jdl232/customConfig.properties -v /home/jdl232/testLoad.json",o,null,true);
 
-     	String extractorScriptPath=rootDir+"extractors/";
-    	pathToHDF5=extractorScriptPath+"hdf5/bin/";
+			System.exit(2);
+		}
 
-    	if(propertiesFile==null)propertiesFile=rootDir+"config/gobii-web.xml";
+		String extractorScriptPath=rootDir+"extractors/";
+		HDF5Interface.setPathToHDF5(extractorScriptPath+"hdf5/bin/");
+
+		if(propertiesFile==null)propertiesFile=rootDir+"config/gobii-web.xml";
 
 		boolean success=true;
 		ConfigSettings configuration=null;
@@ -113,13 +121,12 @@ public class GobiiExtractor {
 		else{
 			instructionFile=args[0];
 		}
-		
-		startTime = System.currentTimeMillis();
 
-		startTime = System.currentTimeMillis();
+		ErrorLogger.logInfo("Extractor","Beginning extract of "+instructionFile);
+		SimpleTimer.start("Extract");
 
 		List<GobiiExtractorInstruction> list= parseExtractorInstructionFile(instructionFile);
-		if(list==null){
+		if(list==null || list.isEmpty()){
 			ErrorLogger.logError("Extractor","No instruction for file "+instructionFile);
 			return;
 		}
@@ -130,40 +137,40 @@ public class GobiiExtractor {
 			String instructionName=new File(instructionFile).getName();
 			instructionName=instructionName.substring(0,instructionName.lastIndexOf('.'));
 			logFile=logDir+"/"+instructionName+".log";
+			String oldLogFile=ErrorLogger.getLogFilepath();
 			ErrorLogger.logDebug("Error Logger","Moving error log to "+logFile);
 			ErrorLogger.setLogFilepath(logFile);
 			ErrorLogger.logDebug("Error Logger","Moved error log to "+logFile);
+			FileSystemInterface.rmIfExist(oldLogFile);
 		}
 		else{
 			ErrorLogger.logError("Extractor","log directory is not defined in config file");
 			return;
 		}
 
-
-
-			for (GobiiExtractorInstruction inst : list) {
-				String crop = inst.getGobiiCropType();
-				String extractType="";
-				if (crop == null) crop = divineCrop(instructionFile);
-				try {
+		for (GobiiExtractorInstruction inst : list) {
+			String crop = inst.getGobiiCropType();
+			String extractType="";
+			if (crop == null) crop = divineCrop(instructionFile);
+			try {
 				Path cropPath = Paths.get(rootDir + "crops/" + crop.toLowerCase());
 				if (!(Files.exists(cropPath) &&
 						Files.isDirectory(cropPath))) {
 					ErrorLogger.logError("Extractor", "Unknown Crop Type: " + crop);
 					return;
 				}
-				CropConfig cropConfig = null;
+				GobiiCropConfig gobiiCropConfig = null;
 				try {
-					cropConfig = configuration.getCropConfig(crop);
+					gobiiCropConfig = configuration.getCropConfig(crop);
 				} catch (Exception e) {
 					logError("Extractor", "Unknown exception getting crop", e);
 					return;
 				}
-				if (cropConfig == null) {
+				if (gobiiCropConfig == null) {
 					logError("Extractor", "Unknown Crop Type: " + crop + " in the Configuration File");
 					return;
 				}
-				if (pathToHDF5Files == null) pathToHDF5Files = cropPath.toString() + "/hdf5/";
+				if (HDF5Interface.getPathToHDF5Files() == null) HDF5Interface.setPathToHDF5Files(cropPath.toString() + "/hdf5/");
 
 
 				Integer mapId;
@@ -208,7 +215,11 @@ public class GobiiExtractor {
 					String platformTerm, mapIdTerm, markerListLocation, sampleListLocation, verboseTerm;
 					String samplePosFile = "";//Location of sample position indices (see markerList for an example
 					platformTerm = mapIdTerm = markerListLocation = sampleListLocation = verboseTerm = "";
-					List<Integer> platforms = extract.getPlatformIds();
+					List<Integer> platforms = extract
+							.getPlatforms()
+							.stream()
+							.map(gobiiFilePropNameId -> gobiiFilePropNameId.getId() )
+							.collect(Collectors.toList());
 					if (platforms != null && !platforms.isEmpty()) {
 						platformTerm = " --platformList " + commaFormat(platforms);
 					}
@@ -228,12 +239,13 @@ public class GobiiExtractor {
 						datasetName = datasetPropNameId.getName();
 					}
 
+					String sampleListFile=null;
 
 					switch (filterType) {
 						case WHOLE_DATASET:
 							extractType="Extract by Dataset";
 							gobiiMDE = "python " + mdePath +
-									" -c " + HelperFunctions.getPostgresConnectionString(cropConfig) +
+									" -c " + HelperFunctions.getPostgresConnectionString(gobiiCropConfig) +
 									" --extractByDataset" +
 									" -m " + markerFile +
 									" -b " + mapsetFile +
@@ -243,23 +255,8 @@ public class GobiiExtractor {
 									" -d " + datasetId +
 									" -l" +
 									verboseTerm + " ";
-							pm.addIdentifier("PI",extract.getPrincipleInvestigator());
-							pm.addIdentifier("Project",extract.getProject());
-//							pm.addIdentifier("Experiment",extract.getExperiment());
-							pm.addIdentifier("Dataset", extract.getDataSet());
-							pm.addIdentifier("Mapset", (mapId!=null?mapId.toString():"No Mapset info available"), null);
-							pm.addIdentifier("Export Type", uppercaseFirstLetter(extract.getGobiiFileType().toString().toLowerCase()), null);
 
 
-							pm.addPath("Instruction File", new File(instructionFile).getAbsolutePath(), configuration.getProcessingPath(crop, GobiiFileProcessDir.EXTRACTOR_DONE));
-							pm.addPath("Output Directory", extractDir);
-							pm.addPath("Error Log", logFile);
-							pm.addPath("Summary file", new File(projectFile).getAbsolutePath());
-							pm.addPath("Sample file", new File(sampleFile).getAbsolutePath());
-							pm.addPath("Marker file", new File(markerFile).getAbsolutePath());
-							if(checkFileExistance(mapsetFile)) {
-								pm.addPath("Mapset File", new File(mapsetFile).getAbsolutePath());
-							}
 							break;
 						case BY_MARKER:
 							extractType="Extract by Marker";
@@ -269,7 +266,7 @@ public class GobiiExtractor {
 							if (markerList != null && !markerList.isEmpty()) {
 								markerListLocation = " -X " + createTempFileForMarkerList(extractDir, markerList);
 							} else if (extract.getListFileName() != null) {
-								markerListLocation = " -X " + extractDir + extract.getListFileName();
+								markerListLocation = " -X " + extract.getListFileName();
 							}
 							//else if file is null and list is empty or null - > no term
 
@@ -278,7 +275,7 @@ public class GobiiExtractor {
 
 							//Actually call the thing
 							gobiiMDE = "python " + mdePath +
-									" -c " + HelperFunctions.getPostgresConnectionString(cropConfig) +
+									" -c " + HelperFunctions.getPostgresConnectionString(gobiiCropConfig) +
 									" --extractByMarkers" +
 									" -m " + markerFile +
 									" -b " + mapsetFile +
@@ -290,25 +287,6 @@ public class GobiiExtractor {
 									platformTerm +
 									" -l" +
 									verboseTerm + " ";
-							pm.addIdentifier("Mapset", (mapId!=null?mapId.toString():"No Mapset info available"), null);
-							pm.addIdentifier("Dataset Type",extract.getGobiiDatasetType());
-							for (Integer platformId: platforms) {
-								pm.addIdentifier("Platform", (platformId != null ? platformId.toString() : "No Platform info available"), platformId.toString());
-							}
-							pm.addIdentifier("Marker List", markerListLocation, null);
-							pm.addIdentifier("Export Type", extract.getGobiiFileType().toString(), null);
-
-
-							pm.addPath("Instruction File",new File(instructionFile).getAbsolutePath());
-							pm.addPath("Output Directory", extractDir);
-							pm.addPath("Error Log", logFile);
-							pm.addPath("Summary file", new File(projectFile).getAbsolutePath());
-							pm.addPath("Sample file", new File(sampleFile).getAbsolutePath());
-							pm.addPath("Marker file", new File(markerFile).getAbsolutePath());
-
-							if(checkFileExistance(mapsetFile)) {
-								pm.addPath("Mapset File", new File(mapsetFile).getAbsolutePath());
-							}
 
 							break;
 						case BY_SAMPLE:
@@ -316,15 +294,15 @@ public class GobiiExtractor {
 							//List takes extra work, as it might be a <List> or a <File>
 							//Create a file out of the List if non-null, else use the <File>
 							List<String> sampleList = extract.getSampleList();
-							String sampleListFile="";
 							if(sampleList!=null && !sampleList.isEmpty()){
 								sampleListFile = createTempFileForMarkerList(extractDir,sampleList, "sampleList");
 							}
 							else if(extract.getListFileName()!=null){
 								sampleListFile = extractDir+extract.getListFileName();
 							}
-							sampleListLocation=" -Y "+sampleListFile;
-
+							if(sampleListFile!=null) {
+								sampleListLocation = " -Y " + sampleListFile;
+							}
 
 							GobiiSampleListType type = extract.getGobiiSampleListType();
 							String sampleListTypeTerm = (type == null) ? "" : " --sampleType " + getNumericType(type);
@@ -341,7 +319,7 @@ public class GobiiExtractor {
 							}
 
 							gobiiMDE = "python " + mdePath +
-									" -c " + HelperFunctions.getPostgresConnectionString(cropConfig) +
+									" -c " + HelperFunctions.getPostgresConnectionString(gobiiCropConfig) +
 									" --extractBySamples" +
 									" -m " + markerFile +
 									" -b " + mapsetFile +
@@ -356,24 +334,7 @@ public class GobiiExtractor {
 									platformTerm +
 									" -l" +
 									verboseTerm + " ";
-							pm.addIdentifier("PI",extract.getPrincipleInvestigator());
-							pm.addIdentifier("Project",extract.getProject());
-//							pm.addIdentifier("Experiment",extract.getExperiment());
-							pm.addIdentifier("Dataset", extract.getDataSet());
-							pm.addIdentifier("Mapset", (mapId!=null?mapId.toString():"No Mapset info available"), null);
-							pm.addIdentifier("Sample List Type", uppercaseFirstLetter(extract.getGobiiSampleListType().toString().toLowerCase()), null);
-							pm.addIdentifier("Sample List", (sampleListFile==null?"No Sample list provided":sampleListFile), null);
-							pm.addIdentifier("Export Type", extract.getGobiiFileType().toString(), null);
 
-							pm.addPath("Instruction File",new File(instructionFile).getAbsolutePath());
-							pm.addPath("Output Directory", extractDir);
-							pm.addPath("Error Log", logFile);
-							pm.addPath("Summary file", new File(projectFile).getAbsolutePath());
-							pm.addPath("Sample file", new File(sampleFile).getAbsolutePath());
-							pm.addPath("Marker file", new File(markerFile).getAbsolutePath());
-							if(checkFileExistance(mapsetFile)) {
-								pm.addPath("Mapset File", new File(mapsetFile).getAbsolutePath());
-							}
 							break;
 						default:
 							gobiiMDE = "";
@@ -382,9 +343,37 @@ public class GobiiExtractor {
 					}
 					samplePosFile = sampleFile + ".pos";
 
-					String errorFile = getLogName(extract, cropConfig, datasetId);
+					String errorFile = getLogName(extract, gobiiCropConfig, datasetId);
 					ErrorLogger.logInfo("Extractor", "Executing MDEs");
 					tryExec(gobiiMDE, extractDir + "mdeOut", errorFile);
+
+
+					//Email Identifiers part 2
+					pm.addIdentifier("PI",extract.getPrincipleInvestigator());
+					pm.addIdentifier("Project",extract.getProject());
+					pm.addIdentifier("Dataset", extract.getDataSet());
+					pm.addIdentifier("Dataset Type",extract.getGobiiDatasetType());
+					pm.addIdentifier("Mapset", (mapId!=null?mapId.toString():"No Mapset info available"), null);
+					pm.addIdentifier("Export Type", uppercaseFirstLetter(extract.getGobiiFileType().toString().toLowerCase()), null);
+					if(filterType==GobiiExtractFilterType.BY_SAMPLE){
+						pm.addIdentifier("Sample List Type", uppercaseFirstLetter(extract.getGobiiSampleListType().toString().toLowerCase()), null);
+						pm.addIdentifier("Sample List", (sampleListFile==null?"No Sample list provided":sampleListFile), null);
+					}
+					if(filterType==GobiiExtractFilterType.BY_MARKER){
+						for (Integer platformId: platforms) {
+							pm.addIdentifier("Platform", (platformId != null ? platformId.toString() : "No Platform info available"), platformId.toString());
+						}
+						pm.addIdentifier("Marker List", markerListLocation, null); //TODO - marker list has an 'on empty,
+					}
+					pm.addPath("Instruction File",new File(instructionFile).getAbsolutePath());
+					pm.addPath("Output Directory", extractDir);
+					pm.addPath("Error Log", logFile);
+					pm.addPath("Summary file", new File(projectFile).getAbsolutePath());
+					pm.addPath("Sample file", new File(sampleFile).getAbsolutePath());
+					pm.addPath("Marker file", new File(markerFile).getAbsolutePath());
+					if(checkFileExistence(mapsetFile)) {
+						pm.addPath("Mapset File", new File(mapsetFile).getAbsolutePath());
+					}
 
 
 					//HDF5
@@ -396,13 +385,13 @@ public class GobiiExtractor {
 
 						switch (filterType) {
 							case WHOLE_DATASET:
-								genoFile = getHDF5Genotype(markerFast, errorFile, datasetId, tempFolder);
+								genoFile = HDF5Interface.getHDF5Genotype(markerFast, errorFile, datasetId, tempFolder);
 								break;
 							case BY_MARKER:
-								genoFile = getHDF5GenoFromMarkerList(markerFast, errorFile, tempFolder, markerPosFile);
+								genoFile = HDF5Interface.getHDF5GenoFromMarkerList(markerFast, errorFile, tempFolder, markerPosFile);
 								break;
 							case BY_SAMPLE:
-								genoFile = getHDF5GenoFromSampleList(markerFast, errorFile, tempFolder, markerPosFile, samplePosFile);
+								genoFile = HDF5Interface.getHDF5GenoFromSampleList(markerFast, errorFile, tempFolder, markerPosFile, samplePosFile);
 								break;
 							default:
 								genoFile = null;
@@ -423,29 +412,23 @@ public class GobiiExtractor {
 						}
 					}
 					GobiiFileType fileType=extract.getGobiiFileType();
-					if(checkFileExistance(genoFile) || (fileType == GobiiFileType.META_DATA)) {
+					if(checkFileExistence(genoFile) || (fileType == GobiiFileType.META_DATA)) {
 						switch (fileType) {
 							case FLAPJACK:
 								String genoOutFile = extractDir + "Dataset.genotype";
 								String mapOutFile = extractDir + "Dataset.map";
-								lastErrorFile = errorFile;
 								pm.addPath("FlapJack Genotype file", new File(genoOutFile).getAbsolutePath());
 								pm.addPath("FlapJack Map file", new File(mapOutFile).getAbsolutePath());
 								//Always regenerate requests - may have different parameters
-								boolean extended = HelperFunctions.checkFileExistance(extendedMarkerFile);
+								boolean extended = HelperFunctions.checkFileExistence(extendedMarkerFile);
 								success &= FlapjackTransformer.generateMapFile(extended?extendedMarkerFile:markerFile, sampleFile, chrLengthFile, tempFolder, mapOutFile, errorFile,extended);
 								if(success){
 									pm.addEntity("Map File", FileSystemInterface.lineCount(mapOutFile)+"");
 								}
 								ErrorLogger.logDebug("GobiiExtractor","Executing FlapJack Genotype file Generation");
 								success &= FlapjackTransformer.generateGenotypeFile(markerFile, sampleFile, genoFile, tempFolder, genoOutFile,errorFile);
-								if(success){
-									pm.addEntity("Marker", (FileSystemInterface.lineCount(markerFile)-1)+"");
-									pm.addEntity("Sample", (FileSystemInterface.lineCount(sampleFile)-1)+"");
-								}
-								endTime = System.currentTimeMillis();
-								duration = endTime - startTime;
-								pm.setBody(jobName,extractType,duration,ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
+								getCounts(success, pm, markerFile, sampleFile);
+								pm.setBody(jobName,extractType,SimpleTimer.stop("Extract"),ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
 								mailInterface.send(pm);
 								break;
 							case HAPMAP:
@@ -454,36 +437,27 @@ public class GobiiExtractor {
 								HapmapTransformer hapmapTransformer = new HapmapTransformer();
 								ErrorLogger.logDebug("GobiiExtractor", "Executing Hapmap Generation");
 								success &= hapmapTransformer.generateFile(markerFile, sampleFile, extendedMarkerFile, genoFile, hapmapOutFile, errorFile);
-								endTime = System.currentTimeMillis();
-								duration = endTime - startTime;
-								if(success){
-									pm.addEntity("Marker", (FileSystemInterface.lineCount(markerFile)-1)+"");
-									pm.addEntity("Sample", (FileSystemInterface.lineCount(sampleFile)-1)+"");
-								}
-								pm.setBody(jobName,extractType,duration,ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
+								getCounts(success, pm, markerFile, sampleFile);
+								pm.setBody(jobName,extractType,SimpleTimer.stop("Extract"),ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
 								mailInterface.send(pm);
 								break;
 							case META_DATA:
-								endTime = System.currentTimeMillis();
-								duration = endTime - startTime;
-								pm.setBody(jobName,extractType,duration,ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
+								pm.setBody(jobName,extractType,SimpleTimer.stop("Extract"),ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
 								mailInterface.send(pm);
 								break;
 							default:
 								ErrorLogger.logError("Extractor", "Unknown Extract Type " + extract.getGobiiFileType());
-								endTime = System.currentTimeMillis();
-								duration = endTime - startTime;
-								pm.setBody(jobName,extractType,duration,ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
+								pm.setBody(jobName,extractType,SimpleTimer.stop("Extract"),ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
 								mailInterface.send(pm);
 						}
 					}
 					else{ //We had no genotype file, so we aborted
 						ErrorLogger.logError("GobiiExtractor","No genetic data extracted. Extract failed.");
-						endTime = System.currentTimeMillis();
-						duration = endTime - startTime;
-						pm.setBody(jobName,extractType,duration,ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
+						pm.setBody(jobName,extractType,SimpleTimer.stop("Extract"),ErrorLogger.getFirstErrorReason(),ErrorLogger.success(),ErrorLogger.getAllErrorStringsHTML());
 						mailInterface.send(pm);
 					}
+
+					//Clean Temporary Files
 					rmIfExist(genoFile);
 					rmIfExist(chrLengthFile);
 					rmIfExist(markerPosFile);
@@ -493,39 +467,15 @@ public class GobiiExtractor {
 
 					ErrorLogger.logDebug("Extractor", "DataSet " + datasetName + " Created");
 
-					//QC - Subsection #1 of 1
-					if (inst.isQcCheck()) {
+					if (inst.isQcCheck()) {//QC - Subsection #1 of 1
 						ErrorLogger.logInfo("Extractor", "qcCheck detected");
 						ErrorLogger.logInfo("Extractor", "Entering into the QC Subsection #1 of 1...");
-						QCInstructionsDTO qcInstructionsDTOToSend = new QCInstructionsDTO();
-						qcInstructionsDTOToSend.setContactId(inst.getContactId());
-						qcInstructionsDTOToSend.setDataFileDirectory(configuration.getProcessingPath(crop, GobiiFileProcessDir.QC_NOTIFICATIONS));
-						qcInstructionsDTOToSend.setDataFileName(new StringBuilder("qc_").append(DateUtils.makeDateIdString()).toString());
-						qcInstructionsDTOToSend.setDatasetId(datasetId);
-						qcInstructionsDTOToSend.setGobiiJobStatus(GobiiJobStatus.COMPLETED);
-						qcInstructionsDTOToSend.setQualityFileName("Report.xls");
-						PayloadEnvelope<QCInstructionsDTO> payloadEnvelope = new PayloadEnvelope<>(qcInstructionsDTOToSend, GobiiProcessType.CREATE);
-						ClientContext clientContext = ClientContext.getInstance(configuration, crop, GobiiAutoLoginType.USER_RUN_AS);
-						if (LineUtils.isNullOrEmpty(clientContext.getUserToken())) {
-							ErrorLogger.logError("Digester", "Unable to log in with user: " + GobiiAutoLoginType.USER_RUN_AS.toString());
-							return;
-						}
-						String currentCropContextRoot = clientContext.getInstance(null, false).getCurrentCropContextRoot();
-						uriFactory = new UriFactory(currentCropContextRoot);
-						GobiiEnvelopeRestResource<QCInstructionsDTO> restResourceForPost = new GobiiEnvelopeRestResource<QCInstructionsDTO>(uriFactory.resourceColl(ServiceRequestId.URL_FILE_QC_INSTRUCTIONS));
-						PayloadEnvelope<QCInstructionsDTO> qcInstructionFileDTOResponseEnvelope = restResourceForPost.post(QCInstructionsDTO.class,
-								payloadEnvelope);
-						if (qcInstructionFileDTOResponseEnvelope != null) {
-							ErrorLogger.logInfo("Extractor", "QC Instructions Request Sent");
-						} else {
-							ErrorLogger.logError("Extractor", "Error Sending QC Instructions Request");
-						}
-
-						ErrorLogger.logInfo("Extractor", "Done with the QC Subsection #1 of 1!");
+						performQC(configuration, inst, crop, datasetId, extractDir, mailInterface, extractType);
 					}
 				}
 				HelperFunctions.completeInstruction(instructionFile, configuration.getProcessingPath(crop, GobiiFileProcessDir.EXTRACTOR_DONE));
 			}catch(Exception e){
+				//TODO - make better email here
 					ErrorLogger.logError("GobiiExtractor","Uncaught fatal error found in program. Contact a programmer.",e);
 					HelperFunctions.sendEmail("Hi.\n\n"+
 
@@ -536,7 +486,275 @@ public class GobiiExtractor {
 		}
 	}
 
-    /**
+	/***
+	 * Get marker and sample count for Email notification Table
+	 * @param success if existing process is 'successful'
+	 * @param pm Process Message to append to
+	 * @param markerFile Marker file location
+	 * @param sampleFile Sample file location
+	 */
+	private static void getCounts(boolean success, ProcessMessage pm, String markerFile, String sampleFile) {
+		if(success){
+			pm.addEntity("Marker", (FileSystemInterface.lineCount(markerFile)-1)+"");
+			pm.addEntity("Sample", (FileSystemInterface.lineCount(sampleFile)-1)+"");
+		}
+	}
+
+	/**
+	 * Extractor QC subsection 1
+	 * @param configuration
+	 * @param inst
+	 * @param crop
+	 * @param datasetId
+	 * @param extractDir
+	 * @param mailInterface
+	 * @param extractType
+	 * @throws Exception
+	 */
+	private static void performQC(ConfigSettings configuration, GobiiExtractorInstruction inst, String crop, Integer datasetId, String extractDir, MailInterface mailInterface, String extractType) throws Exception {
+		if (configuration.getKDCConfig().getHost() == null) {
+			ErrorLogger.logInfo("QC", "Unable to continue QC with the KDC host name being null");
+			return;
+		}
+		else {
+			if (configuration.getKDCConfig().getHost().equals("")) {
+				ErrorLogger.logInfo("QC", "Unable to continue QC with the KDC host name being empty");
+				return;
+			}
+		}
+		if (configuration.getKDCConfig().getContextPath() == null) {
+			ErrorLogger.logInfo("QC", "Unable to continue QC with the KDC context path being null");
+			return;
+		}
+		else {
+			if (configuration.getKDCConfig().getContextPath().equals("")) {
+				ErrorLogger.logInfo("QC", "Unable to continue QC with the KDC context path being empty");
+				return;
+			}
+		}
+		if (configuration.getKDCConfig().isActive() == false) {
+			ErrorLogger.logInfo("QC", "Unable to continue QC with the KDC server inactive");
+			return;
+		}
+		ErrorLogger.logInfo("QC", "KDC Host: " + configuration.getKDCConfig().getHost());
+		ErrorLogger.logInfo("QC", "KDC Context Path: " + configuration.getKDCConfig().getContextPath());
+		ErrorLogger.logInfo("QC", "KDC Port: " + configuration.getKDCConfig().getPort());
+		ErrorLogger.logInfo("QC", "KDC Active: " + configuration.getKDCConfig().isActive());
+//		QCInstructionsDTO qcInstructionsDTOToSend = new QCInstructionsDTO();
+//		qcInstructionsDTOToSend.setContactId(inst.getContactId());
+//		qcInstructionsDTOToSend.setDataFileDirectory(configuration.getProcessingPath(crop, GobiiFileProcessDir.QC_OUTPUT));
+//		qcInstructionsDTOToSend.setDataFileName(new StringBuilder("qc_").append(DateUtils.makeDateIdString()).toString());
+//		qcInstructionsDTOToSend.setDatasetId(datasetId);
+//		// To create the QC instructions file for the Gobii web services independently of any QC status
+//		qcInstructionsDTOToSend.setGobiiJobStatus(GobiiJobStatus.COMPLETED);
+//		// According to Liz, there are several quality files so this method is no longer necessary
+//		qcInstructionsDTOToSend.setQualityFileName("");
+//		GobiiClientContext gobiiClientContext = GobiiClientContext.getInstance(configuration, crop, GobiiAutoLoginType.USER_RUN_AS);
+//		if (LineUtils.isNullOrEmpty(gobiiClientContext.getUserToken())) {
+//            ErrorLogger.logError("QC", "Unable to log in with user: " + GobiiAutoLoginType.USER_RUN_AS.toString());
+//            return;
+//        }
+//        else {
+//			String currentCropContextRoot = GobiiClientContext.getInstance(null, false).getCurrentCropContextRoot();
+//			gobiiUriFactory = new GobiiUriFactory(currentCropContextRoot);
+//			PayloadEnvelope<QCInstructionsDTO> payloadEnvelope = new PayloadEnvelope<>(qcInstructionsDTOToSend, GobiiProcessType.CREATE);
+//			GobiiEnvelopeRestResource<QCInstructionsDTO> restResourceForPost = new GobiiEnvelopeRestResource<>(gobiiUriFactory
+//					.resourceColl(GobiiServiceRequestId.URL_FILE_QC_INSTRUCTIONS));
+//			PayloadEnvelope<QCInstructionsDTO> qcInstructionFileDTOResponseEnvelope = restResourceForPost.post(QCInstructionsDTO.class,	payloadEnvelope);
+//			if (qcInstructionFileDTOResponseEnvelope != null) {
+//            	ErrorLogger.logInfo("QC", "QC Instructions Request Sent");
+//        	} else {
+//            	ErrorLogger.logError("QC", "Error Sending QC Instructions Request");
+//        	}
+			ServerBase serverBase = new ServerBase(configuration.getKDCConfig().getHost(),
+					configuration.getKDCConfig().getContextPath(),
+					configuration.getKDCConfig().getPort(),
+					configuration.getKDCConfig().isActive());
+			GenericClientContext genericClientContext = new GenericClientContext(serverBase);
+			RestUri restUriGetQCJobID = new RestUri("/",
+					configuration.getKDCConfig().getContextPath(),
+					configuration.getKDCConfig().getPath(ServerConfigKDC.KDCResource.QC_START));
+			restUriGetQCJobID
+					.addQueryParam("datasetId", String.valueOf(datasetId))
+					.addQueryParam("directory", extractDir)
+					.addQueryParam("forcerestart", "true");
+			HttpMethodResult httpMethodResult = genericClientContext
+					.get(restUriGetQCJobID);
+			if (httpMethodResult.getResponseCode() != HttpStatus.SC_OK) {
+				ErrorLogger.logInfo("QC", "The qcStart method failed: "
+						+ httpMethodResult.getUri().toString()
+						+ "; failure mode: "
+						+ Integer.toString(httpMethodResult.getResponseCode())
+						+ " ("
+						+ httpMethodResult.getReasonPhrase()
+						+ ")");
+			}
+			else {
+				JsonObject jsonPayload = httpMethodResult.getJsonPayload();
+				if (jsonPayload == null) {
+					ErrorLogger.logInfo("QC", "Null JSON payload");
+				}
+				else {
+					if (jsonPayload.get("jobId").toString().equals("")) {
+						ErrorLogger.logInfo("QC", "Empty JSON payload");
+					}
+					else{
+						Long qcJobID = jsonPayload.get("jobId").getAsLong();
+						ErrorLogger.logInfo("QC", "New QC job id: " + qcJobID);
+						ProcessMessage qcStartPm = new ProcessMessage();
+						qcStartPm.setUser(inst.getContactEmail());
+						qcStartPm.setSubject(new StringBuilder("new QC Job #").append(qcJobID).toString());
+						qcStartPm.addIdentifier("QC Job Identifier", String.valueOf(qcJobID), String.valueOf(qcJobID));
+						qcStartPm.addIdentifier("Dataset Identifier", String.valueOf(datasetId), String.valueOf(qcJobID));
+						qcStartPm.addPath("Output Extraction/QC Directory", extractDir);
+						mailInterface.newMessage();
+						mailInterface.send(qcStartPm);
+						RestUri restUriGetQCJobStatus = new RestUri("/",
+								configuration.getKDCConfig().getContextPath(),
+								configuration.getKDCConfig().getPath(ServerConfigKDC.KDCResource.QC_STATUS_));
+						restUriGetQCJobStatus
+								.addQueryParam("jobid")
+								.setParamValue("jobid", String.valueOf(qcJobID));
+						jsonPayload = null;
+						String status = null;
+						long maxStatusCheckMillis = configuration.getKDCConfig().getMaxStatusCheckMins() * 60 * 1000;
+						SimpleTimer.start("QC");
+						do {
+							long qcProcessTimeMillis = System.currentTimeMillis() - SimpleTimer.time("QC");
+							if (maxStatusCheckMillis < qcProcessTimeMillis) {
+								break;
+							}
+							try {
+								Thread.sleep(configuration.getKDCConfig().getStatusCheckIntervalSecs() * 1000);
+							} catch (InterruptedException interruptedException) {
+								Thread.currentThread().interrupt();
+								ErrorLogger.logError("QC", "qcStatus: " + interruptedException.getMessage());
+							}
+							httpMethodResult = genericClientContext
+									.get(restUriGetQCJobStatus);
+							if (httpMethodResult.getResponseCode() != HttpStatus.SC_OK) {
+								ErrorLogger.logInfo("QC", "The qcStatus method failed: "
+										+ httpMethodResult.getUri().toString()
+										+ "; failure mode: "
+										+ Integer.toString(httpMethodResult.getResponseCode())
+										+ " ("
+										+ httpMethodResult.getReasonPhrase()
+										+ ")");
+								break;
+							}
+							jsonPayload = httpMethodResult.getJsonPayload();
+							status = jsonPayload.get("status").getAsString();
+						} while ((status.equals("NEW")) || (status.equals("RUNNING")));
+
+						ProcessMessage qcStatusPm = new ProcessMessage();
+						qcStatusPm.setUser(inst.getContactEmail());
+						qcStartPm.setSubject(new StringBuilder("QC Job #").append(qcJobID).append(" status").toString());
+						qcStatusPm.addIdentifier("QC Job Identifier", String.valueOf(qcJobID), String.valueOf(qcJobID));
+						qcStatusPm.addIdentifier("Dataset Identifier", String.valueOf(datasetId), String.valueOf(qcJobID));
+						if ((status.equals("COMPLETED")) || (status.equals("FAILED"))) {
+							// If the extract directory does not exist or is not writable, it always makes the last qcDownload method crashing and
+							// thus this class crashing
+							if (new File(extractDir).exists()) {
+								if (new File(extractDir).canWrite()) {
+									JsonObject resultsUrls = jsonPayload.get("resultsUrls").getAsJsonObject();
+									Set<Map.Entry<String, JsonElement>> entrySet = resultsUrls.entrySet();
+									for (Map.Entry<String, JsonElement> entry : entrySet) {
+									    String key = entry.getKey();
+									    // Avoiding any downloadable non-data file susceptible to be shown for 	the gobii user
+                                        if (!key.equals("script.groovy")){
+										    String fileDownloadLink = entry.getValue().getAsString().substring(1);
+										    ErrorLogger.logInfo("QC", new StringBuilder("fileDownloadLink: ").append(fileDownloadLink).toString());
+										    String destinationFqpn = Paths.get(extractDir, key).toString();
+										    ErrorLogger.logInfo("QC", new StringBuilder("destinationFqpn: ").append(destinationFqpn).toString());
+										    RestUri restUriGetQCDownload = new RestUri("/",
+												    configuration.getKDCConfig().getContextPath(),
+												    fileDownloadLink)
+												    .withHttpHeader(GobiiHttpHeaderNames.HEADER_NAME_CONTENT_TYPE,
+														    MediaType.APPLICATION_OCTET_STREAM)
+												    .withHttpHeader(GobiiHttpHeaderNames.HEADER_NAME_ACCEPT,
+														    MediaType.APPLICATION_OCTET_STREAM)
+												    .withDestinationFqpn(destinationFqpn);
+										    httpMethodResult = genericClientContext.get(restUriGetQCDownload);
+										    if (httpMethodResult.getResponseCode() != HttpStatus.SC_OK) {
+											    ErrorLogger.logInfo("QC", "The qcDownload method failed: "
+													    + httpMethodResult.getUri().toString()
+													    + "; failure mode: "
+													    + Integer.toString(httpMethodResult.getResponseCode())
+													    + " ("
+													    + httpMethodResult.getReasonPhrase()
+													    + ")");
+										    }
+										    else {
+                                                ErrorLogger.logInfo("QC", "The qcDownload http method was successful with "
+                                                        + httpMethodResult.getFileName());
+                                                if (httpMethodResult.getFileName() != null) {
+                                                    qcStatusPm.addPath(key, httpMethodResult.getFileName());
+
+                                                    if(key.equals("stdout.txt") || key.equals("stderr.txt")){
+
+                                                    	qcStatusPm.getFileAttachments().add(httpMethodResult.getFileName());
+													}
+
+                                                }
+                                            }
+                                        }
+									}
+								}
+							}
+							if (status.equals("COMPLETED")) {
+								ErrorLogger.logError("QC", new StringBuilder("The QC job #").append(qcJobID).append(" was completed").toString());
+								qcStatusPm.setBody(new StringBuilder("[GOBII - QC]: job #").append(qcJobID).toString(), extractType, SimpleTimer.stop("QC"), ErrorLogger.getFirstErrorReason(), true, ErrorLogger.getAllErrorStringsHTML());
+							}
+							else {
+								if (status.equals("FAILED")) {
+									ErrorLogger.logError("QC", new StringBuilder("The QC job #").append(qcJobID).append(" was failed").toString());
+									qcStatusPm.setBody(new StringBuilder("[GOBII - QC]: job #").append(qcJobID).toString(), extractType, SimpleTimer.stop("QC"), ErrorLogger.getFirstErrorReason(), false, ErrorLogger.getAllErrorStringsHTML());
+								}
+							}
+						}
+						else {
+							if ((status.equals("CANCELLED")) || (status.equals("UNKNOWN"))) {
+								ErrorLogger.logError("QC", new StringBuilder("The QC job #").append(qcJobID)
+										.append(" was unsuccessful. Its status: " + status).toString());
+							} else {
+								ErrorLogger.logError("QC", new StringBuilder("The process time of the QC job #").append(qcJobID)
+										.append(" exceeded the limit: ").append(configuration.getKDCConfig().getMaxStatusCheckMins()).append(" minutes").toString());
+							}
+							qcStatusPm.setBody(new StringBuilder("[GOBII - QC]: job #").append(qcJobID).toString(), extractType, SimpleTimer.stop("QC"), ErrorLogger.getFirstErrorReason(), false, ErrorLogger.getAllErrorStringsHTML());
+						}
+						mailInterface.newMessage();
+						mailInterface.send(qcStatusPm);
+
+						//purge data
+						ErrorLogger.logInfo("QC", "Calling QC Purge");
+						RestUri restUriGetPurge = new RestUri("/",
+								configuration.getKDCConfig().getContextPath(),
+                                configuration.getKDCConfig().getPath(ServerConfigKDC.KDCResource.QC_PURGE));
+						restUriGetPurge
+								.addQueryParam("jobid", String.valueOf(qcJobID));
+
+						httpMethodResult = genericClientContext
+								.get(restUriGetPurge);
+						if (httpMethodResult.getResponseCode() != HttpStatus.SC_OK) {
+							ErrorLogger.logInfo("QC", "The qcPurge method failed: "
+									+ httpMethodResult.getUri().toString()
+									+ "; failure mode: "
+									+ Integer.toString(httpMethodResult.getResponseCode())
+									+ " ("
+									+ httpMethodResult.getReasonPhrase()
+									+ ")");
+						} else {
+							ErrorLogger.logInfo("QC", "qcPurge method is successful.");
+						}
+
+					}
+				}
+			}
+			ErrorLogger.logInfo("QC", "Done with the QC Subsection #1 of 1!");
+//		}
+	}
+
+	/**
      * To draft JobName for eMail notification
      * @param cropName - From inst
      * @param extract
@@ -550,193 +768,12 @@ public class GobiiExtractor {
 	}
 
 
-	private static String getHDF5GenoFromMarkerList(boolean markerFast, String errorFile, String tempFolder,String posFile) throws FileNotFoundException{
-		return getHDF5GenoFromSampleList(markerFast,errorFile,tempFolder,posFile,null);
-	}
-
-	private static HashMap<String,String> getSamplePosFromFile(String inputFile) throws FileNotFoundException {
-		HashMap<String, String> map = new HashMap<String, String>();
-		BufferedReader sampR = new BufferedReader(new FileReader(inputFile));
-		try{
-			while (sampR.ready()) {
-					String sampLine = sampR.readLine();
-					if (sampLine != null) {
-						String[] sampSplit = sampLine.split("\t");
-						if(sampSplit.length>1){
-							map.put(sampSplit[0],sampSplit[1]);
-						}
-					}
-				}
-			}
-		catch(Exception e){
-			ErrorLogger.logError("GobiiExtractor", "Unexpected error in reading sample file",e);
-		}
-		return map;
-	}
-
-	private static String getHDF5GenoFromSampleList(boolean markerFast, String errorFile, String tempFolder,String posFile, String samplePosFile) throws FileNotFoundException{
-		if(!new File(posFile).exists()){
-			ErrorLogger.logError("Genotype Matrix","No positions generated - Likely no data");
-			return null;
-		}
-		BufferedReader posR=new BufferedReader(new FileReader(posFile));
-		BufferedReader sampR=null;
-		boolean hasSampleList=false;
-		HashMap<String,String> samplePos=null;
-		if(checkFileExistance(samplePosFile)){
-			hasSampleList=true;
-			sampR=new BufferedReader(new FileReader(samplePosFile));
-			samplePos=getSamplePosFromFile(samplePosFile);
-		}
-        StringBuilder genoFileString=new StringBuilder();
-		try{
-			posR.readLine();//header
-			if(sampR!=null)sampR.readLine();
-			while(posR.ready()) {
-				String[] line = posR.readLine().split("\t");
-				if(line.length < 2){
-					ErrorLogger.logDebug("MarkerList","Skipping line " + Arrays.deepToString(line));
-					continue;
-				}
-				int dsID=Integer.parseInt(line[0]);
-
-				String positionList=line[1].replace(',','\n');
-				String positionListFileLoc=tempFolder+"position.list";
-				FileSystemInterface.rmIfExist(positionListFileLoc);
-				FileWriter w = new FileWriter(positionListFileLoc);
-				w.write(positionList);
-				w.close();
-
-				String sampleList=null;
-				if(hasSampleList){
-					sampleList=samplePos.get(line[0]);
-				}
-				String genoFile=null;
-				if(!hasSampleList || (sampleList!=null)) {
-					genoFile = getHDF5Genotype(markerFast, errorFile, dsID, tempFolder, positionListFileLoc, sampleList);
-				}
-				else{
-					//We have a marker position but not a sample position. Do not create a genotype file in the first place
-				}
-				if(genoFile!=null){
-					genoFileString.append(" "+genoFile);
-				}
-			}
-		}catch(IOException e) {
-			ErrorLogger.logError("GobiiExtractor", "MarkerList reading failed", e);
-		}
-
-		//Coallate genotype files
-		String genoFile=tempFolder+"markerList.genotype";
-		logDebug("MarkerList", "Accumulating markers into final genotype file");
-		String genotypePartFileIdentifier=genoFileString.toString();
-		if(markerFast) {
-			tryExec("paste" + genotypePartFileIdentifier, genoFile, errorFile);
-		}
-		else{
-			tryExec("cat" + genotypePartFileIdentifier, genoFile, errorFile);
-		}
-		for(String tempGenoFile:genotypePartFileIdentifier.split(" ")) {
-			rmIfExist(tempGenoFile);
-		}
-		return genoFile;
-	}
-
-	private static String getHDF5Genotype( boolean markerFast, String errorFile, Integer dataSetId, String tempFolder) {
-		return getHDF5Genotype( markerFast, errorFile,dataSetId,tempFolder,null,null);
-	}
-
 	/**
-	 * If marker list is null, do a dataset extract. Else, do a marker list extract on the dataset. If sampleList is also set, filter by samples afterwards
-	 * @param markerFast
-	 * @param errorFile
-	 * @param dataSetId Dataset ID to be pulled from
-	 * @param tempFolder
-	 * @param markerList nullable - determines what markers to extract. File containing a list of marker positions, comma separated
-	 * @param sampleList nullable - list of comma delimited samples to cut out
-	 * @return
+	 * Parses the extractor instruction file from the JSON object using the Object Mapper
+	 * @param filename File to parse
+	 * @return List of Extractor Instructions to work on
 	 */
-	private static String getHDF5Genotype( boolean markerFast, String errorFile, Integer dataSetId, String tempFolder, String markerList, String sampleList) {
-		String genoFile=tempFolder+"DS-"+dataSetId+".genotype";
-
-		String HDF5File=pathToHDF5Files+"DS_"+dataSetId+".h5";
-		// %s <orientation> <HDF5 file> <output file>
-		String ordering="samples-fast";
-		if(markerFast)ordering="markers-fast";
-
-		logDebug("Extractor","HDF5 Ordering is "+ordering);
-
-		if(markerList!=null) {
-			String hdf5Extractor=pathToHDF5+"fetchmarkerlist";
-			ErrorLogger.logInfo("Extractor","Executing: " + hdf5Extractor+" "+ ordering +" "+HDF5File+" "+markerList+" "+genoFile);
-			HelperFunctions.tryExec(hdf5Extractor + " " + ordering+" " + HDF5File+" "+markerList+" "+genoFile, null, errorFile);
-		}
-		else {
-			String hdf5Extractor=pathToHDF5+"dumpdataset";
-			ErrorLogger.logInfo("Extractor","Executing: " + hdf5Extractor+" "+ordering+" "+HDF5File+" "+genoFile);
-			HelperFunctions.tryExec(hdf5Extractor + " " + ordering + " " + HDF5File + " " + genoFile, null, errorFile);
-		}
-		if(sampleList!=null){
-			filterBySampleList(genoFile,sampleList,markerFast, errorFile);
-		}
-		ErrorLogger.logDebug("Extractor",(ErrorLogger.success()?"Success ":"Failure " +"Extracting with "+ordering+" "+HDF5File+" "+genoFile));
-		return genoFile;
-	}
-
-	/**
-	 * Filters a matrix passed back by the HDF5 extractor by a sample list
-	 * @param filename path to extract naked matrix
-	 * @param sampleList Comma separated list of sample positions
-	 */
-	private static void filterBySampleList(String filename, String sampleList, boolean markerFast, String errorFile){
-		String tmpFile=filename+".tmp";
-		FileSystemInterface.mv(filename,tmpFile);
-		String cutString=getCutString(sampleList);
-		if(!markerFast) {
-			String sedString=cutString.replaceAll(",","p;");//1,2,3 => 1p;2p;3   (p added later)
-			tryExec("sed -n "+sedString+"p",filename,errorFile,tmpFile); //Sed parameters need double quotes to be a single parameter
-		}
-		else{
-			tryExec("cut -f"+getCutString(sampleList),filename,errorFile,tmpFile);
-		}
-		rmIfExist(tmpFile);
-	}
-
-	/**
-	 * Converts a string of 1,2,-1,4,5,6,-1,2 (Arbitrary -1's and NOT -1's into a comma delimited set of lines from 1-N
-	 * excluding positions where a -1 exists, ONE BASED.
-	 *
-	 * Note: Since input is zero-based list anyway, I probably could have removed the -1's and added 1 to every entry. This seemed derpier.
-	 *
-	 * Examples:
-	 * 0,1,2,-1,4,5 -> 1,2,3,5,6
-	 * 7,-1,7,-1,7,-1 -> 1,3,5
-	 * @param sampleList Input string
-	 * @return Output string (see above)
-	 */
-	private static String getCutString(String sampleList){
-		String[] entries=sampleList.split(",");
-		StringBuilder cutString=new StringBuilder();//Cutstring -> 1,2,4,5,6
-		int i=1;
-		for(String entry:entries){
-			int val=-1;
-			try {
-				//For some reason, spaces are everywhere, and Integer.parseInt is not very lenient
-				String entryWithoutSpaces=entry.trim().replaceAll(" ","");
-				val=Integer.parseInt(entryWithoutSpaces);
-			}catch(Exception e){
-				ErrorLogger.logDebug("GobiiExtractor NFE",e.toString());
-			}
-			if( val != -1){
-				cutString.append(i+",");
-			}
-			i++;
-		}
-		cutString.deleteCharAt(cutString.length()-1);
-		return cutString.toString();
-	}
-
-
+	//Interesting fact, there are no global settings of any kind, each instruction is an island
 	public static List<GobiiExtractorInstruction> parseExtractorInstructionFile(String filename){
 		ObjectMapper objectMapper = new ObjectMapper();
 		GobiiExtractorInstruction[] file = null;
@@ -751,9 +788,10 @@ public class GobiiExtractor {
 	}
 
 	/**
-	 * Determine crop type by looking at the instruction file's location for the name of a Socrop.
-	 * @param instructionFile
-	 * @return GobiiCropType
+	 * Determine crop type by looking at the instruction file's location for the name of a crop.
+	 * This is a backup in case the JSON file doesn't specify the crop internally.
+	 * @param instructionFile Location of the instruction file
+	 * @return String representation of the Gobii Crop
 	 */
 	private static String divineCrop(String instructionFile) {
 		String upper=instructionFile.toUpperCase();
@@ -764,11 +802,11 @@ public class GobiiExtractor {
 	}
 
 
-	private static String getLogName(GobiiExtractorInstruction gli, CropConfig config, Integer dsid) {
+	private static String getLogName(GobiiExtractorInstruction gli, GobiiCropConfig config, Integer dsid) {
 		return getLogName(gli.getDataSetExtracts().get(0),config,dsid);
-	 }
+	}
 
-	private static String getLogName(GobiiDataSetExtract gli, CropConfig config, Integer dsid) {
+	private static String getLogName(GobiiDataSetExtract gli, GobiiCropConfig config, Integer dsid) {
 		String cropName=config.getGobiiCropType();
 		String destination=gli.getExtractDestinationDirectory();
 		return destination +"/"+cropName+"_DS-"+dsid+".log";
@@ -781,6 +819,7 @@ public class GobiiExtractor {
 	 */
 	//Dear next guy - yeah, doing a 'one step unroll' then placing in 'comma - object; comma - object' makes more sense.
 	//Just be happy I used a StringBuilder
+	//Si, soy tan feliz ahora!
 	private static String commaFormat(List inputList){
 		StringBuilder sb=new StringBuilder();
 		for(Object o:inputList){
@@ -817,7 +856,7 @@ public class GobiiExtractor {
 	}
 
 
-		private static boolean addSlashesToBiAllelicData(String genoFile, String extractDir, GobiiDataSetExtract extract) throws Exception {
+	private static boolean addSlashesToBiAllelicData(String genoFile, String extractDir, GobiiDataSetExtract extract) throws Exception {
 		Path SSRFilePath = Paths.get(genoFile);
 		File SSRFile = new File(SSRFilePath.toString());
 		if (SSRFile.exists()) {
@@ -877,8 +916,8 @@ public class GobiiExtractor {
 									}
 								}
 								else {
-										ErrorLogger.logError("Extractor","Incorrect SSR allele size format (2): " + lineParts[index]);
-										addedLineStringBuilder.append(lineParts[index]);
+									ErrorLogger.logError("Extractor","Incorrect SSR allele size format (2): " + lineParts[index]);
+									addedLineStringBuilder.append(lineParts[index]);
 								}
 							}
 						}

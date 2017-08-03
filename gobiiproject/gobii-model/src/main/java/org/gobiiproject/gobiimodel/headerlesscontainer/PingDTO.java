@@ -6,9 +6,6 @@
 package org.gobiiproject.gobiimodel.headerlesscontainer;
 
 
-import org.gobiiproject.gobiimodel.headerlesscontainer.DTOBase;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
-
 import java.util.*;
 
 public class PingDTO extends DTOBase {

@@ -11,10 +11,11 @@ public class SpInsMarkerGroup extends SpDef {
 
     public SpInsMarkerGroup() {
 
-        super("{call createmarkergroup(?,?,?,?,?,?,?,?)}");
+        super("{call upsertmarkergroup(?,?,?,?,?,?,?,?,?)}");
 
         this.addParamDef("name",String.class).setNullable(false);
         this.addParamDef("code",String.class).setNullable(false);
+        this.addParamDef("markers", String.class).setNullable(true);
         this.addParamDef("germplasmGroup",String.class).setNullable(true);
         this.addParamDef("createdBy", Integer.class).setNullable(true);
         this.addParamDef("createdDate", java.util.Date.class).setNullable(true);

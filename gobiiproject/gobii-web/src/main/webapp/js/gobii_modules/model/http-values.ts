@@ -3,6 +3,8 @@ import {HeaderNames} from "./header-names";
 
 export class HttpValues {
 
+    public static S_FORBIDDEN = 403;
+
     public static makeTokenHeaders(token:string,gobiiCropType:string): Headers {
 
         let returnVal = this.makeContentHeaders();

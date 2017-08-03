@@ -1,7 +1,7 @@
 package org.gobiiproject.gobiiweb.spring;
 
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
-import org.gobiiproject.gobiimodel.config.CropConfig;
+import org.gobiiproject.gobiimodel.config.GobiiCropConfig;
 import org.gobiiproject.gobiimodel.types.GobiiDbType;
 import org.gobiiproject.gobiiweb.DataSourceSelector;
 import org.springframework.context.annotation.Bean;
@@ -25,30 +25,30 @@ public class ConfigSupplement {
 
         ConfigSettings configSettings = new ConfigSettings();
         Map<Object,Object> targetDataSources = new HashMap<>();
-        for (CropConfig currentCropConfig : configSettings.getActiveCropConfigs()) {
+        for (GobiiCropConfig currentGobiiCropConfig : configSettings.getActiveCropConfigs()) {
 
             DriverManagerDataSource currentDataSource = new DriverManagerDataSource();
 
             currentDataSource.setDriverClassName("org.postgresql.Driver");
 
-            currentDataSource.setUrl(currentCropConfig
+            currentDataSource.setUrl(currentGobiiCropConfig
                     .getCropDbConfig(GobiiDbType.POSTGRESQL)
                     .getConnectionString());
 
-            currentDataSource.setUsername(currentCropConfig
+            currentDataSource.setUsername(currentGobiiCropConfig
                     .getCropDbConfig(GobiiDbType.POSTGRESQL)
                     .getUserName());
 
-            currentDataSource.setUsername(currentCropConfig
+            currentDataSource.setUsername(currentGobiiCropConfig
                     .getCropDbConfig(GobiiDbType.POSTGRESQL)
                     .getUserName());
 
 
-            currentDataSource.setPassword(currentCropConfig
+            currentDataSource.setPassword(currentGobiiCropConfig
                     .getCropDbConfig(GobiiDbType.POSTGRESQL)
                     .getPassword());
 
-            targetDataSources.put(currentCropConfig.getGobiiCropType(),currentDataSource);
+            targetDataSources.put(currentGobiiCropConfig.getGobiiCropType(),currentDataSource);
 
         } // iterate crop configs
 

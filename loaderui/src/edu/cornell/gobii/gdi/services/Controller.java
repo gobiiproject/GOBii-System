@@ -1,27 +1,27 @@
 package edu.cornell.gobii.gdi.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.gobiiproject.gobiiapimodel.payload.Header;
+import org.gobiiproject.gobiiapimodel.payload.HeaderStatusMessage;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderStatusMessage;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
+import org.gobiiproject.gobiimodel.headerlesscontainer.ConfigSettingsDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.DisplayDTO;
@@ -35,8 +35,10 @@ import org.gobiiproject.gobiimodel.headerlesscontainer.VendorProtocolDTO;
 import org.gobiiproject.gobiimodel.types.GobiiEntityNameType;
 import org.gobiiproject.gobiimodel.types.GobiiFilterType;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
+import org.gobiiproject.gobiimodel.types.ServerCapabilityType;
 import org.gobiiproject.gobiimodel.types.SystemUserDetail;
 import org.gobiiproject.gobiimodel.types.SystemUsers;
+import org.gobiiproject.gobiimodel.utils.LineUtils;
 
 import edu.cornell.gobii.gdi.forms.FrmProtocol;
 import edu.cornell.gobii.gdi.main.App;
@@ -47,15 +49,15 @@ import edu.cornell.gobii.gdi.utils.Utils;
 public class Controller {
 	private static Logger log = Logger.getLogger(Controller.class.getName());
 	public static String gobiiVersion = null;
-	public static String userEmail = "";
 	private static PayloadEnvelope<ContactDTO> resultEnvelope;
+	private static Boolean isKDActive = false;
 
 	private static List<NameIdDTO> testNameRetrieval(GobiiEntityNameType gobiiEntityNameType,
 			GobiiFilterType gobiiFilterType,
 			String filterValue) throws Exception {
 		List<NameIdDTO> returnVal = null;
 
-		RestUri namesUri = App.INSTANCE.getUriFactory().nameIdListByQueryParams();
+		RestUri namesUri =  GobiiClientContext.getInstance(null, false).getUriFactory().nameIdListByQueryParams();
 		GobiiEnvelopeRestResource<NameIdDTO> restResource = new GobiiEnvelopeRestResource<>(namesUri);
 
 		namesUri.setParamValue("entity", gobiiEntityNameType.toString().toLowerCase());
@@ -90,12 +92,12 @@ public class Controller {
 	}
 
 	public static PayloadEnvelope<ProtocolDTO> getProtocolDetailsByExperimentId(Integer experimentId) throws Exception{
-		RestUri restUriProtocolsForGetDetailsByExperimentId = ClientContext.getInstance(null, false)
+		RestUri restUriProtocolsForGetDetailsByExperimentId = GobiiClientContext.getInstance(null, false)
 				.getUriFactory()
-				.resourceColl(ServiceRequestId.URL_EXPERIMENTS)
+				.resourceColl(GobiiServiceRequestId.URL_EXPERIMENTS)
 				.addUriParam("experimentId")
 				.setParamValue("experimentId", Integer.toString(experimentId))
-				.appendSegment(ServiceRequestId.URL_PROTOCOL);
+				.appendSegment(GobiiServiceRequestId.URL_PROTOCOL);
 
 		GobiiEnvelopeRestResource<ProtocolDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriProtocolsForGetDetailsByExperimentId);
 		PayloadEnvelope<ProtocolDTO> resultEnvelope = gobiiEnvelopeRestResource
@@ -339,9 +341,9 @@ public class Controller {
 
 		DisplayDTO displayDTOResponse = null;
 		try {
-			RestUri restUriDisplay = ClientContext.getInstance(null,false)
+			RestUri restUriDisplay = GobiiClientContext.getInstance(null,false)
 					.getUriFactory()
-					.resourceColl(ServiceRequestId.URL_DISPLAY);
+					.resourceColl(GobiiServiceRequestId.URL_DISPLAY);
 			GobiiEnvelopeRestResource<DisplayDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(restUriDisplay);
 			PayloadEnvelope<DisplayDTO> resultEnvelope = gobiiEnvelopeRestResource.get(DisplayDTO.class);
 			displayDTOResponse = resultEnvelope.getPayload().getData().get(0);
@@ -540,54 +542,74 @@ public class Controller {
 
 	public static boolean getCrops(Logger log, boolean refresh, boolean isSSH, boolean showUserDialog){
 		try {
+
 			if (refresh) {
-				ClientContext.resetConfiguration();
-				ClientContext.getInstance(App.INSTANCE.getService(), true).getDefaultCropType();
+				GobiiClientContext.resetConfiguration();
+
+				GobiiClientContext.getInstance(App.INSTANCE.getService(), true).getCurrentClientCropType();
+				
 				if (App.INSTANCE.getService().contains("localhost") && isSSH) {
 					String hostPort = Utils.getFromTo(App.INSTANCE.getService(), "localhost:", "/");
 					Integer port = Integer.parseInt(hostPort);
-					ClientContext.setSshOverride("localhost", port);
+					GobiiClientContext.setSshOverride("localhost", port);
 				}
-				if(showUserDialog) App.INSTANCE.setCrop(null);
+				//				if(showUserDialog) App.INSTANCE.setCrop(null);
+				
+			
 			}
-
-			if (App.INSTANCE.getCrop() == null){
-				ClientContext.getInstance(null, false)
-				.setCurrentClientCrop(ClientContext.getInstance(null, false).getDefaultCropType());
-			}else {
-				String crop = App.INSTANCE.getCrop();
-				ClientContext.getInstance(null, false).setCurrentClientCrop(crop);
-			}
-
-
-			//			ClientContext.getInstance(null, false).login(uname, pw);
+			
 		} catch (Exception err) {
 			// TODO Auto-generated catch block
-			Utils.log(log, "Error connecting to service.\n\nCheck your username, password and web service link.", err);
 
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error in getting crops", err.getMessage().split("\n")[0]);
 			return false;
 		}
 
 		return true;
 	}
 
-	public static boolean authenticate(String uname, String pw) {
+	public static boolean authenticate(String cropId, String uname, String pw) {
 		try {
-			ClientContext.getInstance(null, false).login(uname, pw);
+			boolean login = GobiiClientContext.getInstance(null, false).login(cropId, uname, pw);
+
+			if(login){
+				
+				//get KDC is Active from server
+				Map<ServerCapabilityType, Boolean> serverCapabilities = GobiiClientContext.getInstance(App.INSTANCE.getService(), true).getServerCapabilities();
+				Boolean isActive = serverCapabilities.get(ServerCapabilityType.KDC);
+							
+				if(isActive==null){
+					isActive = false;
+				}
+				
+				setIsKDActive(isActive);
+				return true;
+			} else {
+				String failureMessage = GobiiClientContext.getInstance(null, false).getLoginFailure();
+				if ( ! LineUtils.isNullOrEmpty(failureMessage) ) {
+					MessageDialog.openError(Display.getDefault().getActiveShell(), "Connection error", failureMessage );
+
+				} else {
+					MessageDialog.openError(Display.getDefault().getActiveShell(), "" ,"Connection error");
+				}
+			}
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			Utils.log(log, "Error connecting to service.\n\nInvalid your username or password.", e);
 
-			return false;
+			Utils.log(log, "Error connecting to service.\n\nInvalid your username or password.", e);
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Connection error", e.getMessage() );
+
 		}
-		return true;
+
+		return false;
 	}
 
 
 	public static boolean isNewContactEmail(String email) {
 		boolean isNewEmail = true;
 		try {
-			RestUri restUriContact = App.INSTANCE.getUriFactory().contactsByQueryParams();
+			RestUri restUriContact =  GobiiClientContext.getInstance(null, false).getUriFactory().contactsByQueryParams();
 			restUriContact.setParamValue("email", email);
 			GobiiEnvelopeRestResource<ContactDTO> restResource = new GobiiEnvelopeRestResource<>(restUriContact);
 			PayloadEnvelope<ContactDTO> resultEnvelope = restResource
@@ -612,7 +634,7 @@ public class Controller {
 	}
 
 	public static PayloadEnvelope<ContactDTO> getContactByUsername(String userName) throws Exception {
-		RestUri restUriContact = ClientContext.getInstance(null, false)
+		RestUri restUriContact = GobiiClientContext.getInstance(null, false)
 				.getUriFactory()
 				.contactsByQueryParams();
 		restUriContact.setParamValue("userName", userName);
@@ -658,7 +680,7 @@ public class Controller {
 		PayloadEnvelope<ExperimentDTO> resultEnvelope = null;
 		RestUri experimentsUri;
 		try {
-			experimentsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_EXPERIMENTS);
+			experimentsUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_EXPERIMENTS);
 			experimentsUri.setParamValue("id", Integer.toString(experimentId));
 			GobiiEnvelopeRestResource<ExperimentDTO> restResourceForExperiments = new GobiiEnvelopeRestResource<>(experimentsUri);
 			resultEnvelope = restResourceForExperiments.get(ExperimentDTO.class);
@@ -676,9 +698,8 @@ public class Controller {
 		PayloadEnvelope<ProtocolDTO> resultEnvelopeForGetByID = null;
 		RestUri restUriProtocolForGetById;
 		try {
-			restUriProtocolForGetById = App
-					.INSTANCE.getUriFactory()
-					.resourceByUriIdParam(ServiceRequestId.URL_PROTOCOL);
+			restUriProtocolForGetById =  GobiiClientContext.getInstance(null, false).getUriFactory()
+					.resourceByUriIdParam(GobiiServiceRequestId.URL_PROTOCOL);
 
 			restUriProtocolForGetById.setParamValue("id", Integer.toString(protocolId));
 			GobiiEnvelopeRestResource<ProtocolDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriProtocolForGetById);
@@ -699,9 +720,8 @@ public class Controller {
 		PayloadEnvelope<PlatformDTO> resultEnvelopeForGetByID = null;
 		RestUri restUriPlatformForGetById;
 		try {
-			restUriPlatformForGetById = App
-					.INSTANCE.getUriFactory()
-					.resourceByUriIdParam(ServiceRequestId.URL_PLATFORM);
+			restUriPlatformForGetById =  GobiiClientContext.getInstance(null, false).getUriFactory()
+					.resourceByUriIdParam(GobiiServiceRequestId.URL_PLATFORM);
 			restUriPlatformForGetById.setParamValue("id", Integer.toString(platformId));
 			GobiiEnvelopeRestResource<PlatformDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriPlatformForGetById);
 
@@ -749,7 +769,7 @@ public class Controller {
 		PayloadEnvelope<DataSetDTO> returnVal = null;
 		RestUri projectsUri;
 		try {
-			projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_DATASETS);
+			projectsUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_DATASETS);
 			projectsUri.setParamValue("id", Integer.toString(currentDatasetId));
 			GobiiEnvelopeRestResource<DataSetDTO> gobiiEnvelopeRestResource = new GobiiEnvelopeRestResource<>(projectsUri);
 
@@ -759,7 +779,6 @@ public class Controller {
 			Utils.showLog( log, "Error getting Dataset details by  id", e);
 		}
 
-
 		return returnVal;
 	}
 
@@ -767,7 +786,7 @@ public class Controller {
 		// TODO Auto-generated method stub
 		PayloadEnvelope<ProjectDTO> returnVal = null;
 		try {
-			RestUri projectsUri = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_PROJECTS);
+			RestUri projectsUri =  GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_PROJECTS);
 			projectsUri.setParamValue("id", Integer.toString(projectId));
 			GobiiEnvelopeRestResource<ProjectDTO> restResourceForProjects = new GobiiEnvelopeRestResource<>(projectsUri);
 			returnVal = restResourceForProjects.get(ProjectDTO.class);
@@ -778,5 +797,13 @@ public class Controller {
 		}
 
 		return returnVal;
+	}
+
+	public static Boolean getIsKDActive() {
+		return isKDActive;
+	}
+
+	public static void setIsKDActive(Boolean isKDActive) {
+		if(isKDActive != null) Controller.isKDActive = isKDActive;
 	}
 }

@@ -2,24 +2,19 @@ package org.gobiiproject.gobiiweb.automation;
 
 import org.gobiiproject.gobiiapimodel.hateos.Link;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderAuth;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.payload.HeaderAuth;
 import org.gobiiproject.gobiimodel.types.GobiiHttpHeaderNames;
 import org.gobiiproject.gobiimodel.types.RestMethodTypes;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
 import org.gobiiproject.gobiimodel.headerlesscontainer.DTOBase;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
 import org.gobiiproject.gobiimodel.types.GobiiValidationStatusType;
 import org.gobiiproject.gobiimodel.utils.LineUtils;
-import sun.net.www.protocol.http.AuthenticationHeader;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Created by Phil on 9/25/2016.
@@ -59,12 +54,12 @@ public class PayloadWriter<T extends DTOBase> {
                 payloadEnvelope.getPayload().getData().add(itemToWrite);
 
 //                String contextPath = this.httpServletRequest.getContextPath();
-//                UriFactory uriFactory = new UriFactory(contextPath);
+//                GobiiUriFactory uriFactory = new GobiiUriFactory(contextPath);
 //                RestUri restUri = uriFactory.resourceByUriIdParam(serviceRequestId);
                 restUri.setParamValue("id", id);
                 //And hence we can create the link ehre
 
-                String uri = restUri.makeUrl();
+                String uri = restUri.makeUrlPath();
                 Link link = new Link(uri, "Link to " + dtoType + ", id " + id);
 
                 for (GobiiProcessType currentProcessType : itemToWrite.getAllowedProcessTypes()) {
@@ -137,9 +132,9 @@ public class PayloadWriter<T extends DTOBase> {
 
     public void setAuthHeader(HeaderAuth headerAuth, HttpServletResponse response) {
 
-        String userName = response.getHeader(GobiiHttpHeaderNames.HEADER_USERNAME);
-        String token = response.getHeader(GobiiHttpHeaderNames.HEADER_TOKEN);
-        String gobiiCropType = response.getHeader(GobiiHttpHeaderNames.HEADER_GOBII_CROP);
+        String userName = response.getHeader(GobiiHttpHeaderNames.HEADER_NAME_USERNAME);
+        String token = response.getHeader(GobiiHttpHeaderNames.HEADER_NAME_TOKEN);
+        String gobiiCropType = response.getHeader(GobiiHttpHeaderNames.HEADER_NAME_GOBII_CROP);
 
         headerAuth.setToken(token);
         headerAuth.setGobiiCropType(gobiiCropType);

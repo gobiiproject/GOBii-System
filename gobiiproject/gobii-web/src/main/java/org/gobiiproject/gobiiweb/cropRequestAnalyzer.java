@@ -2,8 +2,8 @@ package org.gobiiproject.gobiiweb;
 
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 
-import org.gobiiproject.gobiimodel.types.GobiiHttpHeaderNames;
-import org.gobiiproject.gobiimodel.utils.LineUtils;
+import org.gobiiproject.gobiimodel.config.GobiiCropConfig;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestAttributes;
@@ -11,9 +11,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Phil on 5/25/2016.
@@ -24,93 +21,71 @@ public class CropRequestAnalyzer {
     private static ConfigSettings CONFIG_SETTINGS = new ConfigSettings();
 
 
-    private static HttpServletRequest getRequest() {
-
-        HttpServletRequest returnVal = null;
-
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-
-        if (null != requestAttributes && requestAttributes instanceof ServletRequestAttributes) {
-            returnVal = ((ServletRequestAttributes) requestAttributes).getRequest();
-        }
-
-        return returnVal;
-    }
-
-
-    private static String getCropTypeFromHeaders(HttpServletRequest httpRequest) throws Exception {
-
-        String returnVal = null;
-
-        String errorMessage = null;
-
-        if (null != httpRequest) {
-
-            returnVal = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_GOBII_CROP);
-
-            if (LineUtils.isNullOrEmpty(returnVal)) {
-
-                // this is not an exception because if we didn't get the crop ID from
-                // the header we'll infer it from uri
-                LOGGER.error("Request did not include the response "
-                        + GobiiHttpHeaderNames.HEADER_GOBII_CROP);
-            }
-
-        } else {
-            throw new Exception("Unable to retreive servlet request for crop type analysis from response");
-
-        }
-
-        return returnVal;
-
-    }
-
-    public static String getDefaultCropType() {
-
-        String returnVal = null;
-
-        try {
-            returnVal = CONFIG_SETTINGS.getDefaultGobiiCropType();
-
-        } catch (Exception e) {
-            LOGGER.error("Error retrieving config settings to find default crop", e);
-        }
-
-        return returnVal;
-    }
-
-
+    /***
+     * Given a uri (for example, /gobii-maize/gobii/v1/contacts):
+     *  1) Find the crop configuration that has gobii-maize as its context path;
+     *  2) Set the cropId to the cropId for that context path
+     * @param httpRequest
+     * @return
+     * @throws Exception
+     */
     private static String getCropTypeFromUri(HttpServletRequest httpRequest) throws Exception {
 
         String returnVal = null;
-
         String errorMessage = null;
 
         if (null != httpRequest) {
+
             String requestUrl = httpRequest.getRequestURI();
 
-            List<String> matchedCrops =
-                    CONFIG_SETTINGS
-                            .getActiveCropTypes()
-                            .stream()
-                            .filter(c -> requestUrl.toLowerCase().contains(c.toString().toLowerCase()))
-                            .collect(Collectors.toList());
+            for (int idx = 0;
+                 (idx < CONFIG_SETTINGS.getActiveCropConfigs().size()) && (returnVal == null);
+                 idx++) {
 
-            if (matchedCrops.size() > 0) {
+                GobiiCropConfig currentCropConfig = CONFIG_SETTINGS.getActiveCropConfigs().get(idx);
 
-                if (1 == matchedCrops.size()) {
-                    returnVal = matchedCrops.get(0);
+                String rawContextPath = currentCropConfig
+                        .getContextPath();
+
+                // double check that context paths are unique
+                if (CONFIG_SETTINGS
+                        .getActiveCropConfigs()
+                        .stream()
+                        .filter(cc -> {
+                            return cc.getContextPath().equals(rawContextPath);
+                        })
+                        .count() < 2) {
+
+                    String contextPathWithoutSlashes = rawContextPath
+                            .replace("/", "");
+
+
+                    String candidateSegment = requestUrl
+                            .replace("/", "")
+                            .substring(0, contextPathWithoutSlashes.length());
+
+                    if (candidateSegment.toLowerCase().equals(contextPathWithoutSlashes.toLowerCase())) {
+
+                        returnVal = currentCropConfig.getGobiiCropType();
+                    }
+
+
                 } else {
-                    errorMessage = "The current url ("
-                            + requestUrl
-                            + ") matched more than one one crop; the service app root must contain only one crop ID";
+
+                    errorMessage = "The context path is repeated in the configuration; context paths must be unique: " + rawContextPath;
+
                 }
+            } // iterate configurations
 
-            } else {
+            // this is the condition if we simply couldn't find a config
+            if( errorMessage == null && returnVal == null ) {
+                errorMessage = "There is no active crop with the context path of th specified URL; ";
+            }
 
-                errorMessage = "The current url ("
-                        + requestUrl
-                        + ") did not match any crops; ; service app root must contain one, and only one, crop ID";
+            if (returnVal == null) {
+
+                errorMessage += "; the cropId corresponding to the context path of the request url could not be set: " + requestUrl;
+
             }
 
         } else {
@@ -141,7 +116,20 @@ public class CropRequestAnalyzer {
             returnVal = CropRequestAnalyzer.getGobiiCropType(httpRequest);
         } else {
             // this will be the case when the server is initializing
-            returnVal = CropRequestAnalyzer.getDefaultCropType();
+            // we used to have a "default" crop for this purpose but that approach
+            // led to some really bad bugs.
+            if (CONFIG_SETTINGS.getActiveCropTypes().size() <= 0) {
+                String message = "Unable to initialize: there are no active crop types in the configuration";
+                LOGGER.error(message);
+                throw new Exception(message);
+            }
+
+            // so we just randomly use the first active crop in the list
+            // again, this should only occur upon initialization, when ther eis no
+            // http context; when there is, we will get the cropId from the url
+            // (GobiiConfig's validator enforces that all cropIds must be contained
+            // within all server context paths)
+            returnVal = CONFIG_SETTINGS.getActiveCropTypes().get(0);
         }
 
         return returnVal;
@@ -151,23 +139,12 @@ public class CropRequestAnalyzer {
 
     public static String getGobiiCropType(HttpServletRequest httpRequest) throws Exception {
 
-        String returnVal = CropRequestAnalyzer.getCropTypeFromHeaders(httpRequest);
+        String returnVal = CropRequestAnalyzer.getCropTypeFromUri(httpRequest);
 
         if (null == returnVal) {
-
-            returnVal = CropRequestAnalyzer.getCropTypeFromUri(httpRequest);
-
-            if (null == returnVal) {
-
-                returnVal = CropRequestAnalyzer.getDefaultCropType();
-
-                if (null == returnVal) {
-
-                    LOGGER.error("Unable to determine crop type from response or uri; setting crop type to "
-                            + returnVal
-                            + " database connectioins will be made accordingly");
-                }
-            }
+            String message = "Unable to determine crop type from response or uri";
+            LOGGER.error(message);
+            throw new Exception(message);
         }
 
         return returnVal;

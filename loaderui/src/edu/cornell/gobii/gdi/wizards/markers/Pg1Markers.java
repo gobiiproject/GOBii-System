@@ -144,8 +144,7 @@ public class Pg1Markers extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					dto.setProjectID(null);
-					dto.setProjectName(null);
+					
 					FormUtils.resetCombo(cbExperiment);	dto.setExperimentID(null);
 					FormUtils.resetCombo(cbDataset);	dto.setDatasetID(null);
 					if(cbProject.getSelectionIndex() > -1){
@@ -153,6 +152,9 @@ public class Pg1Markers extends WizardPage {
 						dto.setProjectID(Integer.parseInt(key));
 						dto.setProjectName(cbProject.getText());
 						FormUtils.entrySetToCombo(Controller.getExperimentNamesByProjectId(dto.getProjectID()), cbExperiment);
+					}else{
+						dto.setProjectID(null);
+						dto.setProjectName(null);
 					}
 					textPlatform.setText("");
 				}catch(Exception err){
@@ -171,8 +173,7 @@ public class Pg1Markers extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					dto.setExperimentID(null);
-					dto.setExperimentName(null);
+					
 					FormUtils.resetCombo(cbDataset);	dto.setDatasetID(null);
 					if(cbExperiment.getSelectionIndex() > -1){
 						String key = (String) cbExperiment.getData(cbExperiment.getItem(cbExperiment.getSelectionIndex()));
@@ -183,6 +184,10 @@ public class Pg1Markers extends WizardPage {
 						Integer platformId = Controller.getPlatformIdByExperimentId(dto.getExperimentID());
 						dto.setPlatformID(platformId);
 						WizardUtils.populatePlatformText(getShell(), platformId, textPlatform);
+						dto.setPlatformName(textPlatform.getText());
+					}else{
+						dto.setExperimentID(null);
+						dto.setExperimentName(null);
 					}
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error retrieving experiments", err);
@@ -208,12 +213,14 @@ public class Pg1Markers extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					dto.setDatasetID(null);
-					dto.setDatasetName(null);
+					
 					if(cbDataset.getSelectionIndex() > -1){
 						String key = (String) cbDataset.getData(cbDataset.getItem(cbDataset.getSelectionIndex()));
 						dto.setDatasetID(Integer.parseInt(key));
 						dto.setDatasetName(cbDataset.getText());
+					}else{
+						dto.setDatasetID(null);
+						dto.setDatasetName(null);
 					}
 				}catch(Exception err){
 					Utils.log(getShell(), null, log, "Error selecting Datasets", err);
@@ -231,7 +238,7 @@ public class Pg1Markers extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					if(cbMapset.getSelectionIndex() == -1){
+					if(cbMapset.getSelectionIndex() < 0){
 						dto.setMapsetID(null);
 						dto.setMapsetName(null);
 					}else{
@@ -372,7 +379,7 @@ public class Pg1Markers extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				try{
-					if(cbFileFormat.getSelectionIndex() == -1) return;
+					if(cbFileFormat.getSelectionIndex() < -0) return;
 					FileFormat ff = fileformats.getFileFormat().get(cbFileFormat.getSelectionIndex());
 					dto.getFile().setGobiiFileType(GobiiFileType.valueOf((ff.getName())));
 					dto.getFile().setDelimiter(ff.getDelim());
@@ -447,7 +454,7 @@ public class Pg1Markers extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String template = null;
-				if(cbTemplates.getSelectionIndex() == -1 || cbTemplates.getText().isEmpty()){
+				if(cbTemplates.getSelectionIndex() <0 || cbTemplates.getText().isEmpty()){
 					template = null;
 				}else{
 					int index = cbTemplates.getSelectionIndex();

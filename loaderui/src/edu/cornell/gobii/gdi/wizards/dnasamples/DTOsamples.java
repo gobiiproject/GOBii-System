@@ -33,10 +33,15 @@ public class DTOsamples implements WizardDTO{
 	private Integer projectID;
 	private Integer experimentID;
 	private Integer datasetID;
+	private Integer datasetTypeID;
+	private Integer platformID;
+	private Integer mapsetID;
 	private String projectName;
 	private String platformName;
 	private String datasetName;
 	private String experimentName;
+	private String mapsetName;
+	private String datasetType;
 	private String fileExtention;
 	private String template = null;
 	private boolean isRemote = false;
@@ -213,5 +218,36 @@ public class DTOsamples implements WizardDTO{
 	}
 	public void setPiID(Integer piID) {
 		this.piID = piID;
+	}
+	
+	public Integer getDatasetTypeID() {
+		return datasetTypeID;
+	}
+	public void setDatasetTypeID(Integer datasetTypeID) {
+		this.datasetTypeID = datasetTypeID;
+	}
+	public Integer getPlatformID() {
+		return platformID;
+	}
+	public void setPlatformID(Integer platformID) {
+		this.platformID = platformID;
+	}
+	public Integer getMapsetID() {
+		return mapsetID;
+	}
+	public void setMapsetID(Integer mapsetID) {
+		this.mapsetID = mapsetID;
+	}
+	public String getMapsetName() {
+		return mapsetName;
+	}
+	public void setMapsetName(String mapsetName) {
+		this.mapsetName = mapsetName;
+	}
+	public String getDatasetType() {
+		return datasetType;
+	}
+	public void setDatasetType(String datasetType) {
+		this.datasetType = datasetType;
 	}
 }

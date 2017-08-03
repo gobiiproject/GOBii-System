@@ -12,7 +12,6 @@ import org.gobiiproject.gobiimodel.types.GobiiExtractFilterType;
 
 public interface DtoMapExtractorInstructions {
 
-    void writeDataFile(String cropType, GobiiExtractFilterType gobiiExtractFilterType, String jobId, byte[] byteArray ) throws GobiiException;
     ExtractorInstructionFilesDTO writeInstructions(String cropType, ExtractorInstructionFilesDTO extractorInstructionFilesDTO)  throws GobiiException;
     ExtractorInstructionFilesDTO getStatus(String cropType, String instructionFileName)  throws GobiiException;
 }

@@ -13,8 +13,8 @@ import javax.mail.internet.MimeMessage;
 
 
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
-import org.gobiiproject.gobiimodel.config.CropConfig;
-import org.gobiiproject.gobiimodel.config.CropDbConfig;
+import org.gobiiproject.gobiimodel.config.GobiiCropConfig;
+import org.gobiiproject.gobiimodel.config.GobiiCropDbConfig;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.*;
 import org.gobiiproject.gobiimodel.types.GobiiDbType;
 
@@ -238,8 +238,8 @@ public class HelperFunctions {
 	 }
 	 else return destination+"/"+"digest."+instruction.getTable();
  }
-	public static String getPostgresConnectionString(CropConfig config){
-	 CropDbConfig crop=config.getCropDbConfig(GobiiDbType.POSTGRESQL);
+	public static String getPostgresConnectionString(GobiiCropConfig config){
+	 GobiiCropDbConfig crop=config.getCropDbConfig(GobiiDbType.POSTGRESQL);
 	 String ret = "postgresql://"
 	 		+ crop.getUserName()
 	 		+ ":"
@@ -249,7 +249,7 @@ public class HelperFunctions {
 	 		+ ":"
 	 		+ crop.getPort()
 	 		+ "/"
-	 		+ crop.getDbName();
+	 		+ crop.getContextPath();
 	 return ret;
  }
 
@@ -318,7 +318,7 @@ public class HelperFunctions {
 		if(success && showTempFiles){
 			if(digestTempFiles != null) {
 				for (String file : digestTempFiles) {
-					if (checkFileExistance(file.substring(file.indexOf('\t') + 1, file.length()))) {
+					if (checkFileExistence(file.substring(file.indexOf('\t') + 1, file.length()))) {
 						content += "\nThe loader has created digest file: " + file;
 					}
 				}
@@ -328,7 +328,7 @@ public class HelperFunctions {
 			content+="\nAn unexpected error occurred when processing your request.";
 			if(digestTempFiles != null){
 				for(String file:digestTempFiles){
-					if(checkFileExistance(file.substring(file.indexOf('\t')+1,file.length()))){
+					if(checkFileExistence(file.substring(file.indexOf('\t')+1,file.length()))){
 						content+="\nThe loader has created digest file: "+file;
 					}
 				}
@@ -357,7 +357,7 @@ public class HelperFunctions {
 	 * @param fileLocation String representation of the file's location (absolute or relative).
 	 * @return true if non-empty file exists
 	 */
-	public static boolean checkFileExistance(String fileLocation) {
+	public static boolean checkFileExistence(String fileLocation) {
 		if(fileLocation==null)return false;
 		File f = new File(fileLocation);
 		return f.exists() && f.getTotalSpace()!=0;

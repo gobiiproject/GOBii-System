@@ -106,6 +106,24 @@ public class MailInterface {
 		messageBodyPart.setDataHandler(new DataHandler(fds));
 		messageBodyPart.setHeader("Content-ID", "<image>");
 		multipart.addBodyPart(messageBodyPart);
+
+		// add attachments
+		if(message.getFileAttachments().size() > 0) {
+
+			for (String fileName : message.getFileAttachments()) {
+
+				messageBodyPart = new MimeBodyPart();
+
+				DataSource source = new FileDataSource(fileName);
+				messageBodyPart.setDataHandler(new DataHandler(source));
+				messageBodyPart.setFileName(fileName);
+				multipart.addBodyPart(messageBodyPart);
+
+			}
+
+		}
+
+
 		mimeMessage.setContent(multipart);
 		mimeMessage.addRecipient(Message.RecipientType.TO,
 				new InternetAddress(message.getUser()));

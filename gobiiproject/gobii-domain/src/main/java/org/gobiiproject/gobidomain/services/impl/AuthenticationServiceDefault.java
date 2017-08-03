@@ -31,9 +31,6 @@ public class AuthenticationServiceDefault implements AuthenticationService {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @Autowired
-    private ContactService contactService;
-
     Logger LOGGER = LoggerFactory.getLogger(AuthenticationServiceDefault.class);
 
     private final AuthenticationManager authenticationManager;
@@ -64,13 +61,8 @@ public class AuthenticationServiceDefault implements AuthenticationService {
 
             if (authentication.getPrincipal() != null) {
 
-                if (contactService.getContactByUserName(login).getContactId() > 0) {
-
-                    UserDetails userContext = (UserDetails) authentication.getPrincipal();
-                    returnVal = tokenManager.createNewToken(userContext);
-                } else {
-                    LOGGER.error("There is no contact table entry for username " + login);
-                }
+                UserDetails userContext = (UserDetails) authentication.getPrincipal();
+                returnVal = tokenManager.createNewToken(userContext);
             }
 
         } catch (AuthenticationException e) {

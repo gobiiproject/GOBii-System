@@ -21,11 +21,11 @@ public class SystemUsers {
 
         String userReaderName = "USER_READER";
         userDetails.put(userReaderName ,
-                new SystemUserDetail(userReaderName , "examplePassword", "READER"));
+                new SystemUserDetail(userReaderName , "reader", "READER"));
 
         String userImporterName = "USER_IMPORTER";
         userDetails.put(userImporterName,
-                new SystemUserDetail(userImporterName, "anotherExamplePassword", "ADMIN"));
+                new SystemUserDetail(userImporterName, "password2", "ADMIN"));
 
     } // ctor
 

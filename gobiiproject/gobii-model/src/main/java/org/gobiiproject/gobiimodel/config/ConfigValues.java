@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
  * amount of logic for retrieval of directories. IN particuarl, given a GobiiFileProcessDir
  * value, it will provide the appropriate path for specific file processing locations. The properties
  * of this class are annotated with the simpleframework XML annotations for the purpose of
- * serialization. Aside from the collection of CropConfig instances, the proeprties of this class
- * are global to the configuration. There will be one CropConfig instance for every crop supported
+ * serialization. Aside from the collection of GobiiCropConfig instances, the proeprties of this class
+ * are global to the configuration. There will be one GobiiCropConfig instance for every crop supported
  * by a given deployment.
  */
 class ConfigValues {
@@ -28,8 +28,12 @@ class ConfigValues {
     @Element(required = false)
     private TestExecConfig testExecConfig = new TestExecConfig();
 
+    @Element(required=false)
+    private ServerConfigKDC serverConfigKDC = new ServerConfigKDC();
+
+
     @ElementMap(required = false)
-    private Map<String, CropConfig> cropConfigs = new LinkedHashMap<>();
+    private Map<String, GobiiCropConfig> cropConfigs = new LinkedHashMap<>();
 
     @ElementMap(required = false)
     private Map<GobiiFileProcessDir, String> relativePaths = new EnumMap<GobiiFileProcessDir, String>(GobiiFileProcessDir.class) {{
@@ -46,14 +50,11 @@ class ConfigValues {
         put(GobiiFileProcessDir.EXTRACTOR_INPROGRESS, "extractor/inprogress/");
         put(GobiiFileProcessDir.EXTRACTOR_DONE, "extractor/done/");
         put(GobiiFileProcessDir.EXTRACTOR_OUTPUT, "extractor/output/");
-        put(GobiiFileProcessDir.QC_NOTIFICATIONS, "qcnotifications/");
+        put(GobiiFileProcessDir.QC_OUTPUT, "loader/qc/");
 
     }};
 
     private String currentGobiiCropType;
-
-    @Element(required = false)
-    private String defaultGobiiCropType;
 
     @Element(required = false)
     private String emailSvrType;
@@ -116,6 +117,10 @@ class ConfigValues {
         return testExecConfig;
     }
 
+    public ServerConfigKDC getKDCConfig() {
+        return serverConfigKDC;
+    }
+
     public void setTestExecConfig(TestExecConfig testExecConfig) {
         this.testExecConfig = testExecConfig;
     }
@@ -124,9 +129,9 @@ class ConfigValues {
         return this.getCropConfigs().containsKey(gobiiCropType);
     }
 
-    public CropConfig getCropConfig(String gobiiCropType) throws Exception {
+    public GobiiCropConfig getCropConfig(String gobiiCropType) throws Exception {
 
-        CropConfig returnVal = null;
+        GobiiCropConfig returnVal = null;
 
         if (!getCropConfigs().containsKey(gobiiCropType)) {
             throw new Exception("There is no configuration defined for crop " + gobiiCropType);
@@ -157,7 +162,7 @@ class ConfigValues {
         return returnVal;
     } //
 
-    public List<CropConfig> getActiveCropConfigs() throws Exception {
+    public List<GobiiCropConfig> getActiveCropConfigs() throws Exception {
 
 
         return getCropConfigs()
@@ -167,7 +172,7 @@ class ConfigValues {
                 .collect(Collectors.toList());
     }
 
-    public CropConfig getCurrentCropConfig() throws Exception {
+    public GobiiCropConfig getCurrentCropConfig() throws Exception {
         return getCropConfig(getCurrentGobiiCropType());
     }
 
@@ -181,40 +186,16 @@ class ConfigValues {
         return currentGobiiCropType;
     }
 
-    public String getDefaultGobiiCropType() {
-        return defaultGobiiCropType;
-    }
 
-
-    public void setDefaultGobiiCropType(String defaultGobiiCropType) throws Exception {
-
-
-        if (!cropConfigs.containsKey(defaultGobiiCropType)) {
-            throw new Exception("The specified crop cannot be the default crop because it does not exist: " + defaultGobiiCropType);
-        }
-
-
-        if (this.getActiveCropConfigs()
-                .stream()
-                .filter(c -> c.getGobiiCropType().equals(defaultGobiiCropType))
-                .count() != 1) {
-            throw new Exception("The specified crop cannot be the default crop because it is not marked active: " + defaultGobiiCropType);
-
-        }
-
-
-        this.defaultGobiiCropType = defaultGobiiCropType;
-    }
-
-    public Map<String, CropConfig> getCropConfigs() {
+    public Map<String, GobiiCropConfig> getCropConfigs() {
 
         return this.cropConfigs;
 
     }
 
-    public void setCropConfigs(Map<String, CropConfig> cropConfigs) {
+    public void setCropConfigs(Map<String, GobiiCropConfig> cropConfigs) {
 
-        for (Map.Entry<String, CropConfig> entry : cropConfigs.entrySet()) {
+        for (Map.Entry<String, GobiiCropConfig> entry : cropConfigs.entrySet()) {
             String lowerCaseCropType = entry.getValue().getGobiiCropType();
             entry.getValue().setGobiiCropType(lowerCaseCropType);
             this.cropConfigs.put(lowerCaseCropType, entry.getValue());
@@ -229,20 +210,20 @@ class ConfigValues {
 
         gobiiCropType = gobiiCropType.toLowerCase();
 
-        CropConfig cropConfig;
+        GobiiCropConfig gobiiCropConfig;
         if (this.isCropDefined(gobiiCropType)) {
-            cropConfig = this.getCropConfig(gobiiCropType);
+            gobiiCropConfig = this.getCropConfig(gobiiCropType);
         } else {
-            cropConfig = new CropConfig();
-            this.cropConfigs.put(gobiiCropType, cropConfig);
+            gobiiCropConfig = new GobiiCropConfig();
+            this.cropConfigs.put(gobiiCropType, gobiiCropConfig);
         }
 
-        cropConfig
+        gobiiCropConfig
                 .setGobiiCropType(gobiiCropType)
                 .setActive(isActive)
-                .setServiceDomain(serviceDomain)
-                .setServiceAppRoot(serviceAppRoot)
-                .setServicePort(servicePort);
+                .setHost(serviceDomain)
+                .setContextPath(serviceAppRoot)
+                .setPort(servicePort);
     }
 
     public void removeCrop(String cropId) throws Exception {
@@ -251,11 +232,6 @@ class ConfigValues {
             throw new Exception("The specified crop cannot be removed because it does not exist: " + cropId);
         }
 
-        if ((!LineUtils.isNullOrEmpty(getDefaultGobiiCropType()))
-                && getDefaultGobiiCropType().equals(cropId)) {
-
-            throw new Exception("Unable to remove crop " + cropId + " because it is the default crop in this configuration");
-        }
 
         if ((!LineUtils.isNullOrEmpty(getTestExecConfig().getTestCrop())) &&
                 getTestExecConfig().getTestCrop().equals(cropId)) {
@@ -434,10 +410,10 @@ class ConfigValues {
         this.isDecrypt = isDecrypt;
         this.testExecConfig.setDecrypt(isDecrypt);
 
-        for (CropConfig currentCropConfig : this.cropConfigs.values()) {
+        for (GobiiCropConfig currentGobiiCropConfig : this.cropConfigs.values()) {
 
-            for (CropDbConfig currentCropDbConfig : currentCropConfig.getCropConfigs()) {
-                currentCropDbConfig.setDecrypt(isDecrypt);
+            for (GobiiCropDbConfig currentGobiiCropDbConfig : currentGobiiCropConfig.getCropConfigs()) {
+                currentGobiiCropDbConfig.setDecrypt(isDecrypt);
             }
         }
     }

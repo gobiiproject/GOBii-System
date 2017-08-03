@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-
     <!--<link rel="stylesheet" href="js/node_modules/bootstrap/dist/css/bootstrap.min.css">-->
     <link rel="stylesheet" href="js/node_modules/bootswatch/cerulean/bootstrap.min.css">
     <link rel="stylesheet" href="css/extractor-ui.css">
@@ -14,7 +13,7 @@
     <!--<link rel="stylesheet" type="text/css" href="js/node_modules/primeng/resources/themes/ludvig/theme.css"/>-->
     <link rel="stylesheet" type="text/css" href="js/node_modules/primeng/resources/themes/omega/theme.css"/>
     <link rel="stylesheet" type="text/css" href="js/node_modules/primeng/resources/primeng.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="js/node_modules/font-awesome/css/font-awesome.min.css"/>
 
     <!-- 1. Load libraries -->
     <!-- Polyfill(s) for older browsers -->
@@ -25,7 +24,20 @@
     <script src="js/node_modules/rxjs/bundles/Rx.js"></script>
 
     <!-- 2. Load Modules -->
-
+    <!-- The SystemJs bit below requires (no pun intended) some explanation.
+    Since browsers don't support ES6 module loading, we need a way to load the various modules that were built with typescript into
+    the browser. I believe the way that this works is that the keys in the packages object correspond to the package references
+    used for the module imports in app.module.ts. That is, when we say
+        import {NgModule} from "@angular/core";
+    the browser knows that it will find the code for @angular/core in the bundles/core.umd.js file. Now, all other things being
+    equal, the browser would not know the physical path for @angular/core/bundles/core.md.js in the web application. It seems that the purpose of the map
+    object is to provide this information: that is, the @angular/core part of @angular/core/bundles/core.umd.js is expanded to
+     js/node_modules/@angular/core, which is the path under which these files are found in the web application. Note that
+     these files will have been copied to that location in the web application by the install of the web project (see gobii-web/pom.xml.
+     On peculiarity: given a map key such as '@angular/animations', if you add to that key in the packages (e.g., '@angular/animations/browser'),
+     the package key is not taken merely as a reference for the package, but "browser" is appended to the pack specified in map section.
+     Thus, in order to create the package name we need, and also direct SystemJS to the correct files in the bundles directory, we need
+     to use a relative path: '../bundles/animations-browser.umd.js'-->
     <script>
         System.config({
 
@@ -35,7 +47,13 @@
                 '@angular/compiler': {defaultExtension: 'js', main: 'bundles/compiler.umd.js'},
                 '@angular/router': {defaultExtension: 'js', main: 'bundles/router.umd.js'},
                 '@angular/http': {defaultExtension: 'js', main: 'bundles/http.umd.js'},
+                '@angular/animations': {defaultExtension: 'js', main: 'bundles/animations.umd.js'},
+                '@angular/animations/browser': {defaultExtension: 'js', main: '../bundles/animations-browser.umd.js'},
                 '@angular/platform-browser': {defaultExtension: 'js', main: 'bundles/platform-browser.umd.js'},
+                '@angular/platform-browser/animations': {
+                    defaultExtension: 'js',
+                    main: '../bundles/platform-browser-animations.umd.js'
+                },
                 '@angular/platform-browser-dynamic': {
                     defaultExtension: 'js',
                     main: 'bundles/platform-browser-dynamic.umd.js'
@@ -78,6 +96,7 @@
                 '@angular/router': 'js/node_modules/@angular/router',
                 '@angular/router-deprecated': 'js/node_modules/@angular/router-deprecated',
                 '@angular/http': 'js/node_modules/@angular/http',
+                '@angular/animations': 'js/node_modules/@angular/animations',
                 '@angular/platform-browser': 'js/node_modules/@angular/platform-browser',
                 '@angular/platform-browser-dynamic': 'js/node_modules/@angular/platform-browser-dynamic',
                 '@angular/forms': 'js/node_modules/@angular/forms',

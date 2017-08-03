@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
 import org.gobiiproject.gobiimodel.headerlesscontainer.DataSetDTO;
@@ -122,11 +122,12 @@ public class FormUtils {
 	public static void cropSetToCombo(Combo combo){
 		combo.removeAll();
 		try {
-			List<String> crops = ClientContext.getInstance(null, false).getCropTypeTypes();
+			List<String> crops = GobiiClientContext.getInstance(null, false).getCropTypeTypes();
 			for(String crop : crops){
 				combo.add(crop);
 				combo.setData(crop, crop);
 			}
+			
 		} catch (Exception err) {
 			// TODO Auto-generated catch block
 			err.printStackTrace();

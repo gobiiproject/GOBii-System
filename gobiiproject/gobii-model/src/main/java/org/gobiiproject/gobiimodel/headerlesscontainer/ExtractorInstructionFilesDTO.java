@@ -1,9 +1,6 @@
 package org.gobiiproject.gobiimodel.headerlesscontainer;
 
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.dto.instructions.extractor.GobiiExtractorInstruction;
-import org.gobiiproject.gobiimodel.types.GobiiJobStatus;
-import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import java.util.ArrayList;
 import java.util.List;

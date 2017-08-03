@@ -1,19 +1,15 @@
-1     ERROR [main] main.Main2 - Error connecting to service
-java.lang.Exception: initConfigFromServer is specfied, but the gobiiUrl parameter is null or empty
-	at org.gobiiproject.gobiiclient.core.common.ClientContext.getInstance(ClientContext.java:138)
-	at edu.cornell.gobii.gdi.services.Controller.authenticate(Controller.java:545)
-	at edu.cornell.gobii.gdi.main.Main2.main(Main2.java:102)
-2656  ERROR [main] main.Main2 - Error connecting to service
-java.lang.Exception: Client configuration must be initialized from a web server url or fqpn to gobii properties file
-	at org.gobiiproject.gobiiclient.core.common.ClientContext.getInstance(ClientContext.java:143)
-	at edu.cornell.gobii.gdi.services.Controller.authenticate(Controller.java:555)
-	at edu.cornell.gobii.gdi.services.Controller.authenticate(Controller.java:536)
-	at edu.cornell.gobii.gdi.main.Main2.displayCropTree(Main2.java:649)
-	at edu.cornell.gobii.gdi.main.Main2.open(Main2.java:129)
-	at edu.cornell.gobii.gdi.main.Main2.main(Main2.java:104)
-2657  ERROR [main] main.Main2 - Error starting application
+1     ERROR [main] utils.Utils - Error getting list of Project names
+java.lang.Exception: Unable to create UriFactory: there is no crop selected
+	at edu.cornell.gobii.gdi.main.App.getUriFactory(App.java:199)
+	at edu.cornell.gobii.gdi.services.Controller.testNameRetrieval(Controller.java:58)
+	at edu.cornell.gobii.gdi.services.Controller.getProjectNames(Controller.java:449)
+	at edu.cornell.gobii.gdi.main.Main2.getTreeItems(Main2.java:695)
+	at edu.cornell.gobii.gdi.main.Main2.displayCropTree(Main2.java:657)
+	at edu.cornell.gobii.gdi.main.Main2.open(Main2.java:132)
+	at edu.cornell.gobii.gdi.main.Main2.main(Main2.java:106)
+1939  ERROR [main] main.Main2 - Error starting application
 java.lang.NullPointerException
-	at edu.cornell.gobii.gdi.services.Controller.getGobiiVersion(Controller.java:692)
-	at edu.cornell.gobii.gdi.services.Controller.checkVersionCompatibility(Controller.java:705)
-	at edu.cornell.gobii.gdi.main.Main2.open(Main2.java:143)
-	at edu.cornell.gobii.gdi.main.Main2.main(Main2.java:104)
+	at edu.cornell.gobii.gdi.main.Main2.getTreeItems(Main2.java:696)
+	at edu.cornell.gobii.gdi.main.Main2.displayCropTree(Main2.java:657)
+	at edu.cornell.gobii.gdi.main.Main2.open(Main2.java:132)
+	at edu.cornell.gobii.gdi.main.Main2.main(Main2.java:106)

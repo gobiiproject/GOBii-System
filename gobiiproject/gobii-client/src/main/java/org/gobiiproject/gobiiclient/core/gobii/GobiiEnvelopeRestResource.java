@@ -3,19 +3,29 @@ package org.gobiiproject.gobiiclient.core.gobii;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
 import org.gobiiproject.gobiiclient.core.common.HttpCore;
 import org.gobiiproject.gobiiclient.core.common.HttpMethodResult;
-import org.gobiiproject.gobiiclient.core.common.RestResourceUtils;
 import org.gobiiproject.gobiimodel.types.GobiiStatusLevel;
 
 import org.gobiiproject.gobiimodel.types.RestMethodTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 /**
- * Created by Phil on 5/13/2016.
+ * This class adds the GOBII-specific type handling on top of the generic
+ * HTTP functionality of HttpCore. It wraps the generic HTTP method methods
+ * (get, post, put, patch, delete) provided by HTTP core. It serializes and
+ * deserializes GOBII's POJO DTO payloads. Some of the functionality here is
+ * general enough that it could be used for non-GOBII payloads that are,
+ * like the GOBII DTOs, expressed as POJO. However, the structure of the GOBII
+ * response is very specific. If in the future this client library is required to support
+ * non-GOBII services that merit using POJOs similar to DTOs, the generic type-based
+ * functionality of this class could be separated out into a common class that
+ * would be consumed by this class and a similar new class for the non-GOBII
+ * payloads.
  */
 public class GobiiEnvelopeRestResource<T> {
 
@@ -24,11 +34,9 @@ public class GobiiEnvelopeRestResource<T> {
     private RestUri restUri;
     private ObjectMapper objectMapper = new ObjectMapper();
     private GobiiPayloadResponse<T> gobiiPayloadResponse = null;
-    private RestResourceUtils restResourceUtils;
 
     public GobiiEnvelopeRestResource(RestUri restUri) {
         this.restUri = restUri;
-        this.restResourceUtils = new RestResourceUtils();
         this.gobiiPayloadResponse = new GobiiPayloadResponse<>(this.restUri);
     }
 
@@ -37,14 +45,14 @@ public class GobiiEnvelopeRestResource<T> {
     }
 
 
-    private ClientContext getClientContext() throws Exception {
+    private GobiiClientContext getClientContext() throws Exception {
 
-        return this.restResourceUtils.getClientContext();
+        return GobiiClientContext.getInstance(null, false);
     }
 
     private HttpCore getHttp() throws Exception {
 
-        return this.restResourceUtils.getClientContext().getHttp();
+        return GobiiClientContext.getInstance(null, false).getHttp();
     }
 
 
@@ -66,8 +74,7 @@ public class GobiiEnvelopeRestResource<T> {
 
         HttpMethodResult httpMethodResult =
                 getHttp()
-                        .get(this.restUri,
-                                this.getClientContext().getUserToken());
+                        .get(this.restUri);
 
         returnVal = this.gobiiPayloadResponse.getPayloadFromResponse(dtoType,
                 RestMethodTypes.GET,
@@ -87,8 +94,7 @@ public class GobiiEnvelopeRestResource<T> {
         HttpMethodResult httpMethodResult =
                 getHttp()
                         .post(this.restUri,
-                                postBody,
-                                this.getClientContext().getUserToken());
+                                postBody);
 
         returnVal = this.gobiiPayloadResponse.getPayloadFromResponse(dtoType,
                 RestMethodTypes.POST,
@@ -97,6 +103,15 @@ public class GobiiEnvelopeRestResource<T> {
 
         return returnVal;
 
+    }
+
+    public HttpMethodResult upload(File file) throws Exception {
+
+        HttpMethodResult returnVal = getHttp()
+                .upload(this.restUri,
+                        file);
+
+        return returnVal;
     }
 
     public PayloadEnvelope<T> put(Class<T> dtoType,
@@ -108,8 +123,7 @@ public class GobiiEnvelopeRestResource<T> {
         HttpMethodResult httpMethodResult =
                 getHttp()
                         .put(this.restUri,
-                                putBody,
-                                this.getClientContext().getUserToken());
+                                putBody);
 
         returnVal = this.gobiiPayloadResponse.getPayloadFromResponse(dtoType,
                 RestMethodTypes.PUT,
@@ -139,8 +153,7 @@ public class GobiiEnvelopeRestResource<T> {
 
         HttpMethodResult httpMethodResult =
                 getHttp()
-                        .delete(this.restUri,
-                                this.getClientContext().getUserToken());
+                        .delete(this.restUri);
 
         returnVal = this.gobiiPayloadResponse.getPayloadFromResponse(dtoType,
                 RestMethodTypes.DELETE,

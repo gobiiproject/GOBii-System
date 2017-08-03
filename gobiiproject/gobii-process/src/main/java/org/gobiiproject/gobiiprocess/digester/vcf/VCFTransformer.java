@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import org.gobiiproject.gobiimodel.utils.HelperFunctions;
 import org.gobiiproject.gobiimodel.utils.error.ErrorLogger;
 
 /**
@@ -97,4 +98,36 @@ public class VCFTransformer {
 			ErrorLogger.logError("VCFTransformer", "File access error", e);
 		}
 	}
+
+    /**
+     * Generates a marker reference file from a marker file
+     * If input is name ref alt blah blah
+     * output is ref alt
+     * @param markerFile marker file
+     * @param outFile
+     */
+    public static void generateMarkerReference(String markerFile, String outFile, String errorPath) throws IOException {
+        BufferedReader br=new BufferedReader(new FileReader(markerFile));
+        String[] headers = br.readLine().split("\\s+");
+        br.close();
+        String ref="ref",alt="alt";
+        int refPos=-1;
+        int altPos=-1;
+        for(int i=0;i<headers.length;i++){
+            if(headers[i].contains(ref)){
+                refPos=i+1;break;//cut is 1 based
+            }
+        }
+        for(int i=0;i<headers.length;i++){
+            if(headers[i].contains(alt)){
+                altPos=i+1;break;//cut is 1 based
+            }
+
+        }
+        if((refPos==-1)||(altPos==-1)){
+            ErrorLogger.logError("VCFTransformer","Could not find one of Ref or Alt in file: "+markerFile);
+        }
+
+        HelperFunctions.tryExec("cut -f"+refPos+","+altPos+ " "+markerFile,outFile,errorPath);
+    }
 }

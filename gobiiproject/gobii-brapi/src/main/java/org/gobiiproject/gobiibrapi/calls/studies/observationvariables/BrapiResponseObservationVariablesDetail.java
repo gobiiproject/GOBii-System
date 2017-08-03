@@ -14,7 +14,7 @@ public class BrapiResponseObservationVariablesDetail {
     public BrapiResponseObservationVariablesDetail(ObservationScale scale,
                                                    String observationVariableDbId,
                                                    String name,
-                                                   ObservationMethhod method,
+                                                   ObservationMethod method,
                                                    ObservationTrait trait) {
         this.scale = scale;
         this.observationVariableDbId = observationVariableDbId;
@@ -49,7 +49,7 @@ public class BrapiResponseObservationVariablesDetail {
 
     private String xref;
 
-    private ObservationMethhod method;
+    private ObservationMethod method;
 
     private String language;
 
@@ -163,11 +163,11 @@ public class BrapiResponseObservationVariablesDetail {
         this.xref = xref;
     }
 
-    public ObservationMethhod getMethod() {
+    public ObservationMethod getMethod() {
         return method;
     }
 
-    public void setMethod(ObservationMethhod method) {
+    public void setMethod(ObservationMethod method) {
         this.method = method;
     }
 

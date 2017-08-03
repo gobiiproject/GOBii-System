@@ -2,6 +2,7 @@ package edu.cornell.gobii.gdi.main;
 
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.GridLayout;
 
@@ -15,17 +16,18 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO;
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderStatusMessage;
+import org.gobiiproject.gobiimodel.utils.LineUtils;
 
 import edu.cornell.gobii.gdi.services.Controller;
 import edu.cornell.gobii.gdi.utils.FormUtils;
@@ -38,13 +40,16 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.custom.ScrolledComposite;
 
 public class UserDialog extends Dialog {
 	private static Logger log = Logger.getLogger(UserDialog.class.getName());
 	protected int result;
-	protected Shell shell;
+	protected Shell shlUserLogin;
 	private Combo cbCrop;
 	private Button btnCheckSSH;
 	private Text txtServer;
@@ -56,6 +61,8 @@ public class UserDialog extends Dialog {
 	private Button btnGetCrops;
 	private Button btnConnect;
 	private Button btnTest;
+	private Button btnOK;
+	protected String currentCropName;
 
 	/**
 	 * Create the dialog.
@@ -73,10 +80,10 @@ public class UserDialog extends Dialog {
 	 */
 	public int open() {
 		createContents();
-		shell.open();
-		shell.layout();
+		shlUserLogin.open();
+		shlUserLogin.layout();
 		Display display = getParent().getDisplay();
-		while (!shell.isDisposed()) {
+		while (!shlUserLogin.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
@@ -90,13 +97,13 @@ public class UserDialog extends Dialog {
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shell = new Shell(getParent(), SWT.BORDER | SWT.RESIZE | SWT.TITLE | SWT.APPLICATION_MODAL);
-		shell.setSize(319, 326);
-		shell.setText(getText());
-		shell.setLayout(new GridLayout(1, false));
+		shlUserLogin = new Shell(getParent(), SWT.BORDER | SWT.RESIZE | SWT.TITLE | SWT.APPLICATION_MODAL);
+		shlUserLogin.setSize(562, 393);
+		shlUserLogin.setText("User Login");
+		shlUserLogin.setLayout(new GridLayout(1, false));
 		Rectangle screenSize = Display.getCurrent().getPrimaryMonitor().getBounds();
-		shell.setLocation((screenSize.width - shell.getBounds().width) / 2, (screenSize.height - shell.getBounds().height) / 2);
-		ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		shlUserLogin.setLocation((screenSize.width - shlUserLogin.getBounds().width) / 2, (screenSize.height - shlUserLogin.getBounds().height) / 2);
+		ScrolledComposite scrolledComposite = new ScrolledComposite(shlUserLogin, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
@@ -117,6 +124,20 @@ public class UserDialog extends Dialog {
 		txtService.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				App.INSTANCE.setService(txtService.getText());
+				if(txtService.getText().contains("localhost:")) btnCheckSSH.setSelection(false);
+				btnCheckSSH.setEnabled(true);
+				enableUserLogin(false);
+
+			}
+		});
+		txtService.addListener(SWT.Traverse, new Listener() {
+			@Override
+			public void handleEvent(Event event)
+			{
+				if(event.detail == SWT.TRAVERSE_RETURN)
+				{
+					getCrops();
+				}
 			}
 		});
 		txtService.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -125,24 +146,7 @@ public class UserDialog extends Dialog {
 		btnGetCrops.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Controller.userEmail = "";
-
-				if(App.INSTANCE.getService() == null || App.INSTANCE.getService().isEmpty()) return;
-				if(!App.INSTANCE.getService().endsWith("/")){
-					String service = App.INSTANCE.getService() +"/";
-					txtService.setText(service);
-					App.INSTANCE.setService(service);
-				}
-				//				App.INSTANCE.setCrop(null);
-				if(Controller.getCrops(log, true, btnCheckSSH.getSelection(),true)){
-					enableUserLogin(true);
-					FormUtils.cropSetToCombo(cbCrop);	
-					MessageDialog.openInformation(getParent(), "Connection successful", "Request processed successfully!\n\nPlease select a crop.");
-				}else{
-					enableUserLogin(false);
-					Utils.log(shell, null, log, "Error connecting to service.", null);
-
-				}
+				getCrops();
 			}
 		});
 		btnGetCrops.setText("Get Crops");
@@ -169,15 +173,8 @@ public class UserDialog extends Dialog {
 		cbCrop.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String cropName = cbCrop.getItem(cbCrop.getSelectionIndex());
-				//String crop = cbCrop.getData(cropName);
-				App.INSTANCE.setCrop(cropName);
-				try {
-					ClientContext.getInstance(null, false).setCurrentClientCrop(cropName);
-
-				} catch (Exception err) {
-					Utils.log(shell, null, log, "Error selecting crop", err);
-				}
+				currentCropName = cbCrop.getText();
+				
 			}
 		});
 		FormUtils.cropSetToCombo(cbCrop);
@@ -203,6 +200,21 @@ public class UserDialog extends Dialog {
 		textPassword = new Text(composite_2,  SWT.BORDER| SWT.PASSWORD);
 		textPassword.setEnabled(false);
 		textPassword.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		textPassword.addListener(SWT.Traverse, new Listener() {
+			@Override
+			public void handleEvent(Event event)
+			{
+				if(event.detail == SWT.TRAVERSE_RETURN)
+				{
+					if(textUsername.getText().isEmpty() || textPassword.getText().isEmpty()){
+
+						Utils.log(shlUserLogin, null, log, "Please enter a username and password", null);
+						return;
+					}
+					connect(false); 
+				}
+			}
+		});
 
 		btnConnect = new Button(composite_2, SWT.NONE);
 		btnConnect.setEnabled(false);
@@ -210,42 +222,11 @@ public class UserDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(textUsername.getText().isEmpty() || textPassword.getText().isEmpty()){
-					Utils.log(shell, null, log, "Please enter a username and password", null);
+
+					Utils.log(shlUserLogin, null, log, "Please enter a username and password", null);
 					return;
 				}
-
-				Controller.userEmail = "";
-				textEmail.setText("");
-
-				if(Controller.authenticate(textUsername.getText(),textPassword.getText())){
-					FormUtils.cropSetToCombo(cbCrop);	
-					MessageDialog.openInformation(getParent(), "Connection successful", "Request processed successfully!");
-					PayloadEnvelope<ContactDTO> resultEnvelope;
-					try {
-						resultEnvelope = Controller.getContactByUsername(textUsername.getText());
-
-						if(Controller.getDTOResponse(Display.getCurrent().getActiveShell(), resultEnvelope.getHeader(), null, false)){
-							ContactDTO contactDTO = resultEnvelope.getPayload().getData().get(0);
-
-							Controller.userEmail = contactDTO.getEmail();
-							textEmail.setText(contactDTO.getEmail());
-
-							App.INSTANCE.getUser().setUserEmail(Controller.userEmail);
-							App.INSTANCE.getUser().setUserName(contactDTO.getUserName());
-							App.INSTANCE.getUser().setUserId(contactDTO.getContactId());
-							App.INSTANCE.getUser().setUserFullname(contactDTO.getLastName() +", "+ contactDTO.getFirstName());
-
-							enableFileServer(true);
-						}
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						Utils.log(shell, null, log, "Invalid user credentials.", e1);
-					}
-
-				}else{
-					Utils.log(shell, null, log, "Invalid username or password", null);
-				}
+				connect(true);
 			}
 		});
 		btnConnect.setText("Connect");
@@ -257,7 +238,7 @@ public class UserDialog extends Dialog {
 		textEmail = new Text(composite_2, SWT.BORDER);
 		textEmail.setEnabled(false);
 		textEmail.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		textEmail.setText(Controller.userEmail);
+
 		new Label(composite_2, SWT.NONE);
 
 		Label label_1 = new Label(composite_2, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -278,6 +259,13 @@ public class UserDialog extends Dialog {
 		txtServer.setEnabled(false);
 		txtServer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
 		txtServer.setSize(353, 21);
+		txtServer.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				if(txtServer.getEnabled() || !txtServer.getText().isEmpty()) btnTest.setEnabled(true);
+				App.INSTANCE.setServer(txtServer.getText());
+			}
+
+		});
 
 		btnTest = new Button(composite_3, SWT.NONE);
 		btnTest.setEnabled(false);
@@ -288,22 +276,17 @@ public class UserDialog extends Dialog {
 				try {
 					host = InetAddress.getByName(txtServer.getText());
 					if(host.isReachable(1000)){
-						MessageBox dialog = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+						MessageBox dialog = new MessageBox(shlUserLogin, SWT.ICON_INFORMATION | SWT.OK);
 						dialog.setText("Connection successful");
 						dialog.setMessage("Connection established successfully!");
 						dialog.open();
 					}
 				} catch (IOException err) {
-					Utils.log(shell, null, log, "Error connecting to file server", null);
+					Utils.log(shlUserLogin, null, log, "Error connecting to file server", null);
 				}
 			}
 		});
 		btnTest.setText("Test");
-		txtServer.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent arg0) {
-				App.INSTANCE.setServer(txtServer.getText());
-			}
-		});
 		new Label(composite_2, SWT.NONE);
 
 		Composite composite = new Composite(composite_2, SWT.NONE);
@@ -311,20 +294,26 @@ public class UserDialog extends Dialog {
 		composite.setSize(353, 49);
 		composite.setLayout(new GridLayout(2, false));
 
-		Button btnOK = new Button(composite, SWT.NONE);
+		btnOK = new Button(composite, SWT.NONE);
 		btnOK.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(!App.INSTANCE.isValid()){
-					Utils.log(shell, null, log, "All fields are required!", new Throwable("Invalid user information"));
+				if(textEmail.getText().isEmpty() && textEmail.getEnabled()){
+					Utils.log(shlUserLogin, null, log, "It seems that you are not logged in.\n\nPlease enter a username and password then connect to the web service", new Throwable("Not Logged in"));
 
-				}else if(textEmail.getText().isEmpty()){
-					Utils.log(shell, null, log, "It seems that you are not logged in.\n\nPlease enter a username and password then connect to the web service", new Throwable("Not Logged in"));
-				}else{
+				}else if(txtServer.getText().isEmpty() && btnTest.isEnabled()){
+					Utils.log(shlUserLogin, null, log, "Please enter a file server.", new Throwable("No server name"));
+
+				}else if(! App.INSTANCE.isValid()){
+					if(!textUsername.getText().isEmpty() && textEmail.getText().isEmpty()) Utils.log(shlUserLogin, null, log, "All fields are required", new Throwable("A field is empty"));
+					else if (btnCheckSSH.isEnabled()) Utils.log(shlUserLogin, null, log, "Please connect to a service", new Throwable("No server name"));
+				}
+				else {
 					App.INSTANCE.save();
 					result = Window.OK;
-					shell.close();
-				}
+					shlUserLogin.close();
+
+				} 
 			}
 		});
 		btnOK.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
@@ -335,12 +324,12 @@ public class UserDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				result = Window.CANCEL;
-				shell.close();
+				shlUserLogin.close();
 			}
 		});
 		btnCancel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		btnCancel.setText("Cancel");
-		shell.setDefaultButton(btnOK);
+		shlUserLogin.setDefaultButton(btnOK);
 		scrolledComposite.setContent(composite_2);
 		scrolledComposite.setMinSize(composite_2.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
@@ -348,12 +337,79 @@ public class UserDialog extends Dialog {
 
 	}
 
+//	protected void switchToCrop(String cropName) {
+//		// TODO Auto-generated method stub
+//		App.INSTANCE.setCrop(cropName);
+//		try {
+//			GobiiClientContext.getInstance(null, false).setCurrentClientCrop(cropName);
+//
+//		} catch (Exception err) {
+//			Utils.log(shlUserLogin, null, log, "Error selecting crop", err);
+//		}
+//	}
+
+	protected void getCrops() {
+		// TODO Auto-generated method stub
+
+		if(App.INSTANCE.getService() == null || App.INSTANCE.getService().isEmpty()) return;
+		if(!App.INSTANCE.getService().endsWith("/")){
+			String service = App.INSTANCE.getService() +"/";
+			txtService.setText(service);
+			App.INSTANCE.setService(service);
+		}
+		if(Controller.getCrops(log, true, btnCheckSSH.getSelection(),true)){
+			enableUserLogin(true);
+			 FormUtils.cropSetToCombo(cbCrop);
+			if(cbCrop.getItemCount()>0) cbCrop.select(0);
+			currentCropName = cbCrop.getText();
+			btnCheckSSH.setEnabled(false);
+		}else{
+			enableUserLogin(false);
+			
+		}
+	}
+
+	protected void connect(boolean displayErrors) {
+		// TODO Auto-generated method stub
+
+		textEmail.setText("");
+
+		if(Controller.authenticate(currentCropName, textUsername.getText(),textPassword.getText())){
+//
+//			String cropName = FormUtils.cropSetToCombo(cbCrop);
+//			if(cropName != null) switchToCrop(cropName);
+			PayloadEnvelope<ContactDTO> resultEnvelope;
+			try {
+				resultEnvelope = Controller.getContactByUsername(textUsername.getText());
+
+				if(Controller.getDTOResponse(Display.getCurrent().getActiveShell(), resultEnvelope.getHeader(), null, false)){
+					ContactDTO contactDTO = resultEnvelope.getPayload().getData().get(0);
+
+					textEmail.setText(contactDTO.getEmail());
+
+					App.INSTANCE.getUser().setUserEmail(contactDTO.getEmail());
+					App.INSTANCE.getUser().setUserName(contactDTO.getUserName());
+					App.INSTANCE.getUser().setUserId(contactDTO.getContactId());
+					App.INSTANCE.getUser().setUserFullname(contactDTO.getLastName() +", "+ contactDTO.getFirstName());
+
+					enableFileServer(true);
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				if (displayErrors)Utils.log(shlUserLogin, null, log, "Invalid user credentials.", e1);
+				else Utils.log(log, "Invalid user credentials. ", e1);
+			}
+
+		}
+	}
+
 	protected void enableFileServer(boolean b) {
 		// TODO Auto-generated method stub
 		txtServer.setEnabled(b);
-		btnTest.setEnabled(b);
-		
-		if(!b) txtServer.setText("");
+		btnTest.setEnabled(false);
+
+		//		if(!b) txtServer.setText("");
 	}
 
 	protected void enableUserLogin(boolean b) {
@@ -364,10 +420,11 @@ public class UserDialog extends Dialog {
 		btnConnect.setEnabled(b);
 
 		if(!b){
-			cbCrop.setText("");
 			textUsername.setText("");
 			textPassword.setText("");
 			textEmail.setText("");
+
+			App.INSTANCE.getUser().setUserEmail(null);
 			enableFileServer(false);
 		}
 	}
@@ -383,15 +440,14 @@ public class UserDialog extends Dialog {
 
 		try {
 
-			RestUri restUriContact = App
-					.INSTANCE.getUriFactory()
-					.resourceByUriIdParam(ServiceRequestId.URL_CONTACTS);
+			RestUri restUriContact = GobiiClientContext.getInstance(null, false).getUriFactory()
+					.resourceByUriIdParam(GobiiServiceRequestId.URL_CONTACTS);
 			restUriContact.setParamValue("id", Integer.toString(contactId));
 			GobiiEnvelopeRestResource<ContactDTO> restResource = new GobiiEnvelopeRestResource<>(restUriContact);
 			PayloadEnvelope<ContactDTO> resultEnvelope = restResource
 					.get(ContactDTO.class);
 
-			if(Controller.getDTOResponse(shell, resultEnvelope.getHeader(), null, false)){
+			if(Controller.getDTOResponse(shlUserLogin, resultEnvelope.getHeader(), null, false)){
 				ContactDTO contactDTO =  resultEnvelope.getPayload().getData().get(0);
 				String email = contactDTO.getEmail();
 				//				String username = (String)email.subSequence(0, email.indexOf("@"));
@@ -399,7 +455,7 @@ public class UserDialog extends Dialog {
 				textEmail.setText(email);
 				http://localhost:8282/gobii-dev
 
-					App.INSTANCE.getUser().setUserEmail(email);
+				App.INSTANCE.getUser().setUserEmail(email);
 				App.INSTANCE.getUser().setUserName(contactDTO.getUserName());
 				App.INSTANCE.getUser().setUserId(contactDTO.getContactId());
 				App.INSTANCE.getUser().setUserFullname(contactDTO.getLastName() +", "+ contactDTO.getFirstName());

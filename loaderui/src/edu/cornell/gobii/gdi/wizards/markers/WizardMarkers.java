@@ -3,10 +3,12 @@ package edu.cornell.gobii.gdi.wizards.markers;
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.Wizard;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.restresources.gobii.GobiiUriFactory;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.LoaderInstructionFilesDTO;
 import org.gobiiproject.gobiimodel.types.GobiiFileProcessDir;
@@ -24,49 +26,32 @@ public class WizardMarkers extends Wizard {
 	private static Logger log = Logger.getLogger(WizardMarkers.class.getName());
 	private String config;
 	private DTOmarkers dto = new DTOmarkers();
+	private int piID;
+	private int projectID;
+	private int experimentID;
+	private int datasetID;
 
 	public WizardMarkers(String config, int piID, int projectID, int experimentID, int datasetID){
 		setWindowTitle("Marker Data Loading Wizard");
 		this.config = config;
-		
-		dto.setPiID(piID);
-		dto.setProjectID(projectID);
-		dto.setExperimentID(experimentID);
-		dto.setDatasetID(datasetID);
+
+		this.piID=piID;
+		this.projectID = projectID;
+		this.experimentID = experimentID;
+		this.datasetID = datasetID;
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new Pg1Markers(config, dto, dto.getPiID(), dto.getProjectID(), dto.getExperimentID(), dto.getDatasetID()));
+		addPage(new Pg1Markers(config, dto, piID, projectID, experimentID, datasetID));
 		addPage(new Pg2Markers(config, dto));
 		addPage(new Pg3Markers(config, dto));
 	}
 
 	@Override
 	public boolean performFinish() {
-		try{
-////			String folder = WizardUtils.generateSourceFolder();
-//			String folder = new File(dto.getPreviewDTO().getDirectoryName()).getName();
-//			if(folder != null || !folder.isEmpty()){
-//				//			if((dto.getFile().getSource() == null || dto.getFile().getSource().isEmpty()) && dto.getFiles().size() > 0){
-//				String digesterInputDirectory = ClientContext
-//						.getInstance(null, false)
-//						.getFileLocationOfCurrenCrop(GobiiFileProcessDir.RAW_USER_FILES);
-//				dto.getFile().setSource(digesterInputDirectory+folder);
-//				dto.getFile().setCreateSource(false);
-//				dto.getFile().setRequireDirectoriesToExist(true);
-////			}else if(dto.getFile().getSource() != null && !dto.getFile().getSource().isEmpty()){
-////				dto.getFile().setCreateSource(false);
-////				dto.getFile().setRequireDirectoriesToExist(true);
-//			}else{
-//				Utils.log(getShell(), null, log, "Error submitting instruction file", new Exception("No source file(s) specified!"));
-//				return false;
-//			}
-//			String digesterOutputDirectory = ClientContext
-//					.getInstance(null, false)
-//					.getFileLocationOfCurrenCrop(GobiiFileProcessDir.LOADER_INTERMEDIATE_FILES);
-//			dto.getFile().setDestination(digesterOutputDirectory+folder);
 
+		try{
 			String folder = new File(dto.getPreviewDTO().getDirectoryName()).getName();
 			if(folder != null || !folder.isEmpty()){
 				WizardUtils.createInstructionsForWizard(folder, dto);
@@ -94,16 +79,18 @@ public class WizardMarkers extends Wizard {
 			if(WizardUtils.confirm("Do you want to submit data?")){
 				try {
 					PayloadEnvelope<LoaderInstructionFilesDTO> payloadEnvelope = new PayloadEnvelope<>(instructions, GobiiProcessType.CREATE);
-					GobiiEnvelopeRestResource<LoaderInstructionFilesDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_FILE_LOAD_INSTRUCTIONS));
+				        String currentCropContextRoot = GobiiClientContext.getInstance(null, false).getCurrentCropContextRoot();
+				        GobiiUriFactory gobiiUriFactory = new GobiiUriFactory(currentCropContextRoot);
+					GobiiEnvelopeRestResource<LoaderInstructionFilesDTO> restResource = new GobiiEnvelopeRestResource<>(gobiiUriFactory.resourceColl(GobiiServiceRequestId.URL_FILE_LOAD_INSTRUCTIONS));
 					PayloadEnvelope<LoaderInstructionFilesDTO> loaderInstructionFileDTOResponseEnvelope = restResource.post(LoaderInstructionFilesDTO.class,
 							payloadEnvelope);
 					if(!Controller.getDTOResponse(this.getShell(), loaderInstructionFileDTOResponseEnvelope.getHeader(), null, true)){
 						return false;
 					}
-//					else{
-//						if(!dto.isRemote() && dto.getFiles().size() > 0)
-//							WizardUtils.sendFilesToServer(getShell(), dto.getFile().getSource(), dto.getFiles(), dto.getFileExtention());
-//					};
+					//					else{
+					//						if(!dto.isRemote() && dto.getFiles().size() > 0)
+					//							WizardUtils.sendFilesToServer(getShell(), dto.getFile().getSource(), dto.getFiles(), dto.getFileExtention());
+					//					};
 				} catch (Exception err) {
 					Utils.log(getShell(), null, log, "Error submitting instruction file", err);
 					return false;
@@ -116,6 +103,7 @@ public class WizardMarkers extends Wizard {
 			return false;
 		}
 		return true;
+
 	}
 
 	private boolean validate(){

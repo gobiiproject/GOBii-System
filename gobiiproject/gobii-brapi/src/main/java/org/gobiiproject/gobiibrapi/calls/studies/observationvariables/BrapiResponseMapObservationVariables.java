@@ -16,13 +16,13 @@ public class BrapiResponseMapObservationVariables {
         returnVal.add(new BrapiResponseObservationVariablesDetail(new ObservationScale("testid1","testNameOne"),
                 "testdbid1",
                 "testvariable1",
-                new ObservationMethhod("testdbid","testmethodname"),
+                new ObservationMethod("testdbid","testmethodname"),
                 new ObservationTrait("testtraitname","testdbid")));
 
         returnVal.add(new BrapiResponseObservationVariablesDetail(new ObservationScale("testid2","testNameOTwo"),
                 "testdbid2",
                 "testvariable2",
-                new ObservationMethhod("testdbid2","testmethodname2"),
+                new ObservationMethod("testdbid2","testmethodname2"),
                 new ObservationTrait("testtraitname2","testdbid2")));
 
         return returnVal;

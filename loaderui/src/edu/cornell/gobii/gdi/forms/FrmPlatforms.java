@@ -18,8 +18,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.EntityPropertyDTO;
 import org.gobiiproject.gobiimodel.headerlesscontainer.PlatformDTO;
@@ -58,6 +59,7 @@ public class FrmPlatforms extends AbstractFrm {
 	private CCombo nameCombo;
 	private int currentPlatformId=0;
 	private int currentPlatformTypeId=0;
+	private Button btnClearFields;
 
 	/**
 	 * Create the composite.
@@ -73,18 +75,18 @@ public class FrmPlatforms extends AbstractFrm {
 		TableColumn tblclmnPlatforms = new TableColumn(tbList, SWT.NONE);
 		tblclmnPlatforms.setWidth(250);
 		tblclmnPlatforms.setText("Platforms");
-		
+
 		Label lbltype = new Label(cmpForm, SWT.NONE);
 		lbltype.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lbltype.setText("*Platform Name:");
-		
+
 		nameCombo = new CCombo(cmpForm, SWT.BORDER);
 		nameCombo.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		nameCombo.setEditable(false);
 		nameCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		FormUtils.entrySetToCombo(Controller.getCVByGroup("platform_type"), nameCombo);
 		nameCombo.setText("*Select Platform");
-		
+
 		Label lblCode = new Label(cmpForm, SWT.NONE);
 		lblCode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblCode.setText("Code:");
@@ -94,132 +96,131 @@ public class FrmPlatforms extends AbstractFrm {
 		txtCode.setEditable(false);
 		txtCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(cmpForm, SWT.NONE);
-		
-				memDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
-				memDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2));
+
+		memDescription = new StyledText(cmpForm, SWT.BORDER | SWT.WRAP);
+		memDescription.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2));
 		Label lblDescription = new Label(cmpForm, SWT.NONE);
 		lblDescription.setText("Description:");
-		
-				Label lblProperties = new Label(cmpForm, SWT.NONE);
-				lblProperties.setText("Properties:");
-		
-		
-				viewerProperties = new TableViewer(cmpForm, SWT.BORDER | SWT.FULL_SELECTION);
-				tbProperties = viewerProperties.getTable();
-				tbProperties.setLinesVisible(true);
-				tbProperties.setHeaderVisible(true);
-				tbProperties.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-				
-						TableViewerColumn tableViewerColumn = new TableViewerColumn(viewerProperties, SWT.NONE);
-						TableColumn tblclmnParameter = tableViewerColumn.getColumn();
-						tblclmnParameter.setWidth(150);
-						tblclmnParameter.setText("Property");
-						
-								TableViewerColumn tableViewerColumn_1 = new TableViewerColumn(viewerProperties, SWT.NONE);
-								TableColumn tblclmnValue = tableViewerColumn_1.getColumn();
-								tblclmnValue.setWidth(100);
-								tblclmnValue.setText("Value");
-								
-								
-										tbProperties.addListener(SWT.MouseDown, event -> {
-											TableEditor editor = new TableEditor(tbProperties);
-											// The editor must have the same size as the cell and must
-											// not be any smaller than 50 pixels.
-											editor.horizontalAlignment = SWT.LEFT;
-											editor.grabHorizontal = true;
-											editor.minimumWidth = 50;
-											Control oldEditor = editor.getEditor();
-											if (oldEditor != null)
-												oldEditor.dispose(); 
-								
-											Point pt = new Point(event.x, event.y);
-											TableItem item = tbProperties.getItem(pt);
-											if (item == null)
-												return;
-								
-											Text newEditor = new Text(tbProperties, SWT.NONE);
-											int EDITABLECOLUMN = -1;
-											for (int i = 1; i < tbProperties.getColumnCount(); i++) {
-												Rectangle rect = item.getBounds(i);
-												if (rect.contains(pt)) {
-													EDITABLECOLUMN = i;
-													break;
-												}
-											}
-								
-											final int col = EDITABLECOLUMN;
-											if(col < 0) return;
-											newEditor.setText(item.getText(col));
-											Listener textListener = new Listener() {
-												public void handleEvent(final Event e) {
-													switch (e.type) {
-													case SWT.FocusOut:
-														item.setText(col, newEditor.getText());
-														newEditor.dispose();
-														break;
-													case SWT.Traverse:
-														switch (e.detail) {
-														case SWT.TRAVERSE_RETURN:
-															item
-															.setText(col, newEditor.getText());
-															// FALL THROUGH
-														case SWT.TRAVERSE_ESCAPE:
-															newEditor.dispose();
-															e.doit = false;
-														}
-														break;
-													}
-												}
-											};
-											newEditor.addListener(SWT.FocusOut, textListener);
-											newEditor.addListener(SWT.Traverse, textListener);
-											newEditor.selectAll();
-											newEditor.setFocus();           
-											editor.setEditor(newEditor, item, col); 
-										});
-										FormUtils.entrySetToTable(Controller.getCVByGroup("platform_prop"), tbProperties);
-		new Label(cmpForm, SWT.NONE);
-		
-				Button btnAddNew = new Button(cmpForm, SWT.NONE);
-				btnAddNew.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-					
-						if(!validate(true)) return;
-						newPlatform(true);
 
+		Label lblProperties = new Label(cmpForm, SWT.NONE);
+		lblProperties.setText("Properties:");
+
+
+		viewerProperties = new TableViewer(cmpForm, SWT.BORDER | SWT.FULL_SELECTION);
+		tbProperties = viewerProperties.getTable();
+		tbProperties.setLinesVisible(true);
+		tbProperties.setHeaderVisible(true);
+		tbProperties.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
+		TableViewerColumn tableViewerColumn = new TableViewerColumn(viewerProperties, SWT.NONE);
+		TableColumn tblclmnParameter = tableViewerColumn.getColumn();
+		tblclmnParameter.setWidth(150);
+		tblclmnParameter.setText("Property");
+
+		TableViewerColumn tableViewerColumn_1 = new TableViewerColumn(viewerProperties, SWT.NONE);
+		TableColumn tblclmnValue = tableViewerColumn_1.getColumn();
+		tblclmnValue.setWidth(100);
+		tblclmnValue.setText("Value");
+
+
+		tbProperties.addListener(SWT.MouseDown, event -> {
+			TableEditor editor = new TableEditor(tbProperties);
+			// The editor must have the same size as the cell and must
+			// not be any smaller than 50 pixels.
+			editor.horizontalAlignment = SWT.LEFT;
+			editor.grabHorizontal = true;
+			editor.minimumWidth = 50;
+			Control oldEditor = editor.getEditor();
+			if (oldEditor != null)
+				oldEditor.dispose(); 
+
+			Point pt = new Point(event.x, event.y);
+			TableItem item = tbProperties.getItem(pt);
+			if (item == null)
+				return;
+
+			Text newEditor = new Text(tbProperties, SWT.NONE);
+			int EDITABLECOLUMN = -1;
+			for (int i = 1; i < tbProperties.getColumnCount(); i++) {
+				Rectangle rect = item.getBounds(i);
+				if (rect.contains(pt)) {
+					EDITABLECOLUMN = i;
+					break;
+				}
+			}
+
+			final int col = EDITABLECOLUMN;
+			if(col < 0) return;
+			newEditor.setText(item.getText(col));
+			Listener textListener = new Listener() {
+				public void handleEvent(final Event e) {
+					switch (e.type) {
+					case SWT.FocusOut:
+						item.setText(col, newEditor.getText());
+						newEditor.dispose();
+						break;
+					case SWT.Traverse:
+						switch (e.detail) {
+						case SWT.TRAVERSE_RETURN:
+							item
+							.setText(col, newEditor.getText());
+							// FALL THROUGH
+						case SWT.TRAVERSE_ESCAPE:
+							newEditor.dispose();
+							e.doit = false;
+						}
+						break;
 					}
-				});
-				btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-				btnAddNew.setText("Add New");
+				}
+			};
+			newEditor.addListener(SWT.FocusOut, textListener);
+			newEditor.addListener(SWT.Traverse, textListener);
+			newEditor.selectAll();
+			newEditor.setFocus();           
+			editor.setEditor(newEditor, item, col); 
+		});
+		FormUtils.entrySetToTable(Controller.getCVByGroup("platform_prop"), tbProperties);
 		new Label(cmpForm, SWT.NONE);
-		
-				btnUpdate = new Button(cmpForm, SWT.NONE);
-				btnUpdate.setEnabled(false);
-				btnUpdate.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						if(!validate(false)) return;
-						if(!FormUtils.updateForm(getShell(), "Platform", selectedName)) return;
-						newPlatform(false);
-					}
-				});
-				btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-				btnUpdate.setText("Update");
+
+		Button btnAddNew = new Button(cmpForm, SWT.NONE);
+		btnAddNew.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				if(!validate(true)) return;
+				newPlatform(true);
+
+			}
+		});
+		btnAddNew.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnAddNew.setText("Add New");
 		new Label(cmpForm, SWT.NONE);
-		
-				Button btnClearFields = new Button(cmpForm, SWT.NONE);
-				btnClearFields.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						currentPlatformId=0;
-						FormUtils.entrySetToCombo(Controller.getCVByGroup("platform_type"), nameCombo);
-						nameCombo.setText("*Select Platform");
-						cleanDetails();
-					}
-				});
-				btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-				btnClearFields.setText("Clear Fields");
+
+		btnUpdate = new Button(cmpForm, SWT.NONE);
+		btnUpdate.setEnabled(false);
+		btnUpdate.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(!validate(false)) return;
+				if(!FormUtils.updateForm(getShell(), "Platform", selectedName)) return;
+				newPlatform(false);
+			}
+		});
+		btnUpdate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnUpdate.setText("Update");
+		new Label(cmpForm, SWT.NONE);
+
+		btnClearFields = new Button(cmpForm, SWT.NONE);
+		btnClearFields.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FormUtils.entrySetToCombo(Controller.getCVByGroup("platform_type"), nameCombo);
+				nameCombo.setText("*Select Platform");
+				cleanDetails();
+			}
+		});
+		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnClearFields.setText("Clear Fields");
 	}
 
 	protected void newPlatform(boolean newPlatform) {
@@ -232,23 +233,20 @@ public class FrmPlatforms extends AbstractFrm {
 			for(TableItem item : tbProperties.getItems()){
 				if(item.getText(1).isEmpty()) continue;
 				newPlatformDto.getProperties().add(new EntityPropertyDTO((Integer)item.getData("entityId"), (Integer)item.getData("propertyId"), item.getText(0), item.getText(1)));
-
 			}
-			
+
 			if(newPlatform){
 				payloadEnvelope = new PayloadEnvelope<>(newPlatformDto, GobiiProcessType.CREATE);
-				restResource = new GobiiEnvelopeRestResource<>(App
-						.INSTANCE.getUriFactory()
-						.resourceColl(ServiceRequestId.URL_PLATFORM));
+				restResource = new GobiiEnvelopeRestResource<>( GobiiClientContext.getInstance(null, false).getUriFactory()
+						.resourceColl(GobiiServiceRequestId.URL_PLATFORM));
 				platformDTOResponseEnvelope = restResource.post(PlatformDTO.class,
 						payloadEnvelope);
 			}
 			else{
 				newPlatformDto.setPlatformId(currentPlatformId);
 				payloadEnvelope = new PayloadEnvelope<>(newPlatformDto, GobiiProcessType.UPDATE);
-				RestUri restUriPlatformForGetById = App
-						.INSTANCE.getUriFactory()
-						.resourceByUriIdParam(ServiceRequestId.URL_PLATFORM);
+				RestUri restUriPlatformForGetById =  GobiiClientContext.getInstance(null, false).getUriFactory()
+						.resourceByUriIdParam(GobiiServiceRequestId.URL_PLATFORM);
 				restUriPlatformForGetById.setParamValue("id", newPlatformDto.getPlatformId().toString());
 				restResource = new GobiiEnvelopeRestResource<>(restUriPlatformForGetById);
 				platformDTOResponseEnvelope = restResource.put(PlatformDTO.class,
@@ -260,9 +258,9 @@ public class FrmPlatforms extends AbstractFrm {
 					if(currentPlatformTypeId==0) populatePlatformsTable();
 					else populatePlatformFromSelectedType(newPlatformDto.getTypeId());
 					currentPlatformId=platformDTOResponseEnvelope.getPayload().getData().get(0).getId();
+					FormUtils.selectRowById(tbList,currentPlatformId);
 					populatePlatformDetails(currentPlatformId);
 					btnUpdate.setEnabled(true);
-					FormUtils.selectRowById(tbList,currentPlatformId);
 				};
 			}catch(Exception err){
 				Utils.log(shell, memInfo, log, "Error savging Platform", err);
@@ -285,7 +283,7 @@ public class FrmPlatforms extends AbstractFrm {
 			newPlatformDto.setModifiedBy(App.INSTANCE.getUser().getUserId());
 			newPlatformDto.setModifiedDate(new Date());
 			newPlatformDto.setStatusId(1);
-			
+
 		}catch(Exception err){
 			Utils.log(shell, memInfo, log, "Error saving Platform", err);
 		}
@@ -309,7 +307,8 @@ public class FrmPlatforms extends AbstractFrm {
 				nameCombo.setText("*Select Platform");
 				populatePlatformsTable();
 				cleanDetails();
-				
+				currentPlatformId=0;
+
 			}
 		});
 
@@ -323,13 +322,13 @@ public class FrmPlatforms extends AbstractFrm {
 				btnUpdate.setEnabled(true);
 			}
 
-			
+
 		});
 	}
 	private void populatePlatformDetails(int platformId) {
 		try{
 			cleanDetails();
-			
+
 			try {
 				PayloadEnvelope<PlatformDTO> resultEnvelopeForGetByID = Controller.getPlatformDetails(platformId);
 

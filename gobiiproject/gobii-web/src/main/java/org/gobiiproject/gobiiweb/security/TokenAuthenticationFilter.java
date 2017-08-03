@@ -5,13 +5,13 @@
 // ************************************************************************
 package org.gobiiproject.gobiiweb.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gobiiproject.gobidomain.security.TokenInfo;
 import org.gobiiproject.gobidomain.services.AuthenticationService;
 
 
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.HeaderAuth;
+import org.gobiiproject.gobidomain.services.ContactService;
 import org.gobiiproject.gobiiweb.CropRequestAnalyzer;
+import org.gobiiproject.gobiiweb.automation.ControllerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.gobiiproject.gobiimodel.types.GobiiHttpHeaderNames;
@@ -44,14 +44,16 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
 
     private final String logoutLink;
     private final AuthenticationService authenticationService;
+    private ContactService contactService;
 
 
     public TokenAuthenticationFilter(AuthenticationService authenticationService,
-                                     String logoutLink) {
+                                     String logoutLink,
+                                     ContactService contactService) {
 
         this.authenticationService = authenticationService;
         this.logoutLink = logoutLink;
-
+        this.contactService = contactService;
     }
 
 
@@ -70,19 +72,19 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
             String gobiiCropType = CropRequestAnalyzer.getGobiiCropType(httpRequest);
             if (gobiiCropType != null) {
 
-                String tokenHeaderVal = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_TOKEN);
+                String tokenHeaderVal = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_NAME_TOKEN);
                 boolean hasValidToken = authenticationService.checkToken(tokenHeaderVal);
 
                 if (hasValidToken) {
 
                     //header data
-                    this.addHeadersToValidRequest(httpResponse,null,gobiiCropType,tokenHeaderVal);
+                    this.addHeadersToValidRequest(httpResponse, null, gobiiCropType, tokenHeaderVal);
                     chain.doFilter(request, response);
                 } else {
 
                     TokenInfo tokenInfo = null;
-                    String userName = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_USERNAME);
-                    String password = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_PASSWORD);
+                    String userName = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_NAME_USERNAME);
+                    String password = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_NAME_PASSWORD);
                     String authorization = httpRequest.getHeader("Authorization");
 
                     // we assume that the DataSource selector will have done the right thing with the response
@@ -100,8 +102,24 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
 
                     if (null != tokenInfo) {
 
-                        this.addHeadersToValidRequest(httpResponse,userName,gobiiCropType,tokenInfo.getToken());
-                        chain.doFilter(request, response);
+                        if (this.contactService.getContactByUserName(userName).getContactId() > 0) {
+
+                            this.addHeadersToValidRequest(httpResponse, userName, gobiiCropType, tokenInfo.getToken());
+                            chain.doFilter(request, response);
+
+                        } else {
+
+                            String message = "Missing contact info for user "
+                                    + userName
+                                    + " in crop database "
+                                    + gobiiCropType
+                                    + "; a contact record must have username = "
+                                    + userName;
+
+                            ControllerUtils.writeRawResponse(httpResponse,HttpServletResponse.SC_FORBIDDEN,message);
+
+                            LOGGER.error(message);
+                        }
 
                     } else {
                         httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -111,7 +129,7 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
             } else {
 
                 httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                LOGGER.error("Unable to proceed with authentication: no crop type could be derived from the request");
+                LOGGER.error("Unable to proceed with authentication: no crop type could be derived from the request url");
 
             } // if-else crop type could not be found
 
@@ -119,7 +137,7 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
 
             LOGGER.error("Error in authentication filter", e);
 
-            if( httpResponse != null ) {
+            if (httpResponse != null) {
                 httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         }
@@ -133,10 +151,9 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
                                           String token) throws Exception {
 
 
-        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_TOKEN, token);
-        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_GOBII_CROP, gobiiCropType);
-        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_USERNAME, userName);
-
+        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_NAME_TOKEN, token);
+        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_NAME_GOBII_CROP, gobiiCropType);
+        httpResponse.setHeader(GobiiHttpHeaderNames.HEADER_NAME_USERNAME, userName);
 
 
     }
@@ -165,7 +182,7 @@ public final class TokenAuthenticationFilter extends GenericFilterBean {
 
     private void checkLogout(HttpServletRequest httpRequest) {
         if (currentLink(httpRequest).equals(logoutLink)) {
-            String token = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_TOKEN);
+            String token = httpRequest.getHeader(GobiiHttpHeaderNames.HEADER_NAME_TOKEN);
             // we go here only authenticated, token must not be null
             authenticationService.logout(token);
         }

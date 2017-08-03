@@ -27,9 +27,10 @@ public interface RsMarkerGroupDao {
 
     void updateMarkerGroup(Map<String, Object> parameters) throws GobiiDaoException;
 
+    void updateMarkerGroupName(Map<String, Object> parameters) throws GobiiDaoException;
 
     ResultSet getMarkersForMarkerGroup(Integer markerGroupId) throws GobiiDaoException;
 
-
+    ResultSet getMarkersByMarkerAndPlatformName(String markerName, String platformName) throws GobiiDaoException;
 
 }

@@ -1,7 +1,5 @@
 package org.gobiiproject.gobiimodel.headerlesscontainer;
 
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
-
 /**
  * Created by Phil on 4/8/2016.
  */

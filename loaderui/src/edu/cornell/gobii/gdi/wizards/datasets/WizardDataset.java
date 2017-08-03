@@ -4,10 +4,12 @@ import java.io.File;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.Wizard;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.gobiiproject.gobiiapimodel.restresources.gobii.GobiiUriFactory;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiFileColumn;
 import org.gobiiproject.gobiimodel.dto.instructions.loader.GobiiLoaderInstruction;
@@ -30,19 +32,23 @@ public class WizardDataset extends Wizard {
 	private static Logger log = Logger.getLogger(WizardDataset.class.getName());
 	private String config;
 	private DTOdataset dto = new DTOdataset();
+	private int piID;
+	private int projectID;
+	private int experimentID;
+	private int datasetID;
 
 	public WizardDataset(String config, int piID, int projectID, int experimentID, int datasetID) {
 		setWindowTitle("New Wizard");
 		this.config = config;
-		dto.setPiId(piID);
-		dto.setProjectID(projectID);
-		dto.setExperimentID(experimentID);
-		dto.setDatasetID(datasetID);
+		this.piID=piID;
+		this.projectID = projectID;
+		this.experimentID = experimentID;
+		this.datasetID = datasetID;
 	}
 
 	@Override
 	public void addPages() {
-		addPage(new Page1Datasets(config, dto, dto.getPiId(), dto.getProjectID(), dto.getExperimentID(), dto.getDatasetID()));
+		addPage(new Page1Datasets(config, dto, piID, projectID, experimentID, datasetID));
 		addPage(new Pg2Markers(config, dto.getDtoMarkers()));
 		addPage(new Pg3Markers(config, dto.getDtoMarkers()));
 		addPage(new Pg2DNAsamples(config, dto.getDtoSamples()));
@@ -53,6 +59,7 @@ public class WizardDataset extends Wizard {
 	@Override
 	public boolean performFinish() {
 		try{
+			
 //			String folder = WizardUtils.generateSourceFolder();
 //			if(!dto.isRemote()){
 ////			if((dto.getFile().getSource() == null || dto.gz`etFile().getSource().isEmpty()) && dto.getFiles().size() > 0){
@@ -76,6 +83,7 @@ public class WizardDataset extends Wizard {
 //			dto.getDtoMarkers().setFile(dto.getFile());
 //			dto.getDtoSamples().setFile(dto.getFile());
 			
+			
 			String folder = new File(dto.getPreviewDTO().getDirectoryName()).getName();
 			if(folder != null || !folder.isEmpty()){
 				WizardUtils.createInstructionsForWizard(folder, dto);
@@ -85,6 +93,7 @@ public class WizardDataset extends Wizard {
 			}
 			
 			LoaderInstructionFilesDTO instructions = null;
+			Utils.setMarkerAndSampleDTOfromDSDTO(dto);
 			if(dto.getTemplate() != null){
 				instructions = WizardUtils.loadTemplate(dto.getTemplate());
 				if(!WizardUtils.createMarkerInstructionsFromTemplate(getShell(), instructions, dto.getDtoMarkers(), folder)){
@@ -105,28 +114,30 @@ public class WizardDataset extends Wizard {
 				// 		   but has null values. This is because WizardUtils.createInstructionsForWizard() 
 				//         sets the values for the DTOdataset's file, but does not set those of the DTOdataset
 				//         marker. Ideally, this should be done in createInstructionsForWizard(). However, 
-				//         I have no idea what the implications of that kind of change would be. 
+				//         I have no idea what the implications of that kind of change would be.
 				dto.getDtoMarkers().setFile(dto.getFile());
-				
 				WizardUtils.createMarkerInstructionsFromDTO(getShell(), instructions, dto.getDtoMarkers(), folder, true);
-				if(dto.getDtoMarkers().getDsMarkerFields().size() > 0){
+				if(dto.getDtoMarkers().getDsMarkerFields().size() > 0){	
 					GobiiLoaderInstruction instDSmarker = new GobiiLoaderInstruction();
 					Utils.setDSInstructionFileDetails(instDSmarker, dto);
 					instDSmarker.setTable("dataset_marker");
 					instDSmarker.setGobiiFile(dto.getFile());
 					instDSmarker.setGobiiFile(dto.getFile());
+					
 					// add platform_id
 					GobiiFileColumn colPlatform = new GobiiFileColumn();
 					colPlatform.setName("platform_id");
 					colPlatform.setGobiiColumnType(GobiiColumnType.CONSTANT);
 					colPlatform.setConstantValue(dto.getPlatformID().toString());
-					instDSmarker.getGobiiFileColumns().add(colPlatform);
-					// add dataset_id
+					instDSmarker.getGobiiFileColumns().add(colPlatform); 
+					// add dataset_id 
+					
 					GobiiFileColumn colDS = new GobiiFileColumn();
 					colDS.setName("dataset_id");
 					colDS.setGobiiColumnType(GobiiColumnType.CONSTANT);
 					colDS.setConstantValue(dto.getDatasetID().toString());
 					instDSmarker.getGobiiFileColumns().add(colDS);
+					
 					for(Entry<String, GobiiFileColumn> entry : dto.getDtoMarkers().getDsMarkerFields().entrySet()){
 						GobiiFileColumn column = entry.getValue();
 						if(column == null) continue;
@@ -138,15 +149,17 @@ public class WizardDataset extends Wizard {
 						}
 						instDSmarker.getGobiiFileColumns().add(column);
 					}
+					
 					GobiiFileColumn colIdx = new GobiiFileColumn();
 					colIdx.setName("marker_idx");
 					colIdx.setGobiiColumnType(GobiiColumnType.AUTOINCREMENT);
+					
 					instDSmarker.getGobiiFileColumns().add(colIdx);
 					instDSmarker.setDataSetId(dto.getDatasetID());
-
+					instDSmarker.setQcCheck(false);
 					instDSmarker.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 					instDSmarker.setContactId(App.INSTANCE.getUser().getUserId());
-					instDSmarker.setGobiiCropType(ClientContext.getInstance(null, false).getCurrentClientCropType());
+					instDSmarker.setGobiiCropType(GobiiClientContext.getInstance(null, false).getCurrentClientCropType());
 					instructions.getGobiiLoaderInstructions().add(instDSmarker);
 				}
 
@@ -158,12 +171,14 @@ public class WizardDataset extends Wizard {
 					Utils.setDSInstructionFileDetails(instDSrun, dto);
 					instDSrun.setTable("dataset_dnarun");
 					instDSrun.setGobiiFile(dto.getFile());
+					
 					// add platform_id
 					GobiiFileColumn colExperiment = new GobiiFileColumn();
 					colExperiment.setName("experiment_id");
 					colExperiment.setGobiiColumnType(GobiiColumnType.CONSTANT);
 					colExperiment.setConstantValue(dto.getExperimentID().toString());
 					instDSrun.getGobiiFileColumns().add(colExperiment);
+					
 					// add dataset_id
 					GobiiFileColumn colDS = new GobiiFileColumn();
 					colDS.setName("dataset_id");
@@ -191,11 +206,13 @@ public class WizardDataset extends Wizard {
 					colIdx.setName("dnarun_idx");
 					colIdx.setGobiiColumnType(GobiiColumnType.AUTOINCREMENT);
 					instDSrun.getGobiiFileColumns().add(colIdx);
+					instDSrun.setQcCheck(false);
 					instDSrun.setDataSetId(dto.getDatasetID());
 					instDSrun.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 					instDSrun.setContactId(App.INSTANCE.getUser().getUserId());
-					instDSrun.setGobiiCropType(ClientContext.getInstance(null, false).getCurrentClientCropType());
+					instDSrun.setGobiiCropType(GobiiClientContext.getInstance(null, false).getCurrentClientCropType());
 					instructions.getGobiiLoaderInstructions().add(instDSrun);
+					
 					// remove DNArun if needed
 					boolean hasSample = false;
 					boolean hasNum = false;
@@ -220,10 +237,11 @@ public class WizardDataset extends Wizard {
 
 				if(dto.getcCoord() > -1 && dto.getrCoord() > -1){
 					GobiiLoaderInstruction instDataset = new GobiiLoaderInstruction();
-					instDataset.setQcCheck(dto.isQcCheck());
 					Utils.setDSInstructionFileDetails(instDataset, dto);
+					
 					instDataset.setTable("matrix");
 					instDataset.setGobiiFile(dto.getFile());
+					
 					GobiiFileColumn colDataset = new GobiiFileColumn();
 					colDataset.setName("matrix");
 					colDataset.setGobiiColumnType(GobiiColumnType.CSV_BOTH);
@@ -231,11 +249,13 @@ public class WizardDataset extends Wizard {
 					colDataset.setCCoord(dto.getcCoord());
 					colDataset.setRCoord(dto.getrCoord());
 					colDataset.setDataSetType(DataSetType.valueOf(dto.getDatasetType().toUpperCase()));
+					
 					instDataset.getGobiiFileColumns().add(colDataset);
 					instDataset.setDataSetId(dto.getDatasetID());
+					instDataset.setQcCheck(dto.isQcCheck());
 					instDataset.setContactEmail(App.INSTANCE.getUser().getUserEmail());
 					instDataset.setContactId(App.INSTANCE.getUser().getUserId());
-					instDataset.setGobiiCropType(ClientContext.getInstance(null, false).getCurrentClientCropType());
+					instDataset.setGobiiCropType(GobiiClientContext.getInstance(null, false).getCurrentClientCropType());
 					instructions.getGobiiLoaderInstructions().add(instDataset);
 				}
 			}
@@ -243,7 +263,9 @@ public class WizardDataset extends Wizard {
 			if(WizardUtils.confirm("Do you want to submit Instructions?")){
 				try {
 					PayloadEnvelope<LoaderInstructionFilesDTO> payloadEnvelope = new PayloadEnvelope<>(instructions, GobiiProcessType.CREATE);
-					GobiiEnvelopeRestResource<LoaderInstructionFilesDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_FILE_LOAD_INSTRUCTIONS));
+					 String currentCropContextRoot = GobiiClientContext.getInstance(null, false).getCurrentCropContextRoot();
+				        GobiiUriFactory gobiiUriFactory = new GobiiUriFactory(currentCropContextRoot);
+					GobiiEnvelopeRestResource<LoaderInstructionFilesDTO> restResource = new GobiiEnvelopeRestResource<>(gobiiUriFactory.resourceColl(GobiiServiceRequestId.URL_FILE_LOAD_INSTRUCTIONS));
 					PayloadEnvelope<LoaderInstructionFilesDTO> loaderInstructionFileDTOResponseEnvelope = restResource.post(LoaderInstructionFilesDTO.class,
 							payloadEnvelope);
 					if(!Controller.getDTOResponse(this.getShell(), loaderInstructionFileDTOResponseEnvelope.getHeader(), null, true)){

@@ -473,6 +473,17 @@ export class StatusDisplayTreeComponent implements OnInit, OnChanges {
                 treeNode.collapsedIcon = "fa-file-excel-o";
             }
 
+        } else if (entityType === EntityType.MarkerGroups) {
+
+            // if (isParent) {
+                treeNode.icon = "fa-pencil";
+                treeNode.expandedIcon = "fa-pencil";
+                treeNode.collapsedIcon = "fa-pencil";
+            // } else {
+            //     treeNode.icon = "fa-map-marker";
+            //     treeNode.expandedIcon = "fa-map-marker";
+            //     treeNode.collapsedIcon = "fa-map-marker";
+            // }
         }
     }
 

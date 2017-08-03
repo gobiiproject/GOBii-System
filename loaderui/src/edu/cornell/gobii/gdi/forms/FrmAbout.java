@@ -5,6 +5,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
@@ -56,7 +57,9 @@ public class FrmAbout extends Composite {
 		
 		group = new Group(this, SWT.NONE);
 		group.setLayout(new GridLayout(2, false));
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		GridData gd_group = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_group.heightHint = 54;
+		group.setLayoutData(gd_group);
 		formToolkit.adapt(group);
 		formToolkit.paintBordersFor(group);
 		
@@ -73,6 +76,10 @@ public class FrmAbout extends Composite {
 		
 		lblServerversion = new Label(group, SWT.NONE);
 		formToolkit.adapt(lblServerversion, true, true);
+		
+		Browser browser = new Browser(this, SWT.NONE);
+		browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1));
+		browser.setUrl("http://cbsugobii05.tc.cornell.edu:6084/display/GDocs/About+GOBII");
 		createContent();
 	}
 	

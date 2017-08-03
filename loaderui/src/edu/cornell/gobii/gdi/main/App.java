@@ -25,8 +25,9 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.io.FileUtils;
-import org.gobiiproject.gobiiapimodel.restresources.UriFactory;
-import org.gobiiproject.gobiiclient.core.common.ClientContext;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 
 
 /**
@@ -80,8 +81,9 @@ public class App {
 
 	public static App INSTANCE = new App();
 
-	@XmlTransient
-    private UriFactory uriFactory;
+	//
+//	@XmlTransient
+//    private UriFactory uriFactory;
 
     @XmlElement(required = true)
     @XmlSchemaType(name = "anyURI")
@@ -173,36 +175,36 @@ public class App {
      *     {@link String }
      *     
      */
-    public void setCrop(String value) {
-        this.crop = value;
-		String currentCropContextRoot = null;
-		try {
-			if(crop != null){
-				ClientContext.getInstance(null, false).setCurrentClientCrop(crop);
-				currentCropContextRoot = ClientContext.getInstance(null, false).getCurrentCropContextRoot();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        uriFactory = new UriFactory(currentCropContextRoot);
-    }
-
-    public UriFactory getUriFactory() throws Exception {
-    	
-    	if( this.uriFactory == null ) {
-    		
-    		if( ( this.crop != null ) && (this.crop.length() > 0 )  ) {
-    			
-    			this.setCrop(this.getCrop());
-    			
-    		} else {
-    			throw new Exception("Unable to create UriFactory: there is no crop selected");
-    		}
-    		
-    	}
-    	
-    	return this.uriFactory;
-    }
+//    public void setCrop(String value) {
+//        this.crop = value;
+//		String currentCropContextRoot = null;
+//		try {
+//			if(crop != null){
+//				GobiiClientContext.getInstance(null, false).setCurrentClientCrop(crop);
+//				currentCropContextRoot = GobiiClientContext.getInstance(null, false).getCurrentCropContextRoot();
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//        uriFactory = new UriFactory(currentCropContextRoot);
+//    }
+//
+//    public UriFactory getUriFactory() throws Exception {
+//    	
+//    	if( this.uriFactory == null ) {
+//    		
+//    		if( ( this.crop != null ) && (this.crop.length() > 0 )  ) {
+//    			
+//    			this.setCrop(this.getCrop());
+//    			
+//    		} else {
+//    			throw new Exception("Unable to create UriFactory: there is no crop selected");
+//    		}
+//    		
+//    	}
+//    	
+//    	return this.uriFactory;
+//    }
     
     /**
      * Gets the value of the user property.
@@ -393,6 +395,11 @@ public class App {
          *     
          */
         public String getUserEmail() {
+        	if(userEmail == null || userEmail.isEmpty()){
+    			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error sending instruction files", "Email is null.\n\n This application will close. Please login again.");
+    			System.exit(0);
+    		}
+
             return userEmail;
         }
 

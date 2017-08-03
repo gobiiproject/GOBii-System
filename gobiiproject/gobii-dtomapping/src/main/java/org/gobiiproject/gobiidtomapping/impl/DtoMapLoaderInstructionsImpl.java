@@ -1,9 +1,8 @@
 package org.gobiiproject.gobiidtomapping.impl;
 
 import org.gobiiproject.gobiidao.GobiiDaoException;
-import org.gobiiproject.gobiidao.filesystem.LoaderInstructionsDAO;
+import org.gobiiproject.gobiidao.filesystem.access.InstructionFileAccess;
 import org.gobiiproject.gobiidtomapping.*;
-import org.gobiiproject.gobiidtomapping.impl.DtoMapNameIds.DtoMapNameIdFetchVendorProtocols;
 import org.gobiiproject.gobiimodel.config.ConfigSettings;
 import org.gobiiproject.gobiimodel.config.GobiiException;
 import org.gobiiproject.gobiimodel.headerlesscontainer.*;
@@ -18,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Phil on 4/12/2016.
@@ -30,9 +27,6 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
     Logger LOGGER = LoggerFactory.getLogger(DtoMapLoaderInstructionsImpl.class);
 
     private final String INSTRUCTION_FILE_EXT = ".json";
-
-    @Autowired
-    private LoaderInstructionsDAO loaderInstructionsDAO;
 
     @Autowired
     DtoMapExperiment dtoMapExperiment;
@@ -49,32 +43,22 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
     @Autowired
     DtoMapProtocol dtoMapProtocol;
 
+    private InstructionFileAccess<List<GobiiLoaderInstruction>> instructionFileAccess = new InstructionFileAccess<>(GobiiLoaderInstruction.class);
+
 
     private void createDirectories(String instructionFileDirectory,
                                    GobiiFile gobiiFile) throws GobiiDaoException {
 
 
         if (null != instructionFileDirectory) {
-            if (!loaderInstructionsDAO.doesPathExist(instructionFileDirectory)) {
-                loaderInstructionsDAO.makeDirectory(instructionFileDirectory);
-            } else {
-                loaderInstructionsDAO.verifyDirectoryPermissions(instructionFileDirectory);
-            }
+            instructionFileAccess.createDirectory(instructionFileDirectory);
         }
 
         if (gobiiFile.isCreateSource()) {
-            if (!loaderInstructionsDAO.doesPathExist(gobiiFile.getSource())) {
-                loaderInstructionsDAO.makeDirectory(gobiiFile.getSource());
-            } else {
-                loaderInstructionsDAO.verifyDirectoryPermissions(gobiiFile.getSource());
-            }
+            instructionFileAccess.createDirectory(gobiiFile.getSource());
         }
 
-        if (!loaderInstructionsDAO.doesPathExist(gobiiFile.getDestination())) {
-            loaderInstructionsDAO.makeDirectory(gobiiFile.getDestination());
-        } else {
-            loaderInstructionsDAO.verifyDirectoryPermissions(gobiiFile.getDestination());
-        }
+        instructionFileAccess.createDirectory(gobiiFile.getDestination());
 
     } // createDirectories()
 
@@ -101,8 +85,6 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
             }
 
             String instructionFileDirectory = configSettings.getProcessingPath(cropType, GobiiFileProcessDir.LOADER_INSTRUCTIONS);
-//                .getCropConfig(cropType)
-//                .getLoaderInstructionFilesDirectory();
 
             String instructionFileFqpn = instructionFileDirectory
                     + loaderInstructionFilesDTO.getInstructionFileName()
@@ -144,7 +126,7 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
 
                 if (currentGobiiFile.isRequireDirectoriesToExist()) {
 
-                    if (!loaderInstructionsDAO.doesPathExist(currentGobiiFile.getSource())) {
+                    if (!instructionFileAccess.doesPathExist(currentGobiiFile.getSource())) {
                         throw new GobiiDtoMappingException(GobiiStatusLevel.VALIDATION,
                                 GobiiValidationStatusType.ENTITY_DOES_NOT_EXIST,
                                 "require-to-exist was set to true, but the source file path does not exist: "
@@ -152,7 +134,7 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
 
                     }
 
-                    if (!loaderInstructionsDAO.doesPathExist(currentGobiiFile.getDestination())) {
+                    if (!instructionFileAccess.doesPathExist(currentGobiiFile.getDestination())) {
                         throw new GobiiDtoMappingException(GobiiStatusLevel.VALIDATION,
                                 GobiiValidationStatusType.ENTITY_DOES_NOT_EXIST,
                                 "require-to-exist was set to true, but the source file path does not exist: "
@@ -167,21 +149,21 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
                 //validate loader instruction
 
                 // check if the dataset is referenced by the specified experiment
-                if(currentLoaderInstruction.getDataSet().getId() != null) {
+                if (currentLoaderInstruction.getDataSet().getId() != null) {
 
                     DataSetDTO dataSetDTO = dtoMapDataSet.getDataSetDetails(currentLoaderInstruction.getDataSet().getId());
 
                     // check if the experiment is referenced by the specified project
-                    if(currentLoaderInstruction.getExperiment().getId() != null) {
+                    if (currentLoaderInstruction.getExperiment().getId() != null) {
 
-                        if(!dataSetDTO.getExperimentId().equals(currentLoaderInstruction.getExperiment().getId())){
+                        if (!dataSetDTO.getExperimentId().equals(currentLoaderInstruction.getExperiment().getId())) {
 
                             throw new GobiiDtoMappingException("The specified experiment in the dataset is incorrect");
                         }
 
                         ExperimentDTO experimentDTO = dtoMapExperiment.getExperimentDetails(currentLoaderInstruction.getExperiment().getId());
 
-                        if(!experimentDTO.getProjectId().equals(currentLoaderInstruction.getProject().getId())){
+                        if (!experimentDTO.getProjectId().equals(currentLoaderInstruction.getProject().getId())) {
 
                             throw new GobiiDtoMappingException("The specified project in the experiment is incorrect");
 
@@ -190,9 +172,9 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
                     }
 
                     // check if the datatype is referenced by the dataset
-                    if(currentLoaderInstruction.getDatasetType().getId() != null) {
+                    if (currentLoaderInstruction.getDatasetType().getId() != null) {
 
-                        if(!dataSetDTO.getTypeId().equals(currentLoaderInstruction.getDatasetType().getId())){
+                        if (!dataSetDTO.getTypeId().equals(currentLoaderInstruction.getDatasetType().getId())) {
 
                             throw new GobiiDtoMappingException("The specified data type in the dataset is incorrect");
 
@@ -203,27 +185,27 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
                 }
 
 
-                if(currentLoaderInstruction.getPlatform().getId() != null) {
+                if (currentLoaderInstruction.getPlatform().getId() != null) {
 
                     ExperimentDTO experimentDTO = dtoMapExperiment.getExperimentDetails(currentLoaderInstruction.getExperiment().getId());
 
-                    if(experimentDTO.getVendorProtocolId() != null) {
+                    if (experimentDTO.getVendorProtocolId() != null) {
 
                         VendorProtocolDTO vendorProtocolDTO = dtoMapProtocol.getVendorProtocolByVendorProtocolId(experimentDTO.getVendorProtocolId());
 
-                        if(vendorProtocolDTO.getProtocolId() != null) {
+                        if (vendorProtocolDTO.getProtocolId() != null) {
 
                             ProtocolDTO protocolDTO = dtoMapProtocol.getProtocolDetails(vendorProtocolDTO.getProtocolId());
 
-                            if(protocolDTO.getPlatformId() != null) {
+                            if (protocolDTO.getPlatformId() != null) {
 
-                                 Integer loaderPlatformId = currentLoaderInstruction.getPlatform().getId();
+                                Integer loaderPlatformId = currentLoaderInstruction.getPlatform().getId();
 
-                                 if(!loaderPlatformId.equals(protocolDTO.getPlatformId())){
+                                if (!loaderPlatformId.equals(protocolDTO.getPlatformId())) {
 
-                                     throw new GobiiDtoMappingException("The specified platform in the experiment is incorrect");
+                                    throw new GobiiDtoMappingException("The specified platform in the experiment is incorrect");
 
-                                 }
+                                }
 
                             }
 
@@ -245,7 +227,7 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
                 } else {
 
                     // it's supposed to exist, so we check
-                    if (loaderInstructionsDAO.doesPathExist(currentGobiiFile.getSource())) {
+                    if (instructionFileAccess.doesPathExist(currentGobiiFile.getSource())) {
 
                         createDirectories(instructionFileDirectory,
                                 currentGobiiFile);
@@ -262,9 +244,9 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
 
             } // iterate instructions/files
 
-
-            loaderInstructionsDAO.writeInstructions(instructionFileFqpn,
+            instructionFileAccess.writeInstructions(instructionFileFqpn,
                     returnVal.getGobiiLoaderInstructions());
+
 
         } catch (GobiiException e) {
             throw e;
@@ -277,7 +259,7 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
     } // writeInstructions
 
     @Override
-    public LoaderInstructionFilesDTO getInstruction(String cropType, String instructionFileName) throws GobiiDtoMappingException{
+    public LoaderInstructionFilesDTO getInstruction(String cropType, String instructionFileName) throws GobiiDtoMappingException {
 
         LoaderInstructionFilesDTO returnVal = new LoaderInstructionFilesDTO();
 
@@ -288,12 +270,12 @@ public class DtoMapLoaderInstructionsImpl implements DtoMapLoaderInstructions {
                     + INSTRUCTION_FILE_EXT;
 
 
-            if (loaderInstructionsDAO.doesPathExist(instructionFile)) {
+            if (instructionFileAccess.doesPathExist(instructionFile)) {
 
-
+                InstructionFileAccess<GobiiLoaderInstruction> instructionFileAccessGobiiLoaderInstruction = new InstructionFileAccess<>(GobiiLoaderInstruction.class);
                 List<GobiiLoaderInstruction> instructions =
-                        loaderInstructionsDAO
-                                .getInstructions(instructionFile);
+                        instructionFileAccessGobiiLoaderInstruction.getInstructions(instructionFile,
+                                GobiiLoaderInstruction[].class);
 
                 if (null != instructions) {
                     returnVal.setInstructionFileName(instructionFileName);

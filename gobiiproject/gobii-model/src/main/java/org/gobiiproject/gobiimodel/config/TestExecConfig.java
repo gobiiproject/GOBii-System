@@ -41,6 +41,9 @@ public class TestExecConfig {
     @Element(required = false)
     private boolean decrypt = false;
 
+    @Element(required = false)
+    private String testFileDownloadDirectory = null;
+
     public String getTestCrop() {
         return testCrop;
     }
@@ -153,4 +156,13 @@ public class TestExecConfig {
     public void setDecrypt(boolean decrypt) {
         this.decrypt = decrypt;
     }
+
+    public String getTestFileDownloadDirectory() {
+        return testFileDownloadDirectory;
+    }
+
+    public void setTestFileDownloadDirectory(String testFileDownloadDirectory) {
+        this.testFileDownloadDirectory = testFileDownloadDirectory;
+    }
+
 }

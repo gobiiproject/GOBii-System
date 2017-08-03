@@ -1,10 +1,8 @@
 package org.gobiiproject.gobiimodel.headerlesscontainer;
 
-import org.gobiiproject.gobiimodel.tobemovedtoapimodel.Header;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityColumn;
 import org.gobiiproject.gobiimodel.dto.annotations.GobiiEntityParam;
 import org.gobiiproject.gobiimodel.entity.TableColDisplay;
-import org.gobiiproject.gobiimodel.types.GobiiProcessType;
 
 import java.util.Date;
 import java.util.HashMap;

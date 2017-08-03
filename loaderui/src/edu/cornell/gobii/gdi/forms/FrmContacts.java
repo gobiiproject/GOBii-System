@@ -11,8 +11,9 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.ContactDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
@@ -46,7 +47,9 @@ public class FrmContacts extends AbstractFrm {
 	private Table tbRoles;
 	private Combo comboOrganization;
 	private String selectedContactEmail = "";
-	private Integer selectedContactId;
+	private Integer selectedContactId=0;
+	private Text txtUsername;
+	private Button btnAddNew;
 
 	/**
 	 * Create the composite.
@@ -72,6 +75,13 @@ public class FrmContacts extends AbstractFrm {
 
 		txtFirstName = new Text(cmpForm, SWT.BORDER);
 		txtFirstName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblUsername = new Label(cmpForm, SWT.NONE);
+		lblUsername.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblUsername.setText("*User Name:");
+		
+		txtUsername = new Text(cmpForm, SWT.BORDER);
+		txtUsername.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label lblCode = new Label(cmpForm, SWT.NONE);
 		lblCode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -111,7 +121,7 @@ public class FrmContacts extends AbstractFrm {
 		tblclmnRoles.setText("Roles");
 		new Label(cmpForm, SWT.NONE);
 
-		Button btnAddNew = new Button(cmpForm, SWT.NONE);
+		btnAddNew = new Button(cmpForm, SWT.NONE);
 		btnAddNew.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -126,6 +136,7 @@ public class FrmContacts extends AbstractFrm {
 					String email = txtEmail.getText().substring(0, txtEmail.getText().indexOf("@"));
 					String lastname = txtLastName.getText().replaceAll(" ", "_");
 					String firstname = txtFirstName.getText().replaceAll(" ", "_");
+					contactDTORequest.setUserName(txtUsername.getText());
 					contactDTORequest.setCode(email + "_" + lastname + "_" + firstname);
 					contactDTORequest.setCreatedBy(1);
 					contactDTORequest.setModifiedBy(1);
@@ -146,12 +157,13 @@ public class FrmContacts extends AbstractFrm {
 					try {
 						PayloadEnvelope<ContactDTO> payloadEnvelope = new PayloadEnvelope<>(contactDTORequest,
 								GobiiProcessType.CREATE);
-						GobiiEnvelopeRestResource<ContactDTO> restResource = new GobiiEnvelopeRestResource<>(App.INSTANCE.getUriFactory().resourceColl(ServiceRequestId.URL_CONTACTS));
+						GobiiEnvelopeRestResource<ContactDTO> restResource = new GobiiEnvelopeRestResource<>(GobiiClientContext.getInstance(null, false).getUriFactory().resourceColl(GobiiServiceRequestId.URL_CONTACTS));
 						PayloadEnvelope<ContactDTO> contactDTOResponseEnvelope = restResource.post(ContactDTO.class,
 								payloadEnvelope);
 						if (Controller.getDTOResponse(shell, contactDTOResponseEnvelope.getHeader(), memInfo, true)) {
 							selectedContactId = contactDTOResponseEnvelope.getPayload().getData().get(0).getContactId();
 							selectedContactEmail = txtEmail.getText();
+							txtCode.setText(contactDTOResponseEnvelope.getPayload().getData().get(0).getCode());
 							if (cbList.getSelectionIndex() < 0){
 								displayAllContacts();
 							}
@@ -192,6 +204,7 @@ public class FrmContacts extends AbstractFrm {
 					String email = txtEmail.getText().substring(0, txtEmail.getText().indexOf("@"));
 					String lastname = txtLastName.getText().replaceAll(" ", "_");
 					String firstname = txtFirstName.getText().replaceAll(" ", "_");
+					contactDTORequest.setUserName(txtUsername.getText());
 					contactDTORequest.setCode(email + "_" + lastname + "_" + firstname);
 					contactDTORequest.setCreatedBy(1);
 					contactDTORequest.setModifiedBy(1);
@@ -209,7 +222,7 @@ public class FrmContacts extends AbstractFrm {
 						}
 					}
 					try {
-						RestUri restUriContact = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_CONTACTS);
+						RestUri restUriContact = GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_CONTACTS);
 						restUriContact.setParamValue("id", Integer.toString(selectedContactId));
 						GobiiEnvelopeRestResource<ContactDTO> restResourceContactById = new GobiiEnvelopeRestResource<>(restUriContact);
 						restResourceContactById.setParamValue("id", contactDTORequest.getContactId().toString());
@@ -223,7 +236,7 @@ public class FrmContacts extends AbstractFrm {
 							else{
 								populateContactFromSelectedRole(cbList.getText());
 							}
-
+							txtCode.setText(contactDTOResponseEnvelopeUpdate.getPayload().getData().get(0).getCode());
 							FormUtils.selectRowById(tbList, selectedContactId);
 						}
 						;
@@ -244,6 +257,7 @@ public class FrmContacts extends AbstractFrm {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				cleanDetails();
+//				selectedContactId = 0;
 			}
 		});
 		btnClearFields.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -275,7 +289,7 @@ public class FrmContacts extends AbstractFrm {
 	protected void populateContactDetails(Integer contactId) {
 		try {
 			cleanDetails();
-			RestUri restUriContact = App.INSTANCE.getUriFactory().resourceByUriIdParam(ServiceRequestId.URL_CONTACTS);
+			RestUri restUriContact = GobiiClientContext.getInstance(null, false).getUriFactory().resourceByUriIdParam(GobiiServiceRequestId.URL_CONTACTS);
 			restUriContact.setParamValue("id", Integer.toString(contactId));
 			GobiiEnvelopeRestResource<ContactDTO> restResource = new GobiiEnvelopeRestResource<>(restUriContact);
 			PayloadEnvelope<ContactDTO> resultEnvelope = restResource.get(ContactDTO.class);
@@ -285,6 +299,7 @@ public class FrmContacts extends AbstractFrm {
 					ContactDTO contactDTO = resultEnvelope.getPayload().getData().get(0);
 					txtLastName.setText(contactDTO.getLastName());
 					txtFirstName.setText(contactDTO.getFirstName());
+					txtUsername.setText(contactDTO.getUserName());
 					txtCode.setText(contactDTO.getCode());
 					selectedContactEmail = contactDTO.getEmail();
 					txtEmail.setText(contactDTO.getEmail());
@@ -334,6 +349,7 @@ public class FrmContacts extends AbstractFrm {
 				try {
 					String selected = cbList.getText(); // single selection
 					populateContactsFromSelectedRole(selected);
+					selectedContactId = 0;
 				} catch (Exception err) {
 					Utils.log(shell, memInfo, log, "Error retrieving contacts", err);
 				}
@@ -362,11 +378,13 @@ public class FrmContacts extends AbstractFrm {
 					populateContactsFromSelectedRole(cbList.getText());
 					FormUtils.entrySetToComboSelectId(Controller.getRoleNames(), cbList, id);
 				} else {
+					selectedContactId = 0;
 					FormUtils.entrySetToCombo(Controller.getRoleNames(), cbList);
 					cbList.setText("Select Contact Type");
 					FormUtils.entrySetToTable(Controller.getContactNames(), tbList);
 				}
 				cleanDetails();
+				populateOrganizationCombo(comboOrganization);
 			}
 		});
 	}
@@ -395,12 +413,12 @@ public class FrmContacts extends AbstractFrm {
 			txtFirstName.setText("");
 			txtCode.setText("");
 			txtEmail.setText("");
+			txtUsername.setText("");
 			selectedContactEmail = "";
 			comboOrganization.deselectAll();
 			for (TableItem item : tbRoles.getItems()) {
 				item.setChecked(false);
 			}
-			selectedContactId = -1;
 		} catch (Exception e) {
 			Utils.log(shell, memInfo, log, "Error clearing fields", e);
 		}
@@ -416,13 +434,16 @@ public class FrmContacts extends AbstractFrm {
 		} else if (txtFirstName.getText().isEmpty()) {
 			successful = false;
 			message = "Firstname is a required field!";
+		} else if (txtUsername.getText().isEmpty()) {
+			successful = false;
+			message = "User name is a required field!";
 		} else if (txtEmail.getText().isEmpty()) {
 			successful = false;
 			message = "Email is a required field!";
 		} else if (!txtEmail.getText().contains("@") || !txtEmail.getText().contains(".")) {
 			successful = false;
 			message = "Incorrect Email format, please check and correct!";
-		} else if (!isNew && selectedContactId < 0) {
+		} else if (!isNew && selectedContactId <= 0) {
 			message = "Your entry is recognized as a new value. Please use Add instead.";
 			successful = false;
 		} else if (!Controller.isNewContactEmail(txtEmail.getText())) {

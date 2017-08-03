@@ -1,6 +1,8 @@
 package org.gobiiproject.gobiimodel.utils.email;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MailMessage{
 	
@@ -10,6 +12,7 @@ public class MailMessage{
 	private String header;
 	private String footer;
 	private String img = "GobiiWebImg.png"; // Note: This is full sized logo from the main page
+	private List<String> fileAttachments = new ArrayList();
 	
 	MailMessage(){
 		header = "<b><i>"+getHeaderSalutation()+"</i></b></br><br/> Here is a summary of your transaction: ";
@@ -77,6 +80,13 @@ public class MailMessage{
 	
 	public MailMessage setBody(String body){
 		this.body = body;
+		return this;
+	}
+
+	public List<String> getFileAttachments() { return fileAttachments;}
+
+	public MailMessage setFileAttachments(List<String> fileAttachments) {
+		this.fileAttachments = fileAttachments;
 		return this;
 	}
 }

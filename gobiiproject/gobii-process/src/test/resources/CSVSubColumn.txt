@@ -1,0 +1,6 @@
+constantName	AutoIncrement
+0	0marker_name
+0	1dnarunname_dom_1
+0	2dnarunname_dom_2
+0	3dnarunname_dom_3
+0	4dnarunname_dom_4

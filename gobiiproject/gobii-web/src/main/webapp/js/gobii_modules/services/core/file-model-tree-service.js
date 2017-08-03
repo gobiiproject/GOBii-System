@@ -241,6 +241,11 @@ System.register(["@angular/core", "../../model/file-model-tree-event", "../../mo
                                 .setEntityName(entity_labels_1.Labels.instance().treeExtractorTypeLabels[file_model_node_1.ExtractorItemType.MARKER_LIST_ITEM])
                                 .setCategoryName(entity_labels_1.Labels.instance().treeExtractorTypeLabels[file_model_node_1.ExtractorItemType.MARKER_LIST_ITEM])
                                 .setCardinality(file_model_node_1.CardinalityType.ONE_OR_MORE)
+                                .setRequired(false)).addChild(file_model_node_1.FileModelNode.build(file_model_node_1.ExtractorItemType.ENTITY, currentParent)
+                                .setCategoryType(file_model_node_1.ExtractorCategoryType.CONTAINER)
+                                .setEntityType(type_entity_1.EntityType.MarkerGroups)
+                                .setEntityName(entity_labels_1.Labels.instance().entityNodeLabels[type_entity_1.EntityType.MarkerGroups])
+                                .setCardinality(file_model_node_1.CardinalityType.ONE_OR_MORE)
                                 .setRequired(false)));
                         this.fileModelNodeTree
                             .set(type_extractor_filter_1.GobiiExtractFilterType.BY_MARKER, submissionItemsForByMarkers);

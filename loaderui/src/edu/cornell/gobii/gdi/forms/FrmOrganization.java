@@ -11,8 +11,9 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.gobiiproject.gobiiapimodel.payload.PayloadEnvelope;
-import org.gobiiproject.gobiiapimodel.restresources.RestUri;
-import org.gobiiproject.gobiiapimodel.types.ServiceRequestId;
+import org.gobiiproject.gobiiapimodel.restresources.common.RestUri;
+import org.gobiiproject.gobiiapimodel.types.GobiiServiceRequestId;
+import org.gobiiproject.gobiiclient.core.gobii.GobiiClientContext;
 import org.gobiiproject.gobiiclient.core.gobii.GobiiEnvelopeRestResource;
 import org.gobiiproject.gobiimodel.headerlesscontainer.OrganizationDTO;
 import org.gobiiproject.gobiimodel.types.GobiiProcessType;
@@ -89,9 +90,9 @@ public class FrmOrganization extends AbstractFrm {
 
 					try {
 						PayloadEnvelope<OrganizationDTO> payloadEnvelope = new PayloadEnvelope<>(organizationDTORequest, GobiiProcessType.CREATE);
-						GobiiEnvelopeRestResource<OrganizationDTO> restResource = new GobiiEnvelopeRestResource<>(App
-								.INSTANCE.getUriFactory()
-								.resourceColl(ServiceRequestId.URL_ORGANIZATION));
+						GobiiEnvelopeRestResource<OrganizationDTO> restResource = new GobiiEnvelopeRestResource<>( GobiiClientContext.getInstance(null, false)
+								.getUriFactory()
+								.resourceColl(GobiiServiceRequestId.URL_ORGANIZATION));
 						PayloadEnvelope<OrganizationDTO> organizationDTOResponseEnvelope = restResource.post(OrganizationDTO.class,
 								payloadEnvelope);
 
@@ -128,9 +129,8 @@ public class FrmOrganization extends AbstractFrm {
 					organizationDTORequest.setWebsite(txtWebsite.getText());
 					organizationDTORequest.setStatusId(1);
 					try {
-						RestUri restUriOrganizationForGetById = App
-								.INSTANCE.getUriFactory()
-								.resourceByUriIdParam(ServiceRequestId.URL_ORGANIZATION);
+						RestUri restUriOrganizationForGetById =  GobiiClientContext.getInstance(null, false).getUriFactory()
+								.resourceByUriIdParam(GobiiServiceRequestId.URL_ORGANIZATION);
 						restUriOrganizationForGetById.setParamValue("id", organizationDTORequest.getOrganizationId().toString());
 						GobiiEnvelopeRestResource<OrganizationDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriOrganizationForGetById);
 
@@ -187,6 +187,7 @@ public class FrmOrganization extends AbstractFrm {
 			public void widgetSelected(SelectionEvent e) {
 				populateOrganizationTable();
 				clearDetails();
+				currentOrganizationId=0;
 			}
 		});
 
@@ -205,9 +206,8 @@ public class FrmOrganization extends AbstractFrm {
 					OrganizationDTO organizationDTO = new OrganizationDTO();
 					organizationDTO.setOrganizationId(organizationId);
 					try {
-						RestUri restUriOrganizationForGetById = App
-								.INSTANCE.getUriFactory()
-								.resourceByUriIdParam(ServiceRequestId.URL_ORGANIZATION);
+						RestUri restUriOrganizationForGetById =  GobiiClientContext.getInstance(null, false).getUriFactory()
+								.resourceByUriIdParam(GobiiServiceRequestId.URL_ORGANIZATION);
 						restUriOrganizationForGetById.setParamValue("id", organizationId.toString());
 						GobiiEnvelopeRestResource<OrganizationDTO> restResourceForGetById = new GobiiEnvelopeRestResource<>(restUriOrganizationForGetById);
 						PayloadEnvelope<OrganizationDTO> resultEnvelopeForGetByID = restResourceForGetById
@@ -244,7 +244,6 @@ public class FrmOrganization extends AbstractFrm {
 
 	private void clearDetails(){
 		try{
-			currentOrganizationId=0;
 			txtName.setText("");
 			txtAddress.setText("");
 			txtWebsite.setText("");
